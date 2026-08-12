@@ -53,8 +53,20 @@
 
 - **Alchemy:** none. Not a medicinal mushroom, and inventing a use would be clutter.
 
-### ⏳ King Bolete
-Has *Bolete Fry* already. Its real distinction is that it **dries** better than any mushroom and gets *more* savoury for it — which is a mechanic that doesn't exist yet, and a reason `preserve` might finally earn a station. Decoy: bitter bolete ✅ *(painted, 3 shapes each)*.
+### ✅ King Bolete
+- **Is:** *Boletus edulis*, the cèpe — fat pale bulbous stalk with a fine net near the top, brown cap, cream pores. The meatiest mushroom there is.
+- **Season / terrain:** autumn only · wood. The **slowest-regrowing plant in the game** (0.06/h), so a bolete you take is one you won't see again soon.
+- **Decoy:** bitter bolete ✅ *(painted, 3 shapes each)* — the *pissacan*, which ruins a pot rather than killing you.
+- **Kitchen — two dishes:**
+
+  **Bolete Broth** · `one(cepe, boil)` + `one(bone, boil)` · *camp* · NEW
+  Upgrades *Bone Broth* the way the chanterelle upgrades the charred mushrooms. Deliberately not another stick-over-the-fire dish: a cepe's character is depth and savour, not char, and it makes an extraordinary dark stock. Also gives the bolete something to be at camp, since its existing dish needs the Village pan.
+  > The king of the wood boiled down with marrow bones. Dark as tea, and it warms you from the inside out.
+
+  **Bolete Fry** · `one(cepe, fry)` + `one(ramsons, fry)` · *village* · EXISTS
+  Worth knowing: cepes are autumn and ramsons is spring, so this can only be cooked by holding wild garlic from spring through to autumn. That's a *planned* dish rather than an impossible one (the larder keeps food), and arguably a nice one — but flag it if it ever reads as a bug.
+
+- **Alchemy:** none. It's food, and gloriously so.
 
 ### ⏳ Morel
 Has *Morel Cream*. Carries the never-raw rule already. Decoy: false morel *(unpainted)*.
@@ -109,6 +121,22 @@ Alchemy only, never food. Deliriant and visions, which speaks to the Chapter 2 m
 - **Guelder rose, honeysuckle berries** — redundant once danewort is the red-berry decoy.
 - **Pine nuts** — fiddly to gather, adds nothing the other nuts don't.
 - **Watercress, fenbalm** — need the fen, which is out.
+
+---
+
+## Dreaming: drying
+
+**`preserve` is documented as "a later town method", and that is backwards.** Sun and air drying is the most primitive preservation there is — a string, a rack, good weather. Older than the pan, far older than the oven. What actually needs a settlement is *salting* (needs salt, a trade good) and *smoking* (needs a smokehouse). So drying belongs at **camp**, possibly as the first technique of all.
+
+**As an upgrade, not an insurance policy.** Drying earns its place the same way jam does: rosehips didn't need to rot for rosehip jam to be worth making, the jam is simply better than the raw hip. Dried cepes are genuinely *more* intense than fresh — one of the few preservations that improves a thing rather than merely saving it. So it reads as "drying makes it better", never "not drying makes it worse".
+
+That means it needs **no new systems**: kitchen recipes already produce foods, so `cepe → dried cepe` is the same shape as `rosehip → rosehip jam`, and dried cepe simply cooks with more punch.
+
+**Spoilage: decided against (2026-08-12).** It would punish exactly the way this game is meant to be played — a browser game you tab into on a break, with offline progression, so coming back after a day away would routinely mean loss. There are already three food pressures (hourly consumption, the famine threshold, winter cold, raids) and spoilage would be a fourth and the fiddliest, the one demanding constant attention rather than occasional decisions. It also cuts against mild-effects and cozy: it is the one system that would nag.
+
+**Freshness decay: parked, softer, and cheaper than it looks.** Food never disappears, but its `fresh` contribution fades, so berries eaten soon give a boon that month-old ones don't. The obvious implementation needs the larder to become *batches* with timestamps, which ripples through consumption, caps and UI — too much for a mild effect. But a cheap approximation exists: **one freshness number per food type**, decaying over time and rising when new stock is added, weighted by amount. A larder you keep topping up stays fresh; one untouched for weeks goes dull. One extra number, no batches. Worth remembering if the seasons ever feel flat.
+
+**What drying would be FOR, if it lands:** winter. The wood is bare by design, so winter is not for gathering — it is for eating what you kept. That pairs with the medlar, which only ripens after frost. Two different kinds of patience, both pointing at the same quiet season.
 
 ## Open threads
 
