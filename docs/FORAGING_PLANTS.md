@@ -408,6 +408,45 @@ A young *Amanita* still in its "egg" looks exactly like a **puffball**, and that
 
 ---
 
+## The green floor — pickable, and mostly worthless on purpose
+
+### The rule this comes from
+
+**Everything green in the frame must be pickable.** Not because it's generous, but because **un-pickable scenery is a tell.** If only the meaningful things answer the cursor, the player never has to identify anything — they hunt for interactive objects instead, and the whole game collapses. Every piece of inert decoration is quietly announcing *not this one*. So the only thing that should ever stop you picking something is knowing better.
+
+**And the first pick of anything fills a page in the herbier.** So a useless plant is never a wasted slot, it's *of no use, but now I know*. You pay once, ever, and you get a page for it. After that, knowledge is what stops you — which is the cozy-discovery register rather than the punishment one.
+
+*The five marked ⭐ are the starting set: two carpets, one useful, one nasty, one joke.*
+
+### ⭐ Dog's mercury
+*Mercurialis perennis.* Carpets shaded woodland in dull matte green, plain paired leaves on unbranched stems. Mildly poisonous, no use whatsoever — **and it is the classic indicator of ancient woodland**, so it says something true about where you are standing while doing nothing at all for you. The perfect worthless plant.
+
+### ⭐ Wood anemone
+*Anemone nemorosa.* The white spring carpet, nodding on thread-thin stalks above finely cut leaves. Faintly toxic, useless, and the visual signature of an April woodland floor. Another ancient-woodland plant, and the one that makes a spring scene *look* like spring.
+
+### ⭐ Ground ivy, called **alehoof**
+*Glechoma hederacea.* A creeping mat of small scalloped round leaves with tiny violet hooded flowers. **It flavoured ale before hops did**, which is not folklore, it is what the name means. You have a brewery. A woodland weed that quietly ties to it is close to free content.
+
+### ⭐ Cuckoo pint, lords-and-ladies
+*Arum maculatum.* **Two different-looking plants across the year:** glossy arrow-shaped leaves, some blotched purple-black, in spring — then in autumn a bare pale spike topped with dense scarlet berries and no leaves at all. Burns the mouth savagely; children are poisoned by the berries every year because they look like sweets. Very common, very nasty, no use. *(Its root really was used for laundry starch, which is a fine flavour note and not worth a mechanic.)*
+
+### ⭐ Enchanter's nightshade
+*Circaea lutetiana.* A thin wiry thing with a sparse spike of tiny white flowers, in deep shade. **Completely harmless and completely useless**, despite having the most alarming name in the wood. In a world with an Inquisition and a Doctrine of Silence that is a good joke, and it teaches the lesson the game most wants taught: **the name is not the tell.**
+
+### Wood sorrel
+*Oxalis acetosella.* Clover-like leaves of three folded heart-shaped leaflets, one white flower veined lilac. Genuinely edible and sharply lemony — the *woodland* sorrel, distinct from the common sorrel slated for the grassy clearing. A small safe reward for looking down.
+
+### Woodruff
+*Galium odoratum.* Narrow leaves in neat star-shaped whorls up a square stem. Smells of nothing at all fresh and strongly of new hay once dried, which is a real and slightly magical fact. A strewing herb, and it flavoured drink.
+
+### Bracken
+*Pteridium aquilinum.* Coarse triangular fronds, everywhere, and one of the few plants here whose real use points **away** from the pot: bedding and thatch. Carcinogenic, so never food. Good bulk for filling a scene.
+
+### Keeping it affordable
+Worthless plants want **one art variant, not three** — nobody memorises them for advantage, so variety buys nothing. Carpet plants can be drawn as small clumps that read fine at a glance, because nothing depends on reading them closely. The expensive art belongs to the pairs.
+
+---
+
 # 2 · The clearing and wood edge
 
 ⏳ Dandelion · Sorrel · Wild carrot *(+ hemlock)* · Parasol *(+ deadly dapperling)* · Elder *(+ danewort, its poisonous twin)* · Wild rose (rosehip) · Raspberry · Hawthorn *(haws + a real heart remedy)* · Crabapple *(verjuice, jelly)* · Nettle *(already a herb — this would become its source)*

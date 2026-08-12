@@ -122,6 +122,46 @@ Hemlock **yields** — it's an alchemy ingredient, not a decoy. Same height as w
 
 ---
 
+# PART 1b — The green floor  *(cheap, and it makes tier 1 a real place)*
+
+Ground cover for the near wood. **Mostly worthless on purpose:** if only the useful things can be picked, un-pickable scenery becomes a tell and the identification game collapses. See `FORAGING_PLANTS.md` → *The green floor*.
+
+**These want ONE variant each, not three.** Nobody memorises a fern for advantage, so variety buys nothing here. Save the multi-shape work for the pairs. They can also be drawn a little loose, since nothing depends on reading them closely.
+
+⭐ = the starting five (two carpets, one useful, one nasty, one joke).
+
+### ⭐ Dog's mercury
+> a low carpet of dog's mercury on a shaded woodland floor, painterly oil study, plain oval toothed leaves in opposite pairs up unbranched upright stems, dull matte green, no showy flowers, soft even light, plain dark background, no text --ar 1:1 --style raw
+
+### ⭐ Wood anemone
+> a small clump of wood anemone growing from woodland leaf litter, painterly oil study, nodding white six-petalled flowers on thread-thin stalks above finely divided green leaves, delicate and low, soft spring light, plain dark background, no text --ar 1:1 --style raw
+
+### ⭐ Ground ivy (alehoof)
+> a low sprawling mat of ground ivy on a woodland floor, painterly oil study, small round scalloped leaves along creeping square stems, tiny violet-blue hooded flowers, soft even light, plain dark background, no text --ar 1:1 --style raw
+
+### ⭐ Cuckoo pint — TWO sprites, one per season
+The only green-floor plant needing two, because it genuinely looks like two different plants across the year. Worth it: a player who learns the leaf gets ambushed by the berries.
+
+> a cuckoo pint plant on a damp woodland floor, painterly oil study, glossy dark green arrow-shaped leaves rising straight from the litter, some blotched with purple-black, soft even light, plain dark background, no text --ar 1:1 --style raw
+
+> a spike of cuckoo pint berries on a woodland floor in autumn, painterly oil study, a single bare pale stalk topped with a dense cluster of glossy scarlet-orange berries, no leaves at all, soft even light, plain dark background, no text --ar 1:1 --style raw
+
+### ⭐ Enchanter's nightshade
+> a slender enchanter's nightshade plant in deep woodland shade, painterly oil study, a thin wiry stem carrying a sparse spike of tiny white two-lobed flowers above paired pointed leaves, unremarkable and delicate, soft dim light, plain dark background, no text --ar 1:1 --style raw
+
+### Wood sorrel
+> a small clump of wood sorrel on a mossy woodland floor, painterly oil study, delicate clover-like leaves of three folded heart-shaped leaflets in pale green, one small white flower veined with lilac, soft even light, plain dark background, no text --ar 1:1 --style raw
+
+### Woodruff
+> a clump of sweet woodruff on a woodland floor, painterly oil study, narrow pointed leaves arranged in neat star-shaped whorls up a slender square stem, a few tiny white four-petalled flowers at the top, soft even light, plain dark background, no text --ar 1:1 --style raw
+
+### Bracken
+> a stand of bracken fern on a woodland floor, painterly oil study, large coarse triangular fronds arching outward on tall wiry stalks, soft even light, plain dark background, no text --ar 1:1 --style raw
+
+**If MJ keeps adding flowers to the plain ones** (it wants everything to be pretty), append `--no flowers, blossoms, mushrooms, berries`. Dog's mercury and bracken especially should look like nothing much.
+
+---
+
 # PART 2 — Tipped variants  *(the payoff variant)*
 
 Once a plant has its standing sprite, a **second variant lying on its side** buys three things: the patch stops looking stamped, the underside tell becomes available *some* of the time, and a player who learned both tells gets rewarded for spotting whichever the scene happens to offer.
