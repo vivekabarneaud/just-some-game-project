@@ -129,7 +129,9 @@ Deliberately generic on both counts, because the kitchen needs **forgiving every
 - **Alchemy: NOT a wound remedy.** Garlic really is antiseptic, and "keeps a wound from festering" was the obvious brew — but **healing is already cheap** in this game (bandages, several HP potions), so nobody would ever brew a prevention when a cure is to hand. Rejected 2026-08-12.
 - **💭 Instead: the charm.** The folk hang ramsons over a door against ill luck. Feeds the **luck** stat, which already exists and raises loot chances for the whole party.
 
-  ⚠ **Superseded 2026-08-12 by the bilberry**, whose claim on *finding* is stronger (sight is literally the thing) and cheaper (a dish, no new system). Dropped, or parked until settlement charms are a real system. The lore below is worth keeping either way.
+  **It coexists with the bilberry tart, deliberately.** They aren't two ways to buy the same number: the tart is **packed** (a consumable, chosen for one mission, taking a food slot that could have held healing) and the charm is **kept** (a fixture over a door, applying whether you think about it or not). `luck` is already built to stack from several directions — the existing test asserts three signets summing to +15 — so gear, food and fixture is a better spread than one source doing all the work.
+
+  **And its shape is a seasonal ritual, not a timer.** Ramsons is spring-only, so you hang a fresh one when the new garlic comes and it lasts the year. Once a season, authentic to how it was actually done, and it dodges both bad shapes: a buff you re-up on a timer becomes a chore, and a one-time craft is forgotten the moment it's clicked. This gives the settlement a recurring beat that isn't a harvest.
 
   And the reason it *works* is already in the lore: **intention shapes unwitting magic.** It isn't the garlic — it's that they meant it. Nobody in the settlement understands this. Edda swears by it, is wrong about why, and right about the result — the same joke as the priests calling their own Aether the Radiant One's blessing, told very small.
 
@@ -263,7 +265,7 @@ So the draught doesn't make workers work harder. **It makes them notice.** One i
 
 **Cost, honestly:** alchemy today makes potions for adventurers, so *give a brew to a building* is a new path. Small, but new — and it opens a whole category, which is either the good news or the reason to be careful.
 
-- **Collision resolved:** the ramsons charm was also pointed at `luck`. Bilberry's claim is stronger and far cheaper, so **bilberry owns finding**; the ramsons charm is dropped, or parked until settlement charms are a real system.
+- **On sharing `luck` with the ramsons charm:** they coexist. One is packed and one is kept, and the stat is built to stack. See the ramsons entry.
 - **💭 A decoy is available if ever wanted:** alder buckthorn. Same damp acid woodland, black berries, violently purgative, and its charcoal made gunpowder. But bilberry is painted-in, so a decoy needs its own anchor colour and its own art. Optional, and not a priority.
 
 ### ⏳ Hazelnut
