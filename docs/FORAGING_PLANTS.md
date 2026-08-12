@@ -8,7 +8,9 @@
 
 ## The rules we're working to
 
-**One identity each, not a full set.** A plant earns a signature **dish**, *or* a **tavern drink**, *or* an **alchemy use**, *or* it's a **decoy**. Crossover only where it's genuinely both — which is rare, because the delicious plants and the medicinal ones are mostly different plants. Forcing a potion out of a chanterelle is exactly the clutter this catalogue exists to prevent.
+**One IDEA each, not one slot.** *(Amended after the bilberry, 2026-08-12.)* A plant earns a signature **dish**, *or* a **tavern drink**, *or* an **alchemy use**, *or* it's a **decoy** — and usually one is plenty, because the delicious plants and the medicinal ones are mostly different plants. But a plant may carry the *same* idea into several places: bilberry means *you see further*, and it means that in the pantry, the pack and the workshop alike. What the rule exists to stop is a plant collecting four unrelated jobs because each sounded good on its own. Forcing a potion out of a chanterelle is exactly the clutter this catalogue exists to prevent.
+
+**In the woods the scarce thing is your attention, not the wood.** The basket caps you, so nothing that adds *more* plants to the ground changes anything. Any effect that would help you forage can therefore only work by making identification easier — which is the one thing nothing may ever do, because identification is the whole game. So foraging boons must pay out **somewhere else**.
 
 **The winter test** decides how a plant is drawn. *Would you see it in the woods in January?*
 - **Yes** → it's part of the place. **Painted into the scene**, with its fruit hanging at anchors on the mask. Brambles, bilberry mats, hazel, wild rose, elder.
@@ -127,6 +129,8 @@ Deliberately generic on both counts, because the kitchen needs **forgiving every
 - **Alchemy: NOT a wound remedy.** Garlic really is antiseptic, and "keeps a wound from festering" was the obvious brew — but **healing is already cheap** in this game (bandages, several HP potions), so nobody would ever brew a prevention when a cure is to hand. Rejected 2026-08-12.
 - **💭 Instead: the charm.** The folk hang ramsons over a door against ill luck. Feeds the **luck** stat, which already exists and raises loot chances for the whole party.
 
+  ⚠ **Superseded 2026-08-12 by the bilberry**, whose claim on *finding* is stronger (sight is literally the thing) and cheaper (a dish, no new system). Dropped, or parked until settlement charms are a real system. The lore below is worth keeping either way.
+
   And the reason it *works* is already in the lore: **intention shapes unwitting magic.** It isn't the garlic — it's that they meant it. Nobody in the settlement understands this. Edda swears by it, is wrong about why, and right about the result — the same joke as the priests calling their own Aether the Radiant One's blessing, told very small.
 
 ---
@@ -216,8 +220,51 @@ Putting one *back* is the tell. Nell misses it. The player may too. A seed for t
 
 **💭 The thorns, still open.** The ingredient note already reads *"paid for in scratched arms."* Leaning towards flavour only — a line in the day's report, not a cost — because a real HP nick would turn the cosiest plant into the one you avoid. But the bramble is the only thing on this list that could justify one.
 
-### ⏳ Bilberry
-Kitchen, plus the most gameable alchemy on the list: bilberry is famously an **eyesight** remedy. In a game about searching a painting for half-hidden things, that could do something rather lovely. Painted-in mats.
+### ✅ Bilberry
+- **Is:** *Vaccinium myrtillus*, the wild European whortleberry. Low mats, painted into the scene, fruit at anchors. The picking is slow and you stoop for it.
+- **Season / terrain:** high summer · litter, wood. Acid ground under trees.
+- **Rename it.** The game currently calls it `blueberry`, but the American cultivated blueberry has **pale flesh and does not stain**. The wild European one is purple all the way through, which is why the folk medicine attached to it and why the tart comes out dark. The existing ingredient note already reads *"blue to the fingers"*, so it is describing a bilberry under the wrong name. Alpha, no save preservation, so the rename is cheap.
+- **Its idea is: you see further.** All three uses below are that same idea in three places, which is what the amended rule allows.
+
+#### Kitchen — Bilberry Tart
+
+`one(bilberry, roast)` + `one(wheat, roast)` + `one(honey, boil)` · *village* · NEW
+Same shape as Apple Pie and Cherry Cobbler, so it needs no new pattern.
+> Wild bilberries baked dark under a honeyed crust. Purple to the fingers, and worth the stooping.
+
+**It carries `raw: { luck: 3 }`, and that works today with no engine change.** Better eyesight, more found — and `luck` is the *live* path: `raw.luck` → `luckLootMultiplier()` → party-summed loot chance at +1% a point, already tested, already used by the Stranger's Signet. *(Note for whoever builds it: `lootMod` is the field that looks right and is dead. It is declared on 44 items and read by nothing, and `items/types.ts` says so outright.)*
+
+Sized well under the signet, which is +5 and unique-equip, a thing you hunted for. The tart is +2 or +3, gone when eaten, and occupies a food slot that could have held healing. A nice thing to bake before a dig, never a reason to run back to the kitchen.
+
+#### Kitchen — Bilberry Soup, and it comes from a Nordveld adventurer
+
+*Blåbärssoppa* is drunk hot at the checkpoint so you can keep going; it is still handed out at the Vasaloppet. The game already has the hook — **Ashwick teaches Blackberry Crumble at rank 4** — so a **Nordveld recruit teaching this at rank 3** costs nothing to build and gives the north a kitchen of its own. Nordveld is 15 to 20% of human recruits, so it will actually come up.
+> Bilberries simmered thin and drunk hot. The northerners swear it carries you the last mile.
+
+**What it does: it is the cold-mission food** the parked mission-climate design is waiting for (hot soup against a northern march, which is what the real thing is for). If climate never lands, `durationMod` is the fallback, and that one *is* read by the engine.
+
+This is the second instance of **recipes as content** after the Meridian green sauce — but taught by a *culture through a person* rather than bought from a merchant, which is better still.
+
+#### Alchemy — the Sharp-Eye draught: a lens, not a multiplier
+
+The obvious version (+20% yield for a few hours) is the wrong shape. It quietly becomes an obligation: once it exists an attentive player keeps it up, and a player who forgets feels they played badly. It also gives you nothing to look at, since all that happened is a number was bigger for a while.
+
+So the draught doesn't make workers work harder. **It makes them notice.** One idea, three buildings, reading the same in all of them: *they saw something.*
+
+| Given to | Not this | This |
+| --- | --- | --- |
+| **Forager's hut** | more herbs | the return contains something **off its usual table** — a herb they don't normally bring, a seed, something unseen |
+| **Hunting camp** | more meat | a **sighting**: tracks, a bee-tree, Old Honeypaw. Feeds straight into `forceMission`, which is already built, and into the parked seasonal-gathers arcs |
+| **The mines** | +% ore | a **seam**. Parked until gems and Orison shards exist, but the shape is decided so it needn't be re-argued later |
+
+**No duration. One brew, one return, one extra find.** No timer, no uptime to maintain, nothing to feel bad about missing, and no buff state on buildings to build or persist. You brew it, you hand it over, the next thing they bring back has something in it. A small ceremony rather than a rotation.
+
+**Bonus:** the open threads already complain that herbs rain from the forager's hut by RNG from turn one, which the notes call overwhelming. If the **rare** things moved behind the draught, the baseline could get quieter and finding a specialty herb would start to mean something. One change fixes an existing problem and creates a new pleasure.
+
+**Cost, honestly:** alchemy today makes potions for adventurers, so *give a brew to a building* is a new path. Small, but new — and it opens a whole category, which is either the good news or the reason to be careful.
+
+- **Collision resolved:** the ramsons charm was also pointed at `luck`. Bilberry's claim is stronger and far cheaper, so **bilberry owns finding**; the ramsons charm is dropped, or parked until settlement charms are a real system.
+- **💭 A decoy is available if ever wanted:** alder buckthorn. Same damp acid woodland, black berries, violently purgative, and its charcoal made gunpowder. But bilberry is painted-in, so a decoy needs its own anchor colour and its own art. Optional, and not a priority.
 
 ### ⏳ Hazelnut
 Kitchen only, fat and keeping. Infrastructure rather than a star — but it would finally give the generic `nuts` a real source.
@@ -331,7 +378,8 @@ That means it needs **no new systems**: kitchen recipes already produce foods, s
 ## Open threads
 
 - Two aromatics (juniper, bay) would **double the local spice shelf**, which currently holds only honey and lavender — every other spice is merchant-only and unobtainable, leaving four dishes permanently theoretical.
-- Several catalogued plants **already exist as herbs** (nettle, yarrow, comfrey, chamomile, mugwort, willowbark, wildmint, feverfew) and currently rain from the forager's hut by RNG from turn one, which the notes already call overwhelming. The minigame could **become their source** and fix that rather than adding to it.
+- Several catalogued plants **already exist as herbs** (nettle, yarrow, comfrey, chamomile, mugwort, willowbark, wildmint, feverfew) and currently rain from the forager's hut by RNG from turn one, which the notes already call overwhelming. The minigame could **become their source** and fix that rather than adding to it. *(The Sharp-Eye draught is now the other half of this: move the rare things behind it and the baseline can get quieter.)*
+- **`lootMod` is dead weight.** Declared on 44 items, read by nothing, superseded by `raw.luck`. Either wire it or delete it; leaving it looks like a working knob and isn't one. Found while costing the bilberry tart.
 - **`nightshade` and `witchs_cap`** are alchemy ingredients with no source anywhere. Belladonna and fly agaric would give them one.
 - **The tavern has two drinks waiting** and no system yet: bramble wine (soft, autumn, everyday) and sloe spirit (sharp, winter, a treat). Both are foraged, both keep, and neither is a dish. Worth remembering when `DESIGN_TAVERN` is picked back up.
 - **A plant can hold a story beat.** The Shepherd's share puts a chapter-3 faith seed in a chapter-1 hedge, at no cost and with no gate. If other plants can carry a beat that quietly, they should.
