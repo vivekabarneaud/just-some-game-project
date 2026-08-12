@@ -127,11 +127,22 @@ Deliberately generic on both counts, because the kitchen needs **forgiving every
   Needs the Meridians to have taught pasta. See the intermediate rule below — no pasta *item* is required.
 
 - **Alchemy: NOT a wound remedy.** Garlic really is antiseptic, and "keeps a wound from festering" was the obvious brew — but **healing is already cheap** in this game (bandages, several HP potions), so nobody would ever brew a prevention when a cure is to hand. Rejected 2026-08-12.
-- **💭 Instead: the charm.** The folk hang ramsons over a door against ill luck. Feeds the **luck** stat, which already exists and raises loot chances for the whole party.
+- **✅ Instead: the charm — and it's a TRINKET, not a fixture.** *(Settled 2026-08-12.)* Wearing garlic against ill luck is as well attested as hanging it over a door, and the worn version is better on every axis.
 
-  **It coexists with the bilberry tart, deliberately.** They aren't two ways to buy the same number: the tart is **packed** (a consumable, chosen for one mission, taking a food slot that could have held healing) and the charm is **kept** (a fixture over a door, applying whether you think about it or not). `luck` is already built to stack from several directions — the existing test asserts three signets summing to +15 — so gear, food and fixture is a better spread than one source doing all the work.
+  **Edda's Charm** · `slot: "trinket"` · common · `raw: { luck: 1 }`
+  > A bundle of wild garlic bound with red thread, small enough to hang inside a shirt. Edda makes them in spring and gives them to anyone who is leaving. She will not say what it is for.
 
-  **And its shape is a seasonal ritual, not a timer.** Ramsons is spring-only, so you hang a fresh one when the new garlic comes and it lasts the year. Once a season, authentic to how it was actually done, and it dodges both bad shapes: a buff you re-up on a timer becomes a chore, and a one-time craft is forgotten the moment it's clicked. This gives the settlement a recurring beat that isn't a harvest.
+  **Zero new systems.** The `trinket` slot exists and is nearly empty (two items, both rare), so a common early one fills a real gap instead of competing. A settlement fixture would have needed a building-buff path that doesn't exist.
+
+  **+1 against the signet's +5 is the right size.** It becomes strictly worse gear eventually, and that is the point: it's the starter thing you keep wearing past the moment it made sense.
+
+  **Given, never crafted.** No recipe, no purchase, no farming. Edda makes them in spring and hands them to whoever is leaving. This is the lore rule stated as a mechanic: a bundle of garlic you assemble yourself is a bundle of garlic; one she pressed into your hand at the gate because she was worried about you is the charm. It also answers *why not equip twenty* without a rule.
+
+  **It coexists with the bilberry tart, deliberately.** Not two ways to buy the same number: the tart is **packed** (a consumable chosen for one mission, taking a food slot that could have held healing), the charm is **worn** (a slot given up for a whole expedition, and someone chose to). `luck` is already built to stack from several directions — the existing test asserts three signets summing to +15 — so gear, food and gift is a better spread than one source doing all the work.
+
+  **Spring keeps the beat.** Ramsons is spring-only, so she makes a few each year. A recurring settlement moment that isn't a harvest.
+
+  She's 71, she's a midwife, she's Nordveld-blooded, and this is what she does instead of saying goodbye.
 
   And the reason it *works* is already in the lore: **intention shapes unwitting magic.** It isn't the garlic — it's that they meant it. Nobody in the settlement understands this. Edda swears by it, is wrong about why, and right about the result — the same joke as the priests calling their own Aether the Radiant One's blessing, told very small.
 
