@@ -57,7 +57,7 @@ describe("brew — the free-form alchemy engine", () => {
   });
 
   it("a wildcard's potent effect + the wildcard note", () => {
-    const r = brew([p("chamomile", "steep"), p("witchs_cap", "boil")]);
+    const r = brew([p("chamomile", "steep"), p("fly_agaric", "boil")]);
     expect(amt(r, "int")).toBeGreaterThan(0);
     expect(r.notes.some((n) => n.toLowerCase().includes("wildcard"))).toBe(true);
   });

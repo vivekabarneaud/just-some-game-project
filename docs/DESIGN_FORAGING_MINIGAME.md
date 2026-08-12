@@ -137,7 +137,7 @@ Applying §2 to what already exists:
 | Item | Today | Proposal |
 | --- | --- | --- |
 | **`nightshade`** | Alchemy toxin with **zero sources**. Unobtainable. | **→ minigame.** Perfect fit: a dangerous plant you pick deliberately. Fixes an orphan. |
-| **`witchs_cap`** | Alchemy wildcard (rare, `boil`) with **zero sources**. Unobtainable. | **→ minigame.** A rare/uncanny mushroom found only by looking. Fixes an orphan. |
+| **`fly_agaric`** *(was `witchs_cap`, renamed 2026-08-12)* | Alchemy wildcard (rare, `boil`) with **zero sources**. Unobtainable. | **→ minigame.** It was always the fly agaric under an invented name; the real one gives it a source. Fixes an orphan. |
 | **`rosehip`** (.012) | Rare passive trickle + the wild-tree find | **→ minigame-weighted.** A rare drip into the larder is the classic clutter pattern; picking it deliberately is better. Keep the wild-tree find. |
 | **`nightbloom`** (.01) | Rare passive trickle | **→ minigame-weighted.** "Only blooms under moonlight" deserves to be *found*, not trickled. |
 | **`morel`, `cepe`** | Hut-produced | Keep in the hut, but make them **prize picks** in the scene. Both are seasonal treasures; `cepe` already has the rain-flush event. |

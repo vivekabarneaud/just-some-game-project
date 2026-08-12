@@ -153,8 +153,8 @@ export const INGREDIENTS: Ingredient[] = [
 
   // ── WILDCARD — potent, a little unruly ─────────────────────────────────────
   {
-    id: "witchs_cap", name: "Witch's-Cap", icon: "🍄", role: "wildcard", rarity: "rare", signature: "boil",
-    note: "An odd mushroom — a lot of power, a little unruly.",
+    id: "fly_agaric", name: "Fly Agaric", icon: "🍄", role: "wildcard", rarity: "rare", signature: "boil",
+    note: "Scarlet and flecked white. A lot of power, and not much of it obedient.",
     techniques: {
       boil: [{ channel: "int", amount: 3 }],
       char: [{ channel: "confuse", amount: 25 }],

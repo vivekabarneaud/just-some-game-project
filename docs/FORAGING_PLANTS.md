@@ -366,8 +366,45 @@ Velvet shank's decoy, above. **Yields nothing, ever**, like the death cap. Two a
 ### ⏳ Death cap
 Pure poison, no dish ever. The assassin's ingredient, and the most frightening thing here because it looks so ordinary — a decoy for the field mushroom.
 
-### ⏳ Fly agaric
-Alchemy only, never food. Deliriant and visions, which speaks to the Chapter 2 madness thread. Would give **`witchs_cap`** — an alchemy ingredient currently with *no source at all* — its source at last.
+### ✅ Fly agaric — already designed, it just had no source
+
+- **Is:** *Amanita muscaria*. Scarlet cap flecked white, a ring, a bulbous foot. The most recognisable mushroom on earth.
+- **Season / terrain:** autumn · litter, wood. Under birch and pine, which is where it belongs.
+- **Never food. Ever.**
+
+**It IS `witchs_cap`, which was already in the alchemy data all along** — and renamed to `fly_agaric` on 2026-08-12, since nothing else in the game hides behind an invented name:
+
+```ts
+fly_agaric — wildcard, rare, signature "boil"
+  boil → int +3
+  char → confuse 25
+```
+
+That is the real pharmacology, already written: psychoactive when boiled, confusing when charred. Its own note said *"a lot of power, a little unruly."* **So the plant needed no design at all. It needed to exist in the woods.** The rename was free: it appeared in exactly two files and no save data, because it had no source to be gathered from.
+
+#### Its job is that it's FAMOUS
+
+It's the one plant here that **cannot be a decoy**, because nobody in history has confused a scarlet cap with white spots for supper. Which turns out to be its value: every player already knows this mushroom before the game starts. Put one in the first scene and the game has said *things here can hurt you* in a single image, with no tutorial and no tell to learn. It teaches the **rule** rather than a fact.
+
+#### `confuse` should make an enemy hit its own side
+
+The channel is declared and does nothing — `setup.ts` files the offensive channels under *"later slice — coatings + throwables"*, the same dead-knob shape as `lootMod`. When it lands, random targeting is the right reading of it: skip-a-turn is a stun with extra words, reduced accuracy is invisible, and only *hits whatever is nearest* is legible in the combat log and funny. In 1D positional combat it is nearly free and genuinely positional, since a confused enemy in the front rank mauls its own front rank while one at the back savages its own archers. **Where it stands decides what the chaos costs them.**
+
+Two guards:
+- **A chance per turn, not a duration.** Half the time, say. A guaranteed multi-turn confusion is a stun-lock, and stun-locks are how a mild-effects game grows a mandatory opener.
+- **Lean on `resist_confuse`**, which already exists as a school and is already special-cased in `setup.ts`. Bosses and the undead shrug it off, and nothing without a mind can be confused at all — a rule players work out for themselves and enjoy working out.
+
+#### The `int` draught should be the unreliable one
+
+`wildcard` is a role in the ingredient schema and currently means nothing mechanically. Fly agaric is where it could start meaning something: real power, delivered unpredictably. It also keeps a genuinely dangerous mushroom from reading as a free stat stick, and it differs from the parked false morel draught, which is *burn hot now and pay tomorrow* rather than *strong but you never know how strong*.
+
+#### Lore
+
+The only plant on this list that is **psychoactive rather than merely poisonous**, which is a different category from everything else here, and the lore has firm opinions about people seeing past the boundary. That belongs to the Nordveld *völva* tradition in general, **not to Edda**, who is a sad grandma and not a shroom-shaman.
+
+#### 💭 The puffball, banked
+
+A young *Amanita* still in its "egg" looks exactly like a **puffball**, and that confusion genuinely kills people. But the tell is that you slice it open and find a mushroom folded up inside, which breaks the standing-sprite rule and would need a *cut it open* interaction. It also arrives with the parked *vesse-de-loup* smoke bomb, so if puffballs ever come, this comes too. See the carrier idea in that memory: puffball as a **delivery**, turning any brew into an area effect.
 
 ---
 
@@ -480,7 +517,7 @@ That means it needs **no new systems**: kitchen recipes already produce foods, s
 - Two aromatics (juniper, bay) would **double the local spice shelf**, which currently holds only honey and lavender — every other spice is merchant-only and unobtainable, leaving four dishes permanently theoretical.
 - Several catalogued plants **already exist as herbs** (nettle, yarrow, comfrey, chamomile, mugwort, willowbark, wildmint, feverfew) and currently rain from the forager's hut by RNG from turn one, which the notes already call overwhelming. The minigame could **become their source** and fix that rather than adding to it. *(The Sharp-Eye draught is now the other half of this: move the rare things behind it and the baseline can get quieter.)*
 - **`lootMod` is dead weight.** Declared on 44 items, read by nothing, superseded by `raw.luck`. Either wire it or delete it; leaving it looks like a working knob and isn't one. Found while costing the bilberry tart.
-- **`nightshade` and `witchs_cap`** are alchemy ingredients with no source anywhere. Belladonna and fly agaric would give them one.
+- **`nightshade`** is an alchemy ingredient with no source anywhere; belladonna in location 2 would give it one. *(`witchs_cap` was the other orphan. It is now `fly_agaric` and settled — see its entry.)*
 - **The technique tiers look wrong, twice.** `preserve` is filed as "a later town method" when sun-drying is the most primitive preservation there is, and `roast` is town-gated when roasting chestnuts in the embers is the oldest cooking there is. Both read as though the tiers were assigned by how sophisticated the *word* sounds rather than by how old the practice actually is. Two instances make it a pattern. **Noted only — not ready to be implemented, and re-tiering techniques touches every dish, so it wants its own pass.**
 - **The tavern has two drinks waiting** and no system yet: bramble wine (soft, autumn, everyday) and sloe spirit (sharp, winter, a treat). Both are foraged, both keep, and neither is a dish. Worth remembering when `DESIGN_TAVERN` is picked back up.
 - **A plant can hold a story beat.** The Shepherd's share puts a chapter-3 faith seed in a chapter-1 hedge, at no cost and with no gate. If other plants can carry a beat that quietly, they should.
