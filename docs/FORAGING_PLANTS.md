@@ -70,8 +70,28 @@
 
 - **Alchemy:** none. It's food, and gloriously so.
 
-### ⏳ Morel
-Has *Morel Cream*. Carries the never-raw rule already. Decoy: false morel *(unpainted)*.
+### ✅ Morel
+- **Is:** *Morchella* — a cap pitted like a honeycomb, hollow all the way down. Spring's prize, and toxic raw.
+- **Season / terrain:** spring only · wood, litter
+- **Decoy:** false morel *(unpainted)* — lobed and brain-like rather than pitted, and the one decoy that yields (see above).
+- **Kitchen:**
+
+  **Morel Cream** · `one(morel, fry)` + `one(milk, boil)` · *village* · EXISTS
+
+  **Spring Omelet** · `one(eggs, fry)` + `one(morel, fry)` + `one(ramsons, chop)` · *village* · NEW
+  Everything in it is spring: morels are spring-only, ramsons is spring-only, and the hens lay hardest then. A dish that can only exist for about three weeks of the year, out of things gathered on the same walk. The ramsons goes in chopped and raw at the end, which is both how you'd do it and a second station, so it reads as cooking rather than dumping.
+  > Morels and wild garlic folded through eggs. Everything in it came out of the same three weeks of the year.
+
+- **No camp dish, deliberately.** Morels cook fine in the generic pots, they just aren't *special* until there's a pan — which suits a spring luxury.
+- **Alchemy:** none. Food, and the never-raw rule already gives it an edge most mushrooms lack.
+
+### 🍲 Fowl in Cream — nobody's signature
+`any(poultry, boil)` + `any(mushroom, fry)` + `one(milk, boil)` · *village*
+
+Deliberately generic on both counts, because the kitchen needs **forgiving everyday dishes** as much as it needs signatures — something you can make with whatever the wood gave up. Three slots, so it out-ranks *Morel Cream* when a bird is added, which is right.
+> A bird stewed pale in milk with whatever mushrooms the wood gave up. Rich, and quietly grand.
+
+**Poultry is emotionally expensive**, and the mechanics agree: a pig produces nothing while it lives ("pays off when it's culled, not while it lives"), whereas a hen is a *producer* — culling one costs eggs forever. So chicken meat should read as an occasion rather than a staple, and dishes built on it should be rare and worth it. Noted for when we reach the poultry.
 
 ### ⏳ Field mushroom
 The humble one. Being common may be identity enough — no signature dish needed.
