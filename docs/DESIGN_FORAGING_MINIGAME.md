@@ -58,6 +58,65 @@ woodsStock: Record<plantId, number>   // { blackberry: 12, chanterelle: 3, ramso
 
 **This replaces the ticket system entirely.** You may walk into the woods as often as you like; the limit is simply that you already picked everything and it has not grown back. No counter in the UI, no expiry, no guilt, and stripping a patch teaches the forager's ethic through the world instead of through a number.
 
+---
+
+## 3b. The basket is the budget *(added 2026-08-12, after a long argument)*
+
+### The hole in §3a
+
+Stock depletion caps the *economy*. It does nothing for the *game*. If entering is free, a player can pick everything in sight, walk home, walk back, and repeat — **and never once identify anything.** Sorting happens in the larder instead of in the wood, and the entire mechanic evaporates. It's the same failure as un-pickable scenery: the thing the design is about stops being required.
+
+The mistake in every early fix was **limiting the door**. Tickets, idle-gating, wolves-as-timer, cooldowns: they all decide *when* you may go, and a gated player who can still take everything still never identifies anything. They just do it on a schedule.
+
+### The fix: limit taking, not entering
+
+**Enter as often as you like. Carry out a fixed amount per day.**
+
+That single move puts the cost on the right side of the door, and it works because **a careless pick spends the same budget as a good one.** Every mushroom grabbed without looking is a cepe you don't get today. That's the exclusivity nothing else produced.
+
+- **The budget counts PICKS, not value.** Rubbish and treasure cost exactly the same. If it counted value, careless picking would be free again, which is the whole bug.
+- **It stacks across days**, to a small cap (two or three days' worth). Enough that skipping a day costs nothing, not enough that a week away becomes one wood-stripping run.
+- **It's tied to the wood's standing stock**, not a hand-tuned number, so it scales itself: a rich autumn gives long afternoons, a bare winter gives short ones.
+
+### Show it as CAPACITY, never as time
+
+This is the part that decides whether the design works, and it is entirely a presentation question.
+
+**Time scarcity makes people hurry. Capacity scarcity makes people selective.** Nobody panics because a bag is filling up; they get pickier about what goes in it. Same limit, opposite behaviour.
+
+So the gauge is **the basket**, which already exists and already has slots. A player who can see three slots left thinks *those had better be good* — the exact behaviour the design wants, produced by the interface rather than by willpower. Nothing anywhere says *hurry*.
+
+> ❌ **Rejected: escalating wolf howls as a countdown.** It was the first idea and it is actively harmful. A signal that says *your time is running out* makes players grab everything in reach, which is precisely the behaviour the whole feature exists to prevent. A meter that induces panic-clicking in an identification game is worse than no meter.
+
+### The wolves become the door closing, not a countdown
+
+They keep their place, at the end, **after** the decision is already made. The basket fills, the Lord notices the light has gone amber, something moves in the trees, and he decides he is a schoolmaster two miles from home and that this is enough for today.
+
+**He is not driven out. He is finished, and then notices he'd rather not be here after dark.** If it ever reads as *you have been cut off*, it's wrong. He's a schoolmaster who knows he isn't a woodsman, and going home is the correct decision by a sensible man.
+
+### Two endings, and they should feel different
+
+| Ending | Feels like |
+| --- | --- |
+| **The basket is full** | The ordinary one. A good afternoon, done. |
+| **The wood is picked over** (stock below a threshold) | Rarer, and it should land differently: not *I'm done* but *there's nothing here worth carrying home*. Its own quiet lesson about what you did last time. |
+
+### Plants need a duration, not only a respawn
+
+A respawn rate alone means an absent player returns to an accumulated fortune. **Things should also go away.** Mushrooms genuinely rot in days.
+
+So the wood doesn't bank value while you're gone: things come, and things go, and a week away means a **full** wood rather than a **stacked** one. It also gives the wood a heartbeat, so two visits a few days apart are genuinely different visits rather than the same one twice.
+
+### Also rejected, with reasons worth keeping
+
+| Approach | Why it failed |
+| --- | --- |
+| **Tickets / charges** | Guilt and expiry. The original §3a rejection stands. |
+| **Gate on the settlement being idle** (open the woods when the sidebar sparks go dark) | Elegant, nearly free, and wrong: it refuses a player who is *excited* to go. It also doesn't solve anything, since a gated player who can take everything still never identifies. |
+| **Seasonal budget** — stock set once per season, no regrowth within it | Makes a wrong pick permanently costly, which is right, but it makes the wood a depleting bar and kills the fast respawn that makes the place feel alive. Abundance is not the problem. |
+| **A deadly pick spoils the whole basket** (Edda burns it) | Genuinely good fiction and it punishes carelessness in exact proportion to it. Rejected on feel: it turns a cozy walk into a thing that can be lost, and the catalogue already has plenty of outcomes to track per plant. Kept on file in case the budget alone proves too gentle. |
+| **Identify on use rather than on pick** | Makes identification unavoidable, but a basket of question marks is a second puzzle nobody asked for, on top of an already-large plant roster. |
+
 ### Why store stock, not patches
 Persisting individual patches (position + species + picked-at + per-patch respawn timer) is the complicated design, and it is the same class of stateful bug already biting the farm (fields still holding live crops in winter, see `TODOs`). A plain stock record avoids all of it, and every worry answers itself for free:
 
