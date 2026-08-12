@@ -14,6 +14,8 @@
 - **Yes** → it's part of the place. **Painted into the scene**, with its fruit hanging at anchors on the mask. Brambles, bilberry mats, hazel, wild rose, elder.
 - **No** → it comes and goes. **A sprite**, scattered on terrain. Mushrooms, wild greens.
 
+**Discipline in the gathering, freedom in the pot.** Foraging is where the player must be careful — identify it or waste the slot. Cooking is the opposite: permissive, experimental, closer to Breath of the Wild, where throwing things together and being surprised is the point. Those two wanting opposite things is not a contradiction; it is what makes them different activities rather than one long chore.
+
 **Every plant earns its slot with a source and a season.** If it doesn't grow somewhere specific at some specific time, it's a name rather than a plant.
 
 **Decoy pairs must share a season, a terrain, and a size range** (unless size *is* the tell), and both halves must be painted or neither. The tests enforce this.
@@ -121,6 +123,32 @@ Alchemy only, never food. Deliriant and visions, which speaks to the Chapter 2 m
 - **Guelder rose, honeysuckle berries** — redundant once danewort is the red-berry decoy.
 - **Pine nuts** — fiddly to gather, adds nothing the other nuts don't.
 - **Watercress, fenbalm** — need the fen, which is out.
+
+---
+
+## Decoys: what they're worth
+
+**The cost of a mistake is the BASKET, not waste.** Ten slots means every one spent on the wrong thing is one not spent on supper. That holds even for decoys that yield something, so no further penalty is needed — and it turns a mistake into an opportunity cost, which is a choice rather than a punishment.
+
+**Gating a decoy's use on "knowing what it is" doesn't work.** Edda names everything the first time she goes through the basket, so one mistake teaches you forever and the gate opens immediately. Decided against 2026-08-12.
+
+| Decoy | Worth |
+| --- | --- |
+| **False chanterelle** | **Nothing.** Not even poisonous — just bland and faintly unpleasant, not worth the fire. Some decoys should simply be disappointing, or every mistake pays. |
+| **Bitter bolete** | **Nothing.** Tempting, since bitterness is a real herbal category (gentian, wormwood, digestive tonics) — but it isn't toxic, alchemy has heroes enough, and its identity is *ruining supper*. Let that be enough. |
+| **False morel** | **A real poison.** *Gyromitra esculenta* contains gyromitrin, which the body converts to something closely related to rocket fuel. Still eaten in Scandinavia after long parboiling; still occasionally kills people. |
+
+One decoy in three being secretly useful feels like the right ratio: enough that knowing your plants pays, not so much that carelessness does.
+
+### 💭 The false morel draught
+
+Rocket fuel suggests a **risky** potion rather than a straightforwardly good one: burn hot, pay for it. A genuine choice instead of a strict upgrade, which suits a game with no min-max obligation — you take it when the fight warrants it, not every time.
+
+Two shapes for the cost, and probably not both:
+- **A drain during the fight.** More damage or speed, and it burns the drinker each round. Tactical: a race against your own draught.
+- **Illness the day after.** Full strength in the fight, then the adventurer is laid up and can't deploy. Strategic: a cost you plan a week around.
+
+The day-after version pairs better with the existing recovery and wound systems; the drain version is more exciting moment to moment. Belongs with the parked **offensive alchemy slice** (poisons, throwables, the *vesse-de-loup* smoke bomb) rather than as a one-off.
 
 ---
 
