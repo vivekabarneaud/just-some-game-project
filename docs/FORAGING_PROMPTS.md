@@ -81,13 +81,27 @@ Load-bearing: **"glossy… catching a highlight"** against **"dull… no shine a
 
 Two or three shapes each, as with the mushrooms. Same anchor colour for both, so **the mask needs no changes**.
 
-## 5. Morel + False Morel
+## 5. Velvet Shank + Galerina  *(winter's test, and the only one it has)*
+
+Winter is the season with no identification test in it at all, so this pair is worth more than its two sprites. Both grow in **tight clusters on dead standing wood**, so they belong at the yellow `#FFE800` anchor rather than on litter.
+
+Two tells, and both survive being drawn standing: **the ring** (Galerina has one, velvet shank never does) and **the black velvet stem base** (velvet shank only).
+
+> a cluster of velvet shank mushrooms growing on dead hardwood in winter, painterly oil study, small glossy tawny-orange caps in a tight tuft, on slender stems that darken to near-black and look velvety toward the base, no ring on the stem, frost on the bark, soft cold light, plain dark background, no text --ar 1:1 --style raw
+
+> a cluster of galerina mushrooms growing on a rotting log, painterly oil study, small dull brown-ochre caps in a loose tuft, on thin pale dry stems each wearing a delicate ring near the top, no velvet, damp winter light, plain dark background, no text --ar 1:1 --style raw
+
+Load-bearing: **"no ring on the stem"** and **"velvety toward the base"** against **"a delicate ring near the top"** and **"pale dry stems"**. If MJ keeps giving the Galerina a dark base, add `--no velvet, black stem`.
+
+This is the most paintable pair on the sheet: orange caps against black wood and snow. Worth doing early for that reason alone.
+
+## 6. Morel + False Morel
 
 > a morel mushroom standing on forest floor, painterly oil study, a tall cap deeply pitted like a honeycomb on a pale hollow stalk, soft even light, plain dark background, no text --ar 1:1 --style raw
 
 > a false morel mushroom on forest floor, painterly oil study, an irregular reddish-brown cap lobed and folded like a brain rather than pitted, on a short stout stalk, soft even light, plain dark background, no text --ar 1:1 --style raw
 
-## 6. Wild Carrot + Hemlock  *(the poison you actually want)*
+## 7. Wild Carrot + Hemlock  *(the poison you actually want)*
 
 Hemlock **yields** — it's an alchemy ingredient, not a decoy. Same height as wild carrot on purpose: the **stem** is the tell.
 
@@ -95,7 +109,7 @@ Hemlock **yields** — it's an alchemy ingredient, not a decoy. Same height as w
 
 > a hemlock plant in a grassy clearing, painterly oil study, a flat white umbrella of tiny flowers on a smooth hairless stem blotched with purple, soft even light, plain dark background, no text --ar 1:1 --style raw
 
-## 7. The safe plants  *(no pair, lower priority — do these when you want a break)*
+## 8. The safe plants  *(no pair, lower priority — do these when you want a break)*
 
 | Plant | Prompt core |
 | --- | --- |

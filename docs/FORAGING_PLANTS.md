@@ -279,8 +279,45 @@ So the draught doesn't make workers work harder. **It makes them notice.** One i
 - **On sharing `luck` with the ramsons charm:** they coexist. One is packed and one is kept, and the stat is built to stack. See the ramsons entry.
 - **💭 A decoy is available if ever wanted:** alder buckthorn. Same damp acid woodland, black berries, violently purgative, and its charcoal made gunpowder. But bilberry is painted-in, so a decoy needs its own anchor colour and its own art. Optional, and not a priority.
 
-### ⏳ Hazelnut
-Kitchen only, fat and keeping. Infrastructure rather than a star — but it would finally give the generic `nuts` a real source.
+### ✅ Hazelnut — the larder plant
+- **Is:** *Corylus avellana*, the *noisetier*, cobnut or filbert. A multi-stemmed shrub; the nuts ripen September into October.
+- **Season / terrain:** autumn · litter, wood
+- **Gathered off the GROUND, not the bush.** Hazel passes the winter test, so by the rules it should be painted in with nuts at anchors — but nuts hang high and at eye height you are looking at your feet, so what you actually gather is what has **fallen**. Fallen hazelnuts as ordinary sprites on litter is truer to the act *and* cheaper: no anchor colour, no mask work. The bush can be in the painting without being the source.
+- **No signature dish, and not as a consolation.** `nuts` already appear in five named dishes plus the green sauce, which makes them the best-connected generic ingredient in the kitchen. Adding a hazelnut dish would make the plant *less* useful, by exactly the logic that keeps the field mushroom dishless.
+- **Its identity is that it KEEPS.** Nuts store for months in the shell with no salt, no smoke and no technique at all, which is precisely why they mattered. Hazel isn't infrastructure, it's the larder: the thing you don't eat when you find it.
+
+#### The winter lie this fixes
+
+The forager's hut runs a seasonal primary — spring greens, summer berries, autumn mushrooms, **winter nuts** (`gameState.tsx` ~2219, mirrored in `Buildings.tsx`'s `FORAGER_FOOD`). Winter is also the only season with **no extras at all**.
+
+Hazelnuts fall in September and October. By January they are gone, or the squirrels have them. Nobody gathers nuts in deep winter. The game does it because winter needs *something* and the wood is bare by design, so nuts were drafted as filler.
+
+**But the catalogue already answers this in the drying section: winter is not for gathering, it is for eating what you kept.** So:
+
+| | Now | Instead |
+| --- | --- | --- |
+| **What the hut FINDS in winter** | nuts (false) | **oyster mushroom** primary, with **judas ear** and **velvet shank** as extras. All three genuinely fruit in the cold. Winter stops being the one season with a single item and nothing beside it. |
+| **What the settlement EATS in winter** | the same nuts | nuts and chestnuts **from the autumn store**. So the autumn nut extra should get *bigger*, not disappear — it sits at 15% today. |
+
+Push autumn up and winter thin, and **the yield curve alone teaches "stock up in autumn"**: no new system, no UI, no warning. The lesson arrives as a number.
+
+**The winter START keeps its own fix, though.** Nuts-in-winter is currently solving two problems at once, and the second one is that a game begun in winter has no buffer. That is a *start* problem and deserves a start answer — a larger opening larder for winter starts, which already has a story since they arrived carrying what they had. It sits beside the existing first-year grace. **Do not distort the ecology permanently to patch the first hour of one playthrough.**
+
+#### The `nut` group
+
+Same pattern as `berry`, so no new machinery:
+
+```ts
+nut: ["hazelnut", "walnut", "chestnut"]
+```
+
+`nuts` is renamed to **`hazelnut`**, and the five dishes using `one("nuts", …)` become `any(FOOD_GROUPS.nut, …)`. Identical in shape to the Phase B meat and fish split.
+
+**But chestnut is not a nut like the others.** Roughly 45% starch and low in fat, which makes it *bread* rather than fat, where hazel and walnut are fat. That is exactly why it was *l'arbre à pain* and fed whole mountain populations, and it's already why Winter Pottage notes "chestnut is the starch, so it wants no grain". So chestnut sits in the group for generic dishes, does the grain's job in specific ones, and grinds to chestnut flour at the works. In the family without being interchangeable.
+
+**Dependency:** neither chestnut nor walnut exists as an ingredient yet, so the group is gated behind location 4 or some other source. Until then the rename to `hazelnut` stands alone and adds nothing, which is fine but worth knowing before starting.
+
+**Walnut earns its separate place** in the grove by doing things hazel can't: oil at the works, and brown dye for tailoring.
 
 ## Fungi on standing wood
 *Anchored plants, using the yellow `#FFE800` daub on painted trunks and stumps. Most fruit in **winter**, which is the season with almost nothing in it — so this whole group earns its place twice.*
@@ -444,5 +481,6 @@ That means it needs **no new systems**: kitchen recipes already produce foods, s
 - Several catalogued plants **already exist as herbs** (nettle, yarrow, comfrey, chamomile, mugwort, willowbark, wildmint, feverfew) and currently rain from the forager's hut by RNG from turn one, which the notes already call overwhelming. The minigame could **become their source** and fix that rather than adding to it. *(The Sharp-Eye draught is now the other half of this: move the rare things behind it and the baseline can get quieter.)*
 - **`lootMod` is dead weight.** Declared on 44 items, read by nothing, superseded by `raw.luck`. Either wire it or delete it; leaving it looks like a working knob and isn't one. Found while costing the bilberry tart.
 - **`nightshade` and `witchs_cap`** are alchemy ingredients with no source anywhere. Belladonna and fly agaric would give them one.
+- **The technique tiers look wrong, twice.** `preserve` is filed as "a later town method" when sun-drying is the most primitive preservation there is, and `roast` is town-gated when roasting chestnuts in the embers is the oldest cooking there is. Both read as though the tiers were assigned by how sophisticated the *word* sounds rather than by how old the practice actually is. Two instances make it a pattern. **Noted only — not ready to be implemented, and re-tiering techniques touches every dish, so it wants its own pass.**
 - **The tavern has two drinks waiting** and no system yet: bramble wine (soft, autumn, everyday) and sloe spirit (sharp, winter, a treat). Both are foraged, both keep, and neither is a dish. Worth remembering when `DESIGN_TAVERN` is picked back up.
 - **A plant can hold a story beat.** The Shepherd's share puts a chapter-3 faith seed in a chapter-1 hedge, at no cost and with no gate. If other plants can carry a beat that quietly, they should.
