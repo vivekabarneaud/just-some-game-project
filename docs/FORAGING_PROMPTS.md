@@ -67,13 +67,27 @@ Both are broad green leaves rising from the litter, which is exactly why people 
 
 > a clump of lily of the valley growing from woodland leaf litter, painterly oil study, broad green leaves in close pairs sharing a single stem, soft even light, plain dark background, no text --ar 1:1 --style raw
 
-## 4. Morel + False Morel
+## 4. Blackberry: ripe + spoiled  *(the self-decoy)*
+
+Not two species. **The same cluster, two seasons**, hanging at a violet anchor on a painted bramble. See `FORAGING_PLANTS.md` → *The Shepherd's share*.
+
+This pair breaks the usual rule on purpose: the two halves are **never on screen together**, because the season decides which one grows. So the tell has to survive being remembered rather than compared, which means pushing the difference further than looks natural side by side. Glossy vs dull is the whole thing.
+
+> a cluster of ripe blackberries hanging on a thorny cane, painterly oil study, deep glossy black-purple drupelets plump and tight-packed catching a highlight, a few red unripe ones alongside, soft even light, plain dark background, no text --ar 1:1 --style raw
+
+> a cluster of spoiled blackberries on a thorny cane in late autumn, painterly oil study, dull grey-brown shrivelled drupelets with no shine at all, collapsed and sunken, a haze of grey mould, dry withered leaves, cold damp light, plain dark background, no text --ar 1:1 --style raw
+
+Load-bearing: **"glossy… catching a highlight"** against **"dull… no shine at all."** If the spoiled one still reads as edible, add `--no glossy, shine, wet, ripe`.
+
+Two or three shapes each, as with the mushrooms. Same anchor colour for both, so **the mask needs no changes**.
+
+## 5. Morel + False Morel
 
 > a morel mushroom standing on forest floor, painterly oil study, a tall cap deeply pitted like a honeycomb on a pale hollow stalk, soft even light, plain dark background, no text --ar 1:1 --style raw
 
 > a false morel mushroom on forest floor, painterly oil study, an irregular reddish-brown cap lobed and folded like a brain rather than pitted, on a short stout stalk, soft even light, plain dark background, no text --ar 1:1 --style raw
 
-## 5. Wild Carrot + Hemlock  *(the poison you actually want)*
+## 6. Wild Carrot + Hemlock  *(the poison you actually want)*
 
 Hemlock **yields** — it's an alchemy ingredient, not a decoy. Same height as wild carrot on purpose: the **stem** is the tell.
 
@@ -81,14 +95,13 @@ Hemlock **yields** — it's an alchemy ingredient, not a decoy. Same height as w
 
 > a hemlock plant in a grassy clearing, painterly oil study, a flat white umbrella of tiny flowers on a smooth hairless stem blotched with purple, soft even light, plain dark background, no text --ar 1:1 --style raw
 
-## 6. The safe plants  *(no pair, lower priority — do these when you want a break)*
+## 7. The safe plants  *(no pair, lower priority — do these when you want a break)*
 
 | Plant | Prompt core |
 | --- | --- |
 | `field_mushroom` | a common field mushroom, white domed cap, short stout stalk, on grass |
 | `dandelion` | a dandelion plant, jagged toothed leaves in a low rosette, one yellow flower |
 | `sorrel` | a sorrel plant, arrow-shaped bright green leaves in a low clump |
-| `blackberry` | a small bramble sprig with ripe dark blackberries and thorny stem |
 | `blueberry` | a low bilberry sprig with small round blue berries and neat oval leaves |
 | `raspberry` | a raspberry sprig with soft red berries and pale undersides to the leaves |
 | `rosehip` | a wild rose stem with scarlet rosehips and a few thorns, leaves turning |

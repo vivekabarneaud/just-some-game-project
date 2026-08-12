@@ -176,8 +176,45 @@ Regionally honest, too: in the Mediterranean south butter was scarce and oil was
 
 *Not sunflower or rapeseed. Sunflower is New World (16th century, and not pressed for oil until 19th-century Russia); rapeseed was grown medievally but for **lamp** oil, being bitter until modern breeding.*
 
-### ⏳ Blackberry
-Kitchen (jam, pottage). But the **leaf** is the medicine — bramble leaf is astringent, the old remedy for sore throats. Same bush, two harvests. Painted-in bush ✅ *(bramble painted)*.
+### ✅ Blackberry
+- **Is:** *Rubus fruticosus*, the bramble. Painted into the scene ✅, fruit hanging at violet anchors on the mask. The only forage that fights back.
+- **Season / terrain:** the bush is there all year (it passes the winter test); the **fruit** is late summer into autumn.
+- **Kitchen: NOTHING NEW, and it is already the best-served wild plant in the game.** *Venison in Berries* names it specifically. *Blackberry Crumble* is **Ashwick's rank-4 loyalty recipe**, so an adventurer already teaches it. It feeds four generic berry dishes (Pottage, Wildberry Porridge, Fool, Fisher's Berry Broth), the hut forages it passively, and a mission hands over twelve. The most abundant berry being the only one with its name in a dish is exactly right.
+- **Tavern: BRAMBLE WINE.** Its one unclaimed slot, and it splits cleanly from the sloe: sloe becomes a **spirit** (sharp, strong, slow, a winter treat), bramble becomes a **wine** (soft, everyday, autumn, the thing actually poured by the cup). Blackberry is *the* country wine fruit, the one every hedgerow made. Also gives an autumn glut somewhere to go.
+- **Alchemy: rejected.** Bramble leaf is genuinely astringent, the old gargle and flux remedy — but `ease_gut` is wildmint's entire reason to exist and `cure_bleed` is yarrow's. A second weaker copy of each blurs three plants instead of sharpening one.
+
+#### The Shepherd's share — the game's first self-decoy
+
+The English folk law is that you don't pick blackberries after Michaelmas, because the Devil spat on them. It is one of the best-attested scraps of country belief there is, and it is also simply true: late blackberries go grey, soft and fly-blown as the damp comes.
+
+**The mechanic, which is better than a date rule:** the same bush bears different fruit. Glossy and dark in summer, dull grey-brown and spoiled in autumn. Still there, still pickable, worth nothing.
+
+That makes it **the only decoy in the game that is its own lookalike.** Every other pair is two species standing side by side, solvable by comparison. This one is a single species separated by a calendar, so the tell cannot be checked against the thing next to it, only against the memory of what a good one looked like two seasons ago. Which is the real lesson of foraging: *when* matters as much as *what*.
+
+It costs nothing but a slot in the basket, per the rule already set for the false chanterelle. Some mistakes should just be disappointing.
+
+**No devil, though.** The Hearthlands reframed Netheron as the devil who rebelled against the Radiant One, and believe him dead. That is the better culprit anyway, because decay genuinely *is* his leaked function — his corpse rots into the earth with no mind left to shepherd it. The folk are wrong about the reason and right about the fact, the same joke as the ramsons charm.
+
+**And it lands on Edda's fault line.** Nordveld reveres Netheron `[LOCKED]`: death is sacred, the Shepherd is owed reverence not blame — and this is precisely what the Church calls devil-worship. Edda's canon practice is *"small offerings, quiet rituals, names of plants in the old tongue."* So two people say nearly the same words over the same spoiled fruit and mean opposite things:
+
+> **The common version, a curse:** Netheron's share. Let the dead god have them.
+
+> **Edda's version, an offering, and she will not explain it:** Leave the last of them. They are the Shepherd's.
+
+She is not dismissing the fruit, she is leaving it deliberately — which is also the old rule that you never strip a hedge bare. Her Nordveld crumb passes as the settlement's curse. Deniable, which is the point, given what the Inquisition does with Nordveld practice.
+
+**The player finds out through Nell**, who reports what she sees without understanding it:
+> Edda would not let me pick the grey ones. She said to leave the last of them, they are the Shepherd's. Then she put one back on the cane, which I did not understand, because it was already spoiled.
+
+Putting one *back* is the tell. Nell misses it. The player may too. A seed for the chapter-3 faith arc, planted in chapter 1, in a hedge.
+
+*Grace note:* blackberry in Norwegian is **bjørnebær**, bear-berry. Ramsons is bear's garlic in the same wood. Edda naming both after the bear in the old tongue costs nothing and makes her sound like she learned this wood from someone else.
+
+**Not ink.** Spoiled blackberries really do make dye and ink, and the Lord keeps a journal, so it is tempting. But the moment late brambles yield anything they stop being a mistake and become a second harvest, and the lesson dies. **Oak gall** is the historically correct ink anyway, and the old oakwood is already location 5.
+
+**Build note:** the anchor daub stays one colour, one blackberry spot. The season decides what grows there. The painted mask needs no changes.
+
+**💭 The thorns, still open.** The ingredient note already reads *"paid for in scratched arms."* Leaning towards flavour only — a line in the day's report, not a cost — because a real HP nick would turn the cosiest plant into the one you avoid. But the bramble is the only thing on this list that could justify one.
 
 ### ⏳ Bilberry
 Kitchen, plus the most gameable alchemy on the list: bilberry is famously an **eyesight** remedy. In a game about searching a painting for half-hidden things, that could do something rather lovely. Painted-in mats.
@@ -261,6 +298,7 @@ Alchemy only, never food. Deliriant and visions, which speaks to the Chapter 2 m
 | **False chanterelle** | **Nothing.** Not even poisonous — just bland and faintly unpleasant, not worth the fire. Some decoys should simply be disappointing, or every mistake pays. |
 | **Bitter bolete** | **Nothing.** Tempting, since bitterness is a real herbal category (gentian, wormwood, digestive tonics) — but it isn't toxic, alchemy has heroes enough, and its identity is *ruining supper*. Let that be enough. |
 | **False morel** | **A real poison.** *Gyromitra esculenta* contains gyromitrin, which the body converts to something closely related to rocket fuel. Still eaten in Scandinavia after long parboiling; still occasionally kills people. |
+| **Spoiled blackberry** | **Nothing, and it isn't a species.** The same bush, two seasons on. The only decoy you can't solve by comparison, because its good half isn't on screen. See *The Shepherd's share*. |
 
 One decoy in three being secretly useful feels like the right ratio: enough that knowing your plants pays, not so much that carelessness does.
 
@@ -295,3 +333,5 @@ That means it needs **no new systems**: kitchen recipes already produce foods, s
 - Two aromatics (juniper, bay) would **double the local spice shelf**, which currently holds only honey and lavender — every other spice is merchant-only and unobtainable, leaving four dishes permanently theoretical.
 - Several catalogued plants **already exist as herbs** (nettle, yarrow, comfrey, chamomile, mugwort, willowbark, wildmint, feverfew) and currently rain from the forager's hut by RNG from turn one, which the notes already call overwhelming. The minigame could **become their source** and fix that rather than adding to it.
 - **`nightshade` and `witchs_cap`** are alchemy ingredients with no source anywhere. Belladonna and fly agaric would give them one.
+- **The tavern has two drinks waiting** and no system yet: bramble wine (soft, autumn, everyday) and sloe spirit (sharp, winter, a treat). Both are foraged, both keep, and neither is a dish. Worth remembering when `DESIGN_TAVERN` is picked back up.
+- **A plant can hold a story beat.** The Shepherd's share puts a chapter-3 faith seed in a chapter-1 hedge, at no cost and with no gate. If other plants can carry a beat that quietly, they should.
