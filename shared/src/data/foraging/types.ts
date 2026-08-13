@@ -86,6 +86,12 @@ export interface ForagePlant {
    *  bush simply has. What remains a sprite is the fruit, which really does
    *  come and go, and which thins out visibly as the bush is picked over. */
   anchored?: boolean;
+  /** Which KIND of painted spot this grows on, when it isn't simply its own id.
+   *  Several plants may share one: every wood fungus sits on a `wood_fungus`
+   *  daub, so a trunk the artist marked can bear supper one winter and poison
+   *  the next. Marking species individually would freeze each scene's answer
+   *  and kill its pair after one visit. */
+  anchorKind?: string;
   /** Ground this plant will grow on. Omitted = anywhere the mask allows.
    *  A decoy should share its mimic's terrain, or it would give itself away by
    *  standing somewhere the real thing never does. */

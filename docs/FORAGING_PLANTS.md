@@ -372,6 +372,8 @@ nut: ["hazelnut", "walnut", "chestnut"]
   **Chestnut's techniques, settled 2026-08-12: `boil` and `skewer`, both camp.** Boiling was the everyday preparation, in water or in milk and then mashed, and skewer covers cooking it over the fire without needing a town oven — which matters, because winter is exactly when you are poorest. `roast` stays available for the grander town version. One detail worth keeping: a chestnut must be **pierced** or it bursts in the fire, which is the most skewer-ish fact about any ingredient in the game. *(Chestnuts boiled in milk is a real dish in its own right and worth a look later.)*
 
 ### ✅ Velvet shank — and winter finally gets a test
+*(Built 2026-08-13: all four wood fungi are in `plants.ts`, sharing the `wood_fungus` daub. Winter capacity 26, sitting at roughly velvet shank 7, oyster 6, judas ear 4, rosehip 4, funeral bell 4. Art still to come.)*
+
 - **Is:** *Flammulina velutipes*, the *collybie à pied velouté* — and the same species as cultivated enokitake, though nothing about the wild one looks like the supermarket bundle. Tawny-orange caps in tight clusters on dead hardwood, on a stem that darkens to near-black and velvety toward the base. Fruits **in frost**, when almost nothing does, and survives being frozen solid.
 - **Season / terrain:** winter · anchored on standing wood (the yellow `#FFE800` daub)
 - **Decoy: *Galerina marginata*, the funeral bell.** Same dead wood, same cold weeks, same size, same brown-orange cap. It carries **the same amatoxins as the death cap**, and it has killed people who were confident they had velvet shank.

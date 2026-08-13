@@ -62,6 +62,39 @@ export const FORAGE_PLANTS: ForagePlant[] = [
     size: [1.0, 1.5], grows: ["grass"],
     weight: { summer: 9, autumn: 5 } },
 
+  // ── Fungi on standing wood. All share the `wood_fungus` daub, so a trunk the
+  //    artist marked bears whichever of them the wood is currently holding —
+  //    supper one winter, poison the next. Marking them separately would freeze
+  //    each scene's answer and kill the pair after one visit.
+  //
+  //    These are also what makes winter a season rather than a blank: they fruit
+  //    in the cold, which almost nothing does, so finding a shelf of them on a
+  //    dead trunk in the frost is a small miracle rather than a filler yield. ──
+  { id: "oyster_mushroom", name: "Oyster Mushroom", icon: "🍄", yields: "oyster_mushroom",
+    anchored: true, anchorKind: "wood_fungus",
+    note: "Grey fans shelved on dead wood, gills running down the stem. It fruits through the cold, which almost nothing does.",
+    clump: 3, rainFlush: 4,
+    size: [0.85, 1.3],
+    weight: { autumn: 6, winter: 30 }, decay: 0.012 },
+  { id: "judas_ear", name: "Judas Ear", icon: "🍄", yields: "judas_ear",
+    anchored: true, anchorKind: "wood_fungus",
+    note: "Brown, soft and unmistakably ear-shaped, growing on elder. Strange enough that nobody forgets it.",
+    clump: 3, rainFlush: 3,
+    size: [0.6, 0.95],
+    weight: { autumn: 4, winter: 22 }, decay: 0.008 },
+  { id: "velvet_shank", name: "Velvet Shank", icon: "🍄", yields: "velvet_shank",
+    anchored: true, anchorKind: "wood_fungus",
+    note: "Tawny caps in a tight tuft on dead wood, on stems that go near-black and velvety at the foot. No ring, ever.",
+    clump: 4, rainFlush: 3,
+    size: [0.55, 0.9],
+    weight: { winter: 26 }, decay: 0.015 },
+  { id: "galerina", name: "Funeral Bell", icon: "🍄", yields: null, mimics: "velvet_shank",
+    anchored: true, anchorKind: "wood_fungus",
+    note: "The same wood, the same frost, the same little brown cap. It wears a RING on the stem and its foot stays pale and dry, and it carries the death cap's poison.",
+    clump: 3, rainFlush: 3,
+    size: [0.55, 0.9],
+    weight: { winter: 18 }, decay: 0.015 },
+
   // ── Wild berries. The bushes they hang on are painted into the scenes; only
   //    the fruit is a sprite, appearing at the anchors marked on a scene's mask.
   //    See DESIGN_FORAGING_MINIGAME. ──
@@ -84,7 +117,7 @@ export const FORAGE_PLANTS: ForagePlant[] = [
     note: "The scarlet hip of the wild rose. Not for eating raw, but it cooks into a warming jam.",
     clump: 3,
     size: [0.9, 1.35], grows: ["grass", "litter"],
-    weight: { autumn: 9, winter: 100 } },
+    weight: { autumn: 9, winter: 20 } },
 
   // ── Real, and dangerous. We WANT this one in the basket (it's a poison
   //    ingredient), so it yields — it just isn't food. ──

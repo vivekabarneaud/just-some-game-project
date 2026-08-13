@@ -184,6 +184,14 @@ A quarter of autumns have no cepes. Most have one to three. Once in a long while
 
 **Rain is trivial**: extra draws weighted by `weight × rainFlush`, allowed past capacity to `RAIN_CEILING`. So a wet autumn is a *mushroom* autumn, not merely a fuller one.
 
+### A daub marks a PLACE, not an answer
+
+The yellow `wood_fungus` daub is shared by every fungus that grows on standing wood: oyster mushroom, judas ear, velvet shank and the funeral bell all sit on it, and which one a marked trunk bears is drawn from what the wood currently holds.
+
+**This is not a convenience, it is the pair working at all.** If the artist had to mark velvet shank and Galerina separately, a given scene would show the same species in the same place every time, and its tell would be worth learning exactly once. **The same trunk has to be able to bear supper one winter and poison the next.** Two tests hold that line.
+
+Any future family that shares a habitat should share a daub for the same reason. `anchorKind` on a plant says which one it uses; it defaults to the plant's own id, which is why blackberries still take violet daubs of their own.
+
 ### The rule that keeps it honest
 
 > **Left alone, the wood must fill up.** Filling outpaces fading by design, so a few days away gives a full wood back. Scarcity comes from a plant's **weight**, never from a ceiling and never from an equilibrium below capacity.

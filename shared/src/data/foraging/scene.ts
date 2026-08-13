@@ -25,7 +25,7 @@ export const SEASON_CAPACITY: Record<Season, number> = {
   spring: 60,
   summer: 75,
   autumn: 85,
-  winter: 8,
+  winter: 26,
 };
 
 /** How long an empty wood takes to fill back up, in hours. Must be short enough
@@ -346,33 +346,59 @@ export function buildScene(stock: WoodsStock, season: Season, seed: number, opts
       });
     }
   }
-  // ── Anchored plants: fruit on the bushes painted into the scene ─────────
-  // The bush is part of the picture, so these are simply the points the artist
-  // marked. Stock decides how many of them bear anything, which is what makes a
-  // picked-over bush read as picked over.
+  // ── Anchored plants: what grows on the things painted into the scene ────
+  // The bush or the trunk is part of the picture, so these are simply the spots
+  // the artist marked. Stock decides how many bear anything, which is what makes
+  // a picked-over bush read as picked over.
+  //
+  // A daub names a KIND of place, not a species: `wood_fungus` means "fungus
+  // grows on this trunk", and which fungus is drawn from what the wood currently
+  // holds. That matters for more than tidiness — if the artist had to mark
+  // velvet shank and Galerina separately, a given scene would always show the
+  // same one in the same place, and its pair would stop being a question after
+  // the first visit. The same trunk has to be able to bear supper one winter and
+  // poison the next.
   if (opts.anchors?.length) {
-    for (const p of FORAGE_PLANTS) {
-      if (!p.anchored || seasonWeight(p.id, season) <= 0) continue;
-      let left = Math.floor(stock[p.id] ?? 0);
-      if (left <= 0) continue;
+    const byKind = new Map<string, { plantId: string; x: number; y: number }[]>();
+    for (const a of opts.anchors) {
+      const list = byKind.get(a.plantId) ?? [];
+      list.push(a);
+      byKind.set(a.plantId, list);
+    }
 
-      const mine = opts.anchors.filter((a) => a.plantId === p.id);
+    for (const [kind, spots] of byKind) {
+      // Everything in season that grows in this kind of place, and has stock.
+      const takers = FORAGE_PLANTS
+        .filter((p) => p.anchored && (p.anchorKind ?? p.id) === kind && seasonWeight(p.id, season) > 0)
+        .map((p) => ({ id: p.id, left: Math.floor(stock[p.id] ?? 0) }))
+        .filter((t) => t.left > 0);
+      if (!takers.length) continue;
+
       // Shuffled, so a half-picked bush thins out unevenly rather than always
       // emptying from the same end.
-      const order = mine.map((_, i) => i);
+      const order = spots.map((_, i) => i);
       for (let i = order.length - 1; i > 0; i--) {
         const j = Math.floor(rand() * (i + 1));
         [order[i], order[j]] = [order[j], order[i]];
       }
 
-      const variants = getForagePlant(p.id)?.artVariants ?? 0;
       for (const idx of order) {
-        if (left <= 0) break;
-        const a = mine[idx];
-        left--;
+        const pool = takers.filter((t) => t.left > 0);
+        if (!pool.length) break;
+        // Weighted by what is actually standing, so a winter thick with velvet
+        // shank shows mostly velvet shank, without either ever being guaranteed.
+        const totalLeft = pool.reduce((a, t) => a + t.left, 0);
+        let r = rand() * totalLeft;
+        let chosen = pool[pool.length - 1];
+        for (const t of pool) { r -= t.left; if (r <= 0) { chosen = t; break; } }
+        chosen.left--;
+
+        const a = spots[idx];
+        const def = getForagePlant(chosen.id);
+        const variants = def?.artVariants ?? 0;
         placed.push({
-          key: `${p.id}-anchor-${idx}`,
-          plantId: p.id,
+          key: `${kind}-anchor-${idx}`,
+          plantId: chosen.id,
           x: a.x, y: a.y,
           sortY: a.y,
           anchor: true,
@@ -380,10 +406,10 @@ export function buildScene(stock: WoodsStock, season: Season, seed: number, opts
           variant: variants > 0 ? 1 + Math.floor(rand() * variants) : 1,
           flip: rand() < 0.5,
           scale: (() => {
-            const [lo, hi] = getForagePlant(p.id)?.size ?? DEFAULT_SIZE;
+            const [lo, hi] = def?.size ?? DEFAULT_SIZE;
             return (lo + rand() * (hi - lo)) * depthAt(a.y);
           })(),
-          rotate: (rand() - 0.5) * 2 * tiltFor(p.id),
+          rotate: (rand() - 0.5) * 2 * tiltFor(chosen.id),
           brightness: 0.9 + rand() * 0.22,
           saturate: 0.88 + rand() * 0.3,
         });
