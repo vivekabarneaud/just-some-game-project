@@ -208,8 +208,50 @@ Ground-level only. Bushes and trees are parked: one bush is one plant, which bre
 **Summer:**
 > a close view of a sunlit woodland floor at your feet in high summer, steep downward angle, the ground filling the whole frame, dry earth and dappled light, scattered dry leaves and a fallen branch, open uncluttered ground, painterly oil study --ar 1:1 --style raw --no sky, horizon, treeline, distant trees, background, mushrooms, berries, flowers, people, text
 
-**Winter (stark on purpose — the design wants it nearly empty):**
+**Winter (stark on purpose — but it needs WOOD, see below):**
 > a close view of a bare winter woodland floor at your feet, steep downward angle, the ground filling the whole frame, frozen dark earth with a dusting of snow, black wet twigs and dead bracken, cold blue light, painterly oil study --ar 1:1 --style raw --no sky, horizon, treeline, distant trees, background, people, text
+
+### Winter needs dead wood, and rocks cost you ground
+
+Two things learned from the first winter round *(2026-08-13)*:
+
+**Rocks are expensive.** Stone is **blocked** in the mask, so nothing grows on it. The first batch put stone across roughly a third of the ground, which is a third of the scene that can hold nothing. Put `boulders, large rocks` in the negatives; a few small stones survive anyway and those are fine.
+
+**Winter's four best plants all grow on wood.** Oyster mushroom, judas ear, velvet shank and the funeral bell only appear on a yellow `#FFE800` daub, so **a winter scene with no stump or log in it can hold almost nothing.** Trading rocks for wood is a straight upgrade: wood is plantable ground *and* the only place the cold fungi can be.
+
+**Stumps beat logs.** A broad stump face plus its sides takes four to six daubs comfortably, and it reads as dead hardwood, which is what these species want. A log at a steep downward angle shows mostly its top edge, so ask for bulk or there's no flank to hang a tuft on.
+
+> a close view of a winter woodland floor at your feet, steep downward angle, the ground filling the whole frame, a broad rotting tree stump standing at one side with soft crumbling wood and loose bark, frozen leaf litter and thin snow around it, dead bracken and black twigs, cold blue light, painterly oil study --ar 1:1 --style raw --no sky, horizon, treeline, distant trees, background, boulders, large rocks, mushrooms, berries, people, text
+
+> a close view of a bare winter woodland floor at your feet, steep downward angle, the ground filling the whole frame, a thick fallen log lying across the foreground with its bark split and peeling and one broad flank turned toward the viewer, frozen dark earth and old leaf litter under thin snow, black wet twigs and dead bracken, cold blue light, painterly oil study --ar 1:1 --style raw --no sky, horizon, treeline, distant trees, background, boulders, large rocks, mushrooms, berries, people, text
+
+Load-bearing: **"thick"** and **"one broad flank turned toward the viewer"**.
+
+### The winter rose — and why it isn't a bramble
+
+Rosehips hang all winter and are *better* after frost, so a wild rose is a winter bush that actually bears something. A bramble in winter bears nothing and is pure decoration.
+
+They're also different shapes, and MJ defaults to the wrong one:
+
+- **Bramble sprawls.** Long whippy canes arching over and rooting where the tip lands, making low tangled mounds.
+- **Dog rose is a SHRUB.** Fewer, stouter stems rising from one base, arching but distinctly upright, often taller than a person, scrambling up through other bushes rather than mounding on the ground. Stems stay reddish-brown in winter rather than going black.
+
+> a close view of the ground at the foot of a wild dog rose bush in deep winter, steep downward angle, the ground filling the whole frame, a few stout thorny stems rising from one base and arching upward, distinctly upright and taller than wide, reddish-brown bark, snow caught along the stems, frozen leaf litter and open snow below, cold blue light, painterly oil study --ar 1:1 --style raw --no sky, horizon, treeline, distant trees, background, brambles, tangled mound, berries, rosehips, fruit, flowers, people, text
+
+Load-bearing: **"a few stout stems rising from one base"**, **"distinctly upright and taller than wide"**, and **`brambles, tangled mound`** in the negatives, which is what pulls it toward the sprawl.
+
+`berries, rosehips, fruit` are negated on purpose: the hips are **sprites** at orange daubs now, and painted-in ones would clash with them.
+
+*If a roll comes back as a snowy mound anyway, keep it — that's a good **bramble** scene, and bramble is a real plant here with violet daubs, summer and autumn fruit, and the spoiled-berry beat. A different scene rather than a failed one.*
+
+### Mask daubs, per winter scene
+
+| Scene | Daubs |
+| --- | --- |
+| Stump | 🟡 yellow around the rim and down the sides |
+| Thick log | 🟡 yellow along the flank facing the viewer |
+| Dog rose | 🟠 orange along the stems, one per cluster |
+| Snowy bramble | 🟣 violet along the canes *(fruit in summer/autumn only, so a winter bramble scene shows bare canes — that's correct)* |
 
 ### What keeps a scene usable
 - **"at your feet" + "the ground filling the whole frame"** stop it becoming a landscape.
