@@ -45,11 +45,41 @@ describe("foraging — the woods' stock", () => {
 
   // The whole reason stock is a plain record rather than persisted patches:
   // a season change must need no migration and must not be able to go stale.
-  it("a season change needs no reconciliation — out-of-season stock cannot linger", () => {
+  // Seasons hand over rather than snap, so "cannot linger" means it converges
+  // to nothing on its own, not that it vanishes on the stroke of midnight.
+  it("out-of-season stock fades out and reaches exactly zero", () => {
     const summer = fullStock("summer");
     expect(summer.blueberry).toBeGreaterThan(0);
-    const nowWinter = regrow(summer, "winter", 24);
-    expect(nowWinter.blueberry).toBe(0); // winter has no cap for it
+
+    // A day into the new season: the last of them, and thinning.
+    const day = regrow(summer, "winter", 24);
+    expect(day.blueberry).toBeLessThan(summer.blueberry * 0.05);
+
+    // By the second day they are gone, and gone means 0, not a ghost of one.
+    expect(regrow(summer, "winter", 48).blueberry).toBe(0);
+  });
+
+  it("a long absence finds a FULL wood, not a dead one", () => {
+    // Guards the trap in decay: stepping dS/dt = regrow - decay·S linearly
+    // works for small steps and then inverts, subtracting more than the stock
+    // ever held. One offline catch-up must equal many small ticks.
+    const empty = Object.fromEntries(FORAGE_PLANTS.map((p) => [p.id, 0]));
+    const oneJump = regrow(empty, "autumn", 300);
+    let stepped = empty;
+    for (let i = 0; i < 300; i++) stepped = regrow(stepped, "autumn", 1);
+
+    expect(oneJump.cepe).toBeGreaterThan(0);
+    expect(oneJump.cepe).toBeCloseTo(stepped.cepe, 4);
+    expect(oneJump.chanterelle).toBeCloseTo(stepped.chanterelle, 4);
+  });
+
+  it("decay settles a plant BELOW its cap, and its decoy at the cap", () => {
+    // Why the bolete pair works: most boletes in this wood are the wrong
+    // bolete, because the prize sits at regrow/decay and the rubbish tops out.
+    const settled = regrow(fullStock("autumn"), "autumn", 500);
+    expect(settled.cepe).toBeLessThan(seasonCap("cepe", "autumn"));
+    expect(settled.bitter_bolete).toBe(seasonCap("bitter_bolete", "autumn"));
+    expect(settled.bitter_bolete).toBeGreaterThan(settled.cepe);
   });
 });
 

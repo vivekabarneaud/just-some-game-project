@@ -20,19 +20,53 @@ export function fullStock(season: Season): WoodsStock {
   return stock;
 }
 
-/** Regrow toward the seasonal cap. Called with elapsed game-hours.
- *  Pure: returns a new record rather than mutating.
+/** Fraction of an OUT-OF-SEASON plant's stock lost each hour.
  *
- *  Note it clamps to the CURRENT season's cap, so a season change needs no
- *  migration or reconciliation — autumn's mushrooms simply stop being topped up
- *  and drain away as they're picked, and winter's caps of 0 pull everything to
- *  nothing on their own. Nothing is remembered, so nothing can go stale. */
+ *  Seasons used to snap: the moment a cap closed, the stock was forced to 0.
+ *  That was correct about the state and wrong about the world — real seasons
+ *  hand over rather than switch. At 0.15/h a full patch is thin by the end of
+ *  the first day of the new season and finished during the second, so there are
+ *  late ramsons in early summer, tattier and thinning, and then there aren't.
+ *
+ *  The safety property the snap was protecting SURVIVES: out-of-season stock
+ *  only ever decreases, so it still converges to zero on its own and cannot go
+ *  stale. Nothing is remembered that isn't also being forgotten. Do not
+ *  "simplify" this back into a hard reset. See §3b. */
+const OFF_SEASON_FADE = 0.15;
+
+/** Advance the woods by `hours`. Pure: returns a new record rather than mutating.
+ *
+ *    in season   → grow toward the cap, minus decay
+ *    out of season → no growth, fade only
+ *
+ *  Note that with `decay`, the cap is NOT where a plant sits. Standing
+ *  abundance settles at `regrow / decay`, and the cap only comes into play for
+ *  a rain flush. That is deliberate: it lets the good things sit below their
+ *  ceiling while their decoys sit at theirs, so most boletes in this wood are
+ *  the wrong bolete. */
 export function regrow(stock: WoodsStock, season: Season, hours: number): WoodsStock {
   const next: WoodsStock = {};
   for (const p of FORAGE_PLANTS) {
     const cap = seasonCap(p.id, season);
     const have = stock[p.id] ?? 0;
-    next[p.id] = cap <= 0 ? Math.min(have, cap) : Math.min(cap, have + p.regrow * hours);
+    if (cap <= 0) {
+      next[p.id] = have * Math.pow(1 - OFF_SEASON_FADE, hours);
+      if (next[p.id] < 0.05) next[p.id] = 0; // don't leave a ghost of a plant behind
+      continue;
+    }
+    const decay = p.decay ?? 0;
+    if (decay <= 0) {
+      next[p.id] = Math.min(cap, have + p.regrow * hours);
+      continue;
+    }
+    // Solved rather than stepped. dS/dt = regrow - decay·S has the exact
+    // solution below, and using it means one 300-hour offline catch-up gives
+    // the same answer as three hundred one-hour ticks. Stepping this linearly
+    // works for small `hours` and then quietly inverts: a long absence
+    // subtracts more than the stock ever held and lands on zero, so coming back
+    // after a week would find a DEAD wood instead of a full one.
+    const equilibrium = p.regrow / decay;
+    next[p.id] = Math.min(cap, equilibrium + (have - equilibrium) * Math.exp(-decay * hours));
   }
   return next;
 }

@@ -93,9 +93,25 @@ export interface ForagePlant {
   /** Ceiling on how much of it the woods hold, per season. Absent or 0 means it
    *  doesn't grow then, so the scene generator won't place it at all. */
   cap: Partial<Record<Season, number>>;
-  /** Stock regrown per game-hour. Berries bounce back in days; a King Bolete
-   *  takes far longer. This is the whole rate-limit — see §3a of the design. */
+  /** Stock regrown per hour, while the plant is IN season.
+   *
+   *  Note this is no longer the number to read for "how much is out there".
+   *  With `decay`, standing abundance settles at `regrow / decay`, and `cap`
+   *  demotes to a ceiling that only a rain flush reaches. See §3b. */
   regrow: number;
+  /** Fraction of standing stock lost per hour, while in season. Exponential.
+   *
+   *  This exists for EPHEMERALITY, not for capping anything — `cap` and the
+   *  season already do that. It is what makes an unpicked flush come and go, so
+   *  that passing on a cepe may mean losing it, which is what makes a basket
+   *  slot a real decision.
+   *
+   *  Only things that genuinely vanish WITHIN a season carry one: mushrooms
+   *  (~0.015, mostly gone in 4-5 days) and soft fruit (~0.008, ~a week). A
+   *  standing green or a rosehip is 0 — the SEASON is its decay, handled by
+   *  OFF_SEASON_FADE. A decoy must match what it mimics, or the ratio drifts
+   *  for no reason. Omitted = 0. */
+  decay?: number;
 }
 
 /** One plant placed in a scene. Positions are percentages so the art can be
