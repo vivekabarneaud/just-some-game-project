@@ -8,65 +8,131 @@ import type { Season } from "../../gameState.js";
 import { FORAGE_PLANTS, getForagePlant } from "./plants.js";
 import type { PlacedPlant, TerrainId, WoodsStock } from "./types.js";
 
-/** What this plant's stock tops out at in this season (0 = doesn't grow now). */
-export function seasonCap(plantId: string, season: Season): number {
-  return getForagePlant(plantId)?.cap[season] ?? 0;
-}
+// ── The woods' stock: slots, filled by lottery ──────────────────────────────
+// The wood holds a number of SLOTS. Every free slot is filled by a weighted
+// draw, so a plant's `weight` is not a quantity but a likelihood.
+//
+// This replaced a per-plant cap, and the reason is worth keeping: a cap of 4
+// means a full autumn has exactly four cepes, always, forever. There is no such
+// thing as a bad year, and no such thing as a lucky morning. A weight of 3 means
+// usually two or three, sometimes four, and sometimes NONE, which is what a wood
+// is actually like. See §3c of the design doc.
 
-/** A fresh, untouched wood: everything at its seasonal ceiling. */
-export function fullStock(season: Season): WoodsStock {
-  const stock: WoodsStock = {};
-  for (const p of FORAGE_PLANTS) stock[p.id] = seasonCap(p.id, season);
-  return stock;
-}
+/** How many things the wood holds when it is full. One number a season instead
+ *  of a cap for every plant — and it is also the honest way to say that winter
+ *  is bare, rather than by writing twenty small numbers. */
+export const SEASON_CAPACITY: Record<Season, number> = {
+  spring: 60,
+  summer: 75,
+  autumn: 85,
+  winter: 8,
+};
+
+/** How long an empty wood takes to fill back up, in hours. Must be short enough
+ *  that going away for a few days genuinely gives you a full wood back, which is
+ *  the promise the whole no-tickets model rests on. */
+const FILL_HOURS = 60;
 
 /** Fraction of an OUT-OF-SEASON plant's stock lost each hour.
  *
- *  Seasons used to snap: the moment a cap closed, the stock was forced to 0.
- *  That was correct about the state and wrong about the world — real seasons
- *  hand over rather than switch. At 0.15/h a full patch is thin by the end of
- *  the first day of the new season and finished during the second, so there are
- *  late ramsons in early summer, tattier and thinning, and then there aren't.
+ *  Seasons used to snap: the moment a plant left season its stock was forced to
+ *  0. That was right about the state and wrong about the world. At 0.15/h a full
+ *  patch is thin by the end of the first day of the new season and finished
+ *  during the second, so there are late ramsons in early summer, tattier and
+ *  thinning, and then there aren't. The freed slots are taken by whatever is in
+ *  season now, so spring doesn't end so much as get replaced, plant by plant.
  *
- *  The safety property the snap was protecting SURVIVES: out-of-season stock
- *  only ever decreases, so it still converges to zero on its own and cannot go
- *  stale. Nothing is remembered that isn't also being forgotten. Do not
- *  "simplify" this back into a hard reset. See §3b. */
+ *  The safety property the snap protected SURVIVES: out-of-season stock only
+ *  ever decreases, so it still converges to zero on its own and cannot go stale.
+ *  Do not "simplify" this back into a hard reset. */
 const OFF_SEASON_FADE = 0.15;
 
-/** Advance the woods by `hours`. Pure: returns a new record rather than mutating.
+/** This plant's share of the draw this season. 0 = it isn't growing. */
+export function seasonWeight(plantId: string, season: Season): number {
+  return getForagePlant(plantId)?.weight[season] ?? 0;
+}
+
+/** Everything currently in season, with its weight. */
+function inSeason(season: Season): { id: string; weight: number; clump: number }[] {
+  const out: { id: string; weight: number; clump: number }[] = [];
+  for (const p of FORAGE_PLANTS) {
+    const w = p.weight[season] ?? 0;
+    if (w > 0) out.push({ id: p.id, weight: w, clump: Math.max(1, p.clump ?? 1) });
+  }
+  return out;
+}
+
+const totalStock = (stock: WoodsStock) =>
+  Object.values(stock).reduce((a, b) => a + b, 0);
+
+/** One weighted draw. Returns null only if nothing grows this season at all. */
+function drawPlant(pool: { id: string; weight: number }[], rand: () => number): string | null {
+  const total = pool.reduce((a, p) => a + p.weight, 0);
+  if (total <= 0) return null;
+  let r = rand() * total;
+  for (const p of pool) {
+    r -= p.weight;
+    if (r <= 0) return p.id;
+  }
+  return pool[pool.length - 1].id;
+}
+
+/** Fill `slots` free slots by drawing, a clump at a time. Most things fruit in
+ *  company — you find a patch of chanterelles, not a chanterelle — so a draw
+ *  places a whole troop, which is also why two full woods look different rather
+ *  than merely being shuffled. */
+function fill(
+  stock: WoodsStock, season: Season, slots: number, rand: () => number,
+  poolOverride?: { id: string; weight: number; clump: number }[],
+): void {
+  const pool = poolOverride ?? inSeason(season);
+  if (!pool.length) return;
+  let left = slots;
+  let guard = 0;
+  while (left >= 1 && guard++ < 500) {
+    const pick = drawPlant(pool, rand);
+    if (!pick) return;
+    const clump = pool.find((p) => p.id === pick)!.clump;
+    const n = Math.min(left, 1 + Math.floor(rand() * clump));
+    stock[pick] = (stock[pick] ?? 0) + n;
+    left -= n;
+  }
+}
+
+/** A fresh, untouched wood: slots filled from nothing. Takes a seed because the
+ *  composition is a roll of the dice, not a table — two full autumns are not the
+ *  same autumn. */
+export function fullStock(season: Season, seed = 1): WoodsStock {
+  const stock: WoodsStock = {};
+  for (const p of FORAGE_PLANTS) stock[p.id] = 0;
+  fill(stock, season, SEASON_CAPACITY[season], rng(seed));
+  return stock;
+}
+
+/** Advance the woods by `hours`: things fade, and free slots are drawn again.
  *
- *    in season   → grow toward the cap, minus decay
- *    out of season → no growth, fade only
- *
- *  Note that with `decay`, the cap is NOT where a plant sits. Standing
- *  abundance settles at `regrow / decay`, and the cap only comes into play for
- *  a rain flush. That is deliberate: it lets the good things sit below their
- *  ceiling while their decoys sit at theirs, so most boletes in this wood are
- *  the wrong bolete. */
-export function regrow(stock: WoodsStock, season: Season, hours: number): WoodsStock {
+ *  Decay's whole job is CHURN, not scarcity. The wood stays full when left
+ *  alone (fill outpaces fade by design), but what fills it keeps being re-rolled,
+ *  so a wood you haven't visited for a week is full AND different. Scarcity comes
+ *  from a plant's weight, never from a ceiling. */
+export function advance(stock: WoodsStock, season: Season, hours: number, seed = 1): WoodsStock {
   const next: WoodsStock = {};
   for (const p of FORAGE_PLANTS) {
-    const cap = seasonCap(p.id, season);
     const have = stock[p.id] ?? 0;
-    if (cap <= 0) {
-      next[p.id] = have * Math.pow(1 - OFF_SEASON_FADE, hours);
-      if (next[p.id] < 0.05) next[p.id] = 0; // don't leave a ghost of a plant behind
-      continue;
-    }
-    const decay = p.decay ?? 0;
-    if (decay <= 0) {
-      next[p.id] = Math.min(cap, have + p.regrow * hours);
-      continue;
-    }
-    // Solved rather than stepped. dS/dt = regrow - decay·S has the exact
-    // solution below, and using it means one 300-hour offline catch-up gives
-    // the same answer as three hundred one-hour ticks. Stepping this linearly
-    // works for small `hours` and then quietly inverts: a long absence
-    // subtracts more than the stock ever held and lands on zero, so coming back
-    // after a week would find a DEAD wood instead of a full one.
-    const equilibrium = p.regrow / decay;
-    next[p.id] = Math.min(cap, equilibrium + (have - equilibrium) * Math.exp(-decay * hours));
+    if (have <= 0) { next[p.id] = 0; continue; }
+    const out = (p.weight[season] ?? 0) > 0
+      ? have * Math.exp(-(p.decay ?? 0) * hours)          // in season: it churns
+      : have * Math.pow(1 - OFF_SEASON_FADE, hours);      // out of season: it goes
+    // Exponentials never quite reach zero, and a wood haunted by 0.003 of a
+    // ramson would keep a slot occupied forever.
+    next[p.id] = out < 0.05 ? 0 : out;
+  }
+
+  const capacity = SEASON_CAPACITY[season];
+  const free = capacity - totalStock(next);
+  if (free > 0) {
+    const growth = Math.min(free, (capacity / FILL_HOURS) * hours);
+    fill(next, season, growth, rng(seed));
   }
   return next;
 }
@@ -145,13 +211,19 @@ const INTRA_GAP = 3.2;
  *  allowed to push stock past its usual ceiling, so a wet autumn is genuinely
  *  richer than a dry one rather than merely refilling faster. */
 const RAIN_CEILING = 1.6;
-export function rain(stock: WoodsStock, season: Season): WoodsStock {
+export function rain(stock: WoodsStock, season: Season, seed = 1): WoodsStock {
   const next: WoodsStock = { ...stock };
-  for (const p of FORAGE_PLANTS) {
-    const cap = seasonCap(p.id, season);
-    if (cap <= 0 || !p.rainFlush) continue;
-    next[p.id] = Math.min(cap * RAIN_CEILING, (stock[p.id] ?? 0) + p.rainFlush);
-  }
+  const pool = FORAGE_PLANTS
+    .filter((p) => (p.weight[season] ?? 0) > 0 && p.rainFlush)
+    .map((p) => ({ id: p.id, weight: (p.weight[season] ?? 0) * p.rainFlush!, clump: Math.max(1, p.clump ?? 1) }));
+  if (!pool.length) return next;
+
+  // Weighted by weight x rainFlush, so rain doesn't merely add more of
+  // everything — it favours the things that actually answer rain. A wet autumn
+  // is a MUSHROOM autumn.
+  const room = SEASON_CAPACITY[season] * RAIN_CEILING - Object.values(next).reduce((a, b) => a + b, 0);
+  if (room <= 0) return next;
+  fill(next, season, Math.min(room, SEASON_CAPACITY[season] * 0.35), rng(seed), pool);
   return next;
 }
 
@@ -210,7 +282,7 @@ export function buildScene(stock: WoodsStock, season: Season, seed: number, opts
   // held back — they can only be placed once their hosts are down.
   const clumps: { plantId: string; count: number }[] = [];
   for (const p of FORAGE_PLANTS) {
-    if (seasonCap(p.id, season) <= 0) continue;
+    if (seasonWeight(p.id, season) <= 0) continue;
     if (p.anchored) continue;
     let left = Math.floor(stock[p.id] ?? 0);
     const most = Math.max(1, p.clump ?? 1);
@@ -280,7 +352,7 @@ export function buildScene(stock: WoodsStock, season: Season, seed: number, opts
   // picked-over bush read as picked over.
   if (opts.anchors?.length) {
     for (const p of FORAGE_PLANTS) {
-      if (!p.anchored || seasonCap(p.id, season) <= 0) continue;
+      if (!p.anchored || seasonWeight(p.id, season) <= 0) continue;
       let left = Math.floor(stock[p.id] ?? 0);
       if (left <= 0) continue;
 

@@ -90,15 +90,19 @@ export interface ForagePlant {
    *  A decoy should share its mimic's terrain, or it would give itself away by
    *  standing somewhere the real thing never does. */
   grows?: TerrainId[];
-  /** Ceiling on how much of it the woods hold, per season. Absent or 0 means it
-   *  doesn't grow then, so the scene generator won't place it at all. */
-  cap: Partial<Record<Season, number>>;
-  /** Stock regrown per hour, while the plant is IN season.
+  /** This plant's share of the draw, per season. Absent or 0 means it doesn't
+   *  grow then.
    *
-   *  Note this is no longer the number to read for "how much is out there".
-   *  With `decay`, standing abundance settles at `regrow / decay`, and `cap`
-   *  demotes to a ceiling that only a rain flush reaches. See §3b. */
-  regrow: number;
+   *  The woods hold a number of SLOTS (see `SEASON_CAPACITY`), and every free
+   *  slot is filled by a weighted lottery. So a weight is not a quantity, it is
+   *  a likelihood: how often this is what came up. Values are relative and get
+   *  normalised, so they needn't sum to anything.
+   *
+   *  This is what makes a bad year possible. A cap of 4 means a full wood has
+   *  exactly 4 cepes, always, forever; a weight of 3 means it usually has two
+   *  or three, sometimes four, and sometimes **none at all**. Which is what a
+   *  wood is actually like, and it is the whole reason the model changed. */
+  weight: Partial<Record<Season, number>>;
   /** Fraction of standing stock lost per hour, while in season. Exponential.
    *
    *  This exists for EPHEMERALITY, not for capping anything — `cap` and the

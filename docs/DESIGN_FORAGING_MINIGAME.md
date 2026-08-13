@@ -46,6 +46,8 @@ A forager's hut auto-producing 15 plant types is noise: a wall of small numbers 
 
 **Rejected: daily resets and charge/ticket counters.** Anything that expires creates guilt ("I forgot to forage today"), which is the exact opposite of a cozy downtime valve. Anything with a visible counter turns a walk in the woods into an errand.
 
+> ⚠ **The CAPS below are superseded by §3c (2026-08-13).** Stock is no longer a ceiling per plant; the wood holds slots filled by a weighted lottery, so a full autumn no longer holds the same four cepes every time. Everything else here — stock not patches, the season needing no migration, rain bumping the stock — still stands.
+
 **Instead, the limit lives in the world.** The woods hold a **stock per plant**, and picking depletes it:
 
 ```
@@ -136,6 +138,63 @@ They keep their place, at the end, **after** the decision is already made. The b
 | **A deadly pick spoils the whole basket** (Edda burns it) | The best fiction anyone proposed, and it punishes carelessness in exact proportion to it. Rejected on feel: it turns a cozy walk into something that can be *lost*, and each plant already carries plenty of outcomes. **Kept on file** in case one trip a day proves too gentle. |
 | **Identify on use rather than on pick** | Makes identification unavoidable, but a basket of question marks is a second puzzle nobody asked for, on top of an already-large roster. |
 | **"He gets lost and can't return to a map"** | Doesn't limit anything, since a new map is a new wood. **But keep the fiction:** the Lord is no forager, he wanders, he comes out somewhere he didn't plan. That's a better explanation for the re-rolled scene layout than the layout deserves, and it costs nothing. |
+
+---
+
+## 3c. Slots and a lottery *(2026-08-13 — replaces the caps in §3a)*
+
+### What was wrong with caps
+
+Per-plant caps meant **a full autumn had exactly four cepes. Every time. Forever.** No bad years, no lucky mornings, and no reason for two full woods to differ. The cap *was* the answer, so the wood had no opinion.
+
+### The model
+
+**The wood holds SLOTS. Every free slot is filled by a weighted draw.**
+
+| | |
+| --- | --- |
+| `SEASON_CAPACITY` | How many things the wood holds when full. **One number per season** (`spring 60, summer 75, autumn 85, winter 8`) instead of a cap for every plant. |
+| `weight` | A plant's share of the draw, per season. Not a quantity, a **likelihood**. Relative, normalised, `0` = not growing. |
+| `decay` | Per plant, per hour. Its job is **churn**, not scarcity. |
+| `FILL_HOURS` | How long an empty wood takes to fill: 60, so a few days away really does give you a full wood. |
+| `OFF_SEASON_FADE` | 0.15/h. Out-of-season stock fades and frees its slots. |
+
+**A draw places a CLUMP, not a single plant**, using the `clump` value that already existed. Which is how a wood works: you find a patch of chanterelles, not a chanterelle. It's also what makes two full woods genuinely different rather than merely shuffled.
+
+### What this buys
+
+**Bad years.** Sampled over 200 autumns at these weights:
+
+```
+blackberry        15.9      bitter_bolete      3.8
+chanterelle       14.7      wild_carrot        3.2
+field_mushroom    12.2      cepe               2.1
+false_chanterelle  7.9      hemlock            2.0
+
+cepe: NONE in 26% of autumns, best ever 9
+```
+
+A quarter of autumns have no cepes. Most have one to three. Once in a long while, nine. **There is a test that fails if anyone reintroduces a cap**, because this is the whole reason the model changed.
+
+**Stripping something has a consequence beyond absence.** Take every chanterelle and those slots come back as whatever wins the next draws, which may well be false chanterelles. The wood does not owe you what you removed.
+
+**The season handover comes free.** Ramsons fading frees slots; summer draws fill them. Spring doesn't end so much as get replaced, plant by plant.
+
+**Winter is fixed structurally**, by one number, rather than by authoring twenty small caps that all say "almost nothing".
+
+**Rain is trivial**: extra draws weighted by `weight × rainFlush`, allowed past capacity to `RAIN_CEILING`. So a wet autumn is a *mushroom* autumn, not merely a fuller one.
+
+### The rule that keeps it honest
+
+> **Left alone, the wood must fill up.** Filling outpaces fading by design, so a few days away gives a full wood back. Scarcity comes from a plant's **weight**, never from a ceiling and never from an equilibrium below capacity.
+
+An earlier tuning pass got this exactly backwards, holding the cepe at 2 forever by balancing its regrowth against its decay. That made the prize scarce and quietly broke the promise the entire no-tickets design rests on. **Scarcity is a likelihood, not a limit.**
+
+### Two traps, both hit once already
+
+**Never step the decay maths linearly.** `dS/dt = regrow − decay·S` integrated with one big step inverts on long spans: a 300-hour offline catch-up subtracts more than the stock ever held and lands on zero, so a player returning after a week would find a **dead wood instead of a full one**. Solve it, or advance in bounded chunks. There's a test.
+
+**Never let out-of-season stock snap to zero.** It fades, and the safety property survives because it only ever decreases, so it still converges and cannot go stale. The hard reset looks like a simplification and is a regression.
 
 ## 4. Identification, not eyesight (the key mechanic)
 

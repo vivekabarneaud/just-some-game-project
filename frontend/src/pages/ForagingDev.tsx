@@ -1,6 +1,6 @@
 import { createSignal, createMemo, createResource, For, Show } from "solid-js";
 import { FORAGE_PLANTS, getForagePlant } from "@medieval-realm/shared/data/foraging/plants";
-import { buildScene, fullStock, pick, rain, regrow, seasonCap } from "@medieval-realm/shared/data/foraging/scene";
+import { buildScene, fullStock, pick, rain, advance, seasonWeight, SEASON_CAPACITY } from "@medieval-realm/shared/data/foraging/scene";
 import type { WoodsStock } from "@medieval-realm/shared/data/foraging/types";
 import { spriteOps, toCss } from "@medieval-realm/shared/data/foraging/transform";
 import type { Season } from "@medieval-realm/shared";
@@ -128,7 +128,7 @@ export default function ForagingDev() {
     setSeed(seed() + 1); setPicked(new Set<string>()); setBasket([]); setResolved(false);
   };
   const passTime = (hours: number) => {
-    const grown = regrow(stock(), season(), hours);
+    const grown = advance(stock(), season(), hours, seed() + 1);
     setStock(grown); setWalkStock(grown); setSeed(seed() + 1); setPicked(new Set<string>());
   };
 
@@ -160,7 +160,7 @@ export default function ForagingDev() {
         <button style={BTN} onClick={() => passTime(6)}>+6h regrowth</button>
         <button style={BTN} onClick={() => passTime(24)}>+24h</button>
         <button style={BTN} title="A good rain brings the mushrooms up, past their usual ceiling"
-          onClick={() => { const wet = rain(stock(), season()); setStock(wet); setWalkStock(wet); setSeed(seed() + 1); setPicked(new Set<string>()); }}>
+          onClick={() => { const wet = rain(stock(), season(), seed() + 1); setStock(wet); setWalkStock(wet); setSeed(seed() + 1); setPicked(new Set<string>()); }}>
           🌧 it rained
         </button>
         <button style={BTN} onClick={() => { setStock(fullStock(season())); setWalkStock(fullStock(season())); setSeed(seed() + 1); setPicked(new Set<string>()); }}>Reset the woods</button>
@@ -361,10 +361,11 @@ export default function ForagingDev() {
           <div style={{ "font-size": "0.72rem", color: "var(--text-muted)", "margin-bottom": "6px" }}>
             Tuning view only. The player never sees this.
           </div>
-          <For each={FORAGE_PLANTS.filter((p) => seasonCap(p.id, season()) > 0)}>
+          <For each={FORAGE_PLANTS.filter((p) => seasonWeight(p.id, season()) > 0)}>
             {(p) => {
               const have = () => stock()[p.id] ?? 0;
-              const cap = () => seasonCap(p.id, season());
+              // No per-plant cap any more: show what share of the wood this plant is.
+              const cap = () => SEASON_CAPACITY[season()] * 0.25;
               return (
                 <div style={{ display: "flex", "align-items": "center", gap: "8px", "font-size": "0.74rem", padding: "2px 0" }}>
                   <span style={{ width: "1.4em" }}>{p.icon}</span>

@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { FORAGE_PLANTS, getForagePlant, isDecoy } from "@medieval-realm/shared/data/foraging/plants";
-import { buildScene, fullStock, pick, rain, regrow, seasonCap, sizeRangesOverlap, DEFAULT_SIZE, DEPTH_MIN, DEPTH_MAX } from "@medieval-realm/shared/data/foraging/scene";
+import { buildScene, fullStock, pick, rain, advance, seasonWeight, SEASON_CAPACITY, sizeRangesOverlap, DEFAULT_SIZE, DEPTH_MIN, DEPTH_MAX } from "@medieval-realm/shared/data/foraging/scene";
 
 // Stand-in for the anchors an artist paints on a scene mask: six places on the
 // bushes in the painting where blackberries hang.
@@ -11,75 +11,79 @@ const sixAnchors = [
 ];
 
 describe("foraging — the woods' stock", () => {
-  it("a fresh wood sits at its seasonal cap", () => {
-    const s = fullStock("autumn");
-    expect(s.chanterelle).toBe(seasonCap("chanterelle", "autumn"));
-    // Blueberries are a summer thing; autumn holds none at all.
-    expect(s.blueberry).toBe(0);
+  const total = (s: Record<string, number>) => Object.values(s).reduce((a, b) => a + b, 0);
+
+  it("a fresh wood fills its slots, and only with things in season", () => {
+    const s = fullStock("autumn", 3);
+    expect(total(s)).toBeCloseTo(SEASON_CAPACITY.autumn, 0);
+    expect(s.blueberry).toBe(0); // a summer thing
+    for (const id of Object.keys(s)) {
+      if (s[id] > 0) expect(seasonWeight(id, "autumn")).toBeGreaterThan(0);
+    }
   });
 
   it("picking depletes, and floors at zero", () => {
-    let s = fullStock("summer");
+    let s = fullStock("summer", 5);
     const before = s.blueberry;
+    expect(before).toBeGreaterThan(0);
     s = pick(s, "blueberry");
     expect(s.blueberry).toBe(before - 1);
-    for (let i = 0; i < 100; i++) s = pick(s, "blueberry");
+    for (let i = 0; i < 200; i++) s = pick(s, "blueberry");
     expect(s.blueberry).toBe(0);
   });
 
-  it("regrows toward the cap and never past it", () => {
-    let s = fullStock("summer");
-    for (let i = 0; i < 20; i++) s = pick(s, "blueberry");
-    expect(s.blueberry).toBe(0);
-    s = regrow(s, "summer", 4);
-    expect(s.blueberry).toBeGreaterThan(0);
-    s = regrow(s, "summer", 10_000);
-    expect(s.blueberry).toBe(seasonCap("blueberry", "summer"));
+  // THE reason the model is a lottery rather than a cap. Under caps, a full
+  // autumn had exactly four cepes, every time, forever: no bad years and no
+  // lucky mornings. This is the test that would fail if anyone reintroduces one.
+  it("some autumns simply have no cepes, and some have several", () => {
+    const counts = Array.from({ length: 40 }, (_, i) => fullStock("autumn", i + 1).cepe ?? 0);
+    expect(Math.min(...counts)).toBe(0);
+    expect(Math.max(...counts)).toBeGreaterThan(1);
+    expect(new Set(counts).size).toBeGreaterThan(2); // genuinely varies, not a coin flip
   });
 
-  it("plants regrow at different speeds — a King Bolete is not a blackberry", () => {
+  it("weight is a likelihood, so the common things outnumber the prize", () => {
+    const woods = Array.from({ length: 30 }, (_, i) => fullStock("autumn", i + 1));
+    const mean = (id: string) => woods.reduce((a, w) => a + (w[id] ?? 0), 0) / woods.length;
+    expect(mean("field_mushroom")).toBeGreaterThan(mean("cepe"));
+    // Most boletes in this wood are the wrong bolete. That is the whole pair.
+    expect(mean("bitter_bolete")).toBeGreaterThan(mean("cepe"));
+  });
+
+  it("a stripped wood comes back full within a few days", () => {
     const empty = Object.fromEntries(FORAGE_PLANTS.map((p) => [p.id, 0]));
-    const after = regrow(empty, "autumn", 5);
-    expect(after.blackberry).toBeGreaterThan(after.cepe);
+    expect(total(advance(empty, "autumn", 12, 7))).toBeLessThan(SEASON_CAPACITY.autumn);
+    // Three days away is the promise the whole no-tickets model rests on.
+    expect(total(advance(empty, "autumn", 72, 7))).toBeCloseTo(SEASON_CAPACITY.autumn, 0);
   });
 
-  // The whole reason stock is a plain record rather than persisted patches:
-  // a season change must need no migration and must not be able to go stale.
-  // Seasons hand over rather than snap, so "cannot linger" means it converges
-  // to nothing on its own, not that it vanishes on the stroke of midnight.
-  it("out-of-season stock fades out and reaches exactly zero", () => {
-    const summer = fullStock("summer");
+  it("left alone, the wood stays full but re-rolls what is in it", () => {
+    const a = fullStock("autumn", 11);
+    const b = advance(a, "autumn", 240, 12);
+    expect(total(b)).toBeCloseTo(SEASON_CAPACITY.autumn, 0);
+    expect(b).not.toEqual(a); // full AND different
+  });
+
+  // Seasons hand over rather than snap: out-of-season stock converges to nothing
+  // on its own, and the slots it frees go to whatever is growing now.
+  it("out-of-season stock fades to exactly zero, and its slots are taken", () => {
+    const summer = fullStock("summer", 4);
     expect(summer.blueberry).toBeGreaterThan(0);
 
-    // A day into the new season: the last of them, and thinning.
-    const day = regrow(summer, "winter", 24);
-    expect(day.blueberry).toBeLessThan(summer.blueberry * 0.05);
+    const day = advance(summer, "autumn", 24, 4);
+    expect(day.blueberry).toBeLessThan(summer.blueberry * 0.05); // the last of them
 
-    // By the second day they are gone, and gone means 0, not a ghost of one.
-    expect(regrow(summer, "winter", 48).blueberry).toBe(0);
+    const twoDays = advance(summer, "autumn", 48, 4);
+    expect(twoDays.blueberry).toBe(0);                            // gone means 0
+    expect(twoDays.chanterelle).toBeGreaterThan(0);               // autumn moved in
   });
 
-  it("a long absence finds a FULL wood, not a dead one", () => {
-    // Guards the trap in decay: stepping dS/dt = regrow - decay·S linearly
-    // works for small steps and then inverts, subtracting more than the stock
-    // ever held. One offline catch-up must equal many small ticks.
+  it("one long catch-up matches many small ticks closely enough to trust", () => {
     const empty = Object.fromEntries(FORAGE_PLANTS.map((p) => [p.id, 0]));
-    const oneJump = regrow(empty, "autumn", 300);
-    let stepped = empty;
-    for (let i = 0; i < 300; i++) stepped = regrow(stepped, "autumn", 1);
-
-    expect(oneJump.cepe).toBeGreaterThan(0);
-    expect(oneJump.cepe).toBeCloseTo(stepped.cepe, 4);
-    expect(oneJump.chanterelle).toBeCloseTo(stepped.chanterelle, 4);
-  });
-
-  it("decay settles a plant BELOW its cap, and its decoy at the cap", () => {
-    // Why the bolete pair works: most boletes in this wood are the wrong
-    // bolete, because the prize sits at regrow/decay and the rubbish tops out.
-    const settled = regrow(fullStock("autumn"), "autumn", 500);
-    expect(settled.cepe).toBeLessThan(seasonCap("cepe", "autumn"));
-    expect(settled.bitter_bolete).toBe(seasonCap("bitter_bolete", "autumn"));
-    expect(settled.bitter_bolete).toBeGreaterThan(settled.cepe);
+    const oneJump = total(advance(empty, "autumn", 300, 9));
+    let stepped: Record<string, number> = empty;
+    for (let i = 0; i < 300; i++) stepped = advance(stepped, "autumn", 1, 9);
+    expect(oneJump).toBeCloseTo(total(stepped), 0);
   });
 });
 
@@ -101,7 +105,7 @@ describe("foraging — scene generation", () => {
 
   it("never places a plant that is out of season", () => {
     for (const placed of buildScene(fullStock("winter"), "winter", 3)) {
-      expect(seasonCap(placed.plantId, "winter")).toBeGreaterThan(0);
+      expect(seasonWeight(placed.plantId, "winter")).toBeGreaterThan(0);
     }
   });
 
@@ -152,7 +156,7 @@ describe("foraging — decoys", () => {
     for (const p of FORAGE_PLANTS.filter((x) => x.yields === null)) {
       const real = getForagePlant(p.mimics!)!;
       const shared = (["spring", "summer", "autumn", "winter"] as const)
-        .filter((s) => (p.cap[s] ?? 0) > 0 && (real.cap[s] ?? 0) > 0);
+        .filter((s) => (p.weight[s] ?? 0) > 0 && (real.weight[s] ?? 0) > 0);
       expect(shared.length, `${p.name} never grows alongside ${real.name}`).toBeGreaterThan(0);
     }
   });
@@ -302,10 +306,24 @@ describe("foraging — sprite variants", () => {
 });
 
 describe("foraging — rain", () => {
-  it("brings the mushrooms up, and past their usual ceiling", () => {
-    const dry = fullStock("autumn");
-    const wet = rain(dry, "autumn");
-    expect(wet.chanterelle).toBeGreaterThan(seasonCap("chanterelle", "autumn"));
+  it("pushes the wood past what it normally holds, and puts mushrooms in it", () => {
+    const total = (s: Record<string, number>) => Object.values(s).reduce((a, b) => a + b, 0);
+    const shrooms = (s: Record<string, number>) =>
+      (s.chanterelle ?? 0) + (s.cepe ?? 0) + (s.field_mushroom ?? 0) + (s.false_chanterelle ?? 0);
+
+    // Averaged over seeds: a downpour is a roll like everything else, and the
+    // claim is about what rain DOES, not about one lucky shower.
+    const dry = Array.from({ length: 12 }, (_, i) => fullStock("autumn", i + 1));
+    const wet = dry.map((d, i) => rain(d, "autumn", i + 1));
+    const mean = (arr: Record<string, number>[], f: (s: Record<string, number>) => number) =>
+      arr.reduce((a, s) => a + f(s), 0) / arr.length;
+
+    // Rain is the one event allowed past the wood's usual capacity.
+    expect(mean(wet, total)).toBeGreaterThan(SEASON_CAPACITY.autumn);
+    // And it is weighted by rainFlush, so a wet autumn is a MUSHROOM autumn
+    // rather than simply more of everything.
+    expect(mean(wet, shrooms) - mean(dry, shrooms))
+      .toBeGreaterThan((mean(wet, total) - mean(dry, total)) * 0.5);
   });
 
   it("leaves plants that don't answer to weather alone", () => {
