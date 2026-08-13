@@ -59,7 +59,7 @@
 
 ### ✅ King Bolete
 - **Is:** *Boletus edulis*, the cèpe — fat pale bulbous stalk with a fine net near the top, brown cap, cream pores. The meatiest mushroom there is.
-- **Season / terrain:** autumn only · wood. The **slowest-regrowing plant in the game** (0.06/h), so a bolete you take is one you won't see again soon.
+- **Season / terrain:** autumn only · wood. **The rarest draw in the game** (weight 3), so roughly a quarter of autumns hold none at all, most hold one to three, and once in a long while you walk into nine.
 - **Decoy:** bitter bolete ✅ *(painted, 3 shapes each)* — the *pissacan*, which ruins a pot rather than killing you.
 - **Kitchen — two dishes:**
 
