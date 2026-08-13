@@ -95,6 +95,23 @@ Load-bearing: **"no ring on the stem"** and **"velvety toward the base"** agains
 
 This is the most paintable pair on the sheet: orange caps against black wood and snow. Worth doing early for that reason alone.
 
+## 5b. Oyster Mushroom + Judas Ear  *(winter's safe half — no decoy, easy wins)*
+
+The other two that fruit in the cold. **Both safe**, so they need no pair and no tell, which makes them the cheapest useful art on this sheet. They're what stops winter being four rosehips.
+
+> a cluster of oyster mushrooms growing from dead wood, painterly oil study, overlapping grey-brown fan-shaped shelves like a staircase, pale cream gills running down onto the short off-centre stems, soft cold light, plain dark background, no text --ar 1:1 --style raw
+
+> a group of judas ear fungus on a dead elder branch, painterly oil study, thin translucent red-brown cups folded and veined exactly like ears, soft and gelatinous looking, wet winter light, plain dark background, no text --ar 1:1 --style raw
+
+### These four attach to WOOD, which changes how to cut them out
+
+All of §5 and §5b sit on the yellow `#FFE800` daub, which goes on a **stump, a fallen log or a trunk base** in the painting. So unlike the ground plants:
+
+- **Draw them side-on**, growing sideways out of vertical wood, not viewed from above. A shelf projects; it doesn't sit.
+- **Include no bark of their own.** A sprite carrying its own piece of trunk will look wrong on every trunk but the one it was painted for.
+- **Feather the attachment edge hard.** Where the fungus meets wood should fade to nothing, so it merges into whatever it lands on. That edge does the same job a contact shadow does for a mushroom on litter.
+- **One daub per trunk face**, and you never decide what grows there. Four species share these marks and the wood picks, so the same log bears oysters one winter and the funeral bell the next.
+
 ## 6. Morel + False Morel
 
 > a morel mushroom standing on forest floor, painterly oil study, a tall cap deeply pitted like a honeycomb on a pale hollow stalk, soft even light, plain dark background, no text --ar 1:1 --style raw
