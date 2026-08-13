@@ -113,7 +113,7 @@ export const FORAGE_PLANTS: ForagePlant[] = [
     clump: 4,
     size: [0.7, 1.05], grows: ["litter", "grass"],
     weight: { summer: 12 }, decay: 0.008 },
-  { id: "rosehip", name: "Rosehip", icon: "🌹", yields: "rosehip",
+  { id: "rosehip", name: "Rosehip", icon: "🌹", yields: "rosehip", anchored: true,
     note: "The scarlet hip of the wild rose. Not for eating raw, but it cooks into a warming jam.",
     clump: 3,
     size: [0.9, 1.35], grows: ["grass", "litter"],
