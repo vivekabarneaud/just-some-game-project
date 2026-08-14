@@ -1,13 +1,13 @@
 import type { CombatContext, CombatUnit } from "../types.js";
 import { combatRandom } from "../prng.js";
-import { getAvoidance, getInitiative } from "../stats.js";
+import { getAvoidance, getInitiative, CLOSE_IN_FRACTION } from "../stats.js";
 import { calcDamageResult } from "../damage.js";
 import { pickTarget, pickTargetForAdventurer } from "../targeting.js";
 import { tryClassAbility, tryEnemyAbility } from "../abilities/index.js";
 import { evaluateTransitions, getCurrentState } from "../ai/index.js";
 import { addDamageThreat } from "../threat.js";
 import { shouldFlee, attemptFlee, moraleBreaks } from "../retreat.js";
-import { POS, CHARGE, moveUnit, computeHolds, chargePlan, pinningFoe, inReach, isBehind, hasPackmateOn, PACK_TACTICS_BONUS, livingPackmates, PACK_NERVE_ACCURACY } from "../positional.js";
+import { POS, CHARGE, moveUnit, computeHolds, chargePlan, pinningFoe, inReach, isBehind, weaponAt, paceGap, hasPackmateOn, PACK_TACTICS_BONUS, livingPackmates, PACK_NERVE_ACCURACY } from "../positional.js";
 
 /**
  * The main action phase of a round.
@@ -138,18 +138,33 @@ function basicAttack(unit: CombatUnit, ctx: CombatContext): void {
   const target = chargeTarget ?? pin ?? (unit.isEnemy ? pickTarget(unit, targetPool) : pickTargetForAdventurer(unit, targetPool));
   if (!target || target.hp <= 0) return;
   const charged = !!chargeTarget && target.id === chargeTarget.id;
-  // Reach gate: still-closing units don't swing. A charger just reached contact,
-  // so it always connects.
-  if (!pin && !charged && !inReach(unit, target)) return;
+
+  // Weapon selection (Combat Foundation §3): strike with the best weapon whose
+  // band fits the gap — primary, then sidearm, then fists. Nothing fitting =
+  // no swing this beat (still closing). Band-less units keep the old reach gate.
+  // A pin/charge guarantees contact, where sidearm/fists always fit.
+  const weapon = unit.weapons?.length ? weaponAt(unit, paceGap(unit, target)) : null;
+  if (unit.weapons?.length) {
+    if (!weapon) return;
+  } else if (!pin && !charged && !inReach(unit, target)) {
+    return;
+  }
+  // An adventurer falling back to steel (sidearm/fists) attacks physically even
+  // if their primary attack is a spell. Enemy fallbacks keep their own school —
+  // a lich's claws rake with the same deathly touch as its bolts.
+  const forcePhysical = !!weapon && weapon.kind !== "primary" && !unit.isEnemy;
 
   // The charge's run-up + gore render as ONE line; its slide animates on this entry.
   const chargePaces = charged ? Math.round(chargeInfo!.distance) : 0;
   const chargeSlide = charged ? { id: unit.id, x: Math.round(unit.x ?? 0) } : undefined;
-  const icon = charged ? "💨" : (unit.isEnemy ? unit.icon : (unit.isMagical ? "🔮" : "⚔️"));
+  const icon = charged ? "💨"
+    : weapon?.kind === "sidearm" && !unit.isEnemy ? "🗡️"
+    : weapon?.kind === "fists" && !unit.isEnemy ? "👊"
+    : (unit.isEnemy ? unit.icon : (unit.isMagical ? "🔮" : "⚔️"));
 
   // Hit resolution: one avoidance roll (Dodge + Parry − Accuracy, capped). On a
   // successful roll the attack is negated; `parried` picks the flavor.
-  const avoid = getAvoidance(unit, target);
+  const avoid = getAvoidance(unit, target, forcePhysical);
   // Pack Nerve: a packed attacker's aim firms up with each living packmate, so a
   // mob lands hits a lone skirmisher never would. Lowers the target's avoidance.
   if (unit.packNerve) {
@@ -168,13 +183,19 @@ function basicAttack(unit: CombatUnit, ctx: CombatContext): void {
     return;
   }
 
-  const dr = calcDamageResult(unit, target);
+  // A magical creature's close-in fallback rakes at the claws fraction — its
+  // magic path ignores the profile's damage values, so the falloff rides a mult.
+  const magicalClawsMult = weapon?.kind === "sidearm" && unit.isEnemy && unit.isMagical
+    ? CLOSE_IN_FRACTION : undefined;
+  const dr = calcDamageResult(unit, target, weapon
+    ? { weapon: { dmgMin: weapon.dmgMin, dmgMax: weapon.dmgMax, physical: forcePhysical }, damageMult: magicalClawsMult }
+    : undefined);
   const rawDamage = dr.rawDamage;
   const crit = dr.crit;
-  // Positional modifiers: a pinned archer's dagger does a fraction; a flank from
-  // behind does bonus damage. (Baseline; talents scale these later.)
+  // Positional modifiers: a flank from behind does bonus damage. (The old
+  // pinned-exposure fraction is gone — a pinned unit now swings its actual
+  // sidearm/fists, whose own damage IS the falloff.) Baseline; talents scale.
   let damage = dr.damage;
-  if (pin) damage = Math.max(1, Math.round(damage * POS.exposureMult));
   if (isBehind(unit, target)) damage = Math.round(damage * POS.backstabMult);
   // Pack Tactics: wolves (and any packed foe) bite harder when a packmate is
   // also on the target — the whole reason a lone wolf is weak and a pack lethal.

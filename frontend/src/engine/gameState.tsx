@@ -268,6 +268,7 @@ import {
   getWeaponAccess,
   slotAccepts,
   isRingSlot,
+  isSidearmCapable,
 } from "@medieval-realm/shared/data/items";
 import {
   calcStats as calcAdvStats,
@@ -7656,14 +7657,18 @@ export function GameProvider(props: ParentProps) {
       // into the first free ring slot (ring1, then ring2). Everything else uses
       // its own defined slot.
       let slot: ItemSlot = itemDef.slot;
-      if (targetSlot && slotAccepts(itemDef.slot, targetSlot)) {
+      if (targetSlot && slotAccepts(itemDef.slot, targetSlot, itemDef.weaponType)) {
         slot = targetSlot;
       } else if (isRingSlot(itemDef.slot)) {
         slot = !adv.equipment.ring1 ? "ring1" : !adv.equipment.ring2 ? "ring2" : "ring1";
       }
-      // Weapons gate by weapon-family CATEGORY (+ talent grants), not per-item
-      // class — mirrors armor. A stale `classes` list on a weapon is ignored.
-      if (slot === "mainHand" && itemDef.weaponType) {
+      if (slot === "sidearm") {
+        // The belt slot is universal (Combat Foundation §3): anyone can carry a
+        // knife, whatever their class fights with — but only light blades ride it.
+        if (!isSidearmCapable(itemDef)) return false;
+      } else if (slot === "mainHand" && itemDef.weaponType) {
+        // Weapons gate by weapon-family CATEGORY (+ talent grants), not per-item
+        // class — mirrors armor. A stale `classes` list on a weapon is ignored.
         if (!getWeaponAccess(adv.class, adv.talents).has(itemDef.weaponType)) return false;
       } else if (itemDef.classes.length > 0 && !itemDef.classes.includes(adv.class)) {
         // Class restriction for themed non-weapons (wizard_hat, priest_circlet…).

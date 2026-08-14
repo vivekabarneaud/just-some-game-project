@@ -27,14 +27,14 @@
 | DESIGN_CITIZEN_CATEGORIES.md | Built; code added a founder floor not in the doc. |
 | DESIGN_CONTENT_EXPANSION.md | Gems/Jewelcrafter/rings built — but a live Act-1 **enemy-roster backlog** is buried in it (palette ratify, PULL list, hale stub). |
 | DESIGN_RACES_ORIGINS.md | Built except the per-tag weakness/resist multiplier table (only 2 binary immunities exist). |
-| DESIGN_TIER1_GEAR.md | All 11 beast-gear items live + test-locked. Daggers-in-offhand blocked on the sidearm slot. |
+| DESIGN_TIER1_GEAR.md | All 11 beast-gear items live + test-locked. Daggers-as-sidearm BUILT 2026-08-14. |
 | DESIGN_EXPEDITIONS.md | Engine + recovery slot + timeline. Phase 5 content open (only 2 authored expeditions). |
 
 ## Partial — shipped core, live remainder
 
 | Doc | Note |
 | --- | --- |
-| DESIGN_COMBAT_FOUNDATION.md | Stats + hit resolution BUILT. **Weapon range bands + sidearm slot NOT** — the single biggest cross-doc blocker (gear, marsh, positional all wait on it). Damage schools declared, never applied. |
+| DESIGN_COMBAT_FOUNDATION.md | Stats + hit resolution BUILT; weapon range bands + the sidearm slot BUILT 2026-08-14 (band-aware movement + finer bands still open). Damage schools declared, never applied. |
 | DESIGN_POSITIONAL_COMBAT.md | P1+P2 built for missions (`positional.ts`, CombatBattlefield). Open: raids, positional talents, enemy flanking. |
 | DESIGN_TIER1_ENEMIES.md | Wolves/boars/outlaws slice shipped. Open: zone hazards, composable AI knobs, rest of roster. |
 | DESIGN_NOVICE_ITEMS.md | Weapon-damage model + rarity built. Open: caster spell-weapons (Phase 2). |
@@ -111,7 +111,7 @@
 
 ## Cross-cutting findings from the sweep (small, real, easy to lose)
 
-1. **Weapon range bands + sidearm slot** — highest-leverage unbuilt item; four docs blocked on it.
+1. **Weapon range bands + sidearm slot** — BUILT 2026-08-14 (was the highest-leverage blocker). Band-aware movement (spear reach, dagger 0–3) is the remaining nuance.
 2. **Damage schools/resistances** — schema exists, `damage.ts` never applies them (still binary physical/magical). MARSH's "one-line" venom resist isn't one line.
 3. **Alchemy techniques unreachable** — steep/dry/distil/char/ferment exist in data; the desk only offers crush+boil.
 4. **Stale UI strings**: "Hire your first adventurers at the recruitment board" + "Go to recruitment" (`MissionAssemblyPanel.tsx`) — recruitment no longer exists.

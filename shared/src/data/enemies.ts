@@ -188,6 +188,10 @@ export interface EnemyDefinition {
    *  un-tuned enemy hits exactly as before) — set explicitly to hand-tune. */
   dmgMin?: number;
   dmgMax?: number;
+  /** Range band of the natural attack in paces (Combat Foundation §3): a
+   *  spitting adder strikes 6–20, a biting one 0–5. Omit for the default —
+   *  melee contact, or the ranged band when combatRole is "back". */
+  attackBand?: { min: number; max: number };
   /** Beast rout: this creature BREAKS AND FLEES when its HP falls to/below this
    *  fraction of max (0-1), surviving instead of being killed. A fled enemy
    *  counts as defeated (field cleared = victory, full performance) but yields

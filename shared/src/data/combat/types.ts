@@ -49,6 +49,19 @@ export interface RawSubStats {
   luck?: number;       // + loot-drop chance (party-summed); also live on the unit for combat use (Edmund)
 }
 
+/** One weapon a unit can strike with, carrying its own range band + damage
+ *  (Combat Foundation §3). Ordered by preference on the unit (primary →
+ *  sidearm → fists); the swing uses the FIRST profile whose band fits the gap.
+ *  An enemy's natural attack (bite/spit) is a profile like any other. */
+export interface WeaponProfile {
+  kind: "primary" | "sidearm" | "fists";
+  /** Band in paces: the weapon connects when minRange ≤ gap ≤ maxRange. */
+  minRange: number;
+  maxRange: number;
+  dmgMin: number;
+  dmgMax: number;
+}
+
 /** An in-combat actor. Adventurer, NPC ally, entity, or enemy. Mutated during the simulation. */
 export interface CombatUnit {
   id: string;
@@ -85,6 +98,12 @@ export interface CombatUnit {
    *  this range is the BASE, then scaled by the primary stat in calcDamageResult. */
   dmgMin: number;
   dmgMax: number;
+  /** Range-banded weapon list, preference-ordered (primary → sidearm → fists).
+   *  The attack layer strikes with the first band that fits the current gap;
+   *  none fitting = no swing this beat. Absent in band-less contexts (raids),
+   *  where reach falls back to the role-derived rule. dmgMin/dmgMax above stay
+   *  as the primary's range for the paths that don't select by band. */
+  weapons?: WeaponProfile[];
   trait?: string;
   /** Adventurer talent ids (for combat hooks — e.g. the wounded-damage penalty
    *  can be bypassed by "unflinching" or inverted by "last_stand"). */
