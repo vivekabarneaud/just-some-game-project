@@ -81,7 +81,7 @@ interface Props {
   onCoopInvited?: (coopId: string) => void;
   /** Called when coop is cancelled or completed, to clear the panel */
   onCoopEnded?: () => void;
-  /** Called when the player clicks through to the recruitment tab from the
+  /** Called when the player clicks through to the roster tab from the
    *  empty-roster state (first guild visit: missions exist, no one to send). */
   onGoRecruit?: () => void;
 }
@@ -1435,7 +1435,7 @@ export default function MissionAssemblyPanel(props: Props) {
               The guild roster is empty.
             </p>
             <p style={{ color: "var(--text-muted)", "font-size": "0.8rem", margin: "0 0 12px", "line-height": "1.5" }}>
-              Missions need a team. Hire your first adventurers at the recruitment board.
+              Missions need a team. Adventurers will find their way here as the settlement grows and its story unfolds.
             </p>
             <Show when={props.onGoRecruit}>
               <button
@@ -1443,7 +1443,7 @@ export default function MissionAssemblyPanel(props: Props) {
                 style={{ padding: "8px 18px", "font-size": "0.85rem" }}
                 onClick={props.onGoRecruit}
               >
-                Go to recruitment
+                View the roster
               </button>
             </Show>
           </div>
