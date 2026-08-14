@@ -5945,6 +5945,17 @@ input, textarea, select {
 }
 
 /* ─── Login: the Lord's Chronicle (book) ──────────────────────────────────── */
+/* ─── The Chronicle login ──────────────────────────────────────────────────
+   Painted textures are layered OVER the original gradients, never instead of
+   them, so every one of these is optional: a missing file simply doesn't paint
+   and the CSS-only book from before shows through. Art can arrive one piece at
+   a time, and nothing breaks while it's on its way.
+
+   Drop files at:  frontend/public/images/login/
+     room.jpg    the study, with the lectern EMPTY (the book is a DOM element)
+     cover.png   the closed cover, flat and straight on, no perspective
+     page.png    aged parchment, decorated at the margins, CENTRE LEFT CLEAR
+     inside.png  optional: the cover's inner face                            */
 .lgb-screen {
   position: relative;
   min-height: 100vh;
@@ -5956,9 +5967,24 @@ input, textarea, select {
   background: radial-gradient(ellipse at 50% 40%, #1f1b33 0%, #110f1f 75%);
   padding: 24px 12px;
 }
-.lgb-stars { position: absolute; inset: 0; pointer-events: none; opacity: 0.55; }
+/* The room, blurred and pushed back. The blur is doing real work: it lets a
+   backdrop that still has a book painted into it sit behind the REAL book
+   without the two reading as two, and it throws focus onto the page where the
+   typing happens. Inset negative so the blur's soft edge never shows. */
+.lgb-screen::before {
+  content: "";
+  position: absolute;
+  inset: -12px;
+  background:
+    linear-gradient(rgba(12, 9, 20, 0.42), rgba(12, 9, 20, 0.72)),
+    url("/images/login/room.jpg") center / cover no-repeat;
+  filter: blur(5px);
+  z-index: 0;
+}
+.lgb-stars { position: absolute; inset: 0; pointer-events: none; opacity: 0.55; z-index: 1; }
 .lgb-wrap {
   position: relative;
+  z-index: 2;
   width: 430px;
   max-width: 94vw;
   perspective: 1400px;
@@ -5967,6 +5993,7 @@ input, textarea, select {
   border-radius: 6px 14px 14px 6px;
   background:
     radial-gradient(ellipse at 18% 8%, rgba(120, 90, 40, 0.10), transparent 50%),
+    url("/images/login/page.png") center / cover no-repeat,
     linear-gradient(160deg, #e6d7ae 0%, #d9c48f 55%, #cdb87f 100%);
   box-shadow: 0 18px 50px rgba(0, 0, 0, 0.65), inset 0 0 50px rgba(110, 80, 30, 0.22);
   padding: 36px 36px 28px;
@@ -6019,6 +6046,7 @@ input, textarea, select {
   border-radius: 6px 14px 14px 6px;
   background:
     linear-gradient(120deg, rgba(255, 255, 255, 0.05), transparent 30%),
+    url("/images/login/cover.png") center / cover no-repeat,
     radial-gradient(ellipse at 30% 25%, #6b4326 0%, #4e2f18 55%, #3a2110 100%);
   border: 2px solid #2c1a0c;
   box-shadow:
