@@ -181,8 +181,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  :root { transition: none; }
-}
+  :root { transition: none; }}
 
 /* Rain-on-glass / condensation layer. A STATIC image (no animation) faded in
    behind all content — it shows through the transparent content background, in
@@ -250,7 +249,7 @@
   filter: contrast(0.5) brightness(0.2) blur(1px);
 }
 :root[data-weather="snow"] .weather-glass-snow { opacity: 0.2; }
-@media (prefers-reduced-motion: reduce) { .weather-glass { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .weather-glass { transition: none; }}
 
 /* Mood vignette — a fixed frame-darkening that fades in with wet weather, for
    overcast weight. Above content, below modals; never blocks clicks. */
@@ -289,8 +288,7 @@
 }
 @media (max-width: 768px) {
   /* Sidebar floats on mobile, so the content pane spans the full width. */
-  .storm-lightning { left: 0; }
-}
+  .storm-lightning { left: 0; }}
 
 /* Specular sheen — a thin cool gleam along the TOP edge of cards that fades in
    when wet, like light catching a rain-slicked surface. Concentrated in the top
@@ -319,8 +317,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   .weather-vignette,
-  .building-card::after { transition: none; }
-}
+  .building-card::after { transition: none; }}
 
 * {
   margin: 0;
@@ -462,8 +459,7 @@ input, textarea, select {
   z-index: 15;
 }
 @media (max-width: 768px) {
-  .topbar::after { display: none; }
-}
+  .topbar::after { display: none; }}
 
 .sidebar {
   grid-area: sidebar;
@@ -529,8 +525,7 @@ input, textarea, select {
   z-index: 20;
 }
 @media (max-width: 768px) {
-  .sidebar::after { display: none; }
-}
+  .sidebar::after { display: none; }}
 
 .content {
   grid-area: content;
@@ -665,15 +660,6 @@ input, textarea, select {
   opacity: 1;
 }
 
-/* Pulsing attention nudge on the small badge inside a nav-link (harvest!,
- * plant!, new!, coop!). Scoped to the badge text only — pulsing the whole
- * nav-link (icon + label + badge) reads as "this row is broken" rather than
- * "look at this badge". The badge is conditionally rendered, so the element
- * is fresh each appearance and the animation doesn't restart mid-cycle. */
-.nav-link-pulse {
-  animation: pulse 2s ease-in-out infinite;
-}
-
 /* Notification badge — blue pill used in the sidebar (unseen counts) and on
  * cards (the "NEW" tag on RecipeCard / QuestCard / chronicle entries).
  * Variant `.is-tag` is the small uppercase label form used inside cards. */
@@ -690,24 +676,6 @@ input, textarea, select {
   align-items: center;
   justify-content: center;
   box-shadow: 0 0 6px rgba(96, 165, 250, 0.5);
-}
-/* Red "!" badge — immediate-danger flag in the sidebar. Sibling of
- * notification-badge but tuned for "fix this now, citizens will die".
- * Subtle pulse keeps it from blending into the rest of the chrome. */
-.danger-badge {
-  min-width: 20px;
-  height: 20px;
-  padding: 0 6px;
-  border-radius: 10px;
-  background: var(--accent-red);
-  color: #fff;
-  font-size: 0.85rem;
-  font-weight: 900;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 0 8px rgba(231, 76, 60, 0.55);
-  animation: pulse 2s ease-in-out infinite;
 }
 
 .notification-badge.is-tag {
@@ -780,8 +748,7 @@ input, textarea, select {
   .nav-spark-halo {
     animation: none;
     opacity: 0;
-  }
-}
+  }}
 
 /* Filigree arrow (--nav-arrow-img, set on .sidebar-nav) that slides in
  * ahead of the label on hover/active. Width animates from 0 so it costs
@@ -806,8 +773,7 @@ input, textarea, select {
 @media (prefers-reduced-motion: reduce) {
   .nav-link .nav-arrow {
     transition: opacity 0.2s ease;
-  }
-}
+  }}
 
 /* Modal backdrop overlay — shared by LootModal, QuestClaimModal,
  * ChronicleEntryModal, EventModal. Click on the backdrop typically
@@ -1028,18 +994,6 @@ input, textarea, select {
   gap: 16px;
 }
 
-.card-upgrade-btn {
-  padding: 4px 10px;
-  border-radius: 4px;
-  font-size: 0.65rem;
-  border: 1px solid var(--text-muted);
-  background: rgba(0, 0, 0, 0.4);
-  color: var(--text-muted);
-  cursor: not-allowed;
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-
 .card-upgrade-btn.affordable {
   border-color: var(--accent-green);
   background: rgba(46, 204, 113, 0.2);
@@ -1143,125 +1097,8 @@ input, textarea, select {
   color: var(--text-muted);
 }
 
-/* Building Detail Panel */
-.building-page-bg {
-  position: fixed;
-  top: 0;
-  left: var(--sidebar-width);
-  right: 0;
-  bottom: 0;
-  z-index: 0;
-  pointer-events: none;
-}
-
-.building-page-bg img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  opacity: 0.2;
-}
-
-.building-page-bg-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(
-    to bottom,
-    rgba(26, 26, 46, 0.4) 0%,
-    rgba(26, 26, 46, 0.7) 50%,
-    rgba(26, 26, 46, 0.9) 100%
-  );
-}
-
-.building-detail {
-  background: rgba(30, 42, 69, 0.85);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  padding: 24px;
-  max-width: 600px;
-  position: relative;
-  z-index: 1;
-}
-
-.building-detail-content {
-  position: relative;
-}
-
-.building-detail-header {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  margin-bottom: 20px;
-}
-
-.building-detail-icon {
-  font-size: 3rem;
-  width: 72px;
-  height: 72px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--bg-secondary);
-  border-radius: 12px;
-}
-
-.building-detail-title {
-  font-family: var(--font-heading);
-  font-size: 1.5rem;
-  color: var(--accent-gold);
-}
-
-.building-detail-desc {
-  color: var(--text-secondary);
-  font-size: 0.9rem;
-  line-height: 1.6;
-  margin-bottom: 20px;
-}
-
-.cost-grid {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 8px;
-  margin-bottom: 20px;
-}
-
-.cost-grid-2 {
-  grid-template-columns: repeat(2, 1fr);
-}
-
-.cost-item {
-  text-align: center;
-  padding: 8px;
-  background: var(--bg-secondary);
-  border-radius: 6px;
-}
-
-.cost-item-icon {
-  font-size: 1.2rem;
-}
-
-.cost-item-amount {
-  font-size: 0.85rem;
-  font-weight: 600;
-  margin-top: 2px;
-}
-
 .cost-item-amount.affordable {
   color: var(--accent-green);
-}
-
-.cost-item-amount.too-expensive {
-  color: var(--accent-red);
-}
-
-.cost-item-label {
-  font-size: 0.65rem;
-  color: var(--text-muted);
-  text-transform: uppercase;
 }
 
 /* ── Global button skins ──────────────────────────────────────────
@@ -1471,12 +1308,6 @@ input, textarea, select {
   line-height: 1.5;
 }
 
-.build-time {
-  font-size: 0.85rem;
-  color: var(--text-secondary);
-  margin-top: 12px;
-}
-
 .stat-row {
   display: flex;
   justify-content: space-between;
@@ -1547,27 +1378,6 @@ input, textarea, select {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 20px;
-}
-
-/* Raid report — was inline-styled. Promoted to class so it can collapse on mobile. */
-.raid-report {
-  margin: 12px 0;
-  padding: 16px;
-  border-radius: 8px;
-}
-.raid-report-victory {
-  background: rgba(76, 175, 80, 0.08);
-  border: 1px solid rgba(76, 175, 80, 0.3);
-}
-.raid-report-defeat {
-  background: rgba(229, 57, 53, 0.08);
-  border: 1px solid rgba(229, 57, 53, 0.3);
-}
-.raid-report-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 6px 24px;
-  font-size: 0.85rem;
 }
 
 /* Crafting materials bar — desktop default: meta and list inline together */
@@ -1654,11 +1464,6 @@ input, textarea, select {
   border-image-outset: var(--card-frame-outset);
   border-radius: 0;
 }
-/* Lower-rarity variant: the plain common frame (single line, small corners) so
-   e.g. undiscovered Chronicle pages read plainer than found (uncommon) ones. */
-.ornament-frame--common {
-  --frame-src: url(/images/frames/item_frame_common.png);
-}
 /* The frame ring already insets content ~20px; trim the panel's own padding so
    framed cards don't double up on empty margin. */
 .overview-panel.ornament-frame {
@@ -1700,20 +1505,6 @@ input, textarea, select {
   padding: 0;
 }
 
-.quest-image {
-  width: 180px;
-  flex-shrink: 0;
-  overflow: hidden;
-  border-radius: 8px 0 0 8px;
-}
-
-.quest-image img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
 .quest-panel-content {
   flex: 1;
   padding: 20px 24px;
@@ -1735,31 +1526,6 @@ input, textarea, select {
   border-radius: 10px;
   mix-blend-mode: screen;
 }
-
-/* Reusable parchment card — the warm golden panel from the overview/quest
-   board (gradient + amber border + inset shadow) PLUS the parchment texture
-   wash. For cards that want the paper feel (e.g. the tavern menu). Overrides
-   the default blue .building-card background (defined earlier, so this wins).
-   Content sits above the texture. */
-.parchment-card {
-  position: relative;
-  overflow: hidden;
-  background: linear-gradient(135deg, rgba(58, 44, 28, 0.95), rgba(42, 32, 18, 0.95));
-  border: 1px solid rgba(180, 150, 100, 0.4);
-  box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.3);
-}
-.parchment-card::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background-image: url("https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/parchment_texture.png");
-  background-size: cover;
-  opacity: 0.08;
-  pointer-events: none;
-  border-radius: 10px;
-  mix-blend-mode: screen;
-}
-.parchment-card > * { position: relative; z-index: 1; }
 
 /* Wet-weather dark overlay for the gold card. Fades in via opacity (which DOES
    animate, unlike a gradient swap), sits below the z-indexed content so text
@@ -1824,8 +1590,7 @@ input, textarea, select {
   .page-modal-backdrop,
   .page-modal-card {
     animation: none !important;
-  }
-}
+  }}
 
 /* Chronicle entry: fade the backdrop away while the card folds into the sidebar. */
 .chronicle-entry-overlay {
@@ -1868,13 +1633,6 @@ input, textarea, select {
   flex-shrink: 0;
 }
 
-.quest-progress {
-  margin-left: auto;
-  font-size: 0.8rem;
-  color: var(--text-muted);
-  white-space: nowrap;
-}
-
 .quest-narrative {
   font-size: 0.85rem;
   color: #c8b898;
@@ -1883,37 +1641,9 @@ input, textarea, select {
   line-height: 1.6;
 }
 
-.quest-body {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 20px;
-  flex-wrap: wrap;
-}
-
 .quest-objective {
   font-size: 0.9rem;
   color: var(--text-primary);
-}
-
-.quest-objective-label,
-.quest-reward-label {
-  color: var(--text-muted);
-  font-size: 0.8rem;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.quest-check {
-  color: var(--accent-green);
-  font-weight: 600;
-}
-
-.quest-rewards {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  flex-wrap: wrap;
 }
 
 .quest-reward-item {
@@ -1925,33 +1655,6 @@ input, textarea, select {
   border-radius: 4px;
   font-size: 0.85rem;
   color: var(--accent-gold);
-}
-
-.quest-claim-btn {
-  margin-top: 14px;
-  padding: 10px 28px;
-  background: linear-gradient(135deg, var(--accent-gold), #d4a017);
-  border: none;
-  border-radius: 6px;
-  color: #1a1a1a;
-  font-family: var(--font-heading);
-  font-size: 1rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: transform 0.1s, box-shadow 0.1s;
-  animation: pulse 2s infinite;
-}
-
-.quest-claim-btn:hover {
-  transform: scale(1.03);
-  box-shadow: 0 0 16px rgba(245, 197, 66, 0.4);
-}
-
-.quest-actions {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  flex-wrap: wrap;
 }
 
 .quest-link {
@@ -1989,7 +1692,6 @@ input, textarea, select {
   border-color: var(--accent-gold);
   box-shadow: 0 0 12px rgba(245, 197, 66, 0.2);
 }
-
 
 /* Locked buildings */
 .building-card.locked {
@@ -2288,43 +1990,9 @@ input, textarea, select {
   color: var(--text-secondary);
 }
 
-.reset-btn {
-  width: 100%;
-  padding: 8px;
-  background: transparent;
-  color: var(--text-muted);
-  border: 1px solid var(--border-color);
-  border-radius: 4px;
-  font-size: 0.8rem;
-  cursor: pointer;
-  transition: all 0.15s;
-}
-
-.reset-btn:hover {
-  border-color: var(--accent-red);
-  color: var(--accent-red);
-}
-
 .sidebar-account {
   padding: 12px;
   border-top: 1px solid var(--border-color);
-}
-
-.account-btn {
-  width: 100%;
-  padding: 8px;
-  background: transparent;
-  color: var(--text-muted);
-  border: 1px solid var(--border-color);
-  border-radius: 4px;
-  font-size: 0.8rem;
-  cursor: pointer;
-  transition: all 0.15s;
-}
-
-.account-btn:hover {
-  border-color: var(--text-secondary);
-  color: var(--text-secondary);
 }
 
 /* Mission Assembly - Two Column */
@@ -2363,23 +2031,6 @@ input, textarea, select {
   backdrop-filter: blur(6px);
 }
 
-/* Square team slots */
-.mission-slot-square {
-  width: 88px;
-  height: 88px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  border-radius: 8px;
-  border: 2px dashed var(--border-color);
-  background: rgba(0, 0, 0, 0.25);
-  transition: all 0.15s;
-  flex-shrink: 0;
-  overflow: hidden;
-  position: relative;
-}
-
 .mission-slot-square.filled {
   border-style: solid;
   background: rgba(255, 255, 255, 0.05);
@@ -2388,35 +2039,6 @@ input, textarea, select {
 
 .mission-slot-square.filled:hover {
   opacity: 0.8;
-}
-
-.mission-slot-square-portrait {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center 20%;
-  display: block;
-}
-
-.mission-slot-square-portrait-overlay {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  padding: 3px 4px;
-  background: linear-gradient(transparent, rgba(0, 0, 0, 0.85));
-  text-align: center;
-}
-
-.mission-slot-square-icon {
-  font-size: 1.8rem;
-}
-
-.mission-slot-square-name {
-  font-size: 0.65rem;
-  text-align: center;
-  line-height: 1.1;
-  margin-top: 2px;
 }
 
 .mission-detail-panel {
@@ -2456,25 +2078,6 @@ input, textarea, select {
   margin-right: 6px;
 }
 
-.mission-slots-grid {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-.mission-slot-box {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 14px;
-  border-radius: 8px;
-  border: 2px dashed var(--border-color);
-  background: var(--bg-primary);
-  min-width: 140px;
-  flex: 1;
-  transition: all 0.15s;
-}
-
 .mission-slot-box.filled {
   border-style: solid;
   background: rgba(255, 255, 255, 0.03);
@@ -2484,120 +2087,14 @@ input, textarea, select {
   opacity: 0.8;
 }
 
-.mission-slot-icon {
-  font-size: 1.6rem;
-  flex-shrink: 0;
-}
-
-.mission-slot-info {
-  display: flex;
-  flex-direction: column;
-}
-
-.mission-slot-name {
-  font-size: 0.9rem;
-  font-weight: 600;
-}
-
-.mission-slot-class {
-  font-size: 0.75rem;
-}
-
 /* Team panel (right column) */
 .team-panel {
   min-height: 200px;
 }
 
-.team-adv-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 8px;
-  margin-bottom: 14px;
-}
-
-.team-adv-card {
-  background: var(--bg-primary);
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  padding: 10px 12px;
-  cursor: pointer;
-  text-align: left;
-  transition: all 0.15s;
-  color: var(--text-primary);
-}
-
-.team-adv-card:hover {
-  border-color: var(--border-highlight);
-}
-
 .team-adv-card.assigned {
   border-color: var(--accent-green);
   background: rgba(46, 204, 113, 0.08);
-}
-
-.team-adv-card.class-match {
-  border-color: var(--accent-blue);
-  border-style: dashed;
-}
-
-.team-adv-header {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 6px;
-}
-
-.team-adv-icon {
-  font-size: 1.3rem;
-}
-
-.team-adv-name {
-  font-size: 0.9rem;
-  font-weight: 600;
-}
-
-.team-adv-rank {
-  font-size: 0.75rem;
-}
-
-.team-adv-check {
-  margin-left: auto;
-  color: var(--accent-green);
-  font-size: 1.1rem;
-  font-weight: bold;
-}
-
-.team-adv-stats {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 4px;
-}
-
-.team-adv-stat {
-  display: flex;
-  gap: 3px;
-  font-size: 0.8rem;
-}
-
-.team-adv-stat-label {
-  color: var(--text-muted);
-  font-size: 0.7rem;
-}
-
-.team-adv-stat-value {
-  color: var(--accent-gold);
-  font-weight: 600;
-}
-
-.team-adv-gear {
-  display: flex;
-  gap: 4px;
-  font-size: 0.9rem;
-  margin-bottom: 4px;
-}
-
-.team-adv-risk {
-  margin-top: 4px;
 }
 
 .team-summary {
@@ -2629,98 +2126,10 @@ input, textarea, select {
   font-weight: bold;
 }
 
-.team-passives {
-  padding: 8px 10px;
-  background: var(--bg-primary);
-  border-radius: 6px;
-  font-size: 0.8rem;
-  color: var(--text-muted);
-  margin-bottom: 10px;
-}
-
-.team-passives > div {
-  margin-bottom: 2px;
-}
-
-/* Mission Supply Slots */
-.supply-slots-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 10px;
-}
-
-.supply-slots-label {
-  font-size: 0.75rem;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  white-space: nowrap;
-}
-
-.supply-slot-box {
-  width: 52px;
-  height: 52px;
-  border: 2px dashed var(--border-color);
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--bg-primary);
-  flex-shrink: 0;
-  position: relative;
-}
-
 .supply-slot-box.filled {
   border-color: var(--accent-purple);
   border-style: solid;
   background: rgba(147, 112, 219, 0.08);
-}
-
-.supply-slot-empty {
-  color: var(--text-muted);
-  font-size: 1.2rem;
-}
-
-.supply-slot-picker {
-  display: flex;
-  gap: 2px;
-}
-
-.supply-pick-btn {
-  background: none;
-  border: none;
-  font-size: 1.1rem;
-  cursor: pointer;
-  padding: 2px;
-  border-radius: 4px;
-  transition: transform 0.1s;
-}
-
-.supply-pick-btn:hover:not(:disabled) {
-  transform: scale(1.2);
-}
-
-.supply-pick-btn:disabled {
-  opacity: 0.3;
-  cursor: not-allowed;
-}
-
-.supply-filled-btn {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: var(--text-primary);
-  padding: 2px;
-}
-
-.supply-filled-effect {
-  font-size: 0.55rem;
-  color: var(--accent-green);
-  white-space: nowrap;
 }
 
 /* Marketplace */
@@ -2739,69 +2148,6 @@ input, textarea, select {
   border-color: var(--accent-gold);
   color: var(--accent-gold);
   background: rgba(245, 197, 66, 0.1);
-}
-
-.trades-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 10px;
-}
-
-.trade-card {
-  background: var(--bg-panel);
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  padding: 14px 16px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-}
-
-.trade-exchange {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 0.9rem;
-}
-
-.trade-give {
-  color: var(--accent-red);
-}
-
-.trade-arrow {
-  color: var(--text-muted);
-  font-size: 1.1rem;
-}
-
-.trade-receive {
-  color: var(--accent-green);
-}
-
-.trade-buttons {
-  display: flex;
-  gap: 4px;
-}
-
-.trade-btn {
-  padding: 4px 10px;
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  border-radius: 4px;
-  color: var(--text-primary);
-  font-size: 0.8rem;
-  cursor: pointer;
-  transition: all 0.15s;
-}
-
-.trade-btn:hover:not(:disabled) {
-  border-color: var(--accent-gold);
-  color: var(--accent-gold);
-}
-
-.trade-btn:disabled {
-  opacity: 0.3;
-  cursor: not-allowed;
 }
 
 /* Leaderboard */
@@ -2907,146 +2253,10 @@ input, textarea, select {
   min-width: 0;
 }
 
-.gear-inventory-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(52px, 52px));
-  gap: 4px;
-}
-
 .gear-inventory-cards {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
-}
-
-.gear-inv-card {
-  padding: 8px 10px;
-  border: 1px solid rgba(180, 150, 100, 0.25);
-  border-radius: 6px;
-  background: rgba(26, 26, 26, 0.9);
-  cursor: pointer;
-  transition: border-color 0.15s, background 0.15s;
-}
-
-.gear-inv-card.can-equip:hover {
-  border-color: var(--accent-green);
-  background: rgba(46, 204, 113, 0.06);
-}
-
-.gear-inv-card.wrong-class {
-  opacity: 0.45;
-  cursor: not-allowed;
-}
-
-.gear-inv-card-header {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 4px;
-}
-
-.gear-inv-card-icon {
-  font-size: 1.4rem;
-  flex-shrink: 0;
-  width: 28px;
-  text-align: center;
-}
-
-.gear-inv-card-name {
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--text-primary);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.gear-inv-card-qty {
-  font-size: 0.75rem;
-  color: var(--accent-gold);
-  font-weight: 400;
-  margin-left: 4px;
-}
-
-.gear-inv-card-slot {
-  font-size: 0.7rem;
-  color: var(--text-muted);
-}
-
-.gear-inv-card-stats {
-  font-size: 0.78rem;
-  color: var(--accent-green);
-  margin-top: 2px;
-}
-
-.gear-inv-card-classes {
-  font-size: 0.7rem;
-  color: var(--text-muted);
-  font-style: italic;
-  margin-top: 2px;
-}
-
-.gear-inv-slot {
-  width: 52px;
-  height: 52px;
-  border: 1px solid rgba(180, 150, 100, 0.3);
-  border-radius: 3px;
-  background: #1a1a1a;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  cursor: pointer;
-  transition: border-color 0.15s;
-}
-
-.gear-inv-slot::before,
-.gear-inv-slot::after {
-  content: "";
-  position: absolute;
-  width: 6px;
-  height: 6px;
-  border-color: rgba(180, 150, 100, 0.3);
-  border-style: solid;
-}
-
-.gear-inv-slot::before {
-  top: 2px;
-  left: 2px;
-  border-width: 1px 0 0 1px;
-}
-
-.gear-inv-slot::after {
-  bottom: 2px;
-  right: 2px;
-  border-width: 0 1px 1px 0;
-}
-
-.gear-inv-slot.can-equip:hover {
-  border-color: var(--accent-green);
-}
-
-.gear-inv-slot.can-equip:hover::before,
-.gear-inv-slot.can-equip:hover::after {
-  border-color: var(--accent-green);
-}
-
-.gear-inv-slot.wrong-class {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
-.gear-inv-icon {
-  font-size: 1.3rem;
-}
-
-.gear-inv-qty {
-  position: absolute;
-  bottom: 1px;
-  right: 3px;
-  font-size: 0.6rem;
-  color: var(--text-secondary);
-  font-weight: 600;
 }
 
 .gear-side-label {
@@ -3220,106 +2430,6 @@ input, textarea, select {
   background: rgba(52, 152, 219, 0.2);
 }
 
-/* Item Frame */
-.item-frame {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 56px;
-  height: 56px;
-}
-
-.item-frame .item-sprite {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: 2px;
-}
-
-.item-frame .item-emoji {
-  font-size: 1.6rem;
-  line-height: 1;
-}
-
-/* Tier variants */
-.item-frame.tier-apprentice {
-  border-color: rgba(140, 120, 80, 0.6);
-}
-
-.item-frame.tier-apprentice::before,
-.item-frame.tier-apprentice::after {
-  border-color: rgba(140, 120, 80, 0.7);
-}
-
-.item-frame.tier-journeyman {
-  border-color: rgba(160, 180, 200, 0.6);
-}
-
-.item-frame.tier-journeyman::before,
-.item-frame.tier-journeyman::after {
-  border-color: rgba(160, 180, 200, 0.7);
-}
-
-.item-frame.tier-veteran {
-  border-color: rgba(220, 180, 60, 0.7);
-}
-
-.item-frame.tier-veteran::before,
-.item-frame.tier-veteran::after {
-  border-color: rgba(220, 180, 60, 0.8);
-}
-
-.item-frame.tier-elite {
-  border-color: rgba(180, 100, 255, 0.7);
-  box-shadow: 0 0 8px rgba(180, 100, 255, 0.2);
-}
-
-.item-frame.tier-elite::before,
-.item-frame.tier-elite::after {
-  border-color: rgba(180, 100, 255, 0.8);
-}
-
-/* Shrine */
-.shrine-deity-card {
-  background: linear-gradient(135deg, rgba(42, 30, 18, 0.95), rgba(30, 22, 12, 0.95));
-  border: 1px solid rgba(180, 150, 100, 0.4);
-  border-radius: 10px;
-  padding: 20px 24px;
-  box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.3);
-}
-
-.shrine-deity-header {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-}
-
-.shrine-deity-icon {
-  font-size: 2.5rem;
-}
-
-.shrine-offering {
-  margin-top: 16px;
-  padding-top: 16px;
-  border-top: 1px solid var(--border-color);
-}
-
-.shrine-offering-label {
-  font-size: 0.7rem;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  color: var(--text-muted);
-  margin-bottom: 6px;
-}
-
-.shrine-blessing-preview {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  margin-bottom: 10px;
-}
-
 .shrine-calendar {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -3474,13 +2584,6 @@ input, textarea, select {
   font-weight: 600;
 }
 
-/* Chronicle */
-.chronicle-entries {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
 .chronicle-entry {
   background: var(--bg-panel);
   border: 1px solid var(--border-color);
@@ -3497,41 +2600,6 @@ input, textarea, select {
 .chronicle-entry.expanded {
   border-color: var(--accent-gold);
   background: rgba(245, 197, 66, 0.03);
-}
-
-.chronicle-entry-header {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.chronicle-entry-cat {
-  font-size: 1.2rem;
-  flex-shrink: 0;
-}
-
-.chronicle-entry-title {
-  font-family: var(--font-heading);
-  font-size: 1rem;
-  color: var(--text-primary);
-  flex: 1;
-}
-
-.chronicle-entry-cat-label {
-  font-size: 0.7rem;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  white-space: nowrap;
-}
-
-.chronicle-entry-text {
-  margin-top: 10px;
-  padding-top: 10px;
-  border-top: 1px solid var(--border-color);
-  font-size: 0.9rem;
-  color: var(--text-secondary);
-  line-height: 1.6;
-  font-style: italic;
 }
 
 /* World Map */
@@ -3552,8 +2620,6 @@ input, textarea, select {
   user-select: none;
   -webkit-user-select: none;
 }
-
-.settlement-marker:hover polygon { filter: brightness(1.3); }
 
 /* Hover tooltip */
 .map-tooltip {
@@ -3740,8 +2806,7 @@ input, textarea, select {
   50% { box-shadow: 0 0 11px 2px rgba(231, 76, 60, 0.85); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .stat-card.stat-card-danger { animation: none; box-shadow: 0 0 8px 1px rgba(231, 76, 60, 0.6); }
-}
+  .stat-card.stat-card-danger { animation: none; box-shadow: 0 0 8px 1px rgba(231, 76, 60, 0.6); }}
 
 .stat-card-label {
   font-size: 0.66rem;
@@ -3767,16 +2832,6 @@ input, textarea, select {
   font-size: 1.1rem;
   color: var(--text-primary);
   margin-bottom: 12px;
-}
-
-.farming-empty {
-  background: var(--bg-panel);
-  border: 1px dashed var(--border-color);
-  border-radius: 8px;
-  padding: 40px;
-  text-align: center;
-  color: var(--text-muted);
-  margin-bottom: 20px;
 }
 
 .harvest-banner {
@@ -3851,33 +2906,6 @@ input, textarea, select {
   transition-duration: 60ms;
 }
 
-/* ─── Empty field slot (unbuilt plot placeholder) ─────────────── */
-/* Whole card is the click target; a subtle hint brightens on hover so
-   interactivity is discoverable without needing a button. */
-.empty-field-slot {
-  /* Dotted feels lighter than dashed while staying visible; the slight alpha
-     boost keeps the placeholder readable without feeling heavy. */
-  border: 1px dashed rgba(180, 150, 100, 0.45);
-  border-radius: 8px;
-  background: transparent;
-  min-height: 220px;
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  text-align: center;
-  cursor: pointer;
-  transition: border-color 0.18s, background 0.18s, transform 0.18s;
-}
-
-.empty-field-slot:hover {
-  border-color: var(--accent-green);
-  background: rgba(46, 204, 113, 0.05);
-  transform: translateY(-1px);
-}
-
 .empty-field-slot.disabled {
   cursor: not-allowed;
   opacity: 0.55;
@@ -3889,62 +2917,9 @@ input, textarea, select {
   transform: none;
 }
 
-.empty-field-slot-label {
-  font-family: var(--font-heading);
-  font-size: 1rem;
-  color: var(--text-secondary);
-}
-
-.empty-field-slot-cost {
-  font-size: 0.8rem;
-  color: var(--text-muted);
-}
-
-.empty-field-slot-hint {
-  font-size: 0.78rem;
-  color: var(--text-muted);
-  opacity: 0.65;
-  transition: color 0.18s, opacity 0.18s;
-  font-style: italic;
-}
-
-.empty-field-slot:hover .empty-field-slot-hint {
-  color: var(--accent-green);
-  opacity: 1;
-}
-
 .empty-field-slot.disabled .empty-field-slot-hint {
   color: var(--text-muted);
   opacity: 0.65;
-}
-
-.field-card-header {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 8px;
-}
-
-.field-card-icon {
-  font-size: 1.8rem;
-  width: 42px;
-  height: 42px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--bg-secondary);
-  border-radius: 8px;
-}
-
-.field-card-title {
-  font-family: var(--font-heading);
-  font-size: 1rem;
-  color: var(--text-primary);
-}
-
-.field-card-level {
-  font-size: 0.8rem;
-  color: var(--text-secondary);
 }
 
 .field-card-status {
@@ -3954,38 +2929,6 @@ input, textarea, select {
 
 .upgrading-status {
   color: var(--accent-blue);
-}
-
-.field-card-production {
-  font-size: 0.9rem;
-  margin-bottom: 8px;
-}
-
-.field-card-harvest {
-  font-size: 0.8rem;
-  color: var(--text-secondary);
-  margin-bottom: 8px;
-}
-
-.field-card-upgrade {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  padding-top: 8px;
-  border-top: 1px solid var(--border-color);
-}
-
-.field-upgrade-info {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  font-size: 0.75rem;
-  color: var(--text-secondary);
-}
-
-.field-upgrade-yield {
-  color: var(--accent-green);
 }
 
 .field-upgrade-btn {
@@ -4009,95 +2952,6 @@ input, textarea, select {
   cursor: not-allowed;
 }
 
-.field-remove-btn {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  background: none;
-  border: none;
-  color: var(--text-muted);
-  font-size: 0.65rem;
-  cursor: pointer;
-  padding: 2px 6px;
-  border-radius: 3px;
-  transition: all 0.15s;
-}
-
-.field-remove-btn:hover {
-  color: var(--accent-red);
-  background: rgba(231, 76, 60, 0.1);
-}
-
-.build-field-btn {
-  display: block;
-  width: 100%;
-  padding: 14px;
-  background: linear-gradient(135deg, #2a3a1e, #3a5a2e);
-  color: var(--accent-green);
-  border: 1px dashed var(--accent-green);
-  border-radius: 8px;
-  font-family: var(--font-heading);
-  font-size: 1rem;
-  cursor: pointer;
-  transition: all 0.15s;
-}
-
-.build-field-btn:hover {
-  background: linear-gradient(135deg, #3a4a2e, #4a6a3e);
-}
-
-.build-field-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  border-style: dashed;
-}
-
-.add-card-btn {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 20px;
-  background: transparent;
-  border: 2px dashed var(--border-color);
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.15s;
-  min-height: 120px;
-}
-
-.add-card-btn:hover:not(:disabled) {
-  border-color: var(--accent-green);
-  background: rgba(76, 175, 80, 0.05);
-}
-
-.add-card-btn:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
-.add-card-icon {
-  font-size: 2rem;
-  color: var(--text-muted);
-  line-height: 1;
-}
-
-.add-card-btn:hover:not(:disabled) .add-card-icon {
-  color: var(--accent-green);
-}
-
-.add-card-label {
-  font-family: var(--font-heading);
-  font-size: 0.95rem;
-  color: var(--text-secondary);
-}
-
-.add-card-cost {
-  font-size: 0.75rem;
-  color: var(--text-muted);
-}
-
 .crop-picker {
   background: var(--bg-panel);
   border: 1px solid var(--border-highlight);
@@ -4105,82 +2959,8 @@ input, textarea, select {
   padding: 20px;
 }
 
-.crop-picker-title {
-  font-family: var(--font-heading);
-  color: var(--accent-gold);
-  margin-bottom: 12px;
-}
-
 .fields-grid > .crop-picker {
   grid-column: 1 / -1;
-}
-
-.crop-picker-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 10px;
-  margin-bottom: 12px;
-}
-
-.crop-option {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-  padding: 14px 10px;
-  background: var(--bg-card);
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.15s;
-  text-align: center;
-}
-
-.crop-option:hover {
-  border-color: var(--accent-green);
-  background: var(--bg-hover);
-}
-
-.crop-option:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.crop-option-icon {
-  font-size: 2rem;
-}
-
-.crop-option-name {
-  font-family: var(--font-heading);
-  color: var(--text-primary);
-  font-size: 1rem;
-}
-
-.crop-option-desc {
-  font-size: 0.7rem;
-  color: var(--text-secondary);
-  line-height: 1.3;
-}
-
-.crop-option-yield {
-  font-size: 0.8rem;
-  color: var(--accent-green);
-  font-weight: 600;
-}
-
-.crop-picker-cancel {
-  background: none;
-  border: 1px solid var(--border-color);
-  color: var(--text-secondary);
-  padding: 6px 16px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.8rem;
-}
-
-.crop-picker-cancel:hover {
-  border-color: var(--text-muted);
-  color: var(--text-primary);
 }
 
 /* Timer */
@@ -4203,22 +2983,10 @@ input, textarea, select {
    One-shot (ends at rest) so it self-returns even while `acting` stays true.
    +translateX reads as "toward center" for both sides — enemy cards are already
    mirrored by their outer box, so a positive local X points inward for both. */
-@keyframes combat-lunge {
-  0%, 100% { transform: translateX(0) translateY(0); }
-  45% { transform: translateX(9%) translateY(var(--lunge-y, 0px)); }
-}
 @media (prefers-reduced-motion: reduce) {
-  @keyframes combat-lunge { 0%, 100% { transform: translateX(0) translateY(0); } }
-}
+  }
 /* Rout flash — fades a "Routs!" badge in then out as a unit breaks off. Animates
    only opacity so the card's counter-mirror transform on the same node survives. */
-@keyframes combat-rout-flash {
-  0% { opacity: 0; }
-  15% { opacity: 1; }
-  65% { opacity: 1; }
-  100% { opacity: 0; }
-}
-
 /* Combat-playback transport buttons (prev turn / pause / next turn / debug). */
 .cp-transport {
   background: transparent;
@@ -4274,14 +3042,6 @@ input, textarea, select {
 
 /* Active mission card during the brief combat phase — subtle red pulse so the
    player notices "something is happening right now" */
-@keyframes active-mission-combat-pulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0); border-color: var(--border-color); }
-  50%      { box-shadow: 0 0 0 4px rgba(231, 76, 60, 0.35); border-color: var(--accent-red); }
-}
-.active-mission-combat {
-  animation: active-mission-combat-pulse 1.4s ease-in-out infinite;
-}
-
 /* Exit: reverse of the entry — card fades and drops slightly while the
    backdrop fades. Shorter duration than entry (it's a departure, not a
    reveal). Triggered by toggling .exiting on the modal elements. */
@@ -4518,8 +3278,7 @@ input, textarea, select {
   .tc-loot {
     animation: none !important;
   }
-  .tc-lid { transition: none !important; }
-}
+  .tc-lid { transition: none !important; }}
 
 /* ─── Toast ───────────────────────────────────────────────── */
 
@@ -4530,11 +3289,6 @@ input, textarea, select {
 }
 
 /* Timer bar shrinks from full width to zero over the toast's duration */
-@keyframes toast-timer-bar {
-  from { transform: scaleX(1); }
-  to   { transform: scaleX(0); }
-}
-
 .quest-toast {
   animation: toast-slide-in 260ms cubic-bezier(0.2, 0.7, 0.3, 1.1) both;
 }
@@ -4549,11 +3303,6 @@ input, textarea, select {
 
 /* Marquee: the inner text starts pushed off-screen right (via padding-left: 100%)
    and ends translated fully off-screen left. One full pass across the duration. */
-@keyframes event-banner-scroll {
-  from { transform: translateX(0); }
-  to   { transform: translateX(-100%); }
-}
-
 .event-banner {
   animation: event-banner-slide-down 300ms cubic-bezier(0.2, 0.7, 0.3, 1) both;
 }
@@ -5581,9 +4330,7 @@ input, textarea, select {
 .weather-chip:focus-within .weather-tip { opacity: 1; transform: translateY(0); }
 
 @media (prefers-reduced-motion: reduce) {
-  .weather-ambience * { animation: none !important; }
-  .wx-snow, .wx-mote, .wx-fog { opacity: 0.4 !important; }
-}
+  .weather-ambience * { animation: none !important; }.wx-mote,.wx-fog { opacity: 0.4 !important; }}
 
 /* Dev tools: weather override picker */
 .dev-weather-row {
@@ -5689,20 +4436,6 @@ input, textarea, select {
   margin-top: 4px;
   font-style: italic;
 }
-
-/* ─── Login page: paper-theater stage + land-grant deed ───────────────────── */
-.lg-page {
-  position: relative;
-  min-height: 100vh;
-  min-height: 100dvh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  background: linear-gradient(180deg, #0c0c20 0%, #16213e 55%, #1d2b4a 100%);
-  padding: 24px 12px;
-}
-.lg-backdrop { position: absolute; inset: 0; pointer-events: none; }
 .lg-star {
   position: absolute;
   border-radius: 50%;
@@ -5710,57 +4443,6 @@ input, textarea, select {
   animation: lg-twinkle 3.4s ease-in-out infinite;
 }
 @keyframes lg-twinkle { 0%, 100% { opacity: 0.25; } 50% { opacity: 0.85; } }
-.lg-moon {
-  position: absolute;
-  top: 9%; right: 13%;
-  width: 74px; height: 74px;
-  border-radius: 50%;
-  background: radial-gradient(circle at 38% 35%, #f4ecca, #d9cf9e 60%, #b8ae7e);
-  box-shadow: 0 0 50px 12px rgba(244, 236, 202, 0.18);
-}
-.lg-hill { position: absolute; left: -4vw; right: -4vw; bottom: 0; }
-.lg-hill svg { display: block; width: 100%; height: 100%; }
-.lg-hill-back  { height: 46vh; filter: drop-shadow(0 -6px 14px rgba(0,0,0,0.45)); }
-.lg-hill-mid   { height: 32vh; filter: drop-shadow(0 -8px 16px rgba(0,0,0,0.55)); }
-.lg-hill-front { height: 20vh; filter: drop-shadow(0 -10px 18px rgba(0,0,0,0.6)); }
-
-/* login weather */
-.lg-drop {
-  position: absolute; top: -24px;
-  width: 1.5px; height: 16px;
-  background: linear-gradient(to bottom, transparent, rgba(165, 195, 225, 0.5));
-  animation: lg-fall linear infinite;
-}
-@keyframes lg-fall {
-  0%   { transform: translate(0, -24px) rotate(14deg); opacity: 0; }
-  10%  { opacity: 1; }
-  100% { transform: translate(26px, 105vh) rotate(14deg); opacity: 0.6; }
-}
-.lg-flake {
-  position: absolute; top: -12px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.85);
-  animation: lg-snow linear infinite;
-}
-@keyframes lg-snow {
-  0%   { transform: translate(0, -12px); opacity: 0; }
-  10%  { opacity: 0.9; }
-  50%  { transform: translate(14px, 50vh); }
-  100% { transform: translate(-10px, 105vh); opacity: 0.5; }
-}
-.lg-mote {
-  position: absolute; bottom: 18vh;
-  border-radius: 50%;
-  background: rgba(245, 210, 120, 0.65);
-  box-shadow: 0 0 5px rgba(245, 210, 120, 0.45);
-  animation: lg-float ease-in-out infinite;
-}
-@keyframes lg-float {
-  0%   { transform: translateY(0); opacity: 0; }
-  20%  { opacity: 0.8; }
-  100% { transform: translateY(-46vh); opacity: 0; }
-}
-
 /* the deed */
 .lg-deed {
   position: relative;
@@ -5776,31 +4458,6 @@ input, textarea, select {
     linear-gradient(165deg, #e8d9b0 0%, #dcc794 48%, #d3bd85 100%);
   box-shadow: 0 18px 50px rgba(0, 0, 0, 0.65), inset 0 0 60px rgba(110, 80, 30, 0.25);
   clip-path: polygon(1% 2%, 6% 0%, 14% 1.5%, 25% 0.4%, 38% 1.8%, 52% 0.2%, 66% 1.6%, 79% 0.3%, 90% 1.4%, 99% 0.6%, 100% 8%, 98.6% 18%, 99.8% 30%, 98.4% 44%, 99.7% 58%, 98.5% 71%, 99.8% 84%, 98.7% 94%, 99% 99%, 90% 98%, 78% 99.6%, 64% 98.2%, 50% 99.7%, 36% 98.3%, 22% 99.5%, 10% 98.4%, 1.5% 99%, 0.4% 90%, 1.6% 78%, 0.2% 64%, 1.5% 50%, 0.3% 36%, 1.7% 22%, 0.5% 10%);
-}
-.lg-deed-eyebrow {
-  font-family: var(--font-heading);
-  text-align: center;
-  font-size: 0.85rem;
-  letter-spacing: 0.13em;
-  text-transform: uppercase;
-  color: #5a4520;
-  margin-bottom: 2px;
-}
-.lg-deed-title {
-  font-family: var(--font-heading);
-  text-align: center;
-  font-size: 1.7rem;
-  color: #43331a;
-  margin: 0 0 10px;
-}
-.lg-deed-rule { border: none; border-top: 2px solid rgba(90, 69, 32, 0.45); margin: 8px 18% 12px; }
-.lg-deed-body {
-  font-style: italic;
-  text-align: center;
-  font-size: 0.86rem;
-  color: #5d4a28;
-  line-height: 1.5;
-  margin-bottom: 18px;
 }
 .lg-deed-error {
   background: rgba(177, 39, 28, 0.12);
@@ -5835,23 +4492,6 @@ input, textarea, select {
 }
 .lg-field input:focus { border-bottom-color: #8a5a10; }
 .lg-field input::placeholder { color: rgba(93, 74, 40, 0.45); }
-.lg-seal-row { display: flex; justify-content: center; margin: 22px 0 4px; }
-.lg-wax-seal {
-  width: 104px; height: 104px;
-  border-radius: 50%;
-  border: none;
-  cursor: pointer;
-  background: radial-gradient(circle at 35% 32%, #e05545 0%, #b1271c 45%, #7e150f 100%);
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45), inset 0 -4px 10px rgba(0, 0, 0, 0.35), inset 0 3px 6px rgba(255, 255, 255, 0.18);
-  color: #f8d9c8;
-  font-family: var(--font-heading);
-  font-size: 0.72rem;
-  line-height: 1.2;
-  padding: 14px;
-  transition: transform 130ms ease;
-}
-.lg-wax-seal:hover:not(:disabled) { transform: scale(1.05) rotate(-3deg); }
-.lg-wax-seal:disabled { cursor: wait; opacity: 0.85; }
 .lg-cold-start {
   text-align: center;
   font-size: 0.76rem;
@@ -5880,68 +4520,12 @@ input, textarea, select {
   text-decoration: underline;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .lg-star, .lg-drop, .lg-flake, .lg-mote { animation: none !important; opacity: 0.4 !important; }
-}
+@media (prefers-reduced-motion: reduce) {.lg-star { animation: none !important; opacity: 0.4 !important; }}
 @media (max-width: 520px) {
-  .lg-deed { padding: 30px 26px 24px; transform: rotate(0deg); }
-  .lg-hill-back { height: 34vh; }
-}
-
-/* ─── Login: the notice board the deed is nailed to ───────────────────────── */
-.lg-board-wrap { position: relative; z-index: 10; }
-.lg-post {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translateX(-50%);
-  width: 30px;
-  height: 100vh;
-  background:
-    repeating-linear-gradient(180deg, rgba(0,0,0,0.10) 0 26px, transparent 26px 52px),
-    linear-gradient(90deg, #3b2614 0%, #54381e 35%, #4a3019 65%, #2e1d0e 100%);
-  border-radius: 3px;
-  box-shadow: 0 0 22px rgba(0, 0, 0, 0.5);
-}
-.lg-board {
-  position: relative;
-  padding: 16px;
-  border-radius: 8px;
-  background:
-    repeating-linear-gradient(90deg, rgba(0,0,0,0.13) 0 3px, transparent 3px 86px),
-    repeating-linear-gradient(180deg, rgba(255,255,255,0.025) 0 2px, transparent 2px 9px),
-    linear-gradient(160deg, #5e3f22 0%, #4c3119 55%, #3a2410 100%);
-  border: 5px solid #2e1d0e;
-  box-shadow:
-    0 22px 55px rgba(0, 0, 0, 0.65),
-    inset 0 1px 0 rgba(255, 255, 255, 0.07),
-    inset 0 0 28px rgba(0, 0, 0, 0.45);
-}
+  .lg-deed { padding: 30px 26px 24px; transform: rotate(0deg); }}
 /* pinned flat: tighten the deed's shadow so it sits ON the wood */
 .lg-board .lg-deed {
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.45), inset 0 0 60px rgba(110, 80, 30, 0.25);
-}
-.lg-nail {
-  position: absolute;
-  width: 11px;
-  height: 11px;
-  border-radius: 50%;
-  background: radial-gradient(circle at 34% 30%, #c9c9c9 0%, #8a8a8a 40%, #3f3f3f 100%);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.55), 1px 3px 5px rgba(0, 0, 0, 0.35);
-}
-/* nail positions track the deed's tilt: the paper hangs from them */
-.lg-nail-tl { top: 33px; left: 36px; }
-.lg-nail-tr { top: 24px; right: 38px; }
-.lg-nail-bl { bottom: 26px; left: 38px; }
-.lg-nail-br { bottom: 35px; right: 36px; }
-
-@media (max-width: 520px) {
-  .lg-board { padding: 10px; border-width: 4px; }
-  .lg-post { width: 22px; }
-  .lg-nail-tl { top: 22px; left: 24px; }
-  .lg-nail-tr { top: 18px; right: 26px; }
-  .lg-nail-bl { bottom: 18px; left: 26px; }
-  .lg-nail-br { bottom: 22px; right: 24px; }
 }
 
 /* ─── Login: the Lord's Chronicle (book) ──────────────────────────────────── */
@@ -6066,24 +4650,7 @@ input, textarea, select {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .lgb-cover { transition: none; }
-}
-
-/* Settings: the danger zone (start a new game) */
-.settings-danger-btn {
-  display: block;
-  width: 100%;
-  padding: 9px 12px;
-  background: rgba(231, 76, 60, 0.08);
-  color: var(--accent-red);
-  border: 1px solid rgba(231, 76, 60, 0.45);
-  border-radius: 6px;
-  font-size: 0.85rem;
-  cursor: pointer;
-  text-align: left;
-  transition: background 130ms ease;
-}
-.settings-danger-btn:hover { background: rgba(231, 76, 60, 0.16); }
+  .lgb-cover { transition: none; }}
 .settings-confirm {
   border: 1px solid rgba(231, 76, 60, 0.5);
   border-radius: 8px;
@@ -6103,29 +4670,6 @@ input, textarea, select {
   margin: 0 0 12px;
 }
 .settings-confirm-actions { display: flex; gap: 8px; }
-.settings-confirm-keep {
-  flex: 1;
-  padding: 9px;
-  background: var(--bg-primary);
-  color: var(--text-secondary);
-  border: 1px solid var(--border-color);
-  border-radius: 6px;
-  font-size: 0.85rem;
-  cursor: pointer;
-}
-.settings-confirm-keep:hover { color: var(--text-primary); border-color: var(--border-highlight); }
-.settings-confirm-burn {
-  flex: 1;
-  padding: 9px;
-  background: var(--accent-red);
-  color: #fff;
-  border: none;
-  border-radius: 6px;
-  font-weight: 700;
-  font-size: 0.85rem;
-  cursor: pointer;
-}
-.settings-confirm-burn:hover { background: #c0392b; }
 
 /* ─── Traveling merchant visit modal ─────────────────────────────
  * Two panels: the visit (scene + why he won't stay) on the left, his wares on
@@ -6159,16 +4703,6 @@ input, textarea, select {
 .merchant-offer-trade { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 8px; flex-wrap: wrap; }
 .merchant-offer-arrow { color: var(--text-muted); }
 .merchant-offer-get { color: var(--accent-gold); font-weight: 600; }
-.merchant-offer-btn {
-  width: 100%; padding: 6px 10px; border-radius: 5px; cursor: pointer;
-  background: var(--accent-gold); color: #1a1a1a; border: none; font-weight: bold; font-size: 0.82rem;
-}
-.merchant-offer-btn:disabled { background: var(--bg-secondary); color: var(--text-muted); cursor: default; }
-.merchant-visit-close {
-  margin-top: 16px; width: 100%; padding: 8px; border-radius: 6px; cursor: pointer;
-  background: none; border: 1px solid var(--border-color); color: var(--text-secondary); font-size: 0.85rem;
-}
-.merchant-visit-close:hover { background: var(--bg-hover); color: var(--text-primary); }
 
 /* Kitchen: clicking a cooking station empty-handed pulses the shelf row, so the
    nudge answers the question the player just asked ("where do ingredients come
@@ -6181,5 +4715,4 @@ input, textarea, select {
 }
 .kitchen-shelf-nudge { animation: kitchen-shelf-nudge 1.2s ease-out; }
 @media (prefers-reduced-motion: reduce) {
-  .kitchen-shelf-nudge { animation: none; box-shadow: 0 0 0 3px rgba(245, 197, 66, 0.35); }
-}
+  .kitchen-shelf-nudge { animation: none; box-shadow: 0 0 0 3px rgba(245, 197, 66, 0.35); }}
