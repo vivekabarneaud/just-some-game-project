@@ -1,6 +1,8 @@
 # Design: Traveling Merchants
 
-Status: **design locked (spine)** — July 2026. Not built. Evolves the existing
+**Status (2026-08-14 audit):** slice 1 BUILT — 2 named visitors (Cobb, the Lammast wagon) with first-visit modal + return stall on the Marketplace. Remaining: culture merchants/shelves, rotation + seasonal rhythm, rapport, route progression. Known contradiction: `Marketplace.tsx` comments say faceless random offers are retired, but `merchantOffers()` still generates them.
+
+Evolves the existing
 marketplace NPC-offer list into named, origin-tied visitors. Pairs with the
 marketplace price rework (see DESIGN — marketplace rework / `project_marketplace_rework`).
 

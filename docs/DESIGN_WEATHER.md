@@ -1,6 +1,6 @@
 # Weather — Design
 
-Status: **Layer 1 shipped (cosmetic).** Layers 2 & 3 designed, not built.
+**Status (2026-08-14 audit):** Layer 1 BUILT (derived weather, ambience, chip, sound mixer). Layer 2 partially SHIPPED via DESIGN_WEATHER_YIELD (climate bands + heat_wave/heavy_rain crop events) — this doc's Layer-2 TODO framing is outdated. Remaining: storm/blizzard mechanics (storm is vocabulary+art only; blizzard doesn't exist) and Layer 3 aether storms.
 
 Weather splits into two genuinely different things; keeping them separate is what
 keeps the system from feeling muddy.

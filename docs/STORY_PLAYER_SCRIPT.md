@@ -1,5 +1,7 @@
 # Valenheart — Player Story Script
 
+**Status (2026-08-14 audit):** Stories 2–13 are authored-but-DORMANT behind the `CH2_GATE` sentinel in `storyMissions.ts` — none of it currently fires. The shipped Chapter 1 (Scouting → Run Down → No One Followed → Clear the Marshes → Bad Blood) is NOT in this script at all, and story_12 is absent from code (storyOrder jumps 14→16). Still the best prose source for the deferred chapters, but do not implement from it without the Act-1 chapter restructure in mind.
+
 > **What this is.** A reading-order view of the story content the player actually sees. Mission cards (real text), short writer's notes on what happens during each mission (so you understand the chain of cause and effect), and the chronicle entries the player reads after returning. Banners and robins appear in the order they fire.
 >
 > **What this is not.** No internal lore mechanics, no offscreen worldbuilding, no spoilers about what *we* know but the player doesn't. If something hasn't been revealed in-game by this point in the script, it isn't in this doc.

@@ -1,5 +1,7 @@
 # DESIGN — Kept Animals (dogs & cats)
 
+**Status (2026-08-14 audit):** dogs BUILT — `KeptAnimal` state, kennel building + capacity, guard/hunt jobs + leveling, happiness, breeding, strays, named story firsts (Truffle, Ser Sniffsalot). Cats + the vermin loop entirely unbuilt (the `mouse` job value is declared but unused; no cat_shelter building).
+
 One shared model for the working animals the settlement *keeps* — dogs and cats
 — rather than two one-off mechanics. They differ only in the jobs they can take.
 Cozy and attachment-driven: named companions with moods you post to useful work,

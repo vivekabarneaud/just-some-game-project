@@ -1,6 +1,6 @@
 # DESIGN: Combat Foundation — Stats & Weapons (SOURCE OF TRUTH)
 
-**Status:** Design agreed, not yet built. Drafted 2026-07-25.
+**Status (2026-08-14 audit):** PARTIAL — §1–2 stat schema + hit resolution BUILT (`shared/src/data/combat/stats.ts`: avoidance/parry/accuracy, Presence, raw sub-stats, Luck; locked by `hitResolution.test.ts`/`weaponDamage.test.ts`); the "current reality" section below is obsolete. NOT built: weapon min/max range bands, the sidearm slot, band-based weapon selection — the single biggest cross-doc blocker (TIER1_GEAR daggers-in-offhand, MARSH constrict-at-range-0, POSITIONAL reach all wait on it). Damage schools/resistances are schema-only: declared in types but never applied in `damage.ts`.
 **One-line:** One uniform stat + weapon layer shared by *every* combatant (adventurer and enemy), so positioning, gear, talents, and per-creature authoring all sit on the same base. This is the substrate the Tier-1 enemy pass and the talent trees build on.
 
 Related: [[DESIGN_POSITIONAL_COMBAT.md]] (the 1D layer that consumes these), the enemy-by-enemy authoring pass.

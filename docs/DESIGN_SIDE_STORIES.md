@@ -1,6 +1,6 @@
 # Side-Story Chains — Design (IDEA)
 
-**Status:** IDEA / banked 2026-06-22. Post-prune, likely post-alpha. The chronicle/discovery approach shrunk to optional, bite-sized arcs.
+**Status (2026-08-14 audit):** BUILT as a system — 8 named sideChains in mission data + the director layer (`frontend/src/engine/story/chains.ts`, 10 registered chains, tests). The Bog Witch front + narrowing-offerings bargain arc is live. Remaining: the Bog Witch back half (cabin in the reeds / portrait-and-Nell turn / put-her-down finale), the offering→peaceful tradeoff, Edda's mirror line.
 
 ## Concept
 Optional narrative chains delivered through the existing mission/quest/chronicle systems, **distinct from the main story** (Story 1–14). The world reveals little stories as you play: a regular mission's scouts notice *something*, a quiet journal vignette opens, and a follow-up mission appears. You uncover a small, self-contained tale and often make a choice.

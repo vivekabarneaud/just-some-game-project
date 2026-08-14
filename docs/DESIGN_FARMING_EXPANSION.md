@@ -1,6 +1,8 @@
 # Farming Expansion — Beehives, Orchards, Mushrooms & Cheese
 
-**Status:** BUILT (2026-06-05 audit). Apiary/honey, orchards/fruit, forager mushrooms, and kitchen cheese are all live. NOTE: this content is duplicated in DESIGN_FOOD_SCROLLS_LOYALTY.md §1 — treat this doc as the authoritative copy.
+**Status (2026-08-14 audit):** BUILT (apiary/honey + lavender bonus, orchard saplings + per-fruit seeds + germination, cheese via the kitchen). Leftovers: hops→drink tier never happened (drinks landed as ale/mead/cider), rare-seeds-by-culture not built. The mushrooms-as-forager-secondary section is superseded by DESIGN_FORAGING_MINIGAME.
+
+NOTE: this content is duplicated in DESIGN_FOOD_SCROLLS_LOYALTY.md §1 — treat this doc as the authoritative copy.
 
 ## Overview
 

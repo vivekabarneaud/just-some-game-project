@@ -3,6 +3,8 @@
 **Status:** design — not yet implemented.
 **Date:** Drafted June 2026 from the recruitment-friction discussion.
 
+**Audit note (2026-08-14):** still BACKLOG (no wages/states/retirement). New context: arrivals already bypass the roster cap (`syncArrivals`), and the shipped 0-100 loyalty overlaps this doc's Loyalty axis — wages would key off the arrival model now, not a recruit pool.
+
 The guild-roster system needs a coherent economic model so:
 1. Exotic-origin recruits (Tianzhou, Zah'kari, Silvaneth, Nordveld, etc.) feel worth chasing when they unlock late-game
 2. Players have real reasons to retire, swap, or rotate adventurers instead of hoarding a frozen-in-place A-team

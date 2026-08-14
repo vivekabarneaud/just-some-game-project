@@ -1,6 +1,6 @@
 # Roster Curation — fewer, better adventurers
 
-**Status:** DESIGN (locked decisions 2026-06-22, execution phased & pending). Supersedes the open parts of `DESIGN_PREMADE_CHARACTERS.md` (family/rarity/unlock), folds in `DESIGN_QUIRKS_REWORK.md` and `DESIGN_ROSTER_ECONOMY.md` — those become sub-concerns of this one.
+**Status (2026-08-14 audit):** PARTIAL — the recruitment UX rework SHIPPED (daily rotation + recruit tab gone; scripted `ArrivalCondition` + `syncArrivals`; quest recruits; the roster cap is bypassed by arrivals). The pool cut NOT done: 229 premades still in data, only 4 arrivals and 3 signature traits authored, no reserve pool, CHAR_RELATIONSHIPS unpruned. `generateCandidate()`/`getCandidateCount()` are now dead code.
 
 ## The decision
 

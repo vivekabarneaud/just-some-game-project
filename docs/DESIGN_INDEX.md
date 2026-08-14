@@ -1,105 +1,126 @@
 # Design Doc Index
 
-**Purpose:** one-screen map of every doc in `docs/` — what it is, whether it's actually built, and what to do with it. Built from a full sweep cross-checking each doc against the codebase on **2026-06-05**.
+**Purpose:** one-screen map of every doc in `docs/` — what it is, whether it's actually built, and what to do with it. Regenerated from a full 4-agent doc-vs-code sweep on **2026-08-14** (previous sweep: 2026-06-05; ~728 commits in between).
 
-**The big finding:** the code raced ahead of the docs. ~8 docs marked "not yet implemented" (or carrying no status line) are in fact **built**. Several others are partially built. The genuine backlog is much smaller than the doc pile suggests.
+**The big finding, again:** the code raced ahead of the docs, harder than last time. The mission map, side-story chains, scarcity missions, positional combat, the tavern spine, the free-form kitchen, building staffing, livestock, kept-animal dogs and weather Layer 2 all shipped while their docs still said "not built" / "IDEA". Status lines in every affected doc were corrected in this pass. Four superseded docs moved to `archive/`.
+
+**What to build next lives in `ROADMAP.md`** — this file only maps docs to reality.
 
 **Status legend:**
-`BUILT` shipped & matches · `PARTIAL` some shipped · `BACKLOG` designed, not built · `STALE` doc describes a now-changed reality · `CANON`/`REF` lore source · `HOLDING` parked ideas
+`BUILT` shipped & matches · `PARTIAL` some shipped · `BACKLOG` designed, not built · `IN PROGRESS` being built now · `REF` reference/canon · `METHOD` process doc · `STALE` describes a changed reality
 
 ---
 
-## Systems / mechanics design
+## Built — keep as reference (remainders noted in each doc's status line)
 
-| Doc | Real status | Note → action |
+| Doc | Note |
+| --- | --- |
+| DESIGN_KITCHEN.md | Free-form kitchen Phases A–C3 (69 dishes, boons, tavern menu, loyalty recipes). Open: per-dish gold value, cultural imports (needs merchant rapport). |
+| DESIGN_TAVERN.md | Hospitality spine (rooms/staffing/pricing/reputation/menu). Open: conversations (teaser only), economy tuning. |
+| DESIGN_MISSION_MAP.md | Shipped well past Phase 1 (fog reveal, dev placer, team tokens). Open: ~58/130 pins placed, climate is display-only. |
+| DESIGN_SIDE_STORIES.md | 8 sideChains + the director layer (`story/chains.ts`) live. Open: Bog Witch back half. |
+| DESIGN_SCARCITY_MISSIONS.md | Built via engine `forceMission` (wood/stone/food/water triggers). Open: no cooldown guardrail. |
+| DESIGN_WEATHER_YIELD.md | Climate bands + water system. Year-band drought-kill superseded by momentary weather events. |
+| DESIGN_FARMING_EXPANSION.md | Apiary/orchards/saplings/cheese. Leftover: hops, culture seeds. Mushroom-forager section superseded by the foraging minigame. |
+| DESIGN_LIVESTOCK.md | Phase 1 (headcounts, buy/cull, predation, births). Phase 2 working animals later. Guard-dog toggle superseded by KEPT_ANIMALS. |
+| DESIGN_DEFENSES.md | Ring combat sim + page. Ring→tier table corrected this pass (Town adds Middle, City adds Inner). |
+| DESIGN_CITIZEN_CATEGORIES.md | Built; code added a founder floor not in the doc. |
+| DESIGN_CONTENT_EXPANSION.md | Gems/Jewelcrafter/rings built — but a live Act-1 **enemy-roster backlog** is buried in it (palette ratify, PULL list, hale stub). |
+| DESIGN_RACES_ORIGINS.md | Built except the per-tag weakness/resist multiplier table (only 2 binary immunities exist). |
+| DESIGN_TIER1_GEAR.md | All 11 beast-gear items live + test-locked. Daggers-in-offhand blocked on the sidearm slot. |
+| DESIGN_EXPEDITIONS.md | Engine + recovery slot + timeline. Phase 5 content open (only 2 authored expeditions). |
+
+## Partial — shipped core, live remainder
+
+| Doc | Note |
+| --- | --- |
+| DESIGN_COMBAT_FOUNDATION.md | Stats + hit resolution BUILT. **Weapon range bands + sidearm slot NOT** — the single biggest cross-doc blocker (gear, marsh, positional all wait on it). Damage schools declared, never applied. |
+| DESIGN_POSITIONAL_COMBAT.md | P1+P2 built for missions (`positional.ts`, CombatBattlefield). Open: raids, positional talents, enemy flanking. |
+| DESIGN_TIER1_ENEMIES.md | Wolves/boars/outlaws slice shipped. Open: zone hazards, composable AI knobs, rest of roster. |
+| DESIGN_NOVICE_ITEMS.md | Weapon-damage model + rarity built. Open: caster spell-weapons (Phase 2). |
+| DESIGN_RECOVERY_AND_RETREAT.md | Rout/flee/panic + home recovery built. Open: rescue/drag-out, Infirmary building, log-union refactor. |
+| DESIGN_APOTHECARY.md | Brew engine + desk built, BUT only crush+boil stations reachable in-game; offensive channels inert; tier-gated station unlock unbuilt. |
+| DESIGN_KEPT_ANIMALS.md | Dogs built (kennel, jobs, breeding, strays). Cats + vermin loop open. |
+| DESIGN_WORKERS_PLAGUES.md | Staffing shipped (as named-hands coverage, not the doc's pool model) + ailments shipped. Plague events open; cat half superseded by KEPT_ANIMALS. |
+| DESIGN_WEATHER.md | Layer 1 built; Layer 2 shipped via WEATHER_YIELD. Open: storm/blizzard mechanics, Layer 3 aether storms. |
+| DESIGN_TRAVELING_MERCHANTS.md | Slice 1 (Cobb + Lammast wagon). Open: culture merchants, rotation, rapport. |
+| DESIGN_FOOD_SCROLLS_LOYALTY.md | Food + loyalty + per-adventurer slots built. **Enchanted scrolls = the one remainder.** Farming section duplicates FARMING_EXPANSION. |
+| DESIGN_ROSTER_CURATION.md | Recruitment UX rework shipped (scripted arrivals, rotation gone, cap bypassed). **The 229→~50 pool cut not done** (4 arrivals, 3 traits authored). |
+| DESIGN_TALENT_TREES.md | Trees built & displayed — but only ~3 talent ids are read by the combat engine; most nodes stat/UI-only. Pentagon pending the bespoke-trees decision. |
+| DESIGN_SEASONAL_GATHERS.md | Bee/apple/fish/berry pairs + scarcity hunts live. Open: daily cooldown (asserted, not implemented), First Greens, specials. |
+| DESIGN_SPIDERS.md | Quarry spider-gating built. The spider family itself (web root, ambush, brood mother, silk) unbuilt. |
+
+## Backlog / design-only
+
+| Doc | Note |
+| --- | --- |
+| DESIGN_MARSH.md | Snake family + Blind/grapple/venom mechanics unbuilt. The fenbalm/reeds economy around it already exists — read before re-designing. |
+| DESIGN_BUILDING_TOOLS.md | Still only `cutting_board`; full roster + buff slots unbuilt. |
+| DESIGN_ROSTER_ECONOMY.md | Wages/states/retirement unbuilt. Must now key off the arrival model (cap already bypassed). |
+| DESIGN_QUIRKS_REWORK.md | Premise drifted: curated cast → per-character authored quirks, not a tagged random pool. Keep as text bank. |
+| DESIGN_FACTION_BALANCE.md | Church + Thornveil escalation; zero mechanical state in code. Chapel/Shrine rethink still required. |
+| DESIGN_RAID_REINFORCEMENTS.md | Nothing built; coop/ws rails exist. For the multiplayer push. |
+| DESIGN_BALANCE_PASS.md | Open ledger; ~2 of 9 landed. Two cheap wins flagged (stale recruitment strings, Treeline difficulty). |
+| DESIGN_ACT1_SETTING.md | Accurate setting frame; mission categories 3 (lifeline north) and 6 (hauntings) are the thin ones now. |
+| DESIGN_CRAFTING_PROGRESSION.md | Principle doc — adopted and visibly applied (leather→mail→plate is real). |
+| DESIGN_ENEMY_AUDIT_METHOD.md | Method doc; its §Families table is the live per-family tracker. |
+
+## In progress (branch `feat/foraging-minigame`)
+
+| Doc | Note |
+| --- | --- |
+| DESIGN_FORAGING_MINIGAME.md | Data + sandbox layer built (scene engine, plants, mask, tests). Open: trip economy, herbier, larder wiring, home placement. |
+| FORAGING_PLANTS.md | Working sheet — plant catalogue, one identity per plant. |
+| FORAGING_PROMPTS.md | Working sheet — foraging art backlog. |
+
+## Lore canon (hierarchy unchanged since 2026-06)
+
+**`LORE_TIMELINE.md` is the single top authority.** `FOUNDING_CHARACTERS.md` is the parallel authority for the six founders; `docs/cast/` covers recruitable adventurers + NPCs (non-overlapping scope, and its README defers to TIMELINE).
+
+| Doc | Role | Note |
 | --- | --- | --- |
-| DESIGN_TAVERN.md | **BACKLOG** (spine) | Hospitality layer on the existing passive ale→happiness tavern: rooms/travelers (exponential 1/2/4/8), menu (staples now, adventurer dishes later), occupancy-from-prosperity, cozy conversations. Locked July 2026. → **Build phase 1 (Tavern page UI prototype).** |
-| EARLY_PACING_MAP.html | **REF** (visual) | Standalone board of every early-game narrative lane (settlement/guild/defense/social) over the story-mission spine, with cross-lane unlocks + gaps. Open in a browser. Built 2026-07 during the defense-lane breadcrumb pass. → **Keep as the pacing source-of-truth; re-render if lanes change.** |
-| DESIGN_BACKEND_SLICE.md | **STALE** (built, diverged) | Full backend exists (`backend/`, `prisma/schema.prisma`, routes, ws, tick). Schema diverged: Adventurer/ActiveMission never got their own tables (stayed in the `gameState` blob). → **Update status + reconcile or archive.** |
-| DESIGN_CITIZEN_CATEGORIES.md | **BUILT** | `CitizenCounts`, `founderCitizens()`, `ageStep`, food multipliers, defense-eligibility all live. Adds a founder-floor not in the doc. → **Update status to BUILT.** |
-| DESIGN_DEFENSES.md | **BUILT** | Ring combat sim (`raidCombat.ts`), Defenses page, garrison modal all shipped. **Contradiction:** doc's ring→tier unlock table is wrong vs `ringUnlocked` (Middle at Town, Inner at City). → **Update status + fix the table.** |
-| DESIGN_COMBAT_FOUNDATION.md | **PLANNED** (new) · **SOURCE OF TRUTH** | Uniform stat + weapon layer for ALL combatants (enemy + adventurer): canonical stat schema (STR/DEX/INT/VIT/WIS primaries; secondary = derived floor + raw bonus: maxHP/crit/dodge/**parry**(STR)/mobility/initiative/armor; resistances default 0); weapons carry `minRange`/`maxRange` bands + a new `sidearm` slot (out-of-band → sidearm, replacing the pinned=dagger hack); ability `range` (default = creature basic band) fixes range-cheating; effect flags like `ignoreArmor` (wolf Throat Tear). Spell/heal power DEFERRED (no magic yet). Written 2026-07-25. → **Build the foundation before authoring the Tier-1 enemy pass.** |
-| DESIGN_POSITIONAL_COMBAT.md | **PLANNED** (new) | 1D position axis for the auto-resolved sim: mobility, move-then-act, range/exposure, engagement-vs-threat ("highest-threat *reachable*"), AI-tier discipline (feral/tactical/cunning), assassin bypass/flank + peel-off dilemma. Fixes exposed-archer imbalance; unlocks charge/knockback/pull/reach/leap talents. Stage-v2 (wide battlefield) reuses `CombatantCard`. Adjacent raw-secondary stat system (crit/dodge/mobility) flagged separate. Written 2026-07-25. → **Build P1 MVP (mission combat) after the combat-log stage lands.** |
-| DESIGN_CRAFTING_PROGRESSION.md | **PRINCIPLE** (new) | Armor advances by material + craft complexity (**leather → mail → plate**), gated by building level + resources, NOT hard slot-locks. Early blacksmith = mail, not plate; plate is late (steel + town + master smith, Khazdurim flavour). The "no good head/leg armor early" feel emerges from world-gating, not arbitrary rules. Complements DESIGN_NOVICE_ITEMS (day-one loadout + rarity=stat-budget). Written 2026-07-26. |
-| DESIGN_FORAGING_MINIGAME.md | **DESIGNING, not built** (new) | The idle-downtime valve: charge-gated trips into a seasonal hand-painted wood, procedurally scattered plants, **identification-not-eyesight** (no labels ever in-scene; knowledge lives in a **herbier**), no fail state (a decoy costs a basket slot and teaches you). Carries the **plant register**: what's in, what's new (medlar/sloe/elder/crabapple + hemlock/mandrake), the lookalike table, and a **clutter audit** (passive systems punish variety, active ones reward it) that rehomes `nightshade`/`witchs_cap` — two alchemy ingredients currently with **zero sources**. Written 2026-08-07. → **Pick the first fruit + decide the home page, then prototype UI.** |
-| DESIGN_SCARCITY_MISSIONS.md | **IDEA parked** (new) | Missions that appear when a **resource runs low** — a never-soft-locked safety valve (low food -> a meat hunt, low wood/stone -> emergency gather). Needs a new resource-below `MissionRequirements` gate wired to existing scarcity signals (famine ration threshold). First instance = the Wild Boar Hunt. Guardrails: genuine-shortage-only, cooldown, situation-aware narration. Written 2026-07-26. |
-| DESIGN_ENEMY_AUDIT_METHOD.md | **METHOD** (new) | How we work through enemies: **vertically**, one family top-to-bottom (1. place & missions, 2. kit, 3. loot, 4. the loop = what the loot is FOR — recipe/quest sink or cut it), not horizontally. Horizontal was for shared machinery (built). New gear should exploit the raw sub-stats (fang→crit, hide→mobility, sinew→accuracy). Group families by biome, build enemies + missions together. Written 2026-07-26. |
-| DESIGN_SPIDERS.md | **DESIGNING, not built** (new) | The cave/quarry **spider family** (Web & Ambush): Rock Spider (t1 quarry), Cave Spinner (t2, exists), Web-spinner (ranged **root**), Ambush Spider (t2 ceiling-drop first strike), Brood Mother (Spider Hollow apex). Web = a root (immobilise-in-place), distinct from the Constrictor grapple. Loot = silk (bowstrings + light silk armour) + chitin + spinners_bile (alchemy). Compassion-framed (we dug into their rock). **Quarry-gating mechanic:** each quarry level-up softly gated by a spider mission (deeper = stronger spiders; quarry yields the OLD level until cleared). Ch1 hook = defend Tomas + the cutting crew. Deferred out of the marsh. Written 2026-07-26. |
-| DESIGN_MARSH.md | **DESIGNING, not built** (new) | The Ch1 marsh biome: the **snake family** (Venom archetype — Reed Adder swarm, Marsh Adder, Spitting Adder w/ Blind, Bog Constrictor grapple-via-range-0, tainted apex) + the **Fenbalm economy** (life-or-death deep-cough remedy, no alternative; wild-forage -> cultivate -> the taint blights the garden). New mechanics: Blind CC, grapple=range-0+taunt+ramping-squeeze, venom carry-home, tickPoison Nature-resist. Loot loop: snake_oil->antivenom, serpent_hide->Nature-resist armour. Ch1 = living fen only (no undead/ghosts). Narrative spine (Bog Witch) in DESIGN_SIDE_STORIES. Written 2026-07-26. |
-| DESIGN_TIER1_GEAR.md | **DESIGNED, not built** (new) | Wolf + boar loot->gear loops: material->sub-stat identity (wolves=agility dodge/mobility/crit/accuracy/-Presence; boars=toughness armour/STR/VIT/+Presence), the 11-item spec (Pack Hunter set + boar tank set), material ladders (fang/alpha_fang, tusk_shard/boar_tusk, wolfhide/bristlehide), loot fixes, and the build checklist (gear->raw wiring, Presence stat, gloves slot, daggers-in-offhand, new boar_tusk material). Written 2026-07-26. |
-| DESIGN_TIER1_ENEMIES.md | **PLANNED** (new) | Enemy-authoring/bestiary pass on the foundation. Reusable mechanics: **Charge** (position-aware gap-close+hit, distance-scaled, cooldown-gated), **Knockback** (small/capped shove, loop-safe), **Zone hazards** (interval-DoT ground band, reusable renderer), **composable AI knobs** (targeting/tauntable/fear/movement, replacing single `aiTier`; `opportunist` = max-damage reachable target). **Boar family** = Charger archetype: Tier-1 Wild (charge+routs) & Rabid (frenzied charge + Nature froth, fearless); parked **Undead** + **Patriarch** (Hollow bite bypassing armor, knockback-immune, breakthrough charge-through-line, opportunist, death-vomit zone) for the Hollow story beat. Wolves = Flanker (transcribe TODO). Written 2026-07-25. → **Build after foundation weapon/hit-resolution; author wolves→boars.** |
-| DESIGN_RAID_REINFORCEMENTS.md | **PLANNED** (new) | "Call for help" mutual-aid on incoming raids: allies dispatch troops with a distance-based ETA, joining the ally pool if they beat the raid. Rides existing coop/world/ws + trade-caravan rails; new Pigeon Loft building gates + scales reach/speed. Written 2026-07. → **Build MVP (friends-only, client-resolved) when the multiplayer push resumes.** |
-| DESIGN_KEPT_ANIMALS.md | **PLANNED** (new) | One shared "kept animals" model for dogs + cats — named companions with moods, posted to jobs (dog→flock-guard/hunting-camp, cat→mouser), passive leveling, light happiness, modest upkeep, roster at a Kennel / Cat Shelter. Strays + story firsts (Thornwoods' dog, the Lord's "His Lordship"). Supersedes the guard-dog gold toggle + the cat half of WORKERS_PLAGUES. Written 2026-07. → **Build dogs first (camp-tier, buildable now); cats join with the vermin loop.** |
-| DESIGN_EXPEDITIONS.md | **BUILT** (core) | `expeditionEngine.ts`, expedition content, recovery slot, timeline UI, even co-op resolution. Phase 5 (authored expeditions) + deferred polish remain. → **Update status; keep Phase 5 as the open part.** |
-| DESIGN_FARMING_EXPANSION.md | **BUILT** | Apiary/honey, orchards/fruit, forager mushrooms, cheese all live. Duplicates the farming section of FOOD_SCROLLS_LOYALTY. → **Add BUILT status; dedupe vs that doc.** |
-| DESIGN_CONTENT_EXPANSION.md | **BUILT** | New enemies, gems, Jewelcrafter building + page, rings all shipped. → **Add BUILT status; keep as reference.** |
-| DESIGN_RACES_ORIGINS.md | **BUILT** (mostly) | Races/origins, stat mods, enemy tags, backstory-trait passives, ghost/aether immunities live. Full weakness/resist multiplier table only partial. → **Add status; trim shipped "future" section.** |
-| DESIGN_TALENT_TREES.md | **BUILT** | `talents.ts` (651 lines) has full per-class trees + hybrid-title capstones. Doc claims "structure deferred" — the biggest accuracy gap. → **Update status; note remaining advanced mechanics.** |
-| DESIGN_FOOD_SCROLLS_LOYALTY.md | **PARTIAL** | Food crafting + loyalty + per-adventurer slots BUILT; **enchanted team scrolls NOT.** Farming section duplicates FARMING_EXPANSION. → **Trim to the scrolls backlog; dedupe farming.** |
-| DESIGN_WEATHER.md | **PARTIAL** (accurate) | Layer 1 (ambient) shipped this session; Layers 2/3 (drought/storm, aether storms) designed only. → **Keep — status is correct.** |
-| DESIGN_PREMADE_CHARACTERS.md | **PARTIAL** | ~219-character pool + Pantheon shipped; family/rarity/unlock-condition fields NOT. → **Update status to PARTIAL.** |
-| DESIGN_BUILDING_TOOLS.md | **BACKLOG** (accurate) | Only `cutting_board` exists; full ~18-tool roster + buff/secondary slots unbuilt. → **Keep.** |
-| DESIGN_ROSTER_ECONOMY.md | **BACKLOG** (accurate) | Wages/states/vacation/retirement unbuilt; hard cap `3+guildLevel×2` still enforced. Loyalty model overlaps the shipped 0-100 loyalty. → **Keep; reconcile loyalty model when built.** |
-| DESIGN_WORKERS_PLAGUES.md | **BACKLOG** | Worker-staffing + plague events unbuilt. Depends on citizen-categories. → **Add explicit BACKLOG status line.** |
-| DESIGN_QUIRKS_REWORK.md | **BACKLOG** | Still a flat `PERSONALITY_QUIRKS: string[]`; tagged system unbuilt. → **Add status line.** |
-| DESIGN_ACT1_SETTING.md | **DESIGN** | What's around the Act 1 settlement (isolated frontier grant; Dominion north, neighbours nearby NPC+player, dread south, wild all around, Thornveil in the woods); trade is thin/dangerous; 6 mission categories. The frame for redesigning Act 1 missions. |
-| DESIGN_SIDE_STORIES.md | **IDEA** | Optional side-story chains (mission → scout-report vignette → follow-up mission), reusing the story/quest/chronicle machinery; lighter presentation than the main spine. Prototype: the Bog Witch chain. Post-prune/post-alpha. |
-| DESIGN_ROSTER_CURATION.md | **DESIGN** | Cut ~229 premades → ~45-50 curated cast (weighted by origin prominence) + replenishing reserve pool; drop daily rotation. Unifies PREMADE_CHARACTERS + QUIRKS_REWORK + ROSTER_ECONOMY. → **The live roster spec; those three are now sub-concerns.** |
-| DESIGN_FACTION_BALANCE.md | **BACKLOG** | Merged Church + Thornveil escalation (2026-06-05); originals in `archive/`. Neither built; Church side needs a Chapel→Shrine rethink. → **The live faction-balance spec.** |
-| DESIGN_LORE_EXPANSION.md | **REF / BACKLOG** | Varek's ghost court lore (reference); its boss-progression + missions unbuilt. → **Keep as lore ref; cross-link to LORE_TIMELINE.** |
-
-## Lore canon (hierarchy)
-
-**`LORE_TIMELINE.md` is the single top authority.** `FOUNDING_CHARACTERS.md` is the parallel authority for the founder cast. Everything else is legacy or parked.
-
-| Doc | Role | Note → action |
-| --- | --- | --- |
-| LORE_TIMELINE.md | **CANON** (top) | Working-canon synthesis; locked cosmology (Eighth God, Cassandra-Netheron Sundering, two-zone Wastes). → **Assert primacy in its status line.** |
-| FOUNDING_CHARACTERS.md | **REF** (authoritative) | Source-of-truth for the six founders; no cosmology conflict. → **Keep; ensure TIMELINE points here.** |
-| LORE_OPEN_IDEAS.md | **HOLDING** | Working as intended. Khor'vani Alchemy is parked here but already treated as canon in FINAL/TIMELINE. → **Reconcile that one item.** |
-| LORE_FINAL.md | **CANON-PARTIAL** | Still owns factions/NPCs/races; cosmology stale. Name drift: **Dryven→Drayven, Kess→Niamh** (TIMELINE wins). → **Update status + note name drift.** |
-| LORE_EIGHTH_GOD.md | **CANON-PARTIAL** | Introduced the reframe; overtaken by TIMELINE (Severance-misfire vs Cassandra-Netheron). → **Cross-ref TIMELINE; fold in eventual consolidation.** |
-| ~~LORE_DEEP_SEALS.md~~ → `archive/` | **SUPERSEDED** | Contradicted the Eighth-God canon. Bahruun/Hammerfall detail migrated to `LORE_EIGHTH_GOD.md` §6; archived 2026-06-05. |
+| LORE_TIMELINE.md | **CANON** (top) | Locked cosmology (Eighth God, Sundering, two-zone Wastes). |
+| FOUNDING_CHARACTERS.md | **REF** | Six founders incl. Nell; matches `founding_characters.ts`. Known slip: `cast/arrival-order.md` counts "6 founders + Nell" — off by one, fix someday. |
+| LORE_FINAL.md | CANON-PARTIAL | Owns factions/NPCs/races; cosmology stale; name drift (Dryven→Drayven, Kess→Niamh — TIMELINE wins). |
+| LORE_EIGHTH_GOD.md | CANON-PARTIAL | Overtaken by TIMELINE on mechanics; keeps Bahruun detail. |
+| LORE_OPEN_IDEAS.md | HOLDING | Khor'vani Alchemy still parked here but treated as canon in FINAL/TIMELINE — reconcile someday. |
+| DESIGN_LORE_EXPANSION.md | REF | Varek ghost-court lore; **zero of it in code** (no court figures, no §5 bosses). Header flags 5 canon breaks vs TIMELINE — resolve into the body before using. |
+| LORE_AUDIT_2026-06-11.md | REF | The alpha lore punch-list. |
+| ANACHRONISMS.md | REF (decision log) | Mostly closed; zero OPEN rows. One loose end: gourd art still a squash placeholder. |
+| docs/cast/*.md | REF | Recruitable cast + NPC canon. |
 
 ## Meta / story / tracking
 
-| Doc | Currency | Note → action |
+| Doc | Currency | Note |
 | --- | --- | --- |
-| TECH_DEBT.md | **CURRENT** (living) | Ranked debt register from the 2026-08-07 4-agent sweep: Tier 1 live bugs → Tier 4 structural, + CSS appendix, + batch sequencing. → **Tick items as they land; check before starting any refactor.** |
-| STORY_PLAYER_SCRIPT.md | **CURRENT** | Most up-to-date story doc (through Story 13). → **Treat as the primary story source.** |
-| PROMPTS_DONE.md | **CURRENT** | Done-log half of the art-prompt pair; consistent with shipped assets. → **Keep.** |
-| PROMPTS.md | **PARTIAL-STALE** | Live art backlog, but story-slide titles drifted vs code. → **Reconcile slide titles; prune completed.** |
-| ~~STORY_MISSIONS.md~~ → `archive/` | **RETIRED** | Superseded by STORY_PLAYER_SCRIPT (Story 13) + `storyMissions.ts`; archived 2026-06-05. |
-| GAME_DESIGN.md | **PARTIAL-STALE** | Oldest doc; still titled "Medieval Realm" (now Valenheart); predates lore/story/guild/talents/weather. → **Retitle + scope to economy/systems, point lore at TIMELINE.** |
-| ROADMAP.md | **STALE** | Last updated 2026-04-29; lists Defenses/Citizen-categories/Expeditions/Talents as pending though they shipped. → **Refresh against this index.** |
+| ROADMAP.md | **CURRENT** (rewritten 2026-08-14) | **The focus source of truth.** |
+| TECH_DEBT.md | CURRENT (living) | Ranked debt register; check before refactors. |
+| STORY_PLAYER_SCRIPT.md | PARTIAL-DORMANT | Stories 2–13 authored but gated off by `CH2_GATE`; shipped Ch1 (Run Down/Marshes/Bad Blood) isn't in it. Best prose source for deferred chapters only. |
+| PROMPTS.md / PROMPTS_DONE.md | art backlog / done-log | Live pair. |
+| KITCHEN_PROMPTS.md | art backlog | Kitchen/alchemy art. |
+| EARLY_PACING_MAP.html | REF (visual) | Early-lane pacing board (2026-07); re-render if the Ch1 restructure moves lanes. |
+
+## Archived this pass (2026-08-14, in `docs/archive/`)
+
+- **DESIGN_PREMADE_CHARACTERS.md** — superseded by DESIGN_ROSTER_CURATION + code (`arrival` replaced `unlockCondition`; rarity/family/recruit-pool concepts dead).
+- **DESIGN_BACKEND_SLICE.md** — backend shipped with a different shape (Player + blob + snapshots); table specs are historical.
+- **GAME_DESIGN.md** — the founding doc, overtaken everywhere. Still holds the three-tier resource taxonomy + building tech-tree framing, and the dragon-system sketch (also in memory), if ever needed.
+- **STORY_ACT1_BEAT_MAP.md** — claimed to map the built spine but predates the Ch1 restructure; presented dormant Stories 2–13 as live. Re-derive from code when Ch2 is authored.
 
 ---
 
-## What's actually left to build (the payoff)
+## Cross-cutting findings from the sweep (small, real, easy to lose)
 
-Distilled from the above — the real backlog, not the doc count:
-
-**Designed & ready to build:**
-- Enchanted team scrolls (FOOD_SCROLLS_LOYALTY, the unbuilt third)
-- Weather Layers 2 & 3 — drought/storm/blizzard + aether storms (WEATHER)
-- Roster economy — wages/states/retirement (ROSTER_ECONOMY)
-- Building tools full roster (BUILDING_TOOLS)
-- Workers & plagues (WORKERS_PLAGUES) — depends on citizen-categories (now built)
-- Quirks rework — tagged personality system (QUIRKS_REWORK)
-- Faction balance — Church + Thornveil escalation (needs merge + a Chapel/Shrine rethink)
-- Premade characters — family/rarity/unlock layer (PREMADE_CHARACTERS)
-- Expeditions Phase 5 — authored multi-day expeditions (EXPEDITIONS)
-
-**Doc hygiene — DONE 2026-06-05:**
-- ✓ Marked the stale "not implemented" docs BUILT/PARTIAL/BACKLOG
-- ✓ Flagged contradictions: Defenses ring→tier table; Backend schema; Church Chapel→Shrine; lore name drift (Drayven/Niamh)
-- ✓ Archived LORE_DEEP_SEALS (salvaged Bahruun first); merged Church+Thornveil → DESIGN_FACTION_BALANCE; retired STORY_MISSIONS; refreshed ROADMAP
-
-**Doc hygiene — still pending:**
-- Reconcile Khor'vani Alchemy (parked in LORE_OPEN_IDEAS but treated as canon in FINAL/TIMELINE)
-- Retitle/scope GAME_DESIGN.md (still "Medieval Realm"; predates the lore/story layer)
-- Eventual lore consolidation: fold FINAL + EIGHTH_GOD into LORE_TIMELINE
+1. **Weapon range bands + sidearm slot** — highest-leverage unbuilt item; four docs blocked on it.
+2. **Damage schools/resistances** — schema exists, `damage.ts` never applies them (still binary physical/magical). MARSH's "one-line" venom resist isn't one line.
+3. **Alchemy techniques unreachable** — steep/dry/distil/char/ferment exist in data; the desk only offers crush+boil.
+4. **Stale UI strings**: "Hire your first adventurers at the recruitment board" + "Go to recruitment" (`MissionAssemblyPanel.tsx`) — recruitment no longer exists.
+5. **Dead code**: `generateCandidate()` / `getCandidateCount()` (`shared/src/data/adventurers.ts`) have zero callers.
+6. **Orphaned comments**: guard-dog gold toggle (`gameState.tsx` ~6408), `weather.ts` header still says Layer 2 TODO.
+7. **Marketplace contradiction**: comment says faceless random offers are retired; `merchantOffers()` still generates them.
+8. **Forced scarcity missions** re-fire every tick while a shortage lasts (no cooldown).
+9. `cast/arrival-order.md` founder count is off by one vs FOUNDING_CHARACTERS + code.
 
 ---
 
-*Generated 2026-06-05 from a full doc-vs-code sweep. Regenerate when the code/doc gap grows again.*
+*Regenerated 2026-08-14 from a 4-agent doc-vs-code sweep. Regenerate when the code/doc gap grows again.*

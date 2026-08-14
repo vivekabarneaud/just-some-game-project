@@ -1,6 +1,8 @@
 # The Apothecary & the Kitchen — free-form crafting (design)
 
-**Status:** VISION / dreaming (2026-07-31). Big future direction, not built. Recall pointer: memory `project_freeform_apothecary`. Builds on the fixed cures/herbs already shipped (DESIGN_WORKERS_PLAGUES §illness).
+**Status (2026-08-14 audit):** core BUILT (see the in-doc Build status block) — free-form brew engine + AlchemyDesk shipped with tests. Caveats: only `crush` + `boil` stations are wired into the desk (`AlchemyDesk.tsx` STATIONS — steep/dry/distil/char/ferment exist in ingredient data but are unreachable in-game; the settlement-tier station unlock is NOT built); offensive channels are defined and priced but combat ignores them (no coatings/throwables); deliberate plant gating (C) and rarity frames (E) open.
+
+Recall pointer: memory `project_freeform_apothecary`. Builds on the fixed cures/herbs already shipped (DESIGN_WORKERS_PLAGUES §illness).
 
 A BOTW-meets-KCD2 emergent crafting system: the player assembles ingredients whose effects **cumulate** into a potion/dish. Two twin stations sharing one engine — the **Alchemy Lab** (herbs → potions/salves/poisons) and the **Kitchen** (food → meals). It exists to make the game a *little universe*: cozy, mystery, emotion, a bit of min-maxing, loot & rarity — and to give the huge plant diversity a payoff.
 

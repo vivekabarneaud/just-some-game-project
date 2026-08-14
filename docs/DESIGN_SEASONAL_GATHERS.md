@@ -2,6 +2,8 @@
 
 **Status:** Designing 2026-07-27. **Season gate + The Bee-Tree (Old Honeypaw A/B) BUILT.** Rest designed, not built. Grew out of the Wild Boar Hunt ([[DESIGN_TIER1_GEAR]] §Boar missions) + the forced-mission pattern ([[project_forced_missions]]).
 
+**Audit note (2026-08-14):** built pairs confirmed (bee tree, apple tree, fish run, berry thickets + the scarcity hunts). The asserted daily cooldown + shard-refresh reset for forced hunts is NOT implemented (only a one-at-a-time guard). Roster gaps: First Greens, Mushroom Foraging, the specials.
+
 **One-line:** The food loop shouldn't be one repeated scenario. Give it a *seasonal* pool of gathers + hunts — and let the recurring ones become *places and creatures the player grows fond of*, so the taint can later break their hearts with them.
 
 ---

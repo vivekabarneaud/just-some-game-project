@@ -1,6 +1,6 @@
 # DESIGN: Positional Combat (1D)
 
-**Status:** Design agreed, not built. Drafted 2026-07-25.
+**Status (2026-08-14 audit):** BUILT P1+P2 for mission combat — `shared/src/data/combat/positional.ts` (placeUnits/moveUnit/holds/chargePlan/pins) wired into the sim and rendered by `CombatBattlefield.tsx`. Remaining: P3 raid combat (`raidCombat.ts` has no positions), P4 positional talents, enemy flank/bypass, pull/reach/leap, range-band-driven reach (blocked on COMBAT_FOUNDATION's weapon bands).
 **One-line:** Give the auto-resolved combat sim a single position axis (X), so distance, formation, and movement become real — and the combat stage we just built becomes a true picture of the fight rather than a decorated list.
 
 ---

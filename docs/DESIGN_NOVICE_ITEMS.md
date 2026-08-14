@@ -1,6 +1,6 @@
 # Novice Items + Weapon-Damage Combat Model
 
-**Status:** DESIGNED (2026-07-16), building. Branch `feature/weapon-damage` (off preprod + the equipment folder/rarity tidy).
+**Status (2026-08-14 audit):** Phase 1 BUILT — weapon damage model (dmgMin/dmgMax, rarity ranges, 33 authored weapons, tests) + rarity tiers + armorType. Phase 2 caster spell-weapons NOT built (no spellId/element layer anywhere; casters still scale off raw INT).
 
 Two coupled pieces: a **combat rework** (weapons carry damage, armor carries defense by default) and a **novice-tier item audit** (what to keep/cut/add) that depends on it. Build the combat foundation first; author the items against it.
 

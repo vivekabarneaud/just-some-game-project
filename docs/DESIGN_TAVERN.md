@@ -1,7 +1,8 @@
 # Design: The Tavern
 
-Status: **design locked (spine)** — July 2026. Partially built (passive
-ale→happiness). This doc adds the *hospitality* layer: rooms/travelers, a menu,
+**Status (2026-08-14 audit):** spine BUILT — Tavern page (rooms & travelers w/ exponential 1/2/4/8, staffing, pricing, reputation, three-column menu editor) lives in `frontend/src/pages/Tavern.tsx` + `frontend/src/data/tavern.ts` (`calcTavern`) + `tavernGuests.ts`. Remaining: §conversations (teaser block only), economy numbers still "placeholder — tune to play", adventurer/culture featured dishes.
+
+This doc adds the *hospitality* layer: rooms/travelers, a menu,
 and cozy conversations. Pairs with `DESIGN_TRAVELING_MERCHANTS.md` and
 `project_tavern_conversations`.
 
