@@ -4,8 +4,8 @@ import { getEquipmentStats, getEquipmentDefense, getEquipmentRaw, getItem } from
 import { getEnemy } from "../enemies.js";
 import type { MissionEncounter, MissionNpcAlly } from "../missions/index.js";
 import { getNpcAlly } from "../npcs.js";
-import { rarityWeaponRange, UNARMED_RANGE, derivedDamageRange, classPresenceFloor, presenceToThreatMult } from "./stats.js";
-import type { CombatUnit } from "./types.js";
+import { rarityWeaponRange, UNARMED_RANGE, derivedDamageRange, classPresenceFloor, presenceToThreatMult, weaponBand, MELEE_BAND, RANGED_BAND, CLOSE_IN_FRACTION } from "./stats.js";
+import type { CombatUnit, WeaponProfile } from "./types.js";
 
 /** The physical damage range a mainHand weapon confers: an authored range if it
  *  has one, else a rarity default, else fists. Casters ignore this (magic path). */
@@ -15,6 +15,35 @@ function weaponRange(mainHandId?: string | null): { min: number; max: number } {
   if (!item) return UNARMED_RANGE;
   if (item.dmgMin != null && item.dmgMax != null) return { min: item.dmgMin, max: item.dmgMax };
   return rarityWeaponRange(item.rarity);
+}
+
+/** {min,max} band → the profile's minRange/maxRange fields. */
+const asBand = (b: { min: number; max: number }) => ({ minRange: b.min, maxRange: b.max });
+
+/** Fists — always the last profile, so "no sidearm + pinned = a fist fight",
+ *  never "nothing happens" (Combat Foundation §3). */
+const FISTS: WeaponProfile = { kind: "fists", ...asBand(MELEE_BAND), dmgMin: UNARMED_RANGE.min, dmgMax: UNARMED_RANGE.max };
+
+/** An adventurer's preference-ordered weapon list: primary (mainHand — or the
+ *  spell for casters, whose zap fights at bow range until Phase 2 spell
+ *  weapons), then the belt sidearm, then fists. */
+function buildWeaponProfiles(adv: Adventurer, isMagical: boolean): WeaponProfile[] {
+  const profiles: WeaponProfile[] = [];
+  const main = adv.equipment.mainHand ? getItem(adv.equipment.mainHand) : undefined;
+  const wr = weaponRange(adv.equipment.mainHand);
+  // A caster's basic attack is the spell, not the held stave — its band is
+  // ranged regardless of weaponType (a priest's mace is Phase-2 business).
+  const primaryBand = isMagical ? RANGED_BAND : weaponBand(main);
+  profiles.push({ kind: "primary", ...asBand(primaryBand), dmgMin: wr.min, dmgMax: wr.max });
+  const side = adv.equipment.sidearm ? getItem(adv.equipment.sidearm) : undefined;
+  if (side) {
+    const sr = (side.dmgMin != null && side.dmgMax != null)
+      ? { min: side.dmgMin, max: side.dmgMax }
+      : rarityWeaponRange(side.rarity);
+    profiles.push({ kind: "sidearm", ...asBand(weaponBand(side)), dmgMin: sr.min, dmgMax: sr.max });
+  }
+  profiles.push(FISTS);
+  return profiles;
 }
 
 /** Premades who upgrade the team's retreat judgment (Model C commander system).
@@ -34,6 +63,7 @@ export function buildAdventurerUnit(adv: Adventurer): CombatUnit {
   const wr = weaponRange(adv.equipment.mainHand);
   const isCommander = (adv.premadeId ? COMMANDER_PREMADE_IDS.has(adv.premadeId) : false)
     || (adv.talents?.includes("commander_tactics") ?? false);
+  const isMagical = adv.class === "wizard" || adv.class === "priest";
   return {
     id: adv.id, name: adv.name, icon: "", kind: "adventurer", isEnemy: false,
     hp, maxHp: hp,
@@ -43,9 +73,10 @@ export function buildAdventurerUnit(adv: Adventurer): CombatUnit {
     portrait: getPortraitUrl(adv),
     level: adv.level,
     talents: adv.talents,
-    isMagical: adv.class === "wizard" || adv.class === "priest",
+    isMagical,
     gearDefense: getEquipmentDefense(adv.equipment),
     dmgMin: wr.min, dmgMax: wr.max,
+    weapons: buildWeaponProfiles(adv, isMagical),
     trait: adv.trait,
     weaponType: adv.equipment.mainHand ? getItem(adv.equipment.mainHand)?.weaponType : undefined,
     canAct: true, canBeHealed: true, isTauntable: false,
@@ -71,6 +102,13 @@ export function buildNpcAllyUnit(missionNpc: MissionNpcAlly): CombatUnit | null 
   // them in the action phase. Enemies still target them; priests still heal them.
   const passive = !!missionNpc.passive;
   const npcRange = derivedDamageRange(Math.max(def.stats.str, def.stats.dex));
+  // NPC allies fight bare-handed in schema terms: one natural profile at their
+  // class's band (casters/archers at range, everyone else in contact) + fists.
+  const npcRangedClass = def.class === "archer" || def.class === "wizard" || def.class === "priest";
+  const npcProfiles: WeaponProfile[] = [
+    { kind: "primary", ...asBand(npcRangedClass ? RANGED_BAND : MELEE_BAND), dmgMin: npcRange.min, dmgMax: npcRange.max },
+    FISTS,
+  ];
   return {
     id: `npc_${def.id}`,
     name: def.name,
@@ -83,6 +121,7 @@ export function buildNpcAllyUnit(missionNpc: MissionNpcAlly): CombatUnit | null 
     isMagical: def.class === "wizard" || def.class === "priest",
     gearDefense: 0,
     dmgMin: npcRange.min, dmgMax: npcRange.max,
+    weapons: npcProfiles,
     npcId: def.id,
     canAct: !passive,
     canBeHealed: true,
@@ -106,6 +145,19 @@ export function buildEnemyUnits(encounters: MissionEncounter[]): CombatUnit[] {
     const eRange = (def.dmgMin != null && def.dmgMax != null)
       ? { min: def.dmgMin, max: def.dmgMax }
       : derivedDamageRange(Math.max(def.stats.str, def.stats.dex));
+    // A creature's natural attack IS a weapon profile (Combat Foundation §3):
+    // authored band, else melee contact — or ranged for back-row creatures. A
+    // ranged creature also gets a weak close-in fallback (claws/teeth at the old
+    // pinned-exposure fraction), so a pinned spitter still fights.
+    const naturalBand = def.attackBand ?? (def.combatRole === "back" ? RANGED_BAND : MELEE_BAND);
+    const enemyProfiles: WeaponProfile[] = [
+      { kind: "primary", ...asBand(naturalBand), dmgMin: eRange.min, dmgMax: eRange.max },
+      ...(naturalBand.min > MELEE_BAND.max ? [{
+        kind: "sidearm" as const, ...asBand(MELEE_BAND),
+        dmgMin: Math.max(1, Math.round(eRange.min * CLOSE_IN_FRACTION)),
+        dmgMax: Math.max(1, Math.round(eRange.max * CLOSE_IN_FRACTION)),
+      }] : []),
+    ];
     for (let i = 0; i < enc.count; i++) {
       const hp = def.stats.vit * 10;
       units.push({
@@ -121,6 +173,7 @@ export function buildEnemyUnits(encounters: MissionEncounter[]): CombatUnit[] {
         raw: def.raw,
         class: undefined, isMagical, gearDefense: 0,
         dmgMin: eRange.min, dmgMax: eRange.max,
+        weapons: enemyProfiles,
         enemyTags: def.tags,
         enemyDefId: def.id,
         pack: def.pack,

@@ -1,5 +1,8 @@
+// @vitest-environment happy-dom
+// (importing gameState.tsx pulls in the Solid GameProvider template, which needs a DOM)
 import { describe, it, expect } from "vitest";
 import { MISSION_POOL, generateMissionBoard } from "@medieval-realm/shared/data/missions";
+import { SCARCITY_ONCE_PER_BOARD } from "./gameState";
 
 const byId = (id: string) => MISSION_POOL.find((m) => m.id === id);
 
@@ -56,5 +59,16 @@ describe("Wild Boar Hunt (food-scarcity mission)", () => {
     expect(d.encounters?.some((e) => e.enemyId === "gaunt_wolf" || e.enemyId === "starving_wolf")).toBe(true);
     const ctx: any = { guildLevel: 5, seed: 7, completedStoryMissions: [], completedUniqueMissionIds: [], buildings: [] };
     expect(new Set(generateMissionBoard(ctx).map((m) => m.id)).has("deer_yard")).toBe(false);
+  });
+
+  it("every once-per-board id names a real, repeatable mission", () => {
+    // The set is keyed by raw strings — a typo would silently disable the
+    // back-off for that mission. Unique missions never repeat, so listing
+    // one here would be dead weight.
+    for (const id of SCARCITY_ONCE_PER_BOARD) {
+      const m = byId(id);
+      expect(m, `unknown mission id in SCARCITY_ONCE_PER_BOARD: ${id}`).toBeTruthy();
+      expect(m!.unique ?? false).toBe(false);
+    }
   });
 });

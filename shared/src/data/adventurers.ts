@@ -630,6 +630,9 @@ export interface Adventurer {
     cloak: string | null;
     mainHand: string | null;
     offHand: string | null;
+    /** Belt-carried backup weapon (Combat Foundation §3) — the fallback when the
+     *  primary's range band doesn't fit. Optional key: absent on older saves. */
+    sidearm?: string | null;
     ring1: string | null;
     ring2: string | null;
     amulet: string | null;

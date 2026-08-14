@@ -11,6 +11,34 @@ export const ATTACK_STAT_SCALE = 0.1;
 /** Fists — the fallback range when a unit wields no weapon. */
 export const UNARMED_RANGE = { min: 1, max: 3 };
 
+// ── Weapon range bands (Combat Foundation §3) ────────────────────────────────
+// Range comes from the weapon, not the role. Bands are quantized against the
+// positional layer's contact distance (POS.contact = 5): all melee connects at
+// 0–5 and ranged opens just past it at 6+, so there is no dead gap between a
+// bow's minimum and a knife's maximum. The doc's finer bands (dagger 0–3,
+// spear 2–8 reach) wait on band-aware MOVEMENT — today units close to contact.
+
+/** Melee band: strikes in contact. Fists, daggers, swords, axes, maces, spears. */
+export const MELEE_BAND = { min: 0, max: 5 };
+/** Ranged band: strikes past contact, useless with a foe on top of you.
+ *  Bows — and caster foci, whose zap reaches like a bow until spell weapons
+ *  (Phase 2) give spells their own ranges. */
+export const RANGED_BAND = { min: 6, max: 100 };
+
+/** How hard a ranged creature's close-in fallback (claws/teeth) hits, as a
+ *  fraction of its real attack — parity with the retired pinned-exposure rule.
+ *  Adventurers don't use this: their fallback is an actual sidearm or fists,
+ *  whose own damage is the falloff. */
+export const CLOSE_IN_FRACTION = 0.4;
+
+/** The range band a weapon fights in: authored minRange/maxRange if present,
+ *  else a default by weapon family. */
+export function weaponBand(item?: { minRange?: number; maxRange?: number; weaponType?: string } | null): { min: number; max: number } {
+  if (item?.minRange != null && item?.maxRange != null) return { min: item.minRange, max: item.maxRange };
+  if (item?.weaponType === "bow" || item?.weaponType === "staff" || item?.weaponType === "wand") return RANGED_BAND;
+  return MELEE_BAND;
+}
+
 /** First-pass weapon damage range by rarity, used when a weapon carries no
  *  explicit dmgMin/dmgMax. Calibrated so a common weapon in a low-stat hand
  *  lands near the old stat-only damage; better weapons + higher stats climb from
@@ -65,8 +93,8 @@ export const MAX_AVOIDANCE = 75;
  *  fireball) minus the attacker's Accuracy, clamped to [0, MAX_AVOIDANCE]. On a
  *  successful roll the attack is negated (0 damage). `parried` picks the flavor
  *  when parry was the larger contributor. */
-export function getAvoidance(attacker: CombatUnit, target: CombatUnit): { chance: number; parried: boolean } {
-  const physical = !dealsMagicalDamage(attacker);
+export function getAvoidance(attacker: CombatUnit, target: CombatUnit, forcePhysical?: boolean): { chance: number; parried: boolean } {
+  const physical = forcePhysical || !dealsMagicalDamage(attacker);
   const dodge = getDodgeChance(target) + getRangedElusion(attacker, target);
   const parry = physical ? getParry(target) : 0;
   const chance = Math.max(0, Math.min(MAX_AVOIDANCE, dodge + parry - getAccuracy(attacker)));

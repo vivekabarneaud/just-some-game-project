@@ -38,7 +38,7 @@ export function clampStackAdd(current: number, incoming: number, cap: number): n
   return Math.max(0, Math.min(incoming, cap - current));
 }
 
-const ALL_GEAR_SLOTS = ["head", "chest", "legs", "boots", "gloves", "cloak", "mainHand", "offHand", "ring1", "ring2", "amulet", "trinket"] as const;
+const ALL_GEAR_SLOTS = ["head", "chest", "legs", "boots", "gloves", "cloak", "mainHand", "offHand", "sidearm", "ring1", "ring2", "amulet", "trinket"] as const;
 
 export function getEquipmentStats(equipment: Record<string, string | null>): Partial<AdventurerStats> {
   const stats: Partial<AdventurerStats> = {};
@@ -91,17 +91,28 @@ export function isRingSlot(slot: ItemSlot | undefined): boolean {
   return slot === "ring1" || slot === "ring2";
 }
 
+/** A weapon light enough to ride on the belt as a backup (Combat Foundation §3:
+ *  the sidearm slot). Daggers for now; throwing knives when they exist. */
+export function isSidearmCapable(item: Pick<ItemDefinition, "weaponType"> | undefined): boolean {
+  return item?.weaponType === "dagger";
+}
+
 /** Can an item whose defined slot is `itemSlot` go into `targetSlot`? Same slot,
- *  or both are ring slots (rings are interchangeable). */
-export function slotAccepts(itemSlot: ItemSlot | undefined, targetSlot: ItemSlot): boolean {
+ *  both ring slots (rings are interchangeable), or a sidearm-capable mainHand
+ *  weapon going onto the belt (pass `weaponType` for that check). */
+export function slotAccepts(itemSlot: ItemSlot | undefined, targetSlot: ItemSlot, weaponType?: string): boolean {
   if (!itemSlot) return false;
+  if (itemSlot === "mainHand" && targetSlot === "sidearm") return isSidearmCapable({ weaponType: weaponType as ItemDefinition["weaponType"] });
   return itemSlot === targetSlot || (isRingSlot(itemSlot) && isRingSlot(targetSlot));
 }
 
 export function getItemsForSlot(slot: ItemSlot, adventurerClass?: AdventurerClass): ItemDefinition[] {
   return ITEMS.filter((i) => {
-    if (!slotAccepts(i.slot, slot)) return false;
+    if (!slotAccepts(i.slot, slot, i.weaponType)) return false;
     if (adventurerClass) {
+      // The sidearm slot is universal — anyone can carry a belt knife, whether
+      // or not their class fights with daggers (Combat Foundation §3).
+      if (slot === "sidearm") return true;
       // Weapons filter by weapon-family category (base access; talent grants are
       // an equip-time concern); everything else by the per-item class list.
       if (i.slot === "mainHand" && i.weaponType) {

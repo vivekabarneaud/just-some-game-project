@@ -62,12 +62,13 @@ const GEAR_GRID = [
 const SIDE_SLOTS = [
   { id: "mainHand", name: "Main Hand", icon: "⚔️" },
   { id: "offHand", name: "Off Hand", icon: "🛡️" },
+  { id: "sidearm", name: "Sidearm", icon: "🗡️" },
   { id: "trinket", name: "Trinket", icon: "🔮" },
 ];
 
 const SLOT_NAMES: Record<string, string> = {
   head: "Head", chest: "Chest", legs: "Legs", boots: "Boots", gloves: "Gloves", cloak: "Cloak",
-  mainHand: "Main Hand", offHand: "Off Hand", ring1: "Ring", ring2: "Ring",
+  mainHand: "Main Hand", offHand: "Off Hand", sidearm: "Sidearm", ring1: "Ring", ring2: "Ring",
   amulet: "Amulet", trinket: "Trinket",
 };
 

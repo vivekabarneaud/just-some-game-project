@@ -45,7 +45,7 @@ Working agreement: Claude executes, the user decides/reacts/plays. No task is sc
 ## Next (designed & ready to build)
 
 **Combat spine (ordered — the first unblocks the rest):**
-1. **Weapon range bands + sidearm slot** — the single biggest cross-doc blocker (DESIGN_COMBAT_FOUNDATION §3); unblocks daggers-in-offhand, marsh grapple, band-driven reach.
+1. **Weapon range bands + sidearm slot** — BUILT 2026-08-14 (universal belt-dagger slot, band-based swing selection, enemy attack bands). Unblocked: marsh grapple-at-range-0, spitting adder bands. Remaining nuance: band-aware movement (spear 2–8 reach, dagger 0–3), throwing knives.
 2. **Zone hazards + composable AI knobs** — the unbuilt half of DESIGN_TIER1_ENEMIES (patriarch death-vomit, breakthrough).
 3. **Marsh snake family** (DESIGN_MARSH) and **spider family** (DESIGN_SPIDERS) — next enemy verticals per DESIGN_ENEMY_AUDIT_METHOD; silk material still doesn't exist.
 4. **Rescue/drag-out + Infirmary** (DESIGN_RECOVERY_AND_RETREAT); **positional raids + talents** (DESIGN_POSITIONAL_COMBAT P3/P4); **caster spell-weapons** (DESIGN_NOVICE_ITEMS Phase 2).
