@@ -1,6 +1,6 @@
 # Foraging Minigame — Design + Plant Register
 
-- **Status:** DESIGNING (2026-08-07). Concept agreed in discussion; nothing built.
+- **Status (2026-08-14):** IN PROGRESS on `feat/foraging-minigame` — the data + sandbox layer is BUILT (`shared/src/data/foraging/`: stocking/decay/seasonal handover/rain flush, ~23 plants with decoys; terrain mask + scene anchors; the `/dev-foraging` page; 900+ lines of tests). NOT built: the trip economy (one-a-day + Orison Shard renewal), the herbier, yield→larder wiring, home-page placement, most art.
 - **Purpose:** the "nothing left to do" valve for idle downtime, and the home for plant *variety* that a passive building can't carry.
 - **Cross-refs:** [[project_foraging_minigame]], `DESIGN_APOTHECARY.md`, `DESIGN_FARMING_EXPANSION.md`, `DESIGN_SEASONAL_GATHERS.md`, `DESIGN_TAVERN.md`.
 
