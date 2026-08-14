@@ -1,5 +1,5 @@
 # Recovery & Retreat — the combat-stakes model (Model C)
-- **Status:** DECIDED direction 2026-06-29 (supersedes the old "100% permadeath on KO" in `DESIGN_ROSTER_ECONOMY.md`). Big multi-phase build; design locked here, build after the Model-B roster work.
+**Status (2026-08-14 audit):** PARTIAL — Phases 1–2 + most of 4 BUILT (`combat/retreat.ts`: full flee/panic/rout model, broken/fled states, home recovery + conditions, tests). NOT built: rescue/drag-out, the Infirmary building (healing is items-only), Rearguard/feign-death/commander talents, the combat-log union refactor, per-mission noRetreat.
 - **Why:** with a finite, collectible, no-cap cast ("the player should be able to have them all"), 100% permadeath would only ever *erode* the collection — one bad deploy permanently deletes a beloved character. That fights the whole feeling. So losses should be *survivable* by default, and death should be the rare, earned exception.
 
 ## The principle

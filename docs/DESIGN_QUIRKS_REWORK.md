@@ -1,6 +1,6 @@
 # Quirks Rework — Design Spec
 
-**Status:** BACKLOG (2026-06-05 audit). Quirks are still a flat `PERSONALITY_QUIRKS: string[]`; the tagged system below is unbuilt.
+**Status (2026-08-14 audit):** BACKLOG, and the premise has drifted — under the curated-cast direction (DESIGN_ROSTER_CURATION), quirks likely become per-character authored fields rather than a tagged random pool. Keep as a quirk-text bank; the tagging system is probably dead.
 
 ## Problem
 

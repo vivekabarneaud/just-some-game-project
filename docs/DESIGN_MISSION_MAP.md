@@ -1,7 +1,6 @@
 # DESIGN — The Mission Map
 
-> Status: design (not built). Supersedes the "someday interactive fogged map"
-> note in project memory. The map REPLACES the mission board.
+**Status (2026-08-14 audit):** BUILT well past Phase 1 — full-screen map with pan/zoom, pin frames, close-to-home dock, dev placer, parchment fog with authored reveal regions + persisted reveals, marching/fighting team tokens. Remaining: pin authoring (~58 of ~130 missions placed), Phase 3 climate (the field exists but zero missions set it and no seasonal debuff is wired — the kitchen warmth payoff), painted final map art, pin clustering.
 
 ## Intent
 

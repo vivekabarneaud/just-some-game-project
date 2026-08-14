@@ -1,6 +1,6 @@
 # Expeditions — Multi-Event Mission System
 
-**Status:** BUILT — core (2026-06-05 audit). `expeditionEngine.ts`, expedition content, the recovery supply slot, the timeline UI, and even server-side co-op resolution are live. REMAINING: Phase 5 (authored multi-day expeditions + enemy-roster fill) and deferred polish (retreat mechanic, volatility badge, expedition-flavored talents).
+**Status (2026-08-14 audit):** core BUILT (`expeditionEngine.ts`, recovery supply slot, timeline UI). Phase 5 open: only 2 authored expeditions, no multi-day fields, in-expedition retreat deliberately disabled (the stay-or-retreat agency pillar unimplemented), volatility badge + pause-with-choice pending.
 **Prerequisites:** Third per-adventurer supply slot (recovery), new item types (bandages, mending potions), expanded enemy roster.
 
 ## Overview

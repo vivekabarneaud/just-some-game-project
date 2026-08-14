@@ -1,6 +1,8 @@
 # Livestock — a population you steward (design)
 
-*Created 2026-07-10 from the "buy livestock like seeds?" discussion. Design only, not built.*
+**Status (2026-08-14 audit):** Phase 1 BUILT — pen headcounts, buyLivestock/cullLivestock (meat+pelt+bone), predation events, seasonal births, starvation, PenManageModal, lost_flock missions. Phase 2 (oxen/horses/working animals) backlog. The guard-dog gold toggle is superseded by DESIGN_KEPT_ANIMALS (`keptAnimals`).
+
+*Created 2026-07-10 from the "buy livestock like seeds?" discussion.*
 
 ## Why
 Today pens are **rate-based**: a pen at level N produces eggs/milk/meat at a flat rate and consumes feed; the `animalFeed` system "starves" it (halts production) if the larder is empty. There is **no count of actual animals**, so you can't buy them, lose them, or defend them.

@@ -2,7 +2,7 @@
 
 Big architectural change to how raids resolve. Replaces the current scalar `defense vs strength` comparison with a real combat simulation between attackers (raid force) and defenders (walls + soldiers + tower archers). Reuses the combat log + playback system already shipped for adventurer missions.
 
-**Status:** BUILT (2026-06-05 audit). Ring combat sim (`shared/src/data/raidCombat.ts`), Defenses page, and garrison modal all shipped. CORRECTION: the ring→tier unlock table below is wrong vs code — `ringUnlocked` opens the Middle ring at **Town** and the Inner ring at **City** (not Village/Town).
+**Status:** BUILT (2026-06-05 audit). Ring combat sim (`shared/src/data/raidCombat.ts`), Defenses page, and garrison modal all shipped. *(Table corrected 2026-08-14 to match `ringUnlocked()`.)*
 **Touches:** raid system, combat sim, building system, population, UI (new Defenses page).
 **Scope:** v1 only. Specialized soldier types, adventurer auto-garrison, named officers, settlement-map UI, etc. are deferred.
 
@@ -23,9 +23,9 @@ Defense is organized in named **rings**, scaling with settlement tier:
 | Tier | Available rings |
 |---|---|
 | Camp | Outer |
-| Village | Outer + Middle |
-| Town | Outer + Middle + Inner |
-| City | Same as Town for v1 (4th ring deferred) |
+| Village | Outer |
+| Town | Outer + Middle |
+| City | Outer + Middle + Inner |
 
 Rings unlock outer→inward. A Village player never sees an "Inner Ring" appear before they have a "Middle Ring", which would read as a labelling glitch.
 

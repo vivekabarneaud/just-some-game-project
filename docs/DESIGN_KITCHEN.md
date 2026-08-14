@@ -1,6 +1,8 @@
 # DESIGN — The Kitchen (free-form cooking)
 
-**Status:** design / not built. Sibling to the free-form alchemy lab (see
+**Status (2026-08-14 audit):** BUILT (Phases A–C3) — the free-form desk IS the kitchen (`KitchenDesk.tsx`, `shared/src/data/kitchen/`, 69 named dishes, nourishment→HP and comfort→loyalty boons, tavern-menu integration, loyalty-locked cultural recipes). Remaining: C2c per-dish gold value/sell hook, §cultural ingredient imports (blocked on merchant rapport), rarity/quality frames on dish cards, mission-climate warmth payoff.
+
+Sibling to the free-form alchemy lab (see
 `DESIGN_APOTHECARY.md`), reusing its engine shape, its `FramedItemCard` /
 `FramedModal` components, and its "recipe book on the left" layout. This doc is
 the plan for a **full refont** of the current fixed-recipe kitchen into a

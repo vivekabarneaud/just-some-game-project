@@ -4,6 +4,8 @@ Status: **open backlog** — started July 2026 from a ~24h dev playtest. Purpose
 balance/pacing observations in ONE place so they're tackled as a single focused pass
 rather than scattered knee-jerk tweaks.
 
+**Audit ledger (2026-08-14):** landed — #4 durations partially (bad_blood 60s, hester_rescue 180s; the full audit not done); #7 recruit prompt half-fixed (delinked copy exists BUT "recruitment board" / "Go to recruitment" strings are still on screen in `MissionAssemblyPanel.tsx` with no recruitment left in the game — cheap visible win). Not landed — #3 difficulty stars (Tracks at the Treeline still 1★ vs bear+wolf), #5 gold-source principle (~60 flat gold rewards remain), #6 founding-winter grace still first-tick-latched, #1/#2 scarcity tuning.
+
 ## ⚠️ Read first: the dev-playtest caveat
 
 The dev cannot reliably judge pacing from their own play, and will systematically

@@ -1,6 +1,6 @@
 # Workers & Plagues — Design Spec
 
-**Status:** BACKLOG (2026-06-05 audit). Neither the worker-staffing system nor plague events are built. Depends on citizen-categories (now built).
+**Status (2026-08-14 audit):** PARTIAL — staffing SHIPPED but as a different model than §1 (named-hands coverage per building: `getBuildingStaffing`/`BUILDING_STAFF`/`workEffectiveness` + BuildingStaffSection — not a global auto-distributed pool), and the illness/ailments rework SHIPPED (`shared/src/data/ailments.ts`). §2 plague events NOT built. The cat/vermin half is superseded by DESIGN_KEPT_ANIMALS.
 
 ## 1. Worker System
 

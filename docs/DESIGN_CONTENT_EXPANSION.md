@@ -1,6 +1,6 @@
 # Content Expansion — Enemies, Equipment & Jewelcrafting
 
-**Status:** BUILT (2026-06-05 audit). New enemies, elemental gems, the Jewelcrafter building + page, and the ring slots all shipped.
+**Status (2026-08-14 audit):** BUILT (gems, Jewelcrafter building + page, 22 jewelry items, ring1/ring2 slots). NOTE: a live Act-1 enemy-roster backlog (palette proposal pending ratify, PULL list, cursed_well, flame_wisp/ember merge, captain_hale_stub, set bonuses) is buried under this BUILT header — treat that section as open backlog (tracked in ROADMAP.md).
 
 ## Act 1 enemy palette (PROPOSAL 2026-06-22, pending ratify + mission cleanup)
 Act 1 = forest / meadow / river, with the thinning (Wastes edge) near. The world should feel inhabited, not just stocked: **beasts + desperate people + the restless dead + goblins + one uncanny witch.**

@@ -1,109 +1,122 @@
-# Roadmap
+# Roadmap — the focus source of truth
 
-Bird's-eye view of pending work. One-or-two lines per item + a pointer to the design doc / memory note.
-**Not** a duplicate of detailed designs — those live in `docs/DESIGN_*.md`, the auto-memory, and `docs/DESIGN_INDEX.md` (the doc-vs-code status map).
+Bird's-eye view of what to work on and in what order. One-or-two lines per item + a pointer to the design doc / memory note.
+**Not** a duplicate of detailed designs — those live in `docs/DESIGN_*.md`; `docs/DESIGN_INDEX.md` is the doc-vs-code status map.
 
 ---
 
-## 🎯 The goal: Act 1 Alpha (set 2026-06-11)
+## 🎯 The goal: Act 1 Alpha (set 2026-06-11, structure revised 2026-07)
 
-A complete, balanced Act 1 ending on the **Story 14 cult assault cliffhanger**, good enough to hand to first outside players (boyfriend → his friends; nephew later via the French translation). Milestones in order:
-
-1. **Lore locked through Story 14** — finish the `LORE_AUDIT_2026-06-11.md` punch-list, settle the remaining canon decisions (Nordveld, Khor'vani alchemy), wire the orphaned Rowena-letter chronicles, draft Story 14 + the cult-raid quest (doesn't exist in code yet). Ward-stone canon LOCKED 2026-06-11.
-2. **Progression & anti-softlock pass** — audit every gate/cost/duration through Act 1, simulate playthroughs, eliminate every way to get permanently stuck.
-3. **Content quality pass** — loot/gear first (biggest dissatisfaction), then potions & foods.
-4. **Talent trees deepening.**
-5. **Alpha packaging** — first-hour polish, loot-chest reveal moment, onboarding.
-6. **French translation (i18n)** — tutorial slice first, per the existing plan.
+A complete, balanced Act 1, good enough to hand to first outside players (boyfriend → his friends; nephew later via the French translation). Chapter structure since the July revision: **Ch1 = survival only** (scouting → wolves → Run Down → marshes → Bad Blood, shipped), **Ch2 = witchcraft/maddened arc + the Old Watch climax** — the old Story 2–13 spine is parked behind the `CH2_GATE` sentinel and gets rewritten, not un-gated.
 
 Working agreement: Claude executes, the user decides/reacts/plays. No task is scheduled that requires the user to grind.
+
+**Milestones, in order:**
+1. **Finish the foraging minigame slice** (in flight — see Now).
+2. **Author Chapter 2** — the confirmed witchcraft/maddened + Old Watch arc; close the Bog Witch back half; decide what of dormant Stories 2–13 gets salvaged. Story 14 (cult assault) is the Act-1 cliffhanger target.
+3. **Progression & anti-softlock pass** — gates/costs/durations through Act 1 (DESIGN_BALANCE_PASS is the ledger; get fresh-player signal, don't tune off dev self-play).
+4. **Content quality pass** — loot/gear, potions, foods; wire the systems that are 90% built (see Quick wins + Nearly-done below).
+5. **Alpha packaging** — first-hour polish, onboarding, loot-chest reveal (memory: `project_early_game_polish`).
+6. **French translation (i18n)** — tutorial slice first, last step before the nephew.
 
 ---
 
 ## Now (in flight)
 
-### Weather & ambience
-Layer 1 (cosmetic, season-derived weather: top-bar strip + chip) shipped 2026-06-05, along with the sound mixer (master/ui/ambient/music) + Settings modal and a swap to the purchased UI sound pack. Next: weather Layers 2/3 and ambient sound loops (need loop assets).
-**Doc:** `DESIGN_WEATHER.md`. **Memory:** `project_weather_ambience.md`.
+- **Foraging minigame** (`feat/foraging-minigame`) — scene engine + plants + sandbox built. Remaining: trip economy (one-a-day + Orison Shard renewal), the herbier, yield→larder wiring, home-page placement, art (`FORAGING_PROMPTS.md`). **Doc:** DESIGN_FORAGING_MINIGAME.
+- **Farming detail modals** — FramedModal pass for fields/gardens/orchards (pens done, it's the template). **Memory:** `project_farming_modal_pass`.
+- **Farming nudges rework** — per-card "new"-style seasonal outlines that clear on hover. **Memory:** `project_farming_nudges`.
 
-### Design-doc sweep
-`DESIGN_INDEX.md` created 2026-06-05 — every doc tagged BUILT/PARTIAL/BACKLOG against the code; stale status lines fixed. Structural cleanup done same day: archived `LORE_DEEP_SEALS` (salvaged into `LORE_EIGHTH_GOD`), merged Church+Thornveil → `DESIGN_FACTION_BALANCE.md`, retired `STORY_MISSIONS`. Still pending: reconcile Khor'vani Alchemy canon status, retitle `GAME_DESIGN.md`.
+## Quick wins (found by the 2026-08-14 sweep — small, visible, do while passing by)
 
-### Pantry / warehouse destructibility
-Still mid-discussion (since 2026-04-28). Lean: option A (destroyable, capped stockpile loss, only at higher raid difficulties).
+- **Kill the dead recruitment strings** — "Hire your first adventurers at the recruitment board" / "Go to recruitment" in `MissionAssemblyPanel.tsx`; recruitment no longer exists.
+- **"Tracks at the Treeline" difficulty bump** — still 1★ single-slot vs a bear+wolf fight.
+- **Scarcity-mission cooldown** — forced hunts re-fire every tick while a shortage lasts; seasonal gathers also lack their asserted daily reset.
+- **Delete dead code** — `generateCandidate()`/`getCandidateCount()`; orphaned guard-dog + weather-TODO comments; reconcile the `merchantOffers()` "retired" contradiction. (Also logged in TECH_DEBT.)
 
----
+## Nearly done — the system shipped, one wire is missing
 
-## Next (designed & ready — rest of the system already shipped)
+- **Alchemy stations beyond crush+boil** — steep/dry/distil/char/ferment exist in data but are unreachable; the tier-gated station unlock was never wired (DESIGN_APOTHECARY).
+- **Mission-map pins** — ~58 of ~130 missions placed; the "Close to home" dock is still load-bearing (DESIGN_MISSION_MAP).
+- **Mission climate** — the `climate` field exists, zero missions set it, no seasonal debuff wired. This is the payoff for kitchen warmth/freshness (DESIGN_MISSION_MAP §3, memory `project_mission_climate`).
+- **Talent-engine wiring** — trees display ~150 nodes; the combat engine reads ~3 ids. Decide the per-character-bespoke-trees question before investing (DESIGN_TALENT_TREES).
+- **Roster pool cut** — recruitment UX rework shipped; the actual 229→~50 cull + reserve pool never happened (DESIGN_ROSTER_CURATION).
 
-- **Enchanted team scrolls** — the only unbuilt third of `DESIGN_FOOD_SCROLLS_LOYALTY.md`.
-- **Weather Layers 2 & 3** — drought/storm/blizzard mechanics + unnatural aether storms (`DESIGN_WEATHER.md`).
-- **Roster economy** — wages, vacation/forced-inactive/retirement, replacing the hard roster cap; reconcile its loyalty model with the shipped 0-100 loyalty (`DESIGN_ROSTER_ECONOMY.md`).
-- **Building tools full roster** — ~18 tools + buff/secondary slots; only `cutting_board` exists (`DESIGN_BUILDING_TOOLS.md`).
-- **Workers & plagues** — now unblocked since citizen-categories shipped (`DESIGN_WORKERS_PLAGUES.md`).
-- **Quirks rework** — tagged personality system replacing the flat string list (`DESIGN_QUIRKS_REWORK.md`).
-- **Faction balance** — Church + Thornveil escalation; needs a Chapel/Shrine rethink (`DESIGN_FACTION_BALANCE.md`).
-- **Premade characters: family/rarity/unlock layer** — pool + Pantheon shipped; these fields pending (`DESIGN_PREMADE_CHARACTERS.md`).
-- **Expeditions Phase 5** — authored multi-day expeditions + enemy-roster fill; core engine shipped (`DESIGN_EXPEDITIONS.md`).
-- **Mission character ties** — apprentice/journeyman mission text through the founding cast; novice tier started. **Memory:** `project_mission_character_ties.md`.
+## Next (designed & ready to build)
 
----
+**Combat spine (ordered — the first unblocks the rest):**
+1. **Weapon range bands + sidearm slot** — the single biggest cross-doc blocker (DESIGN_COMBAT_FOUNDATION §3); unblocks daggers-in-offhand, marsh grapple, band-driven reach.
+2. **Zone hazards + composable AI knobs** — the unbuilt half of DESIGN_TIER1_ENEMIES (patriarch death-vomit, breakthrough).
+3. **Marsh snake family** (DESIGN_MARSH) and **spider family** (DESIGN_SPIDERS) — next enemy verticals per DESIGN_ENEMY_AUDIT_METHOD; silk material still doesn't exist.
+4. **Rescue/drag-out + Infirmary** (DESIGN_RECOVERY_AND_RETREAT); **positional raids + talents** (DESIGN_POSITIONAL_COMBAT P3/P4); **caster spell-weapons** (DESIGN_NOVICE_ITEMS Phase 2).
+
+**Economy & settlement:**
+- **Enchanted team scrolls** — the last third of DESIGN_FOOD_SCROLLS_LOYALTY.
+- **Tavern conversations** — the cozy JRPG supports (DESIGN_TAVERN §7, memory `project_tavern_conversations`).
+- **Traveling merchants phase 2** — culture merchants, rotation, rapport; unblocks kitchen cultural imports (DESIGN_TRAVELING_MERCHANTS).
+- **Storm/blizzard mechanics + Layer 3 aether storms** (DESIGN_WEATHER); water trade + locust event (DESIGN_WEATHER_YIELD leftovers).
+- **Cats + vermin loop** (DESIGN_KEPT_ANIMALS second half) and **plague events** (DESIGN_WORKERS_PLAGUES §2).
+- **Building tools roster** (DESIGN_BUILDING_TOOLS); **roster economy** — wages must key off the arrival model now (DESIGN_ROSTER_ECONOMY).
+- **Offensive alchemy slice** — channels priced but combat ignores them; goes with puffball-as-carrier (memory `project_puffball_smokebomb`).
+- **Village tier → TH4 gate move** (memory `project_village_tier_th4`); **marketplace exponential pricing** (memory `project_marketplace_rework`).
+
+**Story & content:**
+- **Act-1 enemy palette ratify + PULL list** — buried in DESIGN_CONTENT_EXPANSION under a BUILT header.
+- **Expeditions Phase 5** — authored multi-day expeditions; only 2 exist (DESIGN_EXPEDITIONS).
+- **Seasonal-gather roster gaps** — First Greens, Mushroom Foraging, the specials (DESIGN_SEASONAL_GATHERS).
+- **Faction balance** — needs the Chapel/Shrine rethink first (DESIGN_FACTION_BALANCE).
+- **Founder bios revision** — all six parked post-restructure; mute swap Nell→Tomas under consideration (memory index ⚠ note).
 
 ## Later (bigger commitment / needs design alignment)
 
-- **Marketplace rework** — exponential price scaling per repeated trade. **Memory:** `project_marketplace_rework.md`.
-- **Combat log: new event kinds** — discriminated-union refactor as talents land. **Memory:** `project_combat_log_plan.md`.
-- **Per-event combat playback for expeditions** — blow-by-blow per expedition event. **Memory:** `project_combat_log_plan.md`.
-- **Custom hand-drawn icons** — replace 200+ emoji; art pass (see `PROMPTS.md`).
-- **i18n (French)** — `@solid-primitives/i18n`, tutorial slice first; deferred until content stabilizes.
-- **Proper authentication** — Google OAuth SHIPPED 2026-06-12 (ID-token flow, account linking by verified email, 60d sessions, land-grant deed login page). Remaining: email verification, password reset, optional Discord OAuth, session hardening.
-- **More founder fragments / chronicle entries** — Tomas/Corin late beats; rewrite the two commented-out ch1 entries in the locked Lord voice.
+- **Guild full-screen rework** — user will draw it first (memory `project_guild_fullscreen_rework`).
+- **Combat log discriminated-union refactor + per-event expedition playback** (memory `project_combat_log_plan`).
+- **Custom hand-drawn icons** — art pass (`PROMPTS.md`).
+- **Auth hardening** — email verification, password reset, optional Discord OAuth (Google OAuth shipped 2026-06-12).
+- **Livestock population model** (DESIGN_LIVESTOCK phase 2 + memory `project_livestock_population`); **NPC settlements beyond Lammast**.
+- **i18n (French)** — deferred until content stabilizes; last milestone before alpha handoff.
 
----
+## Multiplayer (backend exists — needs frontend wiring, not a server build)
 
-## Multiplayer (backend now exists — RE-SCOPE)
+- **Co-op expeditions** — server resolution exists; verify/finish the client flow.
+- **Cross-player raid defense** (memory `project_friend_raid_defense`) and **raid reinforcements + Pigeon Loft** (DESIGN_RAID_REINFORCEMENTS).
+- **Player guilds** (memory `project_player_guilds`).
 
-The backend shipped (`backend/`: auth/settlement/trade/friends/coop/world/ws + co-op resolution + tick), so "blocked by backend" no longer holds for the foundations. These need a **frontend-wiring audit**, not a server build:
+## Future (post-alpha horizon)
 
-- **Co-op expeditions** — server resolution + `CoopExpedition` table exist; verify/finish the client flow.
-- **Cross-player raid defense** — send an idle adventurer to a friend's raid. **Memory:** `project_friend_raid_defense.md`.
-- **Player guilds** — co-op halls, shared raids, weekly events. **Memory:** `project_player_guilds.md`.
-
----
-
-## Future (Phase 4+)
-
-- **Dragon system** — egg from a late mission, tamagotchi nurturing, defense + PvP. **Memory:** `project_dragon_system.md`.
-- **Story continuation** — story ships through Story 13 (`STORY_PLAYER_SCRIPT.md`); Chapters 5+ (Inquisition / Doctrine of Silence) pending. **Memory:** `project_faith_loyalty_arc.md`.
-- **Ward-stone system** — war-for-the-line late game; ties into weather Layer 3. **Memory:** `project_ward_stone_system.md`.
+- **Dragon system** (memory `project_dragon_system`; sketch archived in `archive/GAME_DESIGN.md`).
+- **Chapters 3+** — faith arc, Inquisition, ward-stone war (memories `project_faith_loyalty_arc`, `project_ward_stone_system`).
+- **Companion app** (memory `project_companion_app`); **achievements/milestones** (memory `project_achievements_milestones`).
 
 ---
 
 ## Open questions / decisions pending
 
-- Pantry/warehouse destruction tuning (see Now).
-- Faction-balance redesign after the Chapel→Shrine rename.
-- Story beats with no firing event yet: Tomas decision-paralysis reveal, Edda's Mira/Mae, Corin's secret notebook, the Lord's mother's death.
+- Foraging home-page placement + first-fruit pick (DESIGN_FORAGING_MINIGAME open questions).
+- Talent trees: keep the pentagon or pivot to per-character bespoke trees?
+- Pantry/warehouse destructibility (leaning option A since 2026-04).
+- Chapel→Shrine faction offset rethink.
+- Roster cut list ratification (the ~52 keepers in DESIGN_ROSTER_CURATION).
 - Real-prod vs preprod environment rename — deferred to launch.
 
 ---
 
-## Recently shipped
+## Recently shipped (2026-06-05 → 2026-08-14, ~728 commits)
 
-Big systems confirmed live in the 2026-06-05 sweep (many had been stale-marked "not implemented"):
-- **Weather Layer 1 + UI sound system + Settings modal** (2026-06-05).
-- **Backend** — Hono + Prisma + Postgres; routes + ws + co-op resolution + tick.
-- **Defenses rework** — ring combat sim, Defenses page, garrison modal.
-- **Citizen categories** — per-category population, aging, differential food, adults-only defense.
-- **Talent trees** — full per-class trees + hybrid-title capstones.
-- **Expeditions** — multi-event engine, recovery slot, timeline UI (Phase 5 pending).
-- **Races/origins** — races, origins, enemy tags, backstory-trait passives, ghost/aether immunities.
-- **Content expansion** — new enemies, gems, Jewelcrafter, ring slots.
-- **Farming expansion** — apiary/honey, orchards, mushrooms, cheese.
-- **Food + loyalty** — Tavern food crafting, per-adventurer food/potion slots, 0-100 loyalty (scrolls pending).
-- **Premade character pool + Pantheon** (family/rarity/unlock pending).
-- Earlier: phone-responsive pass, founding-cast voice pass, recruit gating, combat log + playback, travel structure, permadeath.
+- **Free-form kitchen** (Phases A–C3): cooking desk, 69 dishes, painted cookbook UI, tavern-menu + loyalty integration; old crafting UI retired.
+- **Free-form apothecary**: brew engine, AlchemyDesk, named recipes, plant-quantity potency.
+- **Mission map**: the board became a map — fog reveal regions, authored pins, marching/fighting tokens, travel-by-distance.
+- **Side-story director layer**: 10 registered chains incl. Bog Witch front, Lammast, Tollman's Road, the Truffle/fold arc.
+- **Food subcategory splits**: meat→9 cuts, fish→4, mushrooms→4, berries split; topbar aggregation.
+- **Tavern spine**: rooms/travelers, staffing, pricing, reputation, menu editor.
+- **Staffing + ailments**: named-hands coverage per building; fever/gut/wound lines.
+- **Kept animals**: dogs (kennel, guard/hunt jobs, breeding, strays, Truffle onboarding).
+- **Livestock phase 1**: headcounts, buy/cull with travel time, predation, births.
+- **Climate + water**: per-year climate bands, wells/cisterns/sluice, weather crop events.
+- **Positional combat P1+P2** + retreat/rout model + beast gear (11 items) + weapon damage model.
+- **Recruitment rework**: scripted arrivals replaced the daily recruit rotation.
+- **SAVE_VERSION reset-over-migrations**; scarcity forced missions; seasonal gathers; quarry spider gate.
 
 ---
 
-*Last updated 2026-06-05 (doc sweep + weather/sound session). See `DESIGN_INDEX.md` for the full doc-vs-code status map. Update when scope or status changes — don't let this drift.*
+*Last updated 2026-08-14 (full doc-vs-code sweep; see `DESIGN_INDEX.md`). Update when scope or status changes — don't let this drift.*

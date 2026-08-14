@@ -1,6 +1,8 @@
 # Weather → Yield (Layer 2 gameplay)
 
-**Status:** DESIGNED, not built (brainstormed 2026-07-15). Sibling of `DESIGN_WEATHER.md` (Layer 1 = cosmetic ambient weather, BUILT). This doc is the gameplay layer: weather actually moves crop yields, drought kills plants, and a water system lets players push back.
+**Status (2026-08-14 audit):** BUILT — climate bands (`frontend/src/data/climate.ts`: mulberry32 hash, per-band yield multipliers, Year-1 grace) + the water system (wells/cisterns/sluice, per-crop water needs). §drought-as-year-kill superseded by momentary weather events (DROUGHT_PLANT_KILL survives only for the dev tool). Open: water trade, locust/pest event, germination lever.
+
+Sibling of `DESIGN_WEATHER.md` (Layer 1 = cosmetic ambient weather, BUILT). This doc is the gameplay layer: weather actually moves crop yields, drought kills plants, and a water system lets players push back.
 
 ---
 

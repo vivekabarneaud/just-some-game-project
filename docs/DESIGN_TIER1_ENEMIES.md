@@ -1,6 +1,6 @@
 # DESIGN: Tier-1 Enemy Authoring (bestiary pass)
 
-**Status:** Design in progress. Drafted 2026-07-25. Builds on [[DESIGN_COMBAT_FOUNDATION.md]] (stats/weapons/schools) and [[DESIGN_POSITIONAL_COMBAT.md]] (the 1D layer). Nothing here is built until the foundation's weapon-band + hit-resolution steps land (Foundation §4 steps 2-3).
+**Status (2026-08-14 audit):** PARTIAL — the wolves/boars/outlaws slice SHIPPED (charge + knockback, packs/morale/routs, ignoreArmor, stun/slow); the in-doc §Build status is current, trust it over older lines. NOT built: zone hazards (the patriarch death-vomit is a code TODO), composable AI knobs (still the single `aiTier` string), knockback-immunity/breakthrough, and the rest of the Tier-1 roster.
 
 **One-line:** Author each enemy on the uniform foundation — stats, weapon band, and *only* the exceptions (abilities, raw sub-stats, resistances) that make it distinct. Along the way we introduce a handful of **reusable mechanics** (charge, knockback, zone hazards, composable AI) that later enemies and talents reuse.
 
