@@ -1,6 +1,6 @@
 # DESIGN: Scarcity-Triggered Missions (the never-stuck safety valve)
 
-**Status (2026-08-14 audit):** BUILT via engine code rather than the designed data gate — four live triggers in `gameState.tsx` (`forceMission`): low wood→gather_timber, low stone→quarry, low food→boar hunt / winter deer yard, low water→north stream / fill barrels. Missing: a cooldown/anti-farming guardrail (re-forces every tick while the shortage lasts). The proposed `MissionRequirements` resource-below gate is now an optional refactor.
+**Status (2026-08-14 audit):** BUILT via engine code rather than the designed data gate — four live triggers in `gameState.tsx` (`forceMission`): low wood→gather_timber, low stone→quarry, low food→boar hunt / winter deer yard, low water→north stream / fill barrels. Guardrail BUILT 2026-08-14: hunts + water hauls run once per board cycle (`SCARCITY_ONCE_PER_BOARD`), reset by the 3AM reroll or a shard reroll; the wood/stone gathers stay exempt as the soft-lock valve. The proposed `MissionRequirements` resource-below gate is now an optional refactor.
 
 **One-line:** Some missions appear **when a resource runs low**, so the player is **never soft-locked** — the world offers a way out when you're desperate, wrapped in narration that makes it feel like the settlement *responding to a crisis*, not a handout.
 

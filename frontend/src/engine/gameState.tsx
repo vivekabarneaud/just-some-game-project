@@ -681,6 +681,10 @@ export interface GameState {
   /** Durable per-mission success counts (unlike completedMissions, never cleared).
    *  Drives count-gated chains + mission requirements. */
   missionCompletions: Record<string, number>;
+  /** Forced scarcity missions (boar hunt, water haul…) already resolved this
+   *  board cycle — not re-forced until the board refreshes (3AM or shard
+   *  reroll). See SCARCITY_ONCE_PER_BOARD. */
+  scarcityDoneThisBoard?: string[];
   missionBoard: MissionTemplate[];
   missionRefreshIn: number; // game-hours until next mission board refresh
   // Harvest tracking
@@ -1391,6 +1395,7 @@ export function createInitialState(): GameState {
     activeMissions: [],
     completedMissions: [],
     missionCompletions: {},
+    scarcityDoneThisBoard: [],
     missionBoard: [],
     missionRefreshIn: 0,
     incomingRaids: [],
@@ -2907,6 +2912,19 @@ export const WILD_BOAR_HUNT_FOOD_HOURS = 3;
  *  North Stream haul — a touch more lead time than the food hunt, since a dry
  *  spell wilts crops gradually rather than starving folk outright. */
 export const WATER_FETCH_HOURS = 8;
+/** Forced scarcity missions that run at most ONCE per board cycle: after one
+ *  resolves (success or failure) it won't be re-forced until the board
+ *  refreshes — the daily 3AM reroll or a shard reroll (the cadence from
+ *  DESIGN_SEASONAL_GATHERS). Anti-spam/anti-farm guardrail: no chaining boar
+ *  hunts by staying hungry. The wood/stone gathers are deliberately EXEMPT —
+ *  they're the soft-lock recovery valve (no mill/marketplace and nothing
+ *  left), and they only fire while the player is genuinely broke. */
+export const SCARCITY_ONCE_PER_BOARD = new Set([
+  "wild_boar_hunt",
+  "deer_yard",
+  "north_stream",
+  "fill_barrels",
+]);
 /** Hours of continuous starvation for the work penalty to reach its floor, and
  *  the floor itself (10% = a 90% cut to wood/stone/gold production). */
 export const FAMINE_WORK_RAMP_HOURS = 12;
@@ -5466,6 +5484,16 @@ export function GameProvider(props: ParentProps) {
                 s.missionCompletions[am.missionId] = (s.missionCompletions[am.missionId] ?? 0) + 1;
               }
 
+              // A forced scarcity mission just resolved (either way): done for
+              // this board cycle, so the shortage signal doesn't re-force it
+              // next tick. Cleared when the board refreshes.
+              if (SCARCITY_ONCE_PER_BOARD.has(am.missionId)) {
+                s.scarcityDoneThisBoard = s.scarcityDoneThisBoard ?? [];
+                if (!s.scarcityDoneThisBoard.includes(am.missionId)) {
+                  s.scarcityDoneThisBoard.push(am.missionId);
+                }
+              }
+
               // Remove from active
               s.activeMissions.splice(i, 1);
             }
@@ -5514,6 +5542,7 @@ export function GameProvider(props: ParentProps) {
             const marketOk = producing("marketplace");
             const forceMission = (id: string) => {
               if (onBoard.has(id) || active.has(id)) return;
+              if (s.scarcityDoneThisBoard?.includes(id)) return; // once per board cycle
               const m = MISSION_POOL.find((mm) => mm.id === id);
               if (!m || m.staged) return;
               if (guildLvl < (m.minGuildLevel ?? 1)) return; // no guild, no injection
@@ -5551,7 +5580,9 @@ export function GameProvider(props: ParentProps) {
                   { id: "deer_yard", season: "winter" },
                 ];
                 const anyUp = HUNTS.some((h) => onBoard.has(h.id) || active.has(h.id));
-                const eligible = HUNTS.filter((h) => !h.season || h.season === s.season);
+                const eligible = HUNTS.filter(
+                  (h) => (!h.season || h.season === s.season) && !s.scarcityDoneThisBoard?.includes(h.id),
+                );
                 if (!anyUp && eligible.length > 0) {
                   forceMission(eligible[Math.floor(Math.random() * eligible.length)].id);
                 }
@@ -5578,6 +5609,7 @@ export function GameProvider(props: ParentProps) {
             // Missions — cap difficulty at best adventurer's rank + 1
             s.missionBoard = generateMissionBoard(buildMissionBoardContext(s, guildLvl, now + s.year * 777));
             s.lastMissionRefresh = now;
+            s.scarcityDoneThisBoard = []; // fresh board, fresh forced-scarcity allowance
           }
           // Newly-arrived curated characters join the roster automatically.
           syncArrivals(s);
@@ -8254,6 +8286,7 @@ export function GameProvider(props: ParentProps) {
         s.astralShards -= cost;
         s.missionRerollToday = rerollCount + 1;
         s.missionBoard = generateMissionBoard(buildMissionBoardContext(s, guildLvl, Date.now()));
+        s.scarcityDoneThisBoard = []; // shard reroll refreshes the forced-scarcity allowance too
       }));
       scheduleSave();
       return true;
