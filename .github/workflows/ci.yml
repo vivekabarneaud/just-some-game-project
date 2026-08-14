@@ -1,0 +1,23 @@
+# CI — typecheck all three packages + run the frontend test suite.
+# Added per TECH_DEBT.md 4.4: none of the Tier-1 bugs would have survived a CI
+# that typechecked shared/frontend/backend together.
+name: CI
+
+on:
+  push:
+    branches: [main, preprod]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4 # reads packageManager from package.json
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run typecheck
+      - run: pnpm run test

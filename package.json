@@ -16,7 +16,9 @@
     "dev:frontend": "pnpm --filter @medieval-realm/frontend dev",
     "dev:backend": "pnpm --filter @medieval-realm/backend dev",
     "db:push": "pnpm --filter @medieval-realm/backend db:push",
-    "db:migrate": "pnpm --filter @medieval-realm/backend db:migrate"
+    "db:migrate": "pnpm --filter @medieval-realm/backend db:migrate",
+    "typecheck": "pnpm -r run typecheck",
+    "test": "pnpm --filter @medieval-realm/frontend test"
   },
   "devDependencies": {
     "@aws-sdk/client-s3": "^3.1029.0",
