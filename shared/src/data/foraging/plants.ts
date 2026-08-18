@@ -98,7 +98,7 @@ export const FORAGE_PLANTS: ForagePlant[] = [
   // ── Wild berries. The bushes they hang on are painted into the scenes; only
   //    the fruit is a sprite, appearing at the anchors marked on a scene's mask.
   //    See DESIGN_FORAGING_MINIGAME. ──
-  { id: "blackberry", name: "Blackberry", icon: "🫐", yields: "blackberry", anchored: true,
+  { id: "blackberry", name: "Blackberry", icon: "🫐", yields: "blackberry", anchored: true, artVariants: 1,
     note: "Hedgerow-dark and seedy, paid for in scratched arms.",
     clump: 4,
     size: [0.7, 1.05], grows: ["litter", "grass"],
