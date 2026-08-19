@@ -143,6 +143,11 @@ export interface EnemyDefinition {
    *  creatures stay a "???" card until first encountered. */
   revealPortrait?: boolean;
   /** Targeting style. Default "tactical" (threat-aware scored pick). Orthogonal to boss. */
+  /** Composable AI knobs (DESIGN_TIER1_ENEMIES §1). Author only the knobs that
+   *  make this creature distinct; anything omitted falls back to `aiTier` below
+   *  and then to the defaults. Preferred over `aiTier` for new enemies. */
+  ai?: Partial<import("./combat/types.js").AIProfile>;
+  /** LEGACY single-tier targeting. Maps onto `ai.targeting` exactly. */
   aiTier?: EnemyAITier;
   /** Resistance to forced-target taunt effects. Default "none". */
   tauntImmunity?: EnemyTauntImmunity;

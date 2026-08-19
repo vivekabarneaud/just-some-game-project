@@ -7,6 +7,7 @@ import { tryClassAbility, tryEnemyAbility } from "../abilities/index.js";
 import { evaluateTransitions, getCurrentState } from "../ai/index.js";
 import { addDamageThreat } from "../threat.js";
 import { shouldFlee, attemptFlee, moraleBreaks } from "../retreat.js";
+import { canBreak } from "../ai/profile.js";
 import { POS, CHARGE, moveUnit, computeHolds, chargePlan, pinningFoe, inReach, isBehind, weaponAt, paceGap, hasPackmateOn, PACK_TACTICS_BONUS, livingPackmates, PACK_NERVE_ACCURACY } from "../positional.js";
 
 /**
@@ -64,7 +65,7 @@ export function runActions(ctx: CombatContext): void {
     // human whose morale snaps (mates fallen, leader down, outnumbered — see
     // moraleBreaks). It survives and leaves the field; counts as defeated for
     // victory, yields only keepOnRout loot.
-    if (unit.isEnemy && (enemyBreaksAndRuns(unit) || moraleBreaks(unit, ctx))) { routEnemy(unit, ctx); continue; }
+    if (unit.isEnemy && canBreak(unit) && (enemyBreaksAndRuns(unit) || moraleBreaks(unit, ctx))) { routEnemy(unit, ctx); continue; }
 
     // Move on this unit's own turn (charge/advance/kite), THEN act below.
     moveUnit(unit, ctx, held);
@@ -89,7 +90,9 @@ export function runActions(ctx: CombatContext): void {
  * Mind-controlled adventurers hit their own team and decrement the counter.
  * Returns true if the unit's turn was consumed here.
  */
-/** A beast at/below its rout threshold breaks off (already-fled units excluded). */
+/** A beast at/below its rout threshold breaks off (already-fled units excluded).
+ *  Fearlessness is gated by the caller's `canBreak`, which covers this and the
+ *  morale path together. */
 function enemyBreaksAndRuns(unit: CombatUnit): boolean {
   if (unit.routsAt == null || unit.fled || unit.hp <= 0) return false;
   return unit.hp <= unit.routsAt * unit.maxHp;

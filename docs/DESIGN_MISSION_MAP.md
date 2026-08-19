@@ -14,6 +14,35 @@ This also unlocks **mission climate** (cold / hot), which is what finally makes
 the kitchen's warm & fresh food channels matter (see DESIGN_KITCHEN.md and the
 mission-climate note).
 
+### ⭐ Live weather on nearby missions (idea, 2026-08-19 — user's)
+
+Climate as designed above is a *permanent property of a place* (the cold north,
+the hot south). The complement: **today's weather should reach the missions close
+to home.** A heat wave or a downpour is already a real, mechanical event with a
+duration (`weather.ts` — it kills crops and drains water), and it is *visible in
+the top bar* — so letting it touch the nearby pins costs almost nothing and makes
+the sky matter to more than farming.
+
+Why it's good: it reuses a built system, it gives the same warm/fresh food
+channels a second reason to exist, and unlike authored climate it needs **no
+per-mission authoring at all** — proximity to the settlement is already known
+from `map: {x, y}`.
+
+Open questions for when this gets built:
+- **How near is near?** A radius around the settlement pin, or a "close to home"
+  flag? Radius is free (the coordinates exist) and reads naturally on the map.
+- **Modify or gate?** Prefer *modify* (a debuff, worse rewards, longer duration)
+  over blocking deployment — a hard block strands a player who only has the one
+  mission left.
+- **Show it on the pin.** The weather icon on affected pins, or a translucent
+  wash over the near-map, so the player connects sky → pin without reading a
+  tooltip.
+- Distant missions ignore local weather, which is itself a nice tell: the valley
+  has its own sky, the Wastes have another.
+
+Cross-refs: DESIGN_WEATHER.md (the event layer), DESIGN_KITCHEN.md (the food
+mitigation), and the climate section below (the authored, permanent axis).
+
 ## The model (everything authored by hand)
 
 Two new optional fields on `MissionTemplate` (shared/src/data/missions/types.ts):

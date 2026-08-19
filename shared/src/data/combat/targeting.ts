@@ -1,8 +1,9 @@
 import type { CombatUnit } from "./types.js";
 import { combatRandom } from "./prng.js";
-import { getDefenseReduction, getMagicResistReduction, dealsMagicalDamage } from "./stats.js";
+import { getDefenseReduction, getMagicResistReduction, dealsMagicalDamage, getAvoidance } from "./stats.js";
 import { getThreat } from "./threat.js";
-import { inReach } from "./positional.js";
+import { inReach, paceGap } from "./positional.js";
+import { resolveAI } from "./ai/profile.js";
 
 /** Prefer targets the attacker can actually reach this turn; if none are in
  *  reach (still closing), fall back to all so a movement intent still resolves
@@ -14,14 +15,18 @@ function reachable(attacker: CombatUnit, alive: CombatUnit[]): CombatUnit[] {
 }
 
 /**
- * Enemy targeting — driven by aiTier (set per enemy, defaults from WIS):
- *   feral    : random alive target, ignores threat
- *   tactical : scored pick (defense × wounded × threat) — most enemies
- *   cunning  : prioritize backline (priest > wizard); threat is a tiebreaker
+ * Enemy targeting — driven by the resolved `targeting` knob (see ai/profile.ts;
+ * the legacy aiTier maps onto it exactly, so nothing shipped changes):
+ *   random      : any reachable target — the old `feral`
+ *   nearest     : the closest reachable target
+ *   threat      : scored pick (defense × wounded × threat) — the old `tactical`
+ *   opportunist : whoever it can hurt most, armor/resist AND dodge/parry aware
+ *   squishiest  : the least protected, regardless of damage
+ *   backline    : priest, then wizard — the old `cunning`
  *
  * Forced-target taunt (warrior taunt) short-circuits everything when set.
- * The taunt application itself respects tauntImmunity, so an immune enemy
- * never has tauntedBy set in the first place.
+ * The taunt application itself respects the tauntable knob, so a unit that
+ * ignores taunts never has tauntedBy set in the first place.
  */
 export function pickTarget(attacker: CombatUnit, targets: CombatUnit[]): CombatUnit | null {
   const alive = targets.filter((u) => u.hp > 0 && !u.fled);
@@ -43,15 +48,36 @@ export function pickTarget(attacker: CombatUnit, targets: CombatUnit[]): CombatU
 
   if (alive.length === 1) return alive[0];
 
-  const tier = attacker.aiTier ?? "tactical";
+  const { targeting } = resolveAI(attacker);
   // Positional gate: an enemy hits the highest-threat target it can REACH.
   const pool = reachable(attacker, alive);
 
-  if (tier === "feral") {
+  if (targeting === "random") {
     return pool[Math.floor(combatRandom() * pool.length)];
   }
 
-  if (tier === "cunning") {
+  if (targeting === "nearest") {
+    return pool.reduce((a, b) => (paceGap(attacker, b) < paceGap(attacker, a) ? b : a));
+  }
+
+  if (targeting === "opportunist") {
+    // Most damage actually landed: soft targets rank high, but so does being
+    // hittable — a plated, parrying tank is worth less than the archer behind
+    // it. This is what makes body-block + taunt the counter rather than a
+    // suggestion.
+    return bestBy(pool, (t) => {
+      const through = 1 - (dealsMagicalDamage(attacker) ? getMagicResistReduction(t) : getDefenseReduction(t));
+      const lands = 1 - getAvoidance(attacker, t).chance / 100;
+      return through * lands;
+    });
+  }
+
+  if (targeting === "squishiest") {
+    // Least protected, full stop — no damage math, no threat, no HP weighting.
+    return bestBy(pool, (t) => 1 - (dealsMagicalDamage(attacker) ? getMagicResistReduction(t) : getDefenseReduction(t)));
+  }
+
+  if (targeting === "backline") {
     // Smart enemies hunt the backline first, threat only breaks ties within a class.
     const priests = pool.filter((t) => t.class === "priest");
     if (priests.length > 0) return priests.length === 1 ? priests[0] : highestThreat(attacker, priests) ?? priests[0];
@@ -61,8 +87,20 @@ export function pickTarget(attacker: CombatUnit, targets: CombatUnit[]): CombatU
     return scoredPick(attacker, pool, 10, 0, 0.3);
   }
 
-  // tactical — full threat weighting
+  // threat — full threat weighting (the default, and most enemies)
   return scoredPick(attacker, pool, 20, 0.15, 1.0);
+}
+
+/** The candidate scoring highest on `score`. Ties keep the earlier candidate,
+ *  so ordering stays deterministic for a given roster. */
+function bestBy(pool: CombatUnit[], score: (u: CombatUnit) => number): CombatUnit {
+  let best = pool[0];
+  let bestScore = score(best);
+  for (const u of pool.slice(1)) {
+    const s = score(u);
+    if (s > bestScore) { best = u; bestScore = s; }
+  }
+  return best;
 }
 
 /**

@@ -267,6 +267,21 @@ Simple recipes (1 tag) are cheap and unlock early. Complex recipes (2 tags) cost
 
 ## 2. Enchanted Scrolls
 
+> **PARKED 2026-08-19 — blocked on magic existing, not on build effort.** The
+> spec below is complete and buildable today (every ingredient, tower level and
+> effect is decided), but all five scrolls are gated behind **Mage Tower 2+**,
+> and the player has no magic anywhere near the early game — Act 1 is a survival
+> chapter with no caster, no Mage Tower, and no mana crystals in reach. Building
+> it now would add five recipes nobody can touch for many hours, and it would
+> quietly imply the settlement has arcane craft when the story says it doesn't.
+>
+> **Unpark when** the Mage Tower is a real mid-game building the player actually
+> raises, i.e. alongside the caster/spell-weapon work (DESIGN_NOVICE_ITEMS
+> Phase 2) or whenever magic first becomes player-facing. The team scroll slot
+> also needs re-fitting: the deploy screen went **per-adventurer**, so "the team
+> slot" is now one shared slot beside the per-hero ones, not the old 3-potion
+> shared area this doc describes.
+
 ### Concept
 The Enchanting shop gains a "Scrolls" crafting tab alongside its existing equipment enchantment UI. Scrolls are consumable team-wide buffs applied in the mission scroll slot.
 
