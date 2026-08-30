@@ -1,6 +1,6 @@
 # DESIGN: Tier-1 Enemy Authoring (bestiary pass)
 
-**Status (2026-08-14 audit):** PARTIAL — the wolves/boars/outlaws slice SHIPPED (charge + knockback, packs/morale/routs, ignoreArmor, stun/slow); the in-doc §Build status is current, trust it over older lines. NOT built: zone hazards (the patriarch death-vomit is a code TODO), composable AI knobs (still the single `aiTier` string), knockback-immunity/breakthrough, and the rest of the Tier-1 roster.
+**Status (2026-08-14 audit):** PARTIAL — the wolves/boars/outlaws slice SHIPPED (charge + knockback, packs/morale/routs, ignoreArmor, stun/slow); the in-doc §Build status is current, trust it over older lines. **Composable AI knobs BUILT 2026-08-19** (3 of the 4 knobs — see that section). NOT built: zone hazards (the patriarch death-vomit is a code TODO), the `movement` knob, knockback-immunity/breakthrough, and the rest of the Tier-1 roster.
 
 **One-line:** Author each enemy on the uniform foundation — stats, weapon band, and *only* the exceptions (abilities, raw sub-stats, resistances) that make it distinct. Along the way we introduce a handful of **reusable mechanics** (charge, knockback, zone hazards, composable AI) that later enemies and talents reuse.
 
@@ -31,14 +31,73 @@ A unit's brain is a small set of **orthogonal knobs**, not a single `aiTier` str
 
 | Knob | Values |
 |---|---|
-| **targeting** | `nearest` (default/feral) · `opportunist` (most damage to a *reachable* target, weighing armor/resist/dodge) · `squishiest` · `bypass-backline` |
+| **targeting** | `nearest` (default/feral) · `random` (erratic) · `threat` · `squishiest` (softest — armor/resist AND dodge/parry) · `opportunist` (most *exposed* — isolated from their line, or nearly down) · `gang-up` (piles onto what packmates committed to) · `backline` |
 | **tauntable** | `obeys` · `obeys-but-finishes-committed-action` · `ignores` |
 | **fear** | `routs` (at X%) · `fearless` |
 | **movement** | `charger` · `kiter` · `holder` · `flanker` (+ `breakthrough` flag) |
 
 Named presets (`feral`, `opportunist`, …) are just shorthand bundles. A unit inherits the `feral` default and overrides only the knobs that make it distinct. **Keep the set small and flat — four knobs, not a behavior-tree engine.**
 
-- **`opportunist`** guardrail: it still weighs **reachability**, so the counter is the usual lesson — body-block + taunt. Without them it charges your squishiest; with them you've earned the protection.
+- **`squishiest` vs `opportunist` — the split (corrected 2026-08-19).** The first
+  draft had `opportunist` doing the armour math and `squishiest` doing a weaker
+  version of the same thing, which made one a subset of the other. They are now
+  **orthogonal**, and each has its own counterplay:
+  - **`squishiest`** asks *"who can I actually land damage on?"* — armour and
+    resistance, **and** the target's dodge/parry, so it declines to chase a
+    plated, parrying tank. Countered **defensively**: armour, and a body-block
+    so the soft one isn't reachable.
+  - **`opportunist`** asks *"who is exposed?"* — whoever has drifted away from
+    their line, and whoever is nearly down. Nothing to do with softness: it will
+    happily take an armoured straggler. Countered **positionally**: hold
+    formation, don't let anyone drift, don't leave the wounded out front.
+  - Both still weigh **reachability** first, so a body-block remains the
+    universal answer.
+- **`gang-up` is the pack instinct** and the reason a group of wolves is a *pack*:
+  it piles onto whatever its packmates already committed to this round, and
+  compounds with Pack Tactics (which pays a damage bonus for exactly that).
+  Falls back to `nearest` when nobody has committed yet.
+
+#### ✅ BUILT 2026-08-19 — three knobs wired, one deferred
+
+`shared/src/data/combat/ai/profile.ts` is the single place where an enemy's
+authored `ai` block, the legacy fields, and the defaults collapse into one
+resolved profile (`resolveAI`); consumers read the resolved profile and nothing
+else. Guarded by `frontend/src/engine/aiProfile.test.ts`.
+
+- **`targeting`** — all seven modes live in `targeting.ts`. **`squishiest`**,
+  **`opportunist`** and **`gang-up`** are new and authorable now (see the split
+  above). `gang-up` reads `lastTargetId`, stamped on each unit as it commits, so
+  a pack converges within a single round — earlier-acting wolves set the target
+  the later ones pile onto.
+- **`tauntable`** — `obeys` / `ignores-generic` / `ignores`, via `acceptsTaunt(unit, kind)`.
+  The warrior taunt asks for `"generic"`; the future elite pull asks for `"elite"`
+  and the plumbing is already there.
+- **`fear`** — `canBreak(unit)` gates BOTH break paths (the `routsAt` threshold and
+  the morale snap), so authoring `fear: "fearless"` makes a unit hold even with a
+  threshold set. Previously fearlessness could only be expressed by *omitting*
+  `routsAt`, which conflated "brave" with "never authored".
+- **`movement`** (charger/kiter/holder/flanker) is **deliberately NOT wired**: it
+  means replacing the positional layer's role-derived `isRanged`/`canBypass`, which
+  is its own piece of work. Three knobs wired beats four half-wired, and a declared-
+  but-unread field is exactly the debt we keep finding elsewhere. `charge` and
+  `combatRole` still carry this behaviour.
+
+**Zero behaviour change**: `aiTier` maps exactly onto `targeting`
+(feral→`random`, tactical→`threat`, cunning→`backline`), `tauntImmunity` onto
+`tauntable`, and a missing `routsAt` onto `fearless` — which is what the data has
+always meant. All 223 tests pass untouched.
+
+⚠ **`feral` re-pointed to `nearest` (2026-08-19) — the one real behaviour change.**
+Production had always read `feral` as a **random** reachable target, which was
+written *before positions existed*, when random was the only way to say "this
+thing does not think". With a battlefield, an animal biting whatever is closest
+is both truer and more readable, and it makes the front line mean something to
+beasts. `random` survives as its own mode for genuinely erratic things (panicked,
+confused). **This moves 23 enemies** — wolves, boars, bears, rats, spiders,
+skeletons, the ghoul, the hatchling. All 227 tests still pass, but no test
+asserted feral's randomness, so **this one wants a playtest**: watch whether the
+front line now holds beasts too reliably. Reverting is one line in
+`ai/profile.ts`.
 
 ---
 

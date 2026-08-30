@@ -3,6 +3,7 @@ import { calcDamageResult } from "../damage.js";
 import { getAttackPower, derivedDamageRange } from "../stats.js";
 import { getEnemy } from "../../enemies.js";
 import { reachOf, paceGap } from "../positional.js";
+import { resolveAI } from "../ai/profile.js";
 import type { CombatContext, CombatUnit } from "../types.js";
 
 /** Damage-ability effect types that must respect reach (a bite/spit can't cross
@@ -310,6 +311,7 @@ export function tryEnemyAbility(unit: CombatUnit, ctx: CombatContext): boolean {
             canAct: true, canBeHealed: true, isTauntable: true,
             aiTier: summonDef.aiTier ?? "tactical",
             tauntImmunity: summonDef.tauntImmunity ?? "none",
+            ai: resolveAI({ ai: summonDef.ai, aiTier: summonDef.aiTier ?? "tactical", tauntImmunity: summonDef.tauntImmunity ?? "none", routsAt: summonDef.routsAt }),
             threatTable: {},
             cooldowns: {}, slowed: 0, poisonTicks: [], statDebuffs: [],
           });

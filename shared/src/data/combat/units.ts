@@ -6,6 +6,7 @@ import type { MissionEncounter, MissionNpcAlly } from "../missions/index.js";
 import { getNpcAlly } from "../npcs.js";
 import { rarityWeaponRange, UNARMED_RANGE, derivedDamageRange, classPresenceFloor, presenceToThreatMult, weaponBand, MELEE_BAND, RANGED_BAND, CLOSE_IN_FRACTION } from "./stats.js";
 import type { CombatUnit, WeaponProfile } from "./types.js";
+import { resolveAI } from "./ai/profile.js";
 
 /** The physical damage range a mainHand weapon confers: an authored range if it
  *  has one, else a rarity default, else fists. Casters ignore this (magic path). */
@@ -193,6 +194,8 @@ export function buildEnemyUnits(encounters: MissionEncounter[]): CombatUnit[] {
         // WIS stays a pure mechanical stat (magic resist + initiative).
         aiTier: def.aiTier ?? "tactical",
         tauntImmunity: def.tauntImmunity ?? "none",
+        // Resolved once here so every consumer reads one profile per fight.
+        ai: resolveAI({ ai: def.ai, aiTier: def.aiTier ?? "tactical", tauntImmunity: def.tauntImmunity ?? "none", routsAt: def.routsAt }),
         threatTable: {},
         cooldowns: {}, slowed: 0, poisonTicks: [], statDebuffs: [],
       });

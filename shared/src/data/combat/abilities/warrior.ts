@@ -2,6 +2,7 @@ import { combatRandom } from "../prng.js";
 import { calcDamageResult } from "../damage.js";
 import { canUseAbility, startCooldown } from "./cooldown.js";
 import { addDamageThreat } from "../threat.js";
+import { acceptsTaunt } from "../ai/profile.js";
 import type { ClassAbilityHandler } from "./types.js";
 
 /**
@@ -19,9 +20,11 @@ export const taunt: ClassAbilityHandler = {
     startCooldown(unit, "taunt", 4);
     for (const enemy of ctx.enemies) {
       if (enemy.hp <= 0) continue;
-      // tauntImmunity gates: "normal" enemies ignore generic taunt, "all" ignore everything.
-      // Future "elite" taunts (e.g. thorns wall passive) would bypass "normal" but not "all".
-      if (enemy.tauntImmunity === "normal" || enemy.tauntImmunity === "all") continue;
+      // The tauntable knob decides: "ignores-generic" units shrug off the
+      // warrior's taunt (only a future elite pull reaches them), "ignores" units
+      // shrug off everything. Resolved from the authored `ai` block, falling
+      // back to the legacy tauntImmunity field.
+      if (!acceptsTaunt(enemy, "generic")) continue;
       if (enemy.isTauntable === false) continue;
       if (enemy.trait === "iron_will" && combatRandom() < 0.10) continue;
       enemy.tauntedBy = unit.id;

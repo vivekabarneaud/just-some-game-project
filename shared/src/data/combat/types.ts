@@ -13,6 +13,61 @@ import type { CombatPotionEffect } from "../items/index.js";
 export type AITier = "feral" | "tactical" | "cunning";
 
 /**
+ * Composable AI knobs (DESIGN_TIER1_ENEMIES §1 "Composable AI"). A unit's brain
+ * is a few ORTHOGONAL knobs rather than one tier string: defaults plus opt-in
+ * exceptions, the same philosophy as the stat schema. Deliberately small and
+ * flat — knobs, not a behavior-tree engine.
+ *
+ * The legacy `aiTier` still works and maps onto `targeting` unchanged, so no
+ * existing enemy changes behaviour (see ai/profile.ts).
+ *
+ * The doc's fourth knob, **movement** (charger/kiter/holder/flanker), is NOT
+ * here yet: that one is a rewrite of the positional layer's role-derived
+ * `isRanged`/`canBypass`, so it stays on the existing `charge`/`combatRole`
+ * fields until that work lands. Three knobs wired beats four half-wired.
+ */
+export type AITargeting =
+  /** Any reachable target, at random. Erratic — a panicked or confused thing.
+   *  This is what `feral` USED to mean, before positions existed. */
+  | "random"
+  /** The closest reachable target. What an animal does: bite what's in front of
+   *  you. The `feral` default. */
+  | "nearest"
+  /** Scored: soft targets, wounded targets, and its own threat table. `tactical`. */
+  | "threat"
+  /** The SOFTEST target — weighs armor/resist AND the target's dodge and parry,
+   *  i.e. who this unit can actually land damage on. Walks past the plated,
+   *  parrying tank toward the cloth-wearer behind it. Counterplay is defensive:
+   *  armour, and a body-block so the soft one isn't reachable. */
+  | "squishiest"
+  /** The most EXPOSED target — whoever is cut off from their line, and whoever
+   *  is nearly down. Nothing to do with how soft they are: this is the flanker
+   *  that punishes a straggler and finishes the wounded. Counterplay is
+   *  positional: keep formation, don't let anyone drift. */
+  | "opportunist"
+  /** Whatever this unit's allies are already on. The pack instinct — it piles
+   *  onto a target its packmates have committed to, which is what turns a group
+   *  of wolves into a wolf pack. Falls back to `nearest` when nobody has
+   *  committed yet. */
+  | "gang-up"
+  /** Hunt the support line first (priest, then wizard). `cunning`. */
+  | "backline";
+
+/** How a unit answers a forced-target effect. Mirrors TauntImmunity's three
+ *  cases under names that say what the unit DOES rather than what it resists. */
+export type AITauntable = "obeys" | "ignores-generic" | "ignores";
+
+/** Whether a unit can break and run at all. `routs` uses the unit's `routsAt`
+ *  threshold and morale; `fearless` holds no matter what (undead, the maddened). */
+export type AIFear = "routs" | "fearless";
+
+export interface AIProfile {
+  targeting: AITargeting;
+  tauntable: AITauntable;
+  fear: AIFear;
+}
+
+/**
  * Resistance to forced-target effects (warrior taunt, future "elite" taunts).
  *   none   : tauntable by anything (default)
  *   normal : ignores generic taunts; only "elite" taunts work (e.g. thorns wall)
@@ -168,9 +223,17 @@ export interface CombatUnit {
   aiBehavior?: string;
   /** Current AI state id within the unit's behavior. Transitions evaluated once per round. */
   aiState?: string;
-  /** Targeting tier — drives how threat affects this enemy. Allies/entities don't read this. */
+  /** Who this unit chose last time it picked a target. Read by the `gang-up`
+   *  targeting mode so packmates converge on the same prey. Transient. */
+  lastTargetId?: string;
+  /** Resolved AI knobs, stamped at unit-build time from the enemy's authored
+   *  `ai` block (falling back to the legacy fields below). Consumers read THIS,
+   *  not the legacy fields, so there's one source of truth per fight. */
+  ai?: AIProfile;
+  /** LEGACY targeting tier. Still honoured — it resolves into `ai.targeting`
+   *  unchanged — but new enemies should author `ai` instead. */
   aiTier?: AITier;
-  /** Forced-target resistance for enemies. Allies/entities don't read this. */
+  /** LEGACY forced-target resistance; resolves into `ai.tauntable`. */
   tauntImmunity?: TauntImmunity;
   // ── Threat (WoW-style per-target threat table) ──
   /** For enemies: maps allyId → accumulated threat against that ally. Highest entry
