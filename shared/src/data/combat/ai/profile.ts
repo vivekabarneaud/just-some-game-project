@@ -7,16 +7,17 @@
 
 import type { AIFear, AIProfile, AITargeting, AITauntable, AITier, CombatUnit, TauntImmunity } from "../types.js";
 
-/** Legacy tier → targeting knob. These three mappings are EXACT: an enemy
- *  authored the old way keeps precisely the behaviour it shipped with.
+/** Legacy tier → targeting knob.
  *
- *  Note on `feral`: production has always picked a RANDOM reachable target,
- *  while the positional prototype (frontend/src/prototype) reads feral as
- *  "maul nearest". Rather than silently change every feral beast, `feral` keeps
- *  mapping to `random` and `nearest` is offered as its own mode — flip the
- *  wolves over deliberately if that reads better in play. */
+ *  `feral` maps to **nearest** (changed 2026-08-19, deliberately). It used to
+ *  mean *random* reachable target — but that was written before positions
+ *  existed, when "random" was the only way to say "this thing does not think".
+ *  Now that there is a battlefield, an animal biting whatever is closest is
+ *  both truer and more readable, and it makes the front line mean something to
+ *  beasts. `random` survives as its own mode for genuinely erratic things
+ *  (panicked, confused). The other two mappings are unchanged. */
 const TIER_TARGETING: Record<AITier, AITargeting> = {
-  feral: "random",
+  feral: "nearest",
   tactical: "threat",
   cunning: "backline",
 };

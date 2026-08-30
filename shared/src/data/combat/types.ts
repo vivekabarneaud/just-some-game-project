@@ -27,19 +27,29 @@ export type AITier = "feral" | "tactical" | "cunning";
  * fields until that work lands. Three knobs wired beats four half-wired.
  */
 export type AITargeting =
-  /** Any reachable target, at random. What `feral` ships as today. */
+  /** Any reachable target, at random. Erratic — a panicked or confused thing.
+   *  This is what `feral` USED to mean, before positions existed. */
   | "random"
-  /** The closest reachable target. (The prototype's reading of "feral" — see
-   *  the note in ai/profile.ts; a deliberate mode, not the current default.) */
+  /** The closest reachable target. What an animal does: bite what's in front of
+   *  you. The `feral` default. */
   | "nearest"
   /** Scored: soft targets, wounded targets, and its own threat table. `tactical`. */
   | "threat"
-  /** Whoever this unit can hurt MOST right now — weighs armor/resist AND the
-   *  target's dodge/parry, so it walks past the tank it can't actually hit.
-   *  Counterplay stays the usual lesson: body-block and taunt. */
-  | "opportunist"
-  /** The least protected target, whatever the damage math says. */
+  /** The SOFTEST target — weighs armor/resist AND the target's dodge and parry,
+   *  i.e. who this unit can actually land damage on. Walks past the plated,
+   *  parrying tank toward the cloth-wearer behind it. Counterplay is defensive:
+   *  armour, and a body-block so the soft one isn't reachable. */
   | "squishiest"
+  /** The most EXPOSED target — whoever is cut off from their line, and whoever
+   *  is nearly down. Nothing to do with how soft they are: this is the flanker
+   *  that punishes a straggler and finishes the wounded. Counterplay is
+   *  positional: keep formation, don't let anyone drift. */
+  | "opportunist"
+  /** Whatever this unit's allies are already on. The pack instinct — it piles
+   *  onto a target its packmates have committed to, which is what turns a group
+   *  of wolves into a wolf pack. Falls back to `nearest` when nobody has
+   *  committed yet. */
+  | "gang-up"
   /** Hunt the support line first (priest, then wizard). `cunning`. */
   | "backline";
 
@@ -213,6 +223,9 @@ export interface CombatUnit {
   aiBehavior?: string;
   /** Current AI state id within the unit's behavior. Transitions evaluated once per round. */
   aiState?: string;
+  /** Who this unit chose last time it picked a target. Read by the `gang-up`
+   *  targeting mode so packmates converge on the same prey. Transient. */
+  lastTargetId?: string;
   /** Resolved AI knobs, stamped at unit-build time from the enemy's authored
    *  `ai` block (falling back to the legacy fields below). Consumers read THIS,
    *  not the legacy fields, so there's one source of truth per fight. */

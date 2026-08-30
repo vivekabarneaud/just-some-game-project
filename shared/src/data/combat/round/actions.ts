@@ -138,7 +138,7 @@ function basicAttack(unit: CombatUnit, ctx: CombatContext): void {
   const chargeTarget = chargeInfo
     ? targetPool.find((t) => t.id === chargeInfo.targetId && t.hp > 0)
     : undefined;
-  const target = chargeTarget ?? pin ?? (unit.isEnemy ? pickTarget(unit, targetPool) : pickTargetForAdventurer(unit, targetPool));
+  const target = chargeTarget ?? pin ?? (unit.isEnemy ? pickTarget(unit, targetPool, ctx.enemies) : pickTargetForAdventurer(unit, targetPool));
   if (!target || target.hp <= 0) return;
   const charged = !!chargeTarget && target.id === chargeTarget.id;
 

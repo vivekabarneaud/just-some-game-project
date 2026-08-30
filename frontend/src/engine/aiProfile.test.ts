@@ -10,7 +10,9 @@ import { ENEMIES } from "@medieval-realm/shared/data/enemies";
 
 describe("legacy fields resolve without changing behaviour", () => {
   it("maps the three shipped tiers onto their existing targeting", () => {
-    expect(resolveAI({ aiTier: "feral" }).targeting).toBe("random");
+    // feral was RE-POINTED 2026-08-19: random → nearest. Random predates
+    // positions; an animal bites what's in front of it.
+    expect(resolveAI({ aiTier: "feral" }).targeting).toBe("nearest");
     expect(resolveAI({ aiTier: "tactical" }).targeting).toBe("threat");
     expect(resolveAI({ aiTier: "cunning" }).targeting).toBe("backline");
   });
@@ -31,7 +33,7 @@ describe("legacy fields resolve without changing behaviour", () => {
   });
 
   it("every enemy in the catalog resolves to a legal profile", () => {
-    const targetings = new Set(["random", "nearest", "threat", "opportunist", "squishiest", "backline"]);
+    const targetings = new Set(["random", "nearest", "threat", "squishiest", "opportunist", "gang-up", "backline"]);
     for (const def of ENEMIES) {
       const p = resolveAI({ ai: def.ai, aiTier: def.aiTier ?? "tactical", tauntImmunity: def.tauntImmunity, routsAt: def.routsAt });
       expect(targetings.has(p.targeting), `${def.id}: ${p.targeting}`).toBe(true);
@@ -97,18 +99,58 @@ describe("the new targeting modes", () => {
     expect(pickTarget(attacker, allies)?.id).toBe("tank");
   });
 
-  it("squishiest walks past the tank to the unarmoured one", () => {
+  it("squishiest is about DEFENCE, not distance — it takes the soft one over the near one", () => {
+    // The tank stands closer; squishiest still walks past it.
     const { attacker, allies } = field();
     attacker.ai = { ...attacker.ai!, targeting: "squishiest" };
     setCombatSeed(1);
     expect(pickTarget(attacker, allies)?.id).toBe("archer");
   });
 
-  it("opportunist prefers the target it can actually hurt, dodge and parry included", () => {
-    const { attacker, allies } = field();
-    attacker.ai = { ...attacker.ai!, targeting: "opportunist" };
+  it("opportunist takes the straggler — the one cut off from their line", () => {
+    const attacker = unit("wolf", { isEnemy: true, kind: "enemy", x: 0, combatRole: "back", threatTable: {}, ai: { targeting: "opportunist", tauntable: "obeys", fear: "routs" } });
+    // Two holding formation, one drifted far off on their own.
+    const tank = unit("tank", { x: 2, gearDefense: 400 });
+    const archer = unit("archer", { x: 5 });
+    const straggler = unit("straggler", { x: 60, gearDefense: 400 }); // armoured: softness must NOT decide this
     setCombatSeed(1);
-    expect(pickTarget(attacker, allies)?.id).toBe("archer");
+    expect(pickTarget(attacker, [tank, archer, straggler])?.id).toBe("straggler");
+  });
+
+  it("opportunist finishes the wounded when nobody is isolated", () => {
+    const attacker = unit("wolf", { isEnemy: true, kind: "enemy", x: 0, combatRole: "back", threatTable: {}, ai: { targeting: "opportunist", tauntable: "obeys", fear: "routs" } });
+    const tank = unit("tank", { x: 2 });
+    const archer = unit("archer", { x: 5 });
+    const bleeding = unit("bleeding", { x: 8, hp: 12 }); // same formation, nearly down
+    setCombatSeed(1);
+    expect(pickTarget(attacker, [tank, archer, bleeding])?.id).toBe("bleeding");
+  });
+
+  it("gang-up piles onto whatever packmates already committed to", () => {
+    const attacker = unit("wolf3", { isEnemy: true, kind: "enemy", x: 0, threatTable: {}, ai: { targeting: "gang-up", tauntable: "obeys", fear: "routs" } });
+    const tank = unit("tank", { x: 2 });      // nearer
+    const archer = unit("archer", { x: 5 });  // but the pack is already on this one
+    const mate1 = unit("wolf1", { isEnemy: true, kind: "enemy", x: 1, lastTargetId: "archer" });
+    const mate2 = unit("wolf2", { isEnemy: true, kind: "enemy", x: 1, lastTargetId: "archer" });
+    setCombatSeed(1);
+    expect(pickTarget(attacker, [tank, archer], [attacker, mate1, mate2])?.id).toBe("archer");
+  });
+
+  it("gang-up falls back to nearest when the pack has not committed yet", () => {
+    const attacker = unit("wolf1", { isEnemy: true, kind: "enemy", x: 0, threatTable: {}, ai: { targeting: "gang-up", tauntable: "obeys", fear: "routs" } });
+    const tank = unit("tank", { x: 2 });
+    const archer = unit("archer", { x: 5 });
+    setCombatSeed(1);
+    expect(pickTarget(attacker, [tank, archer], [attacker])?.id).toBe("tank");
+  });
+
+  it("picking a target records the commitment, so the next packmate can read it", () => {
+    const { attacker, allies } = field();
+    attacker.ai = { ...attacker.ai!, targeting: "nearest" };
+    setCombatSeed(1);
+    expect(attacker.lastTargetId).toBeUndefined();
+    pickTarget(attacker, allies);
+    expect(attacker.lastTargetId).toBe("tank");
   });
 
   it("a taunt still overrides every mode", () => {
