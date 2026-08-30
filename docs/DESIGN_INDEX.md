@@ -100,12 +100,18 @@
 | KITCHEN_PROMPTS.md | art backlog | Kitchen/alchemy art. |
 | EARLY_PACING_MAP.html | REF (visual) | Early-lane pacing board (2026-07); re-render if the Ch1 restructure moves lanes. |
 
-## Archived this pass (2026-08-14, in `docs/archive/`)
+## Removed (recoverable from git)
 
-- **DESIGN_PREMADE_CHARACTERS.md** — superseded by DESIGN_ROSTER_CURATION + code (`arrival` replaced `unlockCondition`; rarity/family/recruit-pool concepts dead).
-- **DESIGN_BACKEND_SLICE.md** — backend shipped with a different shape (Player + blob + snapshots); table specs are historical.
-- **GAME_DESIGN.md** — the founding doc, overtaken everywhere. Still holds the three-tier resource taxonomy + building tech-tree framing, and the dragon-system sketch (also in memory), if ever needed.
-- **STORY_ACT1_BEAT_MAP.md** — claimed to map the built spine but predates the Ch1 restructure; presented dormant Stories 2–13 as live. Re-derive from code when Ch2 is authored.
+**`docs/archive/` was deleted entirely on 2026-08-19** — 14 files, 2,572 lines, none of them read by the game and every one superseded by something live. Parked docs still cost attention every time the folder is opened; git is the archive.
+
+To get any of them back:
+
+```
+git log --diff-filter=D --oneline -- docs/archive/     # find the deleting commit
+git show <commit>^:docs/archive/NOVEL.md > NOVEL.md    # restore one file
+```
+
+What went: `DESIGN_BACKEND_SLICE`, `DESIGN_PREMADE_CHARACTERS`, `STORY_ACT1_BEAT_MAP`, `GAME_DESIGN` (held the three-tier resource taxonomy + the dragon sketch — the dragon also lives in auto-memory), `DESIGN_CHURCH_BALANCE` + `DESIGN_THORNVEIL_BALANCE` (merged into `DESIGN_FACTION_BALANCE`), `LORE` / `LORE_RETHINK` / `LORE_DEEP_SEALS` (superseded by `LORE_TIMELINE`), `STORY_MISSIONS` + `STORY_QUESTS` (superseded by `STORY_PLAYER_SCRIPT` + `storyMissions.ts`), `founding_characters_april24` (an April snapshot of a code file), `DESIGN_CINEMATICS` (system built; the Chronicle absorbed the authoring model), and **`NOVEL.md`** — three chapters of first-person prose ("The Shattered Realm"), written in a voice very close to the Chronicle's, but from the pre-rewrite canon where forty-three settlers arrived rather than six founders.
 
 ---
 
