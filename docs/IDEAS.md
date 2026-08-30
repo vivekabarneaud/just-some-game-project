@@ -1,0 +1,70 @@
+# Ideas
+
+Every parked idea, in one place. **This is the pile, not the plan** — `ROADMAP.md`
+is what we're actually doing next, and it stays short. Scan this when you want
+something to pick up; nothing here is a commitment.
+
+Ideas are grouped by the part of the game they touch. Each is one line: what it
+is, and why it's interesting or what it's waiting on. When one gets built, delete
+its line — the code becomes the documentation.
+
+> **Where the detail went.** Most of these were extracted from design docs that
+> were deleted once the system they described had shipped. The docs are all in
+> git: `git log --diff-filter=D --oneline -- docs/` finds the deleting commit,
+> and `git show <commit>^:docs/FILE.md > FILE.md` brings one back.
+
+---
+
+## Alchemy
+
+- ⭐ **Herbalist discovery** — a plant starts "unstudied": you learn its best technique and full effect table by *using* it, rather than being shown from the start. Almost certainly the same system as the foraging **herbier** — worth designing them together.
+- **Techniques beyond crush + boil** — `steep`, `dry`, `distil`, `char`, `ferment` all exist in ingredient data but the desk only offers two, so five techniques are unreachable in game. The design was "stations unlock by settlement tier"; that gate was never wired.
+- **Offensive brews** — poison coatings and throwables. The channels (`poison`, `weaken`, `slow`, `confuse`, `aoe_fire/frost`) are defined and *priced* in the brew engine, and combat ignores them entirely. Either build it or delete the channels; inert-but-priced is the worst state. Pairs with the puffball-as-carrier idea (any brew becomes an area effect).
+- **Deliberate plant gating** — introduce the plant roster gradually via foraging and tier, instead of the whole shelf being available at once.
+- **Shareable recipes** — brews are personal today; trading them between players is a multiplayer-era thought.
+
+## Kitchen
+
+- **Mission climate** — cold north / hot south missions with a seasonal debuff that warm, fresh food mitigates. This is *the* payoff that makes the kitchen's warmth and freshness channels matter. The `climate` field exists on missions; no mission sets it and no debuff is wired.
+- **Cultural ingredient imports** — Nordveld / Tianzhou / Meridian / Zah'kari / Khor'vani ingredient waves arriving by trade. Blocked on merchant rapport existing.
+- **Legumes as early protein** — fava and peas feed the settlement before livestock does. A genuine early-game food gap.
+- **Preserves** — a Preserve technique: jams, apple butter. Wants the foraging fruit to land first.
+- **Cultural cuisine** — a signature dish and ingredient per culture. Partly shipped already via loyalty-locked origin recipes; worth checking what's actually left.
+- **Merchants sell recipes** — the "buy" path for dishes, mirroring alchemy's brew / invent / buy.
+- **Per-dish gold value** — a sell hook for cooked dishes (Kitchen phase C2c).
+- **Rarity frames on dish cards** — quality tint + ornament frame, matching the item cards.
+
+## Farming
+
+- **Buying seed at market / rare seeds by culture** — how specialty crops get acquired. Today seeds only unlock via quests, so pear, cherry and grapes are locked teasers with no path to them.
+- **Calming Draught** — needs a new `regenBoost` effect type (speeds hourly HP regen). Current alchemy effects can't express it.
+- **Hops → a tavern drink tier** — *probably answered*: drinks shipped as ale / mead / cider without hops ever existing.
+
+## Animals
+
+- **Cats + the vermin loop** — vermin quietly eat stored food; a Cat Shelter with cats posted as mousers suppresses it. "His Lordship", a stray the Lord adopts, brings him a rat and *that* earns the building. The `mouse` job already exists in the data, unused.
+- **Working animals** — oxen and horses (livestock phase 2).
+- **Raised litters** — the Kennel / Cat Shelter raising pups and kittens as a managed activity. Note dogs already breed on their own, and breeds already exist — what's missing is choosing to raise a litter, plus cats entirely.
+
+## Weather
+
+- **Storm mechanics** — `storm` exists as vocabulary and art with no mechanics behind it.
+- **Blizzard** — doesn't exist at all.
+- **Layer 3: aether storms** — unnatural weather as a story tell, tied to the ward-stone line. The sky being *the wrong colour* is the tell that something has failed.
+- **Locust / pest raid** — a crop-destroying event, sibling to the weather events.
+- **Water trade** — buying and selling water in a dry year.
+- **Germination lever** — climate affecting *whether seeds take* as a separate axis from how much they yield.
+
+## Tavern & merchants
+
+- **Tavern conversations** — JRPG-style support chats with adventurers, gated on loyalty and missions, one-time each. The common room already has a teaser block waiting for it.
+- **Rapport with recurring merchants** — a relationship that improves prices, and the thing that unblocks cultural ingredient imports.
+- **Culture shelves** — merchants carrying goods by origin, so who visits determines what you can buy.
+- **Route progression** — farther cultures dare the journey as fame and settlement tier rise and the roads steady. First arrival of a new culture fires a small event: *"word has reached the Meridian valleys…"* The trade mirror of recruit origin-tiers.
+- **Rotation + seasonal rhythm** — who's in town changes with the season, instead of one merchant slot.
+- **Adventurer & culture featured dishes** — extra menu slots beyond the staples.
+- **Tavern economy tuning** — the numbers in `tavern.ts` are explicitly placeholder, waiting on play.
+
+## Combat
+
+- **Enchanted team scrolls** — five recipes, fully specced with exact ingredients and effects, in `DESIGN_ENCHANTED_SCROLLS.md`. Parked because every one is gated behind Mage Tower 2+ and Act 1 has no reachable magic. Unpark when magic becomes player-facing.

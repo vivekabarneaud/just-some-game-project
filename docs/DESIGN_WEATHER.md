@@ -1,59 +1,51 @@
-# Weather — Design
+# Weather — what's left to build
 
-**Status (2026-08-14 audit):** Layer 1 BUILT (derived weather, ambience, chip, sound mixer). Layer 2 partially SHIPPED via DESIGN_WEATHER_YIELD (climate bands + heat_wave/heavy_rain crop events) — this doc's Layer-2 TODO framing is outdated. Remaining: storm/blizzard mechanics (storm is vocabulary+art only; blizzard doesn't exist) and Layer 3 aether storms.
+**Status (2026-08-19):** Layers 1 and 2 are **BUILT**; this doc now covers only
+the unbuilt remainder. What shipped:
 
-Weather splits into two genuinely different things; keeping them separate is what
-keeps the system from feeling muddy.
+- **Layer 1 — ambient mood.** Weather derived from (season, progress, year) rather
+  than stored, so it costs nothing in the save and drifts on its own. Ambience
+  overlay, top-bar chip, sound mixer. `frontend/src/data/weather.ts`.
+- **Layer 2 — weather with teeth.** Heat waves and downpours as real events that
+  kill standing crops, plus the per-year **climate band** (drought → deluge) that
+  moves yields and biases which events roll. Water system alongside it: wells,
+  cisterns, the sluice, per-crop water demand. `frontend/src/data/climate.ts`,
+  `water.ts`.
 
-- **Mood weather** — clear / overcast / rain / snow / fog. Frequent, low-stakes,
-  cosmetic. Its job is "the world feels alive every time you glance up."
-- **Weather *events*** — drought / storm / blizzard. Rare, named, have duration
-  and *consequences*, surface in the event log/banner. Mechanics, not mood.
+*Merged from `DESIGN_WEATHER_YIELD.md` (deleted 2026-08-19, fully built). The
+build history and the rejected designs — reading yield off ambient weather, the
+sin-based hash, drought-as-year-long-plant-kill — are in git.*
 
-## Three layers
+---
 
-### Layer 1 — Ambient mood (BUILT)
-A `WeatherType` is **derived** from `(season, progress, year)`, not stored, so it
-costs nothing in the save and needs no migration. It drifts on its own as the
-season advances (6 windows per season). Weighted per season:
+## Storms
 
-| Season | Lean |
-| --- | --- |
-| Spring | rain, overcast |
-| Summer | clear (sun), some overcast |
-| Autumn | overcast, rain, fog |
-| Winter | snow, overcast |
+`storm` exists as vocabulary, art and a renderer, and nothing drives it. The
+ambient drift never produces one, because storms were always meant to be *events*
+rather than moods.
 
-Files: `frontend/src/data/weather.ts` (vocabulary + drift),
-`frontend/src/components/WeatherAmbience.tsx` (topbar particle strip),
-weather chip in `Sidebar.tsx`, CSS in `global.css` (`.wx-*`).
+Wants: a duration, a consequence worth reacting to (roof/wall damage? a halted
+mission? livestock loose?), and a banner that reads as an interruption rather
+than a weather report.
 
-`storm` and `unnatural_storm` are in the vocabulary and the renderer already draws
-them, but ambient drift never selects them — they arrive via Layers 2/3.
+## Blizzard
 
-### Layer 2 — Natural events (TODO, cosmetic-first deferred the effects)
-Plug into systems we already have rather than new parallel ones:
-- **Drought** — seasonal (summer/late-summer), slow-building. Hooks farm yield +
-  fire risk. Player mitigates (wells, rationing).
-- **Storm** — short, sharp, *any season*. Hooks the existing raid building-damage
-  path; can disrupt active missions. This is why storm doesn't feel "seasonal":
-  it's an event, not a climate.
-- **Blizzard** — winter-amplified; turns up the existing winter-cold dial.
+Doesn't exist at all. Winter currently has snowfall as mood only. A blizzard is
+the winter counterpart to the heat wave — the season's crisis event.
 
-Seam: resolve as `weatherOverride ?? getAmbientWeather(...)`. An event sets the
-override for its duration; the renderer already knows the look.
+## Layer 3 — unnatural (aether) storms
 
-### Layer 3 — Unnatural (aether) storms (TODO — story)
-A storm *subtype* that's narratively flagged: wrong season, wrong colour (violet
-lightning / green cast — `wx-flash-aether` already built). It's a **tell**: when
-the ward-line weakens (ward-stone health), the sky turns and storm elementals
-follow. The player learns to *read the sky* to predict aether raids — the
-two-track-knowledge payoff.
+The one that carries story rather than agriculture. **The sky is the wrong colour**
+and the weather does not belong to the season. Scripted for story beats, and
+later emergent: tied to the ward-stone line, so a failing stone shows up as
+weather before anyone reports it. See `project_ward_stone_system`.
 
-Decision: **both scripted and emergent.** Scripted unnatural storms for story
-set-pieces; emergent ones triggered by ward-stone health / aether pressure.
+The tell has to be unmistakable and *legible without text* — a player who has
+never read a lore entry should still feel that something is wrong.
 
-## Open questions for later
-- Should a weather *event* (Layer 2) pause/blunt the ambient drift, or layer over it?
-- Does the weather chip gain an "effects" line once Layer 2 lands (hover already reserved for it)?
-- Reduced-motion: events are gameplay-relevant — surface them in text/log, not only as motion.
+## Smaller open threads
+
+- **Locust / pest raid** — a crop-destroying event, sibling to the weather events.
+- **Water trade** — buying and selling water in a dry year.
+- **Germination lever** — climate affecting *whether seeds take*, as an axis
+  separate from how much they yield. Designed, never wired.

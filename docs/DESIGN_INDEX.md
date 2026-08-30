@@ -4,7 +4,9 @@
 
 **The big finding, again:** the code raced ahead of the docs, harder than last time. The mission map, side-story chains, scarcity missions, positional combat, the tavern spine, the free-form kitchen, building staffing, livestock, kept-animal dogs and weather Layer 2 all shipped while their docs still said "not built" / "IDEA". Status lines in every affected doc were corrected in this pass. Four superseded docs moved to `archive/`.
 
-**What to build next lives in `ROADMAP.md`** — this file only maps docs to reality.
+**What to build next lives in `ROADMAP.md`** — this file only maps docs to reality. **Parked ideas live in `IDEAS.md`** — the pile, as opposed to the plan.
+
+**Cleanup in progress (2026-08-19).** The folder is being walked batch by batch: every idea that was still alive gets extracted to `IDEAS.md`, and any doc whose system has fully shipped is deleted, because the code documents it better. Done so far: `archive/` (14 files) and the farming/food/weather cluster (10 files → 5). Remaining batches: combat, missions & story, settlement & roster, lore, art sheets.
 
 **Status legend:**
 `BUILT` shipped & matches · `PARTIAL` some shipped · `BACKLOG` designed, not built · `IN PROGRESS` being built now · `REF` reference/canon · `METHOD` process doc · `STALE` describes a changed reality
@@ -15,14 +17,9 @@
 
 | Doc | Note |
 | --- | --- |
-| DESIGN_KITCHEN.md | Free-form kitchen Phases A–C3 (69 dishes, boons, tavern menu, loyalty recipes). Open: per-dish gold value, cultural imports (needs merchant rapport). |
-| DESIGN_TAVERN.md | Hospitality spine (rooms/staffing/pricing/reputation/menu). Open: conversations (teaser only), economy tuning. |
 | DESIGN_MISSION_MAP.md | Shipped well past Phase 1 (fog reveal, dev placer, team tokens). Open: ~58/130 pins placed, climate is display-only. |
 | DESIGN_SIDE_STORIES.md | 8 sideChains + the director layer (`story/chains.ts`) live. Open: Bog Witch back half. |
 | DESIGN_SCARCITY_MISSIONS.md | Built via engine `forceMission` (wood/stone/food/water triggers). Open: no cooldown guardrail. |
-| DESIGN_WEATHER_YIELD.md | Climate bands + water system. Year-band drought-kill superseded by momentary weather events. |
-| DESIGN_FARMING_EXPANSION.md | Apiary/orchards/saplings/cheese. Leftover: hops, culture seeds. Mushroom-forager section superseded by the foraging minigame. |
-| DESIGN_LIVESTOCK.md | Phase 1 (headcounts, buy/cull, predation, births). Phase 2 working animals later. Guard-dog toggle superseded by KEPT_ANIMALS. |
 | DESIGN_DEFENSES.md | Ring combat sim + page. Ring→tier table corrected this pass (Town adds Middle, City adds Inner). |
 | DESIGN_CITIZEN_CATEGORIES.md | Built; code added a founder floor not in the doc. |
 | DESIGN_CONTENT_EXPANSION.md | Gems/Jewelcrafter/rings built — but a live Act-1 **enemy-roster backlog** is buried in it (palette ratify, PULL list, hale stub). |
@@ -44,7 +41,6 @@
 | DESIGN_WORKERS_PLAGUES.md | Staffing shipped (as named-hands coverage, not the doc's pool model) + ailments shipped. Plague events open; cat half superseded by KEPT_ANIMALS. |
 | DESIGN_WEATHER.md | Layer 1 built; Layer 2 shipped via WEATHER_YIELD. Open: storm/blizzard mechanics, Layer 3 aether storms. |
 | DESIGN_TRAVELING_MERCHANTS.md | Slice 1 (Cobb + Lammast wagon). Open: culture merchants, rotation, rapport. |
-| DESIGN_FOOD_SCROLLS_LOYALTY.md | Food + loyalty + per-adventurer slots built. **Enchanted scrolls = the one remainder.** Farming section duplicates FARMING_EXPANSION. |
 | DESIGN_ROSTER_CURATION.md | Recruitment UX rework shipped (scripted arrivals, rotation gone, cap bypassed). **The 229→~50 pool cut not done** (4 arrivals, 3 traits authored). |
 | DESIGN_TALENT_TREES.md | Trees built & displayed — but only ~3 talent ids are read by the combat engine; most nodes stat/UI-only. Pentagon pending the bespoke-trees decision. |
 | DESIGN_SEASONAL_GATHERS.md | Bee/apple/fish/berry pairs + scarcity hunts live. Open: daily cooldown (asserted, not implemented), First Greens, specials. |
