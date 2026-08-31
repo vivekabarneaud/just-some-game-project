@@ -1,3 +1,4 @@
+import type { FoodPreference } from "../adventurers.js";
 // ─── Free-form cooking — types ──────────────────────────────────────────────
 // Sibling to the alchemy engine (see ../alchemy/types.ts). A DISH is cooked with
 // ONE technique (you simmer the whole pot) over a handful of ingredients; the
@@ -14,7 +15,9 @@ export type CookTechnique = "boil" | "skewer" | "fry" | "roast" | "chop" | "pres
 /** Taste tags — a dish's taste emerges from its ingredients (weighted by amount)
  *  + its prep (skewer→smoky, chop→fresh). Matches an adventurer's foodPreference
  *  for the "❤ favourite" bonus, same as the fixed foods. */
-export type FoodFlavor = "sweet" | "spicy" | "fresh" | "smoky" | "hearty";
+/** Same five tags as an adventurer's FoodPreference — one union, so a new
+ *  flavour can never exist on a dish but not on a palate. */
+export type FoodFlavor = FoodPreference;
 
 /** One prepared ingredient going into the dish. */
 export interface CookPlacement {

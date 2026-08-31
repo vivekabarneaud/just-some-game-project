@@ -50,18 +50,12 @@ import { dishMissionBoons } from "@medieval-realm/shared/data/kitchen/mission";
 import { dishFlavors } from "@medieval-realm/shared/data/kitchen/cook";
 import { getFoodIngredient } from "@medieval-realm/shared/data/kitchen/ingredients";
 import type { CoopAdventurerSummary } from "@medieval-realm/shared";
+import { formatTimeShort } from "~/utils/format";
 
 function getMissionImage(missionId: string): string | undefined {
   return getMission(missionId)?.image;
 }
 
-function formatDuration(seconds: number): string {
-  if (seconds < 60) return `${seconds}s`;
-  if (seconds < 3600) return `${Math.floor(seconds / 60)}m`;
-  const h = Math.floor(seconds / 3600);
-  const m = Math.floor((seconds % 3600) / 60);
-  return m > 0 ? `${h}h ${m}m` : `${h}h`;
-}
 
 interface Props {
   mission: MissionTemplate;
@@ -1377,10 +1371,10 @@ export default function MissionAssemblyPanel(props: Props) {
 
         <div class="mission-detail-stats">
           <div>
-            <span class="mission-detail-label">Duration</span> {formatDuration(baseTotal())}
+            <span class="mission-detail-label">Duration</span> {formatTimeShort(baseTotal())}
             <Show when={travelSec() > 0}>
               <span style={{ color: "var(--text-muted)", "font-size": "0.85em" }}>
-                {" "}({formatDuration(freshMission().duration)} on site + {formatDuration(travelSec())} travel)
+                {" "}({formatTimeShort(freshMission().duration)} on site + {formatTimeShort(travelSec())} travel)
               </span>
             </Show>
           </div>
@@ -1489,7 +1483,7 @@ export default function MissionAssemblyPanel(props: Props) {
             </span>
           </div>
           <div style={{ "font-size": "0.85rem", color: "var(--text-secondary)" }}>
-            Duration: {formatDuration(effectiveDuration())}
+            Duration: {formatTimeShort(effectiveDuration())}
             {effectiveDuration() < baseTotal() && (
               <span style={{ color: "var(--accent-blue)", "margin-left": "4px" }}>
                 (Wizard -{Math.round((1 - effectiveDuration() / baseTotal()) * 100)}%)

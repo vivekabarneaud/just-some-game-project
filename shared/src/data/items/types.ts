@@ -2,7 +2,7 @@
 // Type definitions + armor-tier metadata shared across equipment, foods,
 // potions, and materials. No item data lives here.
 
-import type { AdventurerClass, AdventurerStats } from "../adventurers.js";
+import type { AdventurerClass, AdventurerStats , FoodPreference } from "../adventurers.js";
 
 export type ItemSlot = "head" | "chest" | "legs" | "boots" | "gloves" | "cloak" | "mainHand" | "offHand" | "sidearm" | "ring1" | "ring2" | "amulet" | "trinket";
 
@@ -165,7 +165,7 @@ export interface ItemDefinition {
   /** Physical damage reduction in combat (WoW-style: DEF/(DEF+150) = % reduction) */
   defense?: number;
   /** Food flavor tags for adventurer preference matching (food items only) */
-  foodFlavors?: ("sweet" | "spicy" | "hearty" | "smoky" | "fresh")[];
+  foodFlavors?: FoodPreference[];
 }
 
 export interface InventoryItem {

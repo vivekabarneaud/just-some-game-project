@@ -154,7 +154,6 @@ const Friends = lazy(() => import("./pages/Friends"));
 const Shrine = lazy(() => import("./pages/Shrine"));
 const Defenses = lazy(() => import("./pages/Defenses"));
 const QuestLog = lazy(() => import("./pages/QuestLog"));
-const CharacterEncyclopedia = lazy(() => import("./pages/CharacterEncyclopedia"));
 const ComingSoon = lazy(() => import("./pages/ComingSoon"));
 const BattlePreview = lazy(() => import("./pages/BattlePreview")); // TEMP dev-only, remove after Tier-1 enemy pass
 const AlchemyLabDev = lazy(() => import("./pages/AlchemyLabDev")); // TEMP dev-only — free-form alchemy sandbox
@@ -199,7 +198,6 @@ render(
         <Route path="/map" component={WorldMap} />
         <Route path="/chronicle" component={Chronicle} />
         <Route path="/friends" component={Friends} />
-        <Route path="/encyclopedia" component={CharacterEncyclopedia} />
         <Route path="/shrine" component={Shrine} />
         <Route path="/defenses" component={Defenses} />
         <Route path="/quests" component={QuestLog} />
