@@ -164,3 +164,24 @@ beasts + dead" that goblin shouldn't be there either — but a runt pinching
 turnips is a nuisance rather than a fantasy escalation, so it's an encounter
 tweak to make deliberately, not cleanup.
 
+## Novice missions cut while mid-rework (2026-08-31)
+
+Six novice missions carried `staged: true` — not placeholders, but **work in
+progress** pulled off the board and never finished. The writing was good, so the
+premises are kept here even though the missions are gone.
+
+- **The Miller's Boy** — *the miller's son went to check the fish traps at dawn and hasn't come back. The creek runs past the boar wallows, and the boy is seven.* A search against a clock, not a fight you pick.
+- **Spider Hollow** — *silk on the bucket rope of the eastern well, and something moving in the dark below.* A nest under the water the whole camp drinks, which is a real reason to go down there — the animals-aren't-kill-on-sight rule satisfied properly.
+- **The Old Bridge** — *a fallen oak has choked the only dry path to the hunting grounds, and two boars have taken to the wreckage, frothing.* Clearing work that turns into a fight because of what moved in.
+- **The Northern Bounds** — *a pair of young wolves worrying the trap line, thin-ribbed and skittish. No need for blood: walk the bounds, see them off, and come back having proven you can hold a line without drawing one.* A no-combat patrol. Was also the map-reveal trigger for the east reach.
+- **Tracks at the Treeline** — *deep claw marks near the woodcutters' worksite. Track it far enough to know what it is, no closer.* It proves a bear's day-bed rather than a hunt; you mark the ground and move the work. The rule stated as a mission.
+- **Wandering Spirit** — *two restless spirits at the old crossroads, close enough in the dark to seem like one. Only a priest's blessing can lay them to rest; mundane weapons pass through bone and cloth alike.* **Unbuildable until a priest exists** — Act 1's roster is two archers, two warriors and two assassins, so this was unwinnable by design.
+
+Two of these (The Miller's Boy, The Old Bridge) had both been renamed **"The Fold"**,
+which looks like an abandoned merge into the fold chain that `fold_vigil` now holds.
+
+**Map consequence:** `east_reach` (region 5) was revealed only by The Northern
+Bounds. It's now repointed to `merchant_escort_first` — live, pinned in the east,
+and a mission every player does. Change the trigger if a better eastern mission
+turns up.
+
