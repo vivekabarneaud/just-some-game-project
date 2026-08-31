@@ -58,6 +58,82 @@ than as porridge. When it lands, six dishes switch from wheat-as-crust to flour
   generalised to "any breaded mushroom" even though flour would allow it. Each
   mushroom should earn its own idea rather than share one.
 
+### How a pot resolves (agreed 2026-08-31)
+
+One sentence: **a dish keeps its identity, extras deepen it, and a combination
+that deserves its own name gets authored.** The matcher's existing specificity
+rule then hands the authored dish the win automatically.
+
+**Ingredients split by kind, not by count:**
+
+- **Bodies** — visible on the plate, name-worthy: meat, fish, mushroom, root,
+  green, fruit, grain, egg, legume.
+- **Modifiers** — change the character rather than constitute the dish: fat
+  (butter / lard / oil), dairy, flour, spices. Ramsons behaves as one too: per
+  its own commit its identity is "lifting whatever it touches".
+
+The engine ALREADY models this for spices — a *required* spice slot is identity
+(Golden Fowl needs its saffron), an *extra* spice is a harmless garnish. The
+change is generalising that one class from "spices" to "modifiers".
+
+**Extras never appear in the name.** An earlier draft had "Bolete Caps on Toast
+with Berries"; milk killed it. Once additions show up in the title, every
+ingredient needs a judgement call about whether it *sounds* right there ("with
+Roots" passable, "with Milk" nonsense, "with Bone" grim). Keeping the name
+stable needs no such argument. The player instead sees what went in on the dish
+card, and feels it in the effects. That is a UI line, not a naming problem.
+
+**Fat wants its own role**, so one slot accepts butter, lard or oil and swapping
+one for another doesn't destroy the dish. All three are already designed in The
+Works.
+
+**A note must not promise what its slot doesn't require** (user, 2026-08-31): if
+the slot is any fat, the note can't say butter; if it's any meat, it can't say
+venison.
+
+### The bolete family (designed 2026-08-31, most of it pending the flour wave)
+
+King Bolete allows boil / skewer / fry / roast / preserve and only fry was used
+(`Bolete Fry` = cepe + ramsons). **Preserve is rejected**: with no food spoilage
+in the game, and probably never, preserving solves a problem that doesn't exist
+and shouldn't get a dish just to justify a technique.
+
+Available today:
+
+- **Roast Bolete Caps** · king bolete, roasted. *"A cap the size of a fist,
+  roasted whole. Dense enough that you forget there's no meat in it."*
+  Deliberately single-ingredient: a perfect cep needs nothing, and adding things
+  is what you do with mediocre mushrooms.
+- **Bolete Caps and Barley** · bolete roasted + barley boiled. *"Roasted caps
+  laid over barley, so the grain takes the juices. Nothing wasted."* Nothing
+  covers this because Mushroom Pottage is boiled on both sides.
+
+Pending flour + fat:
+
+- **Bolete Caps on Toast** · bolete roasted + flour roasted + ramsons, any fat.
+  *"Caps and wild garlic fried until they sizzle, piled on toast so the bread
+  drinks the juices. Worth burning the good flour on."* Roasting flour simply IS
+  baking here, per the Works commit's own principle that making the player click
+  wheat→flour→bread is tedious after twice. No separate bread item.
+- **Stuffed Bolete Caps** · bolete roasted + flour + any meat. *"Caps packed
+  with minced meat and crumbs, then roasted whole. A whole supper inside a
+  mushroom."*
+
+The classic cep preparations and what each needs: bordelaise (sliced, garlic,
+parsley) → oil; grilled caps with garlic butter → butter; caps on toast → flour;
+stuffed caps → flour; omelette aux cepes → eggs, already covered by Mushroom
+Omelet. **No parsley in the pantry**, and ramsons is the persillade.
+
+### Fried mushrooms (ready to author, needs nothing)
+
+- **Fried Mushrooms** · any mushroom, fried. *"Mushrooms in the hot pan until
+  they give up their water. Earthy, and better than it sounds."* Plain tier.
+  `FOOD_GROUPS.mushroom` already exists, so this is one line covering field
+  mushroom, morel, chanterelle and cepe. **Morels are NOT excluded** (user): if
+  a morel is merely fried it can be plain, they have their signature elsewhere.
+- **No per-mushroom fried dishes.** "Fried Morels" says nothing "Fried
+  Mushrooms" didn't; it doubles content without adding a discovery.
+
 ### Dish naming rule (agreed 2026-08-31)
 
 Name the FOOD, never the cook. "Ploughman's Broth" and "Farmhand's Fry" slide
