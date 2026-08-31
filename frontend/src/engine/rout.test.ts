@@ -13,17 +13,17 @@ const warrior = buildRecruitFromPremadeId("test_warrior", "char_018", 1)!;
 describe("enemy rout — beasts break and run", () => {
   it("beasts carry a routsAt; boss/maddened beasts and undead fight to the end", () => {
     expect(getEnemy("gaunt_wolf")?.routsAt).toBeGreaterThan(0);
-    expect(getEnemy("wild_wolf")?.routsAt).toBeGreaterThan(0);
+    expect(getEnemy("grey_wolf")?.routsAt).toBeGreaterThan(0);
     // The alpha is the deliberate reckoning — it stands and fights, no rout.
-    expect(getEnemy("alpha_wolf")?.routsAt).toBeUndefined();
+    expect(getEnemy("greyfang")?.routsAt).toBeUndefined();
     // Maddened (rabid / tainted) and undead have no fear to break — no rout.
     expect(getEnemy("rabid_boar")?.routsAt).toBeUndefined();
-    expect(getEnemy("tainted_patriarch_boar")?.routsAt).toBeUndefined();
-    expect(getEnemy("cursed_spirit")?.routsAt).toBeUndefined();
+    expect(getEnemy("tainted_patriarch")?.routsAt).toBeUndefined();
+    expect(getEnemy("grief_bound_spirit")?.routsAt).toBeUndefined();
   });
 
   it("a shed fang survives a rout; the hide and sinew do not", () => {
-    const wolf = getEnemy("wild_wolf")!;
+    const wolf = getEnemy("grey_wolf")!;
     const fang = wolf.loot!.find((d) => d.type === "resource" && d.resource === "fang");
     const hide = wolf.loot!.find((d) => d.type === "resource" && d.resource === "wolfhide_strip");
     const sinew = wolf.loot!.find((d) => d.type === "resource" && d.resource === "sinew_cord");
@@ -36,7 +36,7 @@ describe("enemy rout — beasts break and run", () => {
     let routs = 0;
     for (let seed = 0; seed < 50; seed++) {
       const res = simulateCombat(mission, [warrior], undefined, seed, {
-        encounters: [{ enemyId: "wild_wolf", count: 1 }],
+        encounters: [{ enemyId: "grey_wolf", count: 1 }],
       });
       if (!res) continue;
       // A rank-1 warrior always beats one lone wolf (routed or killed = win).

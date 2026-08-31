@@ -1154,7 +1154,7 @@ const STORAGE_KEY = "medieval-realm-save";
 /** Bump this on ANY save-schema change. A loaded save whose version doesn't match
  *  is DISCARDED (fresh start) rather than migrated — "reset over migrations", so we
  *  don't carry backward-compat backfill code. Solo/alpha: disposable saves. */
-export const SAVE_VERSION = 1;
+export const SAVE_VERSION = 2;  // 2: enemy + mission ids renamed to match display names (2026-08-31)
 /** Dev-only manual snapshot slot — a copy of the save blob the player can stash
  *  and roll back to while testing. Separate from the live save key. */
 const SNAPSHOT_KEY = "medieval-realm-dev-snapshot";

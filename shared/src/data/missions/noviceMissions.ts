@@ -207,7 +207,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
     difficulty: 1,
     minGuildLevel: 1,
     tags: ["outdoor", "escort"],
-    encounters: [{ enemyId: "wild_wolf", count: 1 }],
+    encounters: [{ enemyId: "grey_wolf", count: 1 }],
     unique: true,
   },
 {
@@ -224,7 +224,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
     difficulty: 1,
     minGuildLevel: 1,
     tags: ["outdoor", "escort"],
-    encounters: [{ enemyId: "wild_wolf", count: 1 }],
+    encounters: [{ enemyId: "grey_wolf", count: 1 }],
     requires: { missionDone: "foraging_run_first" },
   },
 {
@@ -241,7 +241,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
     difficulty: 2,
     minGuildLevel: 1,
     tags: ["outdoor", "combat"],
-    encounters: [{ enemyId: "bandit_thug", count: 2 }],
+    encounters: [{ enemyId: "displaced_brigand", count: 2 }],
     // Fires once the settlement can actually host him — a market to unload in and
     // a tavern to sleep over. Escorting him in is what starts his recurring stall
     // (see the_returning_trader chain + updateMerchantRecurrence).
@@ -262,7 +262,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
     difficulty: 2,
     minGuildLevel: 1,
     tags: ["outdoor", "combat"],
-    encounters: [{ enemyId: "bandit_thug", count: 2 }],
+    encounters: [{ enemyId: "displaced_brigand", count: 2 }],
     requires: { missionDone: "merchant_escort_first" },
   },
 {
@@ -283,7 +283,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/herb_gathering.png",
   },
 {
-    id: "bear_den",
+    id: "wide_berth",
     map: { x: 0.462, y: 0.583 },
     name: "A Wide Berth",
     description: "Word came back from the southern stand, white-faced, of a forest bear that has denned by the timber road, and there is talk of having it killed. As neighbours go, the bear has declared no war, levied no tax, and laid claim to nothing but the few trees it sleeps under, which is more courtesy than we get from most lords. We will not march on it for that. Mark the bounds of its little realm so no one wanders into its court uninvited, then steer our timber-cutting to a fresh stand well clear of it. There is no shortage of trees.",
@@ -313,7 +313,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
     difficulty: 3,
     minGuildLevel: 1,
     tags: ["combat", "outdoor"],
-    encounters: [{ enemyId: "alpha_wolf", count: 1 }, { enemyId: "wild_wolf", count: 4 }],
+    encounters: [{ enemyId: "greyfang", count: 1 }, { enemyId: "grey_wolf", count: 4 }],
     // Beat 4 — the hunt. Greyfang (alpha_wolf) fights to the death (no routsAt).
     sideChain: { id: "greyfang", name: "The Fold" },
     requires: { pen: "sheep", missionDone: "lost_flock" },
@@ -342,7 +342,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
     difficulty: 2,
     minGuildLevel: 1,
     tags: ["combat", "outdoor"],
-    encounters: [{ enemyId: "wild_wolf", count: 3 }],
+    encounters: [{ enemyId: "grey_wolf", count: 3 }],
     // Beat 2 of the Greyfang arc (unique). Truffle fights beside the team.
     npcAlly: { npcId: "truffle", threatMultiplier: 0.4, cannotFall: true, deathFailsMission: false },
     sideChain: { id: "greyfang", name: "The Fold" },
@@ -369,7 +369,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
     // Beat 3 — the diversion. The player fights the feint at the wall (Truffle is
     // NOT here — he's at the fold); the maul is the reveal on claim. TODO(#3): the
     // director applies `savaged` to Truffle when this completes.
-    encounters: [{ enemyId: "wild_wolf", count: 5 }],
+    encounters: [{ enemyId: "grey_wolf", count: 5 }],
     sideChain: { id: "greyfang", name: "The Fold" },
     excludeCharacters: [{ premadeId: "char_005", reason: "At the watchtower, sounding the alarm" }],
     unique: true,
@@ -389,7 +389,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
     difficulty: 1,
     minGuildLevel: 1,
     tags: ["outdoor", "combat"],
-    encounters: [{ enemyId: "wild_wolf", count: 2 }],
+    encounters: [{ enemyId: "grey_wolf", count: 2 }],
     // Beat 1 of the Greyfang arc (repeatable — the grind that earns the turn).
     // Truffle fights beside the team: low threat (the pack peels onto the team),
     // and cannotFall — the escorts can never put the good boy down.
@@ -399,7 +399,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
     requires: { pen: "sheep", chronicleFired: "ch1_truffle_takes_fold" },
   },
   {
-    id: "chicken_coop_raiders",
+    id: "something_in_the_henhouse",
     name: "Something in the Henhouse",
     description: "Three hens dead this week, torn apart in the night, and the coop door nosed open from outside. A fox, most likely, fast and bold and back every night now that it knows the way in. No work for blades. Set someone to stand a quiet watch, mend the coop, lay a snare, and see the thief off for good.",
     icon: "🦊",

@@ -93,7 +93,7 @@ export const TRAVELING_MERCHANTS: TravelingMerchant[] = [
       { id: "grain_for_timber", label: "Grain bartered for our timber", give: "wood", giveAmount: 30, receive: "food", receiveAmount: 60 },
       { id: "lammast_buys_timber", label: "They'll take cut timber for Lammast's barns", give: "wood", giveAmount: 40, receive: "gold", receiveAmount: 30 },
     ],
-    returnUnlock: { missionDone: "lammast_first_trade" },
+    returnUnlock: { missionDone: "boundary_stone" },
   },
 ];
 

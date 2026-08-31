@@ -17,7 +17,7 @@ function avgDamage(attacker: any, defender: any, n = 400): number {
   return total / n;
 }
 // Two identical wolves, mutated per test (classless → power = max(str,dex)).
-const freshWolf = () => buildEnemyUnits([{ enemyId: "wild_wolf", count: 1 }])[0];
+const freshWolf = () => buildEnemyUnits([{ enemyId: "grey_wolf", count: 1 }])[0];
 
 describe("rarityWeaponRange", () => {
   it("climbs with rarity", () => {

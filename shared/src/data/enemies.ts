@@ -210,7 +210,7 @@ export const ENEMIES: EnemyDefinition[] = [
   // ── Tier 1 — Common threats ───────────────────────────────────
   // Challenging for level 1-3 with no gear. Beatable with basic gear.
   {
-    id: "bandit_thug",
+    id: "displaced_brigand",
     name: "Displaced Brigand",
     icon: "🗡️",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/bandit_thug.png",
@@ -239,7 +239,7 @@ export const ENEMIES: EnemyDefinition[] = [
     ],
   },
   {
-    id: "reaver_captain",
+    id: "tollman",
     name: "The Tollman",
     icon: "🪖",
     description: "The one who turned a scatter of desperate men into a company. He set a price on the road and calls it a toll. Better fed and better armed than his men, and smart enough to keep it that way.",
@@ -266,7 +266,7 @@ export const ENEMIES: EnemyDefinition[] = [
   {
     // Weaker than a brigand — a hired tough, not a fighter. Comes in numbers
     // (a mob), so a mission can pit 5-6 of them and still read as low-danger.
-    id: "dominion_thug",
+    id: "dominion_tough",
     name: "Dominion Tough",
     icon: "👊",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/bandit_thug.png",
@@ -288,7 +288,7 @@ export const ENEMIES: EnemyDefinition[] = [
     ],
   },
   {
-    id: "bandit_poacher",
+    id: "poacher",
     name: "Poacher",
     icon: "🏹",
     description: "An outlaw who learned his aim keeping crows off someone else's barley. Hangs back and picks you off from the treeline.",
@@ -309,7 +309,7 @@ export const ENEMIES: EnemyDefinition[] = [
     ],
   },
   {
-    id: "bandit_cutthroat",
+    id: "cutthroat",
     name: "Cutthroat",
     icon: "🔪",
     description: "A killer for hire with a length of wire and a fast knife. Goes for whoever looks softest.",
@@ -330,7 +330,7 @@ export const ENEMIES: EnemyDefinition[] = [
     ],
   },
   {
-    id: "wild_wolf",
+    id: "grey_wolf",
     name: "Grey Wolf",
     icon: "🐺",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/wild_wolf.png",
@@ -357,25 +357,6 @@ export const ENEMIES: EnemyDefinition[] = [
     raw: { mobility: 27, dodge: 5 }, // pack hunter — fast (~36 paces/turn, closes the field in ~1.5 rounds)
     elusiveAtRange: 25, // weaves through the arrows while it closes; commits at contact
     routsAt: 0.3, // a pack wolf breaks when the fight turns against it
-    aiTier: "feral"
-  },
-  {
-    id: "skeleton",
-    name: "Barrowfield Walker",
-    icon: "💀",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/skeleton.png",
-    description: "Bones held together by Netheron's lingering death-magic. They don't tire and they don't stop.",
-    tier: 1,
-    stats: { str: 5, dex: 3, int: 2, vit: 8, wis: 1 },
-    tags: ["undead"],
-    abilities: [
-      { id: "bone_reform", name: "Reassemble", icon: "💀", cooldown: 5, trigger: "hp_below_50",
-        effect: { type: "heal_self", pct: 25 } },
-    ],
-    loot: [
-      { type: "resource", resource: "bonewalk_shard", chance: 0.3, min: 1, max: 2 },
-      { type: "resource", resource: "barrow_ash", chance: 0.15, min: 1, max: 1 },
-    ],
     aiTier: "feral"
   },
 
@@ -473,7 +454,7 @@ export const ENEMIES: EnemyDefinition[] = [
   // ── Tier 2 — Organized threats ────────────────────────────────
   // Require level 4-6 WITH basic gear. Dangerous without.
   {
-    id: "bandit_captain",
+    id: "dominion_deserter",
     name: "Dominion Deserter",
     icon: "⚔️",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/bandit_captain.png",
@@ -496,7 +477,7 @@ export const ENEMIES: EnemyDefinition[] = [
     ],
   },
   {
-    id: "cave_spider",
+    id: "cave_spinner",
     name: "Cave Spinner",
     icon: "🕷️",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/cave_spider.png",
@@ -531,7 +512,7 @@ export const ENEMIES: EnemyDefinition[] = [
     aiTier: "feral"
   },
   {
-    id: "cursed_spirit",
+    id: "grief_bound_spirit",
     name: "Grief-Bound Spirit",
     icon: "👻",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/cursed_spirit.png",
@@ -547,26 +528,6 @@ export const ENEMIES: EnemyDefinition[] = [
 
   // ── Tier 3 — Dangerous foes ───────────────────────────────────
   // Require level 6-10 with decent gear. Party composition matters.
-  {
-    id: "wraith",
-    name: "Netheron's Shade",
-    icon: "👤",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/wraith.png",
-    description: "Not quite alive, not quite dead. Born where Netheron's death-essence seeps thickest. Steel passes through it.",
-    tier: 3,
-    stats: { str: 10, dex: 12, int: 20, vit: 16, wis: 14 },
-    tags: ["ghost", "magical"],
-    abilities: [
-      { id: "life_drain", name: "Life Drain", icon: "💀", cooldown: 3, trigger: "always",
-        effect: { type: "damage_mult", mult: 1.5, targets: 1 } },
-      { id: "wail", name: "Chilling Wail", icon: "😱", cooldown: 4, trigger: "always",
-        effect: { type: "debuff_target", stat: "str", pct: 30, rounds: 2 } },
-    ],
-    loot: [
-      { type: "resource", resource: "ghostweave", chance: 0.2, min: 1, max: 1 },
-      { type: "resource", resource: "veilmist", chance: 0.3, min: 1, max: 2 },
-    ],
-  },
   // ── ENGINE TEST STUB ──────────────────────────────────────────
   // Captain Hale stand-in for the npc-escort engine test. Real Hale stats,
   // lore, and portrait will be authored by the parallel story thread —
@@ -605,7 +566,7 @@ export const ENEMIES: EnemyDefinition[] = [
 
   // ── Tier 3 — Ghost threats ────────────────────────────────────
   {
-    id: "wailing_phantom",
+    id: "wastes_phantom",
     name: "Wastes Phantom",
     icon: "👻",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/wailing_phantom.png",
@@ -711,7 +672,7 @@ export const ENEMIES: EnemyDefinition[] = [
     aiTier: "feral"
   },
   {
-    id: "tainted_patriarch_boar",
+    id: "tainted_patriarch",
     name: "Tainted Patriarch",
     icon: "🐗",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/tainted_patriarch.png",
@@ -733,7 +694,7 @@ export const ENEMIES: EnemyDefinition[] = [
 
   // ── Tier 2 — New Organized Threats ──────────────────────────────
   {
-    id: "alpha_wolf",
+    id: "greyfang",
     name: "Greyfang",
     icon: "🐺",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/alpha_wolf.png",
@@ -767,23 +728,6 @@ export const ENEMIES: EnemyDefinition[] = [
      mission. Preserved for a future remake per the tragic Aldith/Ada design in
      docs/cast/aldith-the-bog-witch.md. Not referenced by any active mission.
   */
-  {
-    id: "burnt_skeleton",
-    name: "Burnt Skeleton",
-    icon: "🔥",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/burnt_skeleton.png",
-    description: "Blackened bones wreathed in sickly orange flame. Whatever killed them, the fire stayed. Touch them and you'll understand why.",
-    tier: 2,
-    stats: { str: 12, dex: 8, int: 8, vit: 10, wis: 2 },
-    tags: ["undead", "elemental_fire"],
-    abilities: [{ id: "self_immolate", name: "Self-Immolate", icon: "💥", cooldown: 99, trigger: "hp_below_50", effect: { type: "aoe_damage", pct: 20, magical: true } }],
-    loot: [
-      { type: "resource", resource: "charite", chance: 0.25, min: 1, max: 1 },
-      { type: "resource", resource: "bonewalk_shard", chance: 0.2, min: 1, max: 2 },
-      { type: "resource", resource: "crude_ruby", chance: 0.08, min: 1, max: 1 },
-    ],
-    aiTier: "feral"
-  },
 
   // ── Tier 3 — New Dangerous Foes ─────────────────────────────────
 

@@ -18,7 +18,7 @@ describe("Quarry-spider gate missions", () => {
     expect(l2.duration).toBeLessThanOrEqual(120); // it's right in the pit — short
     expect(l2.encounters?.some((e) => e.enemyId === "rock_skitter")).toBe(true);
     // depth brings the venomous Cave Spinners in on top of the skitter tide
-    expect(l3.encounters?.some((e) => e.enemyId === "cave_spider")).toBe(true);
+    expect(l3.encounters?.some((e) => e.enemyId === "cave_spinner")).toBe(true);
   });
 
   it("are FORCED-ONLY and flagged urgent (distinct outline)", () => {

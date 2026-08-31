@@ -45,7 +45,7 @@ describe("legacy fields resolve without changing behaviour", () => {
 
 describe("authored knobs override the legacy mapping", () => {
   it("fear: fearless keeps a beast on the field despite its routsAt", () => {
-    const wolf = buildEnemyUnits([{ enemyId: "wild_wolf", count: 1 }])[0];
+    const wolf = buildEnemyUnits([{ enemyId: "grey_wolf", count: 1 }])[0];
     expect(wolf.routsAt).toBeTypeOf("number");
     expect(canBreak(wolf)).toBe(true);
     const maddened: CombatUnit = { ...wolf, ai: { ...wolf.ai!, fear: "fearless" } };
@@ -53,7 +53,7 @@ describe("authored knobs override the legacy mapping", () => {
   });
 
   it("tauntable gates the warrior taunt by kind", () => {
-    const base = buildEnemyUnits([{ enemyId: "wild_wolf", count: 1 }])[0];
+    const base = buildEnemyUnits([{ enemyId: "grey_wolf", count: 1 }])[0];
     const obeys: CombatUnit = { ...base, ai: { ...base.ai!, tauntable: "obeys" } };
     const generic: CombatUnit = { ...base, ai: { ...base.ai!, tauntable: "ignores-generic" } };
     const never: CombatUnit = { ...base, ai: { ...base.ai!, tauntable: "ignores" } };

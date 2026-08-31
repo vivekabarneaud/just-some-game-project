@@ -57,7 +57,7 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
     difficulty: 3,
     minGuildLevel: 1,
     tags: ["combat", "survival"],
-    encounters: [{ enemyId: "rock_skitter", count: 3 }, { enemyId: "cave_spider", count: 2 }],
+    encounters: [{ enemyId: "rock_skitter", count: 3 }, { enemyId: "cave_spinner", count: 2 }],
     urgent: true,
     requires: { missionDone: "__forced_only__" }, // sentinel: never met → forced-only
   },
@@ -163,7 +163,7 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
   // the main thread. The side-chain proper begins here, with the herd worsening,
   // and gates on bad_blood being done.
   {
-    id: "bad_season_boars",
+    id: "bad_season_for_boars",
     map: { x: 0.485, y: 0.56 },
     name: "A Bad Season for Boars",
     description: "That makes the fourth this month, all of them frothing, all of them charging the fields instead of fleeing them. Boars do not sicken in numbers like this. Clear the ones that have come down from the tree line, and have someone keep a tally, because this is starting to feel like more than a bad season.",
@@ -182,7 +182,7 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
     sideChain: { id: "maddened_herd", name: "The Maddened Herd" },
   },
   {
-    id: "what_scouts_saw",
+    id: "what_the_scouts_saw",
     map: { x: 0.495, y: 0.6 },
     name: "What the Scouts Saw",
     description: "The scouts who walked the deep tree line came back short on nerve. The boars out there are worse: grey-mottled, weeping black, reeking of cold metal, and one took a spear clean through and kept coming as if it had not noticed dying. Whatever has taken them, they are past saving and in pain. Go and give them a clean end, before they wander down onto the trails where our people walk.",
@@ -196,7 +196,7 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
     minGuildLevel: 1,
     tags: ["combat", "outdoor"],
     encounters: [{ enemyId: "tainted_boar", count: 2 }, { enemyId: "rabid_boar", count: 1 }],
-    requires: { missionDone: "bad_season_boars", story: "story_2_ruins" },
+    requires: { missionDone: "bad_season_for_boars", story: "story_2_ruins" },
     unique: true,
     sideChain: { id: "maddened_herd", name: "The Maddened Herd" },
   },
@@ -215,7 +215,7 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
     minGuildLevel: 1,
     tags: ["exploration", "peaceful"],
     guaranteed: true,
-    requires: { missionDone: "what_scouts_saw", story: "story_4_captains_rest" },
+    requires: { missionDone: "what_the_scouts_saw", story: "story_4_captains_rest" },
     unique: true,
     sideChain: { id: "maddened_herd", name: "The Maddened Herd" },
     npcAlly: { npcId: "corin", passive: true },
@@ -234,7 +234,7 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
     difficulty: 3,
     minGuildLevel: 1,
     tags: ["combat", "magical", "outdoor"],
-    encounters: [{ enemyId: "tainted_patriarch_boar", count: 1 }, { enemyId: "tainted_boar", count: 2 }],
+    encounters: [{ enemyId: "tainted_patriarch", count: 1 }, { enemyId: "tainted_boar", count: 2 }],
     requires: { missionDone: "reading_the_carcass" },
     unique: true,
     sideChain: { id: "maddened_herd", name: "The Maddened Herd" },
@@ -361,7 +361,7 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
   // ── Recruitment quest: save the hunted gambler → Edmund + Elspeth join ──
   //    (recruitsOnSuccess; Elspeth gives the plea, both join on the win.) ──
   {
-    id: "a_mothers_errand",
+    id: "mothers_errand",
     map: { x: 0.485, y: 0.547 },
     name: "A Mother's Errand",
     description: "A woman came to the gate before dawn, grey-faced and giving no name, only this: her son is cornered at the old ford, a pack of men closing in over money he won that he maybe should not have. She cannot reach him in time, and she is begging. Whatever he did or did not do at the table, no one deserves to be beaten to death over a hand of cards. Get there, drive them off, and bring the fool home. His mother will not leave the gate until you do.",
@@ -376,7 +376,7 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
     tags: ["combat", "escort"],
     // Hired toughs over a card debt (Dominion Toughs), not desperate displaced
     // farmers — fits the fiction, and they're weaker in a pack.
-    encounters: [{ enemyId: "dominion_thug", count: 3 }],
+    encounters: [{ enemyId: "dominion_tough", count: 3 }],
     // "The haven's name spreads." Gated on tavern reputation, not just a built
     // tavern — the hunted only come once the settlement is genuinely running as a
     // waystation (ale, staffing, a full house are what build reputation). Placeholder 40.
@@ -393,7 +393,7 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
   //    completedUniqueMissionIds — still populated because both keep
   //    `unique: true`. See docs/cast/hester-ironbark.md. ──
   {
-    id: "find_nell",
+    id: "wheres_nell",
     map: { x: 0.495, y: 0.571 },
     name: "Where's Nell?",
     description: "Nell slipped away from Edda's herb beds sometime after breakfast, and no one has seen her since. She does not answer when she is called, she never has, and the woods run a long way south. We would all rest easier with someone out there who can follow a small pair of footprints through the summer grass before the light goes.",
@@ -422,7 +422,7 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
   {
     // The reciprocal first visit: they left us grain, so we return meat (a wood's
     // larder for a farm's). Peaceful, guaranteed — the east track is safe ground.
-    id: "lammast_first_trade",
+    id: "boundary_stone",
     map: { x: 0.553, y: 0.51 },
     name: "The Boundary Stone",
     description: "Lammast left us grain and asked nothing for it, and we do not answer a welcome with empty hands. We have no grain to spare, but the hunters have meat, and game for grain is a fair trade between a wood and a farm. Walk the east track to the old boundary stone, make the exchange, and take the measure of these people while we are about it. The road east is quiet ground, for now.",
@@ -460,8 +460,8 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
     difficulty: 2,
     minGuildLevel: 1,
     tags: ["outdoor", "combat", "escort"],
-    encounters: [{ enemyId: "dominion_thug", count: 2 }],
-    requires: { missionDone: "lammast_first_trade" },
+    encounters: [{ enemyId: "dominion_tough", count: 2 }],
+    requires: { missionDone: "boundary_stone" },
     unique: false,
     sideChain: { id: "lammast", name: "Lammast" },
   },
@@ -485,7 +485,7 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
     difficulty: 2,
     minGuildLevel: 1,
     tags: ["outdoor", "combat", "escort"],
-    encounters: [{ enemyId: "bandit_thug", count: 2 }],
+    encounters: [{ enemyId: "displaced_brigand", count: 2 }],
     // Not the moment Cobb first arrives: let the road become a working thing first
     // (his first caravan escorted, then at least one more trader run) so the
     // robbery lands as an escalation, not an opening.
@@ -507,7 +507,7 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
     difficulty: 2,
     minGuildLevel: 1,
     tags: ["outdoor", "combat"],
-    encounters: [{ enemyId: "bandit_thug", count: 3 }],
+    encounters: [{ enemyId: "displaced_brigand", count: 3 }],
     requires: { missionDone: "see_cobb_home" },
     unique: true,
     sideChain: { id: "tollmans_road", name: "The Tollman's Road" },
@@ -526,7 +526,7 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
     difficulty: 3,
     minGuildLevel: 1,
     tags: ["outdoor", "combat"],
-    encounters: [{ enemyId: "reaver_captain", count: 1 }, { enemyId: "bandit_thug", count: 2 }],
+    encounters: [{ enemyId: "tollman", count: 1 }, { enemyId: "displaced_brigand", count: 2 }],
     requires: { missionDone: "hold_the_road" },
     unique: true,
     sideChain: { id: "tollmans_road", name: "The Tollman's Road" },

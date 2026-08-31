@@ -385,7 +385,7 @@ export const STORY_CHAINS: StoryChain[] = [
       api.awaitBuilding("town_hall", 3);
       api.awaitSeason("summer", 2);
       api.fireChronicleModal("ch2_nell_wandering");   // worry — opens the search mission
-      api.awaitMissionDone("find_nell");              // the team goes and finds her
+      api.awaitMissionDone("wheres_nell");              // the team goes and finds her
       api.fireChronicleModal("ch2_nell_found");       // relief + the strawberry hollow
       api.unlockSeed("strawberries");                 // Edda's cutting → a cultivated bed
       api.unlockRecipe("strawberry_jam");             // and Edda's jam from Nell's berries
