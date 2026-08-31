@@ -17,7 +17,7 @@ export type CitizenCategory = keyof CitizenCounts;
 
 
 /** Per-category food multiplier applied to FOOD_PER_CITIZEN_PER_HOUR. */
-export const FOOD_MULTIPLIER: Record<CitizenCategory, number> = {
+const FOOD_MULTIPLIER: Record<CitizenCategory, number> = {
   toddlers: 0.5,
   children: 0.75,
   adults: 1.0,
@@ -132,7 +132,7 @@ const DEFAULT_SPLIT: Record<CitizenCategory, number> = {
 //   Adult → Elderly: 2% / year (avg 50 years as adult)
 //   Elderly mortality: 5% / year baseline
 
-export const AGING_RATES = {
+const AGING_RATES = {
   toddlerToChild: 0.25,
   childToAdult: 0.10,
   adultToElderly: 0.02,
@@ -167,7 +167,7 @@ export function ageStep(c: CitizenCounts): AgingResult {
 // joined the settlement. Probabilities slide a little with happiness — happy
 // villages pull families more, unhappy ones get drifters.
 
-export type ArrivalKind = "drifter" | "couple" | "family_baby" | "family_child" | "elder";
+type ArrivalKind = "drifter" | "couple" | "family_baby" | "family_child" | "elder";
 
 export interface ArrivalEntry {
   kind: ArrivalKind;

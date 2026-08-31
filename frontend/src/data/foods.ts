@@ -34,7 +34,7 @@ export interface FoodItemMeta {
   kind?: DishKind;
 }
 
-export interface FoodCategoryMeta {
+interface FoodCategoryMeta {
   id: FoodCategoryId;
   label: string;
   icon: string;
@@ -96,7 +96,7 @@ export const FOOD_ITEMS: FoodItemMeta[] = [
   { id: "bone_broth",  label: "Bone Broth",  icon: "🍜", order: 4, category: "cooked", kind: "meal" },
 ];
 
-export const FOOD_ITEM_IDS: FoodItemType[] = FOOD_ITEMS.map((f) => f.id);
+const FOOD_ITEM_IDS: FoodItemType[] = FOOD_ITEMS.map((f) => f.id);
 
 /** The specific meats behind the "meat" cost/feed alias. A recipe or reward that
  *  asks for "meat" resolves across all of these (like "grain" = wheat+barley), so
@@ -118,7 +118,7 @@ export const BERRY_TYPES: FoodItemType[] = ["blackberry", "blueberry", "raspberr
 
 /** Everything the Forager brings home = the "wild" alias. Derived from the wild
  *  category so new foraged foods fold in automatically. */
-export const WILD_TYPES: FoodItemType[] = FOOD_ITEMS.filter((f) => f.category === "wild").map((f) => f.id);
+const WILD_TYPES: FoodItemType[] = FOOD_ITEMS.filter((f) => f.category === "wild").map((f) => f.id);
 
 export function getFoodMeta(id: FoodItemType): FoodItemMeta {
   return FOOD_ITEMS.find((f) => f.id === id)!;

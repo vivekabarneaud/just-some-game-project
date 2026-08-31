@@ -6,7 +6,7 @@ import type { PlayerWall, PlayerWatchtower, PlayerBarracks } from "~/engine/game
 
 // ─── Raid tags ──────────────────────────────────────────────────
 
-export type RaidTag = "bandits" | "monsters" | "undead" | "siege" | "horde";
+type RaidTag = "bandits" | "monsters" | "undead" | "siege" | "horde";
 
 // ─── Raid template ──────────────────────────────────────────────
 
@@ -251,7 +251,7 @@ const TIER_ORDER: SettlementTier[] = ["camp", "village", "town", "city"];
 /**
  * Get available raids for current tier.
  */
-export function getAvailableRaids(tier: SettlementTier): RaidTemplate[] {
+function getAvailableRaids(tier: SettlementTier): RaidTemplate[] {
   const tierIdx = TIER_ORDER.indexOf(tier);
   return RAID_POOL.filter((r) => TIER_ORDER.indexOf(r.minTier) <= tierIdx);
 }
@@ -265,11 +265,14 @@ export function spawnRaid(tier: SettlementTier, year: number): { raid: RaidTempl
   if (available.length === 0) return null;
 
   const raid = available[Math.floor(Math.random() * available.length)];
-  // Scale strength: +20% per year
-  const yearBonus = 1 + (year - 1) * 0.20;
-  const strength = Math.floor(raid.strength * yearBonus);
+  return { raid, strength: scaleRaidStrength(raid.strength, year) };
+}
 
-  return { raid, strength };
+/** Raid strength scales +20% per year, for progression. ONE implementation:
+ *  spawnRaid above and the scripted-raid path in gameState both call it (they
+ *  used to inline the same two lines, which is how they drift). */
+export function scaleRaidStrength(baseStrength: number, year: number): number {
+  return Math.floor(baseStrength * (1 + (year - 1) * 0.20));
 }
 
 /**
@@ -306,7 +309,7 @@ export function getRaid(raidId: string): RaidTemplate | undefined {
 
 // ─── Defense tips ───────────────────────────────────────────────
 
-export interface DefenseTip {
+interface DefenseTip {
   icon: string;
   text: string;
   actionLink?: string; // optional link to a page

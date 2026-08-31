@@ -22,7 +22,7 @@ export interface TalentNode {
 //  WARRIOR — Paladin / Warlord / Shadowblade
 // ═══════════════════════════════════════════════════════════════════
 
-export const WARRIOR_TALENTS: TalentNode[] = [
+const WARRIOR_TALENTS: TalentNode[] = [
   // Row 0: Entry
   { id: "w_str1", name: "Brute Force", icon: "💪", class: "warrior", row: 0,
     description: "+5 Strength",
@@ -138,7 +138,7 @@ export const WARRIOR_TALENTS: TalentNode[] = [
 //  PRIEST — Paladin / Archpriest / Inquisitor
 // ═══════════════════════════════════════════════════════════════════
 
-export const PRIEST_TALENTS: TalentNode[] = [
+const PRIEST_TALENTS: TalentNode[] = [
   // Row 0
   { id: "p_wis1", name: "Divine Insight", icon: "📖", class: "priest", row: 0,
     description: "+5 Wisdom",
@@ -254,7 +254,7 @@ export const PRIEST_TALENTS: TalentNode[] = [
 //  WIZARD — Primalist / Archmage / Inquisitor
 // ═══════════════════════════════════════════════════════════════════
 
-export const WIZARD_TALENTS: TalentNode[] = [
+const WIZARD_TALENTS: TalentNode[] = [
   // Row 0
   { id: "wz_int1", name: "Arcane Mind", icon: "🧠", class: "wizard", row: 0,
     description: "+5 Intelligence",
@@ -370,7 +370,7 @@ export const WIZARD_TALENTS: TalentNode[] = [
 //  ARCHER — Primalist / Sharpshooter / Venomancer
 // ═══════════════════════════════════════════════════════════════════
 
-export const ARCHER_TALENTS: TalentNode[] = [
+const ARCHER_TALENTS: TalentNode[] = [
   // Row 0
   { id: "a_dex1", name: "Steady Hand", icon: "🏃", class: "archer", row: 0,
     description: "+5 Dexterity",
@@ -486,7 +486,7 @@ export const ARCHER_TALENTS: TalentNode[] = [
 //  ASSASSIN — Venomancer / Shadowmaster / Shadowblade
 // ═══════════════════════════════════════════════════════════════════
 
-export const ASSASSIN_TALENTS: TalentNode[] = [
+const ASSASSIN_TALENTS: TalentNode[] = [
   // Row 0
   { id: "as_dex1", name: "Quick Reflexes", icon: "🏃", class: "assassin", row: 0,
     description: "+5 Dexterity",
@@ -598,7 +598,7 @@ export const ASSASSIN_TALENTS: TalentNode[] = [
     children: [], isCapstone: true, title: "Shadowblade" },
 ];
 
-export const ALL_TALENTS: TalentNode[] = [
+const ALL_TALENTS: TalentNode[] = [
   ...WARRIOR_TALENTS, ...PRIEST_TALENTS, ...WIZARD_TALENTS, ...ARCHER_TALENTS, ...ASSASSIN_TALENTS,
 ];
 
@@ -612,7 +612,7 @@ export function getTalent(id: string): TalentNode | undefined {
   return ALL_TALENTS.find((t) => t.id === id);
 }
 
-export function getParents(id: string, talents: TalentNode[]): TalentNode[] {
+function getParents(id: string, talents: TalentNode[]): TalentNode[] {
   return talents.filter((t) => t.children.includes(id));
 }
 

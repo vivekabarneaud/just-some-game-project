@@ -169,7 +169,7 @@ export const FOUNDING_CHARACTERS: FoundingCharacter[] = [
 
 // ─── Helpers ─────────────────────────────────────────────────────
 
-export function getFoundingCharacter(id: string): FoundingCharacter | undefined {
+function getFoundingCharacter(id: string): FoundingCharacter | undefined {
   return FOUNDING_CHARACTERS.find((c) => c.id === id);
 }
 

@@ -19,7 +19,7 @@ function totalPop(citizens: GameState["citizens"] | undefined): number {
 // Simplified server-side tick for offline progress.
 // Handles resource production, season advancement, building upgrades, and crafting.
 // The client tick is more detailed — this covers what matters while offline.
-export function applyServerTick(state: GameState, elapsedMs: number): GameState {
+function applyServerTick(state: GameState, elapsedMs: number): GameState {
   const s = structuredClone(state);
   // Always use speed 1 on the server — gameSpeed is a dev-only feature
   const elapsedHours = elapsedMs / 1000 / 3600;
@@ -225,7 +225,7 @@ async function deliverArrivedCaravans() {
   }
 }
 
-export async function tickAllSettlements() {
+async function tickAllSettlements() {
   // Resolve any coop expeditions whose duration has elapsed
   await resolveActiveCoops();
 
@@ -272,7 +272,7 @@ export function startTickLoop() {
   }, TICK_INTERVAL_MS);
 }
 
-export function stopTickLoop() {
+function stopTickLoop() {
   if (tickInterval) {
     clearInterval(tickInterval);
     tickInterval = null;

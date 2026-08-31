@@ -42,7 +42,7 @@ const CATEGORY_GRADUATION: Partial<Record<FlavorCategory, QuestTrigger[]>> = {
   defense: [{ type: "th_level", level: 5 }],
 };
 
-export const OVERVIEW_FLAVORS: OverviewFlavor[] = [
+const OVERVIEW_FLAVORS: OverviewFlavor[] = [
   // ── Settlement (teaching track — graduates at Town) ──
   {
     id: "fresh_start",
@@ -221,4 +221,4 @@ export function getCurrentOverviewFlavors(state: GameState): OverviewFlavor[] {
 
 /** Display order for the fixed teaching/story tracks. Settlement first (the
  *  primary loop); chain threads append after these. */
-export const FLAVOR_CATEGORY_ORDER: FlavorCategory[] = ["settlement", "adventurers", "defense"];
+const FLAVOR_CATEGORY_ORDER: FlavorCategory[] = ["settlement", "adventurers", "defense"];

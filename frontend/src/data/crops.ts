@@ -51,10 +51,10 @@ export function getCrop(id: CropId): CropDefinition {
 }
 
 // Field building costs and timing
-export const FIELD_BASE_COST = { wood: 40, stone: 10 };
-export const FIELD_COST_MULTIPLIER = 1.4;
-export const FIELD_BASE_BUILD_TIME = 5; // seconds
-export const FIELD_BUILD_TIME_MULTIPLIER = 1.5;
+const FIELD_BASE_COST = { wood: 40, stone: 10 };
+const FIELD_COST_MULTIPLIER = 1.4;
+const FIELD_BASE_BUILD_TIME = 5; // seconds
+const FIELD_BUILD_TIME_MULTIPLIER = 1.5;
 
 export const MAX_FIELDS = 3;
 export const FIELD_MAX_LEVEL = 10;
@@ -82,7 +82,7 @@ export function getSeasonYield(crop: CropDefinition, level: number): number {
 // hayricks (then fall back to larder grain/veggies, then starve). Fiber crops
 // (flax) leave no fodder-hay. Tune HAY_PER_GRAIN by playtest — the larder backs
 // it up, so this is a buffer, not the whole winter supply. See docs/IDEAS.md (Animals).
-export const HAY_PER_GRAIN = 0.35;
+const HAY_PER_GRAIN = 0.35;
 
 /** Hay produced by a harvest of `grainAmount` (0 for non-food/fiber crops). */
 export function getHayFromHarvest(crop: CropDefinition, grainAmount: number): number {
@@ -96,10 +96,10 @@ export function getHayFromHarvest(crop: CropDefinition, grainAmount: number): nu
 // Tuning knobs — if changed, update getSoilStatus() text to match.
 
 /** Yield multiplier by consecutive-same-crop streak (0 = fresh, 3+ = exhausted). */
-export const SOIL_YIELD_MULTIPLIERS = [1.0, 0.7, 0.45, 0.25];
+const SOIL_YIELD_MULTIPLIERS = [1.0, 0.7, 0.45, 0.25];
 
 /** Yield bonus applied when a field was left idle through a growing season. */
-export const REST_BONUS_MULTIPLIER = 1.15;
+const REST_BONUS_MULTIPLIER = 1.15;
 
 /** Combined yield multiplier: streak penalty × rest bonus (if any). */
 export function getSoilMultiplier(sameCropStreak: number, restBonus: boolean): number {

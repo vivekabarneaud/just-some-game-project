@@ -197,6 +197,6 @@ export function getEnchantment(id: string): EnchantmentDefinition | undefined {
   return ENCHANTMENTS.find((e) => e.id === id);
 }
 
-export function getEnchantmentsForSlot(slot: ItemSlot): EnchantmentDefinition[] {
+function getEnchantmentsForSlot(slot: ItemSlot): EnchantmentDefinition[] {
   return ENCHANTMENTS.filter((e) => e.validSlots.includes(slot));
 }

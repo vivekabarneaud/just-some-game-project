@@ -102,8 +102,8 @@ export const TRAVELING_MERCHANTS: TravelingMerchant[] = [
 // and sets up a stall that lingers until the next morning (the daily 3AM-UTC
 // boundary — the same clock the mission board refreshes on). He returns every
 // 2-3 real days; a better tavern (reputation) brings him sooner.
-export const MERCHANT_BASE_INTERVAL_DAYS = 3;   // days between visits at low reputation
-export const MERCHANT_REP_SPEEDUP_DAYS = 1;     // down to 2 days at full reputation
+const MERCHANT_BASE_INTERVAL_DAYS = 3;   // days between visits at low reputation
+const MERCHANT_REP_SPEEDUP_DAYS = 1;     // down to 2 days at full reputation
 
 /** Days between return visits, shortened by tavern reputation. */
 export function merchantIntervalDays(reputation: number): number {

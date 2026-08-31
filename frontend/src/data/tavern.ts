@@ -93,7 +93,7 @@ export function menuCapacity(level: number): number {
 }
 
 /** Gold per occupied room per game-day, before the pricing margin (placeholder). */
-export const TAVERN_GOLD_PER_ROOM_PER_DAY = 5;
+const TAVERN_GOLD_PER_ROOM_PER_DAY = 5;
 
 /** How fast reputation eases toward the current service quality (points/game-hour). */
 export const REPUTATION_DRIFT_PER_HOUR = 1.5;
@@ -129,7 +129,7 @@ const clamp01 = (x: number) => Math.max(0, Math.min(1, x));
 
 /** Reputation raises the ceiling on occupancy: at 0 rep only half the beds ever
  *  fill; a renowned tavern (100) can fill them all. */
-export function reputationCeiling(reputation: number): number {
+function reputationCeiling(reputation: number): number {
   return 0.5 + (Math.max(0, Math.min(100, reputation)) / 100) * 0.5; // 0.5 .. 1.0
 }
 

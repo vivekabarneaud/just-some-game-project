@@ -11,7 +11,7 @@ import { isChapterComplete } from "./quests";
 // Each event fires at most once per save (tracked via `firedEvents`).
 // Banners queue into `pendingEvents` and are dismissed by the player.
 
-export interface EventUnlocks {
+interface EventUnlocks {
   /** Activate a storyline at a specific chapter (sets chapters[storyline].current). */
   activateStoryline?: { storyline: StorylineId; chapter: number };
   /** Chronicle entry to fire on event acknowledgement. */
@@ -103,7 +103,7 @@ const evalTrigger = (trigger: QuestTrigger, state: GameState): boolean => {
   }
 };
 
-export function isEventTriggered(
+function isEventTriggered(
   event: NarrativeEvent,
   state: GameState,
 ): boolean {
@@ -128,7 +128,7 @@ export function getReadyEvents(state: GameState): NarrativeEvent[] {
 const settlementChapterDone = (chapter: number) =>
   ({ type: "custom", check: (s: GameState) => isChapterComplete(s, "settlement", chapter) }) as const;
 
-export const NARRATIVE_EVENTS: NarrativeEvent[] = [
+const NARRATIVE_EVENTS: NarrativeEvent[] = [
   // ── Settlement Ch.1 → Ch.2: hunters arrive ────────────────────
   // The whole Thornwood family materializes the moment they walk in — the three
   // siblings join the ADVENTURER roster (counted once, via the roster, never

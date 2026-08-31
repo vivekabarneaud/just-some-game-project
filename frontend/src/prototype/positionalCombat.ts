@@ -4,7 +4,7 @@
 // Runs headless; a harness dumps traces. Throwaway/iterate freely.
 
 export type Side = "ally" | "enemy";
-export type AiTier = "feral" | "tactical" | "cunning";
+type AiTier = "feral" | "tactical" | "cunning";
 export type Role = "melee" | "ranged";
 
 export interface PUnit {

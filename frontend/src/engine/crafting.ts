@@ -109,7 +109,7 @@ export interface ActiveCraft {
  *  ingredients in a few minutes. At 4×, porridge (4 per 600s active) settles to
  *  4 per 2400s = 1 porridge per 10 game-minutes. Bump this to make passive
  *  cooking even gentler. */
-export const PASSIVE_COOK_TIME_MULT = 6;
+const PASSIVE_COOK_TIME_MULT = 6;
 
 /** Per-batch timer for a recipe cooked passively (autoCook), vs its snappy
  *  active craftTime. Kitchen-staple pots only ever use this path. */

@@ -47,13 +47,13 @@ export type QuestTrigger =
 
 // ─── Quest definition ────────────────────────────────────────────
 
-export interface QuestReward {
+interface QuestReward {
   resource: "gold" | "wood" | "stone" | "wheat" | "fish" | "wool" | "astralShards";
   amount: number;
   label: string;
 }
 
-export interface QuestPrerequisite {
+interface QuestPrerequisite {
   /** True when this prerequisite is satisfied. */
   met: (state: GameState) => boolean;
   /** Short label shown on the locked card, e.g. "an Adventurer's Guild". */
@@ -225,7 +225,7 @@ export function isQuestClaimable(
 
 
 /** All quests in a specific chapter of a storyline. */
-export function getQuestsInChapter(
+function getQuestsInChapter(
   storyline: StorylineId,
   chapter: number,
 ): QuestDefinition[] {

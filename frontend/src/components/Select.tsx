@@ -1,7 +1,7 @@
 import { createSignal, For, Show, onCleanup } from "solid-js";
 import { Portal } from "solid-js/web";
 
-export interface SelectOption {
+interface SelectOption {
   value: string;
   label: string;
 }

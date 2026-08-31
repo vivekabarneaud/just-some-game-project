@@ -17,7 +17,7 @@
  *  the runner's halt sentinel) until their condition holds; the rest are
  *  idempotent effects. Keep this surface small — add a primitive only when a
  *  real chain needs it. */
-export interface StoryChainApi {
+interface StoryChainApi {
   /** Suspend until a unique/side-chain mission has been completed. */
   awaitMissionDone(missionId: string): void;
   /** Suspend until a mission has been completed at least `count` times (uses the

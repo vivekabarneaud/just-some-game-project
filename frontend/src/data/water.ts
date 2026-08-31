@@ -16,7 +16,7 @@ export const CISTERN_ID = "cistern";
 
 /** A little water is held even without a cistern (a few barrels) — the stream
  *  keeps it topped up, so a new settlement is never dry. */
-export const BASE_WATER_CAP = 40;
+const BASE_WATER_CAP = 40;
 
 // ── Passive sources (they FILL the reserve) ─────────────────────────────────
 
@@ -50,7 +50,7 @@ export function wellFactor(band: ClimateBand): number {
 }
 
 /** Cistern storage capacity added per level. */
-export function getCisternCap(level: number): number {
+function getCisternCap(level: number): number {
   return level <= 0 ? 0 : level * 150;
 }
 /** Rain a cistern catches, water/hour, before the year's climate rain factor. */
@@ -71,16 +71,16 @@ export function getWaterCap(cisternLevel: number): number {
 }
 
 // ── Consumption (per hour) — scales with what's actually alive/growing ───────
-export const ANIMAL_WATER_PER_HEAD = 1;
-export const ORCHARD_WATER_PER_TREE = 2;   // per bearing tree/vine
-export const FIELD_WATER_PER_LEVEL = 4;    // a field is acreage — thirsty
-export const CITIZEN_WATER_PER_HEAD = 1;
+const ANIMAL_WATER_PER_HEAD = 1;
+const ORCHARD_WATER_PER_TREE = 2;   // per bearing tree/vine
+const FIELD_WATER_PER_LEVEL = 4;    // a field is acreage — thirsty
+const CITIZEN_WATER_PER_HEAD = 1;
 const GARDEN_WATER_PER_PLANT: Record<string, number> = {
   lavender: 0.5,     // likes it dry
   squash: 1.2,       // thirsty
   strawberries: 1.2,
 };
-export function gardenWaterPerPlant(veggieId: string): number {
+function gardenWaterPerPlant(veggieId: string): number {
   return GARDEN_WATER_PER_PLANT[veggieId] ?? 1;
 }
 export function gardenWaterDemand(veggieId: string, plants: number): number {
@@ -117,7 +117,7 @@ export function cropHeatFactor(band: ClimateBand): number {
 
 /** How much of the reserve's capacity the open sluice spills per hour — enough
  *  to run a full cistern low over most of a game-day. */
-export const SLUICE_DRAIN_FRACTION = 0.12;
+const SLUICE_DRAIN_FRACTION = 0.12;
 export function getSluiceDrain(cisternLevel: number): number {
   return Math.round(getWaterCap(cisternLevel) * SLUICE_DRAIN_FRACTION);
 }

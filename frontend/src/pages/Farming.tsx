@@ -1636,7 +1636,7 @@ function useFarmingScrollToHash() {
  *
  *  "Active" = first quest whose rewards are unclaimed AND whose condition is
  *  still unmet. Once the player satisfies the condition the highlight fades. */
-export function getActiveFarmingQuestAnchor(state: GameState): string | null {
+function getActiveFarmingQuestAnchor(state: GameState): string | null {
   // Walk the new quest definitions, picking the first active (triggered + not
   // yet claimed) farming quest whose condition isn't satisfied yet.
   for (const q of QUEST_DEFINITIONS) {

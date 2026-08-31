@@ -25,7 +25,7 @@ export interface BuildingCost {
 
 export type FoodType = "grain" | "meat" | "berries" | "fish" | "fiber";
 
-export interface BuildingLevel {
+interface BuildingLevel {
   level: number;
   cost: BuildingCost;
   buildTime: number; // seconds
@@ -49,7 +49,7 @@ export type SettlementTier = "camp" | "village" | "town" | "city";
  *  natural narrative is "the quest tells you to build it" but tier/chapter
  *  gating isn't precise enough — e.g. a quest that fires at TH lvl 2 while
  *  the building would otherwise unlock at a later chapter. */
-export type BuildingUnlockGate =
+type BuildingUnlockGate =
   | {
       storyline: "settlement" | "guild" | "story" | "defense";
       chapter: number;
@@ -97,7 +97,7 @@ export interface PlayerBuilding {
 
 /** A repair costs (and takes) 30% of the current level's build — it's mending,
  *  not rebuilding. Same fraction on both axes so the rule reads cleanly. */
-export const REPAIR_FRACTION = 0.3;
+const REPAIR_FRACTION = 0.3;
 export function getRepairCost(building: BuildingDefinition, level: number): BuildingCost {
   if (level <= 0) return { wood: 0, stone: 0 };
   const levelDef = building.levels[level - 1];
@@ -139,7 +139,7 @@ export interface TierPrerequisite {
 // cap (`getEffectiveMaxLevel = min(TH, maxLevel)`). To upgrade TH from
 // N → N+1, the player can have at most Houses L_N. So prereqs are pegged
 // at `target TH − 1`.
-export const TIER_UPGRADE_PREREQUISITES: Record<number, TierPrerequisite[]> = {
+const TIER_UPGRADE_PREREQUISITES: Record<number, TierPrerequisite[]> = {
   // TH lvl 3 = village: need houses lvl 2 + lumber mill lvl 1.
   // (Was woodworker; moved to the Lumber Mill so the Woodworker can be locked
   // behind Hester's arrival without a circular dependency — raw lumber + houses
@@ -261,7 +261,7 @@ export function getUnlockReasons(
   return getUnlockConditions(building, state).filter((c) => !c.met).map((c) => c.label);
 }
 
-export interface UnlockCondition {
+interface UnlockCondition {
   label: string;
   met: boolean;
 }
@@ -1051,7 +1051,7 @@ export function getBuildingImageById(id: string, level: number): string | undefi
 // never nerfs — it opens capacity you realize by staffing. See
 // getBuildingStaffing() in gameState. Only buildings in BUILDING_STAFF are
 // affected; everything else stays at 100% untouched.
-export const STAFF_CAPACITY_BY_LEVEL = [1, 1, 2, 3, 5, 10] as const;
+const STAFF_CAPACITY_BY_LEVEL = [1, 1, 2, 3, 5, 10] as const;
 export function staffCapacity(level: number): number {
   if (level <= 0) return 0;
   return STAFF_CAPACITY_BY_LEVEL[Math.min(level, STAFF_CAPACITY_BY_LEVEL.length) - 1];
@@ -1105,7 +1105,7 @@ export function kennelDogCapacity(kennelLevel: number): number {
  *  short summary + an "Open ..." link to it rather than duplicating the page
  *  (dense recipe/queue UIs don't belong in a modal). Everything else is managed
  *  entirely from the modal. */
-export const BUILDING_WORKSPACE: Record<string, { route: string; label: string }> = {
+const BUILDING_WORKSPACE: Record<string, { route: string; label: string }> = {
   alchemy_lab:       { route: "/alchemy",        label: "Open the alchemy lab" },
   blacksmith:        { route: "/blacksmith",     label: "Open the smithy" },
   tailoring_shop:    { route: "/tailoring",      label: "Open the tailor's shop" },

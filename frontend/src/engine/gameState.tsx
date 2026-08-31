@@ -263,6 +263,7 @@ import { type IncomingRaid,
   getRaid,
   calcDefense,
   calcWarningTime,
+  scaleRaidStrength,
   spawnRaid,
   getRaidChance,
   RAID_POOL,
@@ -475,6 +476,26 @@ export function resolveRaidAgainstState(s: GameState, raidId: string, template: 
   return { sim, raidName: template.name ?? raidId, stolen, extraCitizensLost, damagedBuildings, woundedCaptains };
 }
 
+/** Highest undamaged watchtower level. Narratively the tallest tower has the
+ *  longest line of sight, so it is the one that sets the warning time. */
+function lookoutLevel(s: GameState): number {
+  return (s.watchtowers ?? []).filter((t) => !t.damaged).reduce((max, t) => Math.max(max, t.level), 0);
+}
+
+/** Queue an incoming raid. Warning time comes from the lookout unless
+ *  `remainingSeconds` overrides it (a scripted story beat, or the dev trigger).
+ *  Three sites used to inline this, two of them with their own copy of the
+ *  lookout scan. Emitting the "raid approaching" event stays with the caller:
+ *  the random raid announces itself, the scripted one lets the story do it. */
+function queueIncomingRaid(s: GameState, raid: RaidTemplate, strength: number, remainingSeconds?: number): void {
+  s.incomingRaids.push({
+    raidId: raid.id,
+    remaining: remainingSeconds ?? calcWarningTime(raid.baseWarning, lookoutLevel(s)) * 3600,
+    strength,
+    warned: true,
+  });
+}
+
 export type GameEventType =
   | "citizen_born" | "citizen_died" | "citizen_left"
   | "building_completed" | "building_damaged" | "building_repaired"
@@ -513,7 +534,7 @@ export { CRAFTING_RECIPES, passiveCookTime, isRecipeDiscovered, getBuildingTool,
 
 /** How many dishes a kitchen can keep-cooking at once: one per level (naturally
  *  capped by the number of food recipes it has unlocked). */
-export function cookSlotsForLevel(level: number): number {
+function cookSlotsForLevel(level: number): number {
   return Math.max(1, level);
 }
 export { getBuildingToolsForBuilding, BUILDING_TOOLS } from "./crafting";
@@ -643,7 +664,7 @@ export interface PlayerWall {
  * Combat is resolved at the squad level (one CombatUnit per garrison with HP
  * pooled across the headcount) — see raidCombat.ts when Phase 2 lands.
  */
-export interface Garrison {
+interface Garrison {
   /** Current headcount stationed here. Capped by the building level. */
   count: number;
   /** Collective level of every unit in this garrison. New recruits join at this
@@ -684,7 +705,7 @@ export const WALL_BASE_HP = 100;
 /** Mage Tower: single instance, lives at the Inner ring (Town tier). Gates
  *  enchanting recipes by level. Doesn't fight in raids — purely a research
  *  building stationed inside the keep. */
-export interface PlayerMageTower {
+interface PlayerMageTower {
   level: number;       // 0 = unbuilt
   damaged: boolean;
   upgrading: boolean;
@@ -981,7 +1002,7 @@ export interface GameState {
   bioFragmentsSeen: string[];
 }
 
-export interface FoodSource {
+interface FoodSource {
   type: FoodType | string;
   label: string;
   icon: string;
@@ -992,7 +1013,7 @@ export interface FoodSource {
   wild?: boolean;
 }
 
-export interface TavernDish {
+interface TavernDish {
   id: string;
   name: string;
   icon: string;
@@ -1010,7 +1031,7 @@ export interface TavernDish {
   cooked?: boolean;
 }
 
-export interface GameActions {
+interface GameActions {
   upgradeBuilding: (buildingId: string) => boolean;
   panicBuildBuilding: (buildingId: string) => boolean;
   canAfford: (cost: BuildingCost) => boolean;
@@ -1875,19 +1896,7 @@ function applyEventEvaluation(s: GameState): void {
       if (event.unlocks?.raidSpawn) {
         const raid = RAID_POOL.find((r) => r.id === event.unlocks!.raidSpawn!.raidId);
         if (raid) {
-          const yearBonus = 1 + (s.year - 1) * 0.20;
-          const strength = Math.floor(raid.strength * yearBonus);
-          const wtLevel = s.watchtowers
-            .filter((t) => !t.damaged)
-            .reduce((max, t) => Math.max(max, t.level), 0);
-          const warningHours = calcWarningTime(raid.baseWarning, wtLevel);
-          const scriptedWarning = event.unlocks!.raidSpawn!.warningSeconds;
-          s.incomingRaids.push({
-            raidId: raid.id,
-            remaining: scriptedWarning ?? warningHours * 3600,
-            strength,
-            warned: true,
-          });
+          queueIncomingRaid(s, raid, scaleRaidStrength(raid.strength, s.year), event.unlocks!.raidSpawn!.warningSeconds);
           // Reset the probability timer so a random raid doesn't pile up on
           // this scripted one within the same window.
           s.hoursSinceLastRaid = 0;
@@ -1913,7 +1922,7 @@ export function isForagerBlooming(state: GameState): boolean {
 
 // ─── Derived calculations ────────────────────────────────────────
 
-export interface BuildingStaffMember {
+interface BuildingStaffMember {
   id?: string;
   name: string;
   kind: "founder" | "adventurer";
@@ -2266,7 +2275,7 @@ export interface GatheredFood {
    *  fowl here. Empty for the forager/fishing. Reusable for future splits. */
   extras: GatheredExtra[];
 }
-export interface GatheredExtra { type: FoodItemType; label: string; icon: string; rate: number; }
+interface GatheredExtra { type: FoodItemType; label: string; icon: string; rate: number; }
 
 /** How the Hunting Camp's steady catch splits across venison / rabbit / wild fowl,
  *  per season (each column ~sums to 1, so total output is unchanged — variety, not
@@ -3018,10 +3027,10 @@ function calcMaxPopulation(buildings: PlayerBuilding[]): number {
 /** Adventurers eat less than a townsfolk — they're hardy and forage/provision on
  *  the side. Keeps the early game (when the 3 Thornwood adventurers are a big
  *  share of the mouths) from tipping into a long deficit that blocks arrivals. */
-export const ADVENTURER_FOOD_MULTIPLIER = 0.5;
+const ADVENTURER_FOOD_MULTIPLIER = 0.5;
 /** Consumption multiplier while the founding-winter rationing grace is active —
  *  a settlement founded in winter tightens its belts through that first winter. */
-export const FOUNDING_WINTER_RATION = 0.7;
+const FOUNDING_WINTER_RATION = 0.7;
 
 // ── Famine mechanics ──────────────────────────────────────────────
 // When the larder runs low the settlement tightens its belts (eats less, so a
@@ -3030,16 +3039,16 @@ export const FOUNDING_WINTER_RATION = 0.7;
 // always possible and a famine never becomes an inescapable death spiral.
 /** Rations tighten to this fraction once the larder holds under
  *  FAMINE_RATION_THRESHOLD_HOURS of food — buys recovery time before it hits 0. */
-export const FAMINE_RATION = 0.6;
-export const FAMINE_RATION_THRESHOLD_HOURS = 6;
+const FAMINE_RATION = 0.6;
+const FAMINE_RATION_THRESHOLD_HOURS = 6;
 /** Larder is in deficit AND under this many game-hours from empty → the Wild
  *  Boar Hunt is forced onto the board (meat on four legs). Tunable; a touch
  *  tighter than the famine-ration threshold so it reads as the emergency. */
-export const WILD_BOAR_HUNT_FOOD_HOURS = 3;
+const WILD_BOAR_HUNT_FOOD_HOURS = 3;
 /** Water reserve running out within this many hours (and in deficit) surfaces the
  *  North Stream haul — a touch more lead time than the food hunt, since a dry
  *  spell wilts crops gradually rather than starving folk outright. */
-export const WATER_FETCH_HOURS = 8;
+const WATER_FETCH_HOURS = 8;
 /** Forced scarcity missions that run at most ONCE per board cycle: after one
  *  resolves (success or failure) it won't be re-forced until the board
  *  refreshes — the daily 3AM reroll or a shard reroll (the cadence from
@@ -3055,8 +3064,8 @@ export const SCARCITY_ONCE_PER_BOARD = new Set([
 ]);
 /** Hours of continuous starvation for the work penalty to reach its floor, and
  *  the floor itself (10% = a 90% cut to wood/stone/gold production). */
-export const FAMINE_WORK_RAMP_HOURS = 12;
-export const FAMINE_WORK_FLOOR = 0.1;
+const FAMINE_WORK_RAMP_HOURS = 12;
+const FAMINE_WORK_FLOOR = 0.1;
 
 export function calcFoodConsumption(citizens: CitizenCounts, adventurerMouths = 0, rationMult = 1): number {
   // Per-category multipliers: toddlers 0.5×, children 0.75×, adults 1.0×, elderly 0.75×.
@@ -3456,7 +3465,7 @@ export function useGame() {
  *  refresh (which has nothing left to catch up) still shows it, and surfaced as a
  *  dismissible card on the Overview. Session-scoped by design: it's a return
  *  greeting, not save data. */
-export interface AwayReport {
+interface AwayReport {
   hoursAway: number;
   seasonBefore: Season;
   seasonAfter: Season;
@@ -5818,18 +5827,7 @@ export function GameProvider(props: ParentProps) {
           s.hoursSinceLastRaid = 0; // reset timer
           const spawn = spawnRaid(tier, s.year);
           if (spawn) {
-            // Use the highest tower level across rings — narratively, the
-            // tallest tower has the longest line of sight.
-            const wtLevel = s.watchtowers
-              .filter((t) => !t.damaged)
-              .reduce((max, t) => Math.max(max, t.level), 0);
-            const warningHours = calcWarningTime(spawn.raid.baseWarning, wtLevel);
-            s.incomingRaids.push({
-              raidId: spawn.raid.id,
-              remaining: warningHours * 3600,
-              strength: spawn.strength,
-              warned: true,
-            });
+            queueIncomingRaid(s, spawn.raid, spawn.strength);
             pushEvent(s, "raid_incoming", "⚠️", `${spawn.raid.name} approaching!`);
           }
         }
@@ -8081,12 +8079,7 @@ export function GameProvider(props: ParentProps) {
       const spawn = spawnRaid(tier, state.year);
       if (!spawn) return false;
       setState(produce((s) => {
-        s.incomingRaids.push({
-          raidId: spawn.raid.id,
-          remaining: 60, // 1 minute warning for testing
-          strength: spawn.strength,
-          warned: true,
-        });
+        queueIncomingRaid(s, spawn.raid, spawn.strength, 60); // 1 min, for testing
       }));
       return true;
     },
