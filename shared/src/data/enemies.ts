@@ -611,30 +611,6 @@ export const ENEMIES: EnemyDefinition[] = [
   // ── Tier 3 — Dangerous foes ───────────────────────────────────
   // Require level 6-10 with decent gear. Party composition matters.
   {
-    id: "gharkal_warlord",
-    name: "Ghar'kal Warlord",
-    icon: "🔱",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/orc_warlord.png",
-    description: "Commands the displaced southern clans through strength alone. Kill the warlord and the warband scatters.",
-    tier: 3,
-    stats: { str: 26, dex: 8, int: 3, vit: 28, wis: 5 },
-    tags: ["humanoid"],
-    boss: true,
-    abilities: [
-      { id: "warlord_rally", name: "Rally the Clans", icon: "📯", cooldown: 4, trigger: "always",
-        effect: { type: "buff_allies", stat: "str", pct: 30, rounds: 2 } },
-      { id: "warlord_cleave", name: "Devastating Cleave", icon: "⚔️", cooldown: 3, trigger: "always",
-        effect: { type: "damage_mult", mult: 2.0, targets: 2 } },
-    ],
-    loot: [
-      { type: "resource", resource: "gold", chance: 0.9, min: 30, max: 80 },
-      { type: "resource", resource: "orc_steel", chance: 0.5, min: 1, max: 3 },
-      { type: "resource", resource: "torn_banner", chance: 0.3, min: 1, max: 1 },
-      { type: "item", itemId: "iron_armor", chance: 0.08 },
-    ],
-    aiTier: "cunning"
-  },
-  {
     id: "dark_mage",
     name: "Veil-Touched Scholar",
     icon: "🧙",
@@ -757,78 +733,9 @@ export const ENEMIES: EnemyDefinition[] = [
   },
 
   // ── Dragon threats (spread across tiers) ───────────────────────
-  {
-    id: "dragon_hatchling",
-    name: "Ley-Woken Hatchling",
-    icon: "🐉",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/dragon_hatchling.png",
-    description: "A few months old. Already singes stone. The Silvaneth warned us, the dragons are waking with the ley lines.",
-    tier: 3,
-    stats: { str: 18, dex: 10, int: 12, vit: 22, wis: 6 },
-    tags: ["dragon", "magical"],
-    abilities: [
-      { id: "fire_breath_small", name: "Fire Breath", icon: "🔥", cooldown: 3, trigger: "always",
-        effect: { type: "aoe_damage", pct: 35, magical: true } },
-    ],
-    loot: [
-      { type: "resource", resource: "wyrmshell_plate", chance: 0.25, min: 1, max: 2 },
-      { type: "resource", resource: "dragonfire_ash", chance: 0.4, min: 1, max: 3 },
-    ],
-    aiTier: "feral"
-  },
 
   // ── Tier 4 — Elite threats ────────────────────────────────────
   // Require level 10-15 with good gear. Full party required.
-  {
-    id: "feral_drake",
-    name: "Hollow Drake",
-    icon: "🐉",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/feral_drake.png",
-    description: "An adolescent dragon that survived alone in the Hollow Wastes. Vicious, fast, and smart enough to ambush. It has never known kindness.",
-    tier: 4,
-    stats: { str: 26, dex: 16, int: 18, vit: 32, wis: 12 },
-    tags: ["dragon", "magical"],
-    boss: true,
-    abilities: [
-      { id: "drake_fire", name: "Inferno Breath", icon: "🔥", cooldown: 3, trigger: "always",
-        effect: { type: "aoe_damage", pct: 50, magical: true } },
-      { id: "drake_roar", name: "Terrifying Roar", icon: "😱", cooldown: 4, trigger: "always",
-        effect: { type: "debuff_target", stat: "str", pct: 25, rounds: 2 } },
-    ],
-    loot: [
-      { type: "resource", resource: "wyrmshell_plate", chance: 0.5, min: 2, max: 4 },
-      { type: "resource", resource: "dragon_blood", chance: 0.3, min: 1, max: 2 },
-      { type: "resource", resource: "dragon_fang", chance: 0.2, min: 1, max: 1 },
-    ],
-  },
-  {
-    id: "lich_apprentice",
-    name: "Half-Lich",
-    icon: "☠️",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/lich_apprentice.png",
-    description: "A Hauts-Cieux scholar who traded his life for power. Not yet a true lich, but Netheron's whisper grows louder in him.",
-    tier: 4,
-    stats: { str: 8, dex: 8, int: 30, vit: 22, wis: 20 },
-    tags: ["undead", "magical"],
-    boss: true,
-    abilities: [
-      { id: "raise_dead", name: "Raise Dead", icon: "💀", cooldown: 5, trigger: "ally_dead",
-        effect: { type: "revive_ally", hpPct: 40 } },
-      { id: "death_bolt", name: "Death Bolt", icon: "⚡", cooldown: 2, trigger: "always",
-        effect: { type: "damage_mult", mult: 2.0, targets: 1 } },
-      { id: "summon_skeletons", name: "Summon Skeletons", icon: "💀", cooldown: 6, trigger: "always",
-        effect: { type: "summon", enemyId: "skeleton", count: 2 } },
-    ],
-    loot: [
-      { type: "resource", resource: "lichglass", chance: 0.2, min: 1, max: 1 },
-      { type: "resource", resource: "shimmer", chance: 0.3, min: 1, max: 2 },
-      { type: "resource", resource: "barrow_ash", chance: 0.5, min: 2, max: 4 },
-      { type: "resource", resource: "nightbloom", chance: 0.12, min: 1, max: 1 },
-      { type: "resource", resource: "moonpetal", chance: 0.05, min: 1, max: 1 },
-      { type: "item", itemId: "enchanted_staff", chance: 0.06 },
-    ],
-    aiTier: "cunning"
-  },
 
   // ── Tier 5 — Legendary ────────────────────────────────────────
   // Require level 18+ fully geared elite party. Expect casualties.
@@ -936,28 +843,6 @@ export const ENEMIES: EnemyDefinition[] = [
   },
 
   // ── Tier 2 — New Organized Threats ──────────────────────────────
-  {
-    id: "goblin_shaman",
-    name: "Goblin Shaman",
-    icon: "🧙",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/goblin_shaman.png",
-    description: "Older, smarter, and meaner than the rank and file. Paints hexes on bones and screams at the sky until something listens.",
-    tier: 2,
-    stats: { str: 6, dex: 8, int: 16, vit: 12, wis: 10 },
-    tags: ["humanoid", "magical"],
-    combatRole: "back",
-    abilities: [
-      { id: "hex_bolt", name: "Hex Bolt", icon: "🔮", cooldown: 1, trigger: "always", effect: { type: "damage_mult", mult: 1.3, targets: 1 } },
-      { id: "heal_ally_shaman", name: "Mend Flesh", icon: "💚", cooldown: 3, trigger: "any_ally_below_30", effect: { type: "heal_ally", pct: 25 } },
-    ],
-    loot: [
-      { type: "resource", resource: "hex_fetish", chance: 0.25, min: 1, max: 1 },
-      { type: "resource", resource: "crude_ruby", chance: 0.1, min: 1, max: 1 },
-      { type: "resource", resource: "gold", chance: 0.3, min: 3, max: 8 },
-      { type: "resource", resource: "chamomile", chance: 0.25, min: 1, max: 2 },
-      { type: "resource", resource: "mugwort", chance: 0.2, min: 1, max: 1 },
-    ],
-  },
   {
     id: "ghoul",
     name: "Ghoul",

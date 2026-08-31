@@ -128,3 +128,29 @@ was wrong; the idea underneath wasn't.
 - **The Shaman's Hex** — from the deleted `goblin_shaman_camp`. *Livestock sickening, crops wilting in one specific field, and the trail leads to whoever is doing it.* A good mystery structure that survives losing the goblins entirely — swap the culprit for something Act-1-appropriate and the shape still works.
 - **The Burning Crypt** — from the deleted `burnt_crypt`. *A crypt has caught fire from the inside; burnt skeletons walk out at night trailing flames.* Too early and far too close to home for Act 1, but a real image, and Wastes-grade content for later.
 
+## The raid roster (cut back 2026-08-31)
+
+Applying the home-is-safe rule to raids: **supernatural things should not reach
+the hearth.** A skeleton horde besieging your settlement is exactly the thing the
+rule forbids, so the undead raids went, along with the ones no Act-1 settlement
+will ever see.
+
+**Removed:** `skeleton_horde`, `necromancer` (both undead at the gate),
+`dragon_attack`, `orc_warband` (city-tier siege scale), and `goblin_scouts` —
+that last one because goblins are deferred out of Act 1 by your own note
+("Act 1 stays beasts + dead"), and village tier *is* reachable.
+
+**Kept as the town-tier ceiling:** `troll_attack` and `mercenary_company`. Neither
+is supernatural — a big corporeal beast, and human mercenaries with siege gear —
+so the ladder still has somewhere to go if a settlement outgrows Act 1, instead
+of a town facing nothing but camp-tier bandits.
+
+**Enemies that went with them:** dragon_hatchling, feral_drake, gharkal_warlord,
+goblin_shaman, lich_apprentice.
+
+**One inconsistency left on purpose:** `petty_thieves` (camp tier) still fields a
+`goblin_runt` alongside the bandit thug. By the strict reading of "Act 1 stays
+beasts + dead" that goblin shouldn't be there either — but a runt pinching
+turnips is a nuisance rather than a fantasy escalation, so it's an encounter
+tweak to make deliberately, not cleanup.
+
