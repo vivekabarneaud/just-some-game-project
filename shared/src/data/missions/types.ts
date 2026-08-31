@@ -115,7 +115,7 @@ export interface MissionTemplate {
   urgent?: boolean;
   /** Where this mission pins on the world map (the mission board IS the map).
    *  Normalized 0..1 of the full map image, so the pin survives pan/zoom.
-   *  Authored by hand per mission (see docs/DESIGN_MISSION_MAP.md). A mission
+   *  Authored by hand per mission. A mission
    *  with no `map` falls to the "Close to home" list beside the map until a
    *  pin is authored. */
   map?: { x: number; y: number };
@@ -139,7 +139,6 @@ export interface MissionTemplate {
 
 /**
  * Mission-specific NPC ally configuration.
- *
  * The character itself (stats, name, portrait) lives in NPC_ALLIES. This block
  * is the *mission's* layer on top — what makes Niamh-as-ritualist-in-this-mission
  * different from Niamh-as-ranger-in-some-other-mission.
@@ -175,7 +174,6 @@ export interface MissionNpcAlly {
  * Per-mission combat-rule overrides. Discriminated union so we can extend
  * cleanly: each new modifier type is a new variant + one branch in the
  * applyMissionModifiers function.
- *
  * Currently shipping:
  *   - physical_pierces_tag: lets the party damage tagged enemies (e.g. ghosts)
  *     with physical attacks. Optionally gated to "while a specific NPC ally is
@@ -221,11 +219,11 @@ export interface AdventurerMissionSupplies {
   recovery?: string;  // item ID — bandage / mending potion
   /** When `potion` is a brewed free-form potion, its effect vector is resolved
    *  here at deploy time so the pure combat sim can apply it (buffs/heal at
-   *  combat start). See applySupplies + docs/DESIGN_APOTHECARY. */
+   *  combat start). See applySupplies + docs/IDEAS.md (Alchemy). */
   brewEffects?: import("../alchemy/types.js").Effect[];
   /** When `food` is a cooked free-form dish, its mission boons are resolved here
    *  at deploy (a well-fed HP bonus applied at combat start; loyalty on return).
-   *  See docs/DESIGN_KITCHEN.md + kitchen/mission.ts. */
+   *  See docs/IDEAS.md (Kitchen) + kitchen/mission.ts. */
   dishBoons?: import("../kitchen/mission.js").DishMissionBoons;
 }
 
@@ -359,7 +357,6 @@ export interface StoryMission extends MissionTemplate {
 
 // ─── Expeditions ────────────────────────────────────────────────
 // Multi-event missions. Events resolve sequentially as the mission ticks.
-// See docs/DESIGN_EXPEDITIONS.md for the full design.
 
 export interface CombatEvent {
   kind: "combat";
@@ -452,22 +449,18 @@ export function isExpedition(m: MissionTemplate | undefined | null): m is Expedi
 export type MissionPhase = "outbound" | "combat" | "homeward";
 
 /** Compute the current phase from a mission's elapsed time.
- *
  *  Regular missions:
  *  - outbound: 0% → 50% elapsed (team traveling to the encounter)
  *  - combat:   50% elapsed → either the player views the playback OR ~2 min cap
  *  - homeward: after combat resolves → 100% elapsed (team returning with loot)
- *
  *  Combat phase is engagement-gated: it persists past the midpoint until the
  *  player engages with the watch button. Capped at 2 game-minutes so an AFK
  *  player still sees the mission progress instead of stalling at "combat" forever.
- *
  *  Expeditions:
  *  - outbound: no events resolved yet, OR most recent event was non-combat
  *  - combat:   most recent resolved event is a combat event, AND the player
  *              hasn't viewed its playback yet (analogous to combatViewed gate)
  *  - homeward: all events resolved, traveling home with the loot
- *
  *  Returns null when the mission has no resolvable phase (no prerolled combat
  *  for regular missions, or no expedition log yet for an expedition). */
 export function getMissionPhase(am: ActiveMission): MissionPhase | null {

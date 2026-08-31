@@ -4,8 +4,6 @@
 // / adults / elderly. Combat eligibility, food consumption, and growth events
 // all derive from this shape; the topbar dropdown surfaces the breakdown for
 // the player.
-//
-// See docs/DESIGN_CITIZEN_CATEGORIES.md for the full design.
 
 export interface CitizenCounts {
   toddlers: number;  // 0-4 years, 0.5× food, no combat
@@ -91,7 +89,6 @@ export function effectiveFoodMouths(c: CitizenCounts): number {
 /** Apply a survival ratio (0..1) to every category, flooring to keep counts
  *  integer. Used for famine / freeze / unhappiness — losses spread across
  *  the whole population uniformly.
- *
  *  Optional `floor` clamps each category from below: useful with
  *  FOUNDER_FLOOR so the founding cast (Nell, Jory, Tomas, Edda, Corin)
  *  is never silently killed by ratio-based attrition. */

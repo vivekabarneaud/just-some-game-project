@@ -1,6 +1,6 @@
 // ─── Free-form alchemy — the brew engine ────────────────────────────────────
 // Pure + deterministic (no RNG → stable live preview): placements in, a summed,
-// capped BrewResult out. See docs/DESIGN_APOTHECARY.md. Wildcard "risk" is baked
+// capped BrewResult out. See docs/IDEAS.md (Alchemy) for what's still unbuilt. Wildcard "risk" is baked
 // into the ingredient data (a wildcard contributes its own downside), so the
 // engine stays deterministic while combos still surprise.
 

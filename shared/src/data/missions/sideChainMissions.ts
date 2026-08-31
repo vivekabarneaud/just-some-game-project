@@ -2,7 +2,6 @@ import type { MissionTemplate } from "./types.js";
 
 /**
  * Side-story chain missions.
- *
  * These are gated narrative beats (linked by `requires.missionDone` and story
  * gates), NOT generic tier content. They live here, out of the NOVICE/APPRENTICE/…
  * arrays, on purpose:
@@ -14,8 +13,7 @@ import type { MissionTemplate } from "./types.js";
  *     appearance filter (a ★★★ beat won't surface until the team is strong
  *     enough). So a chain can escalate freely without being mis-filed under a tier.
  *   - Every beat carries `sideChain { id, name }` → the teal frame + banner.
- *
- * Add new chains here. See docs/DESIGN_ACT1_SETTING.md + docs/DESIGN_SIDE_STORIES.md.
+ * Add new chains here. See docs/design/world/ACT1_SETTING.md.
  */
 export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
   // ── Quarry-spider gate (the "dig deeper, wake worse things" loop). These are
@@ -24,7 +22,7 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
   //    while quarry.level > quarrySpidersClearedLevel, and the quarry yields at the
   //    previous level until it's cleared. Short duration — it's right in the pit.
   //    XP-only (internal settlement defence; materials come off the spiders). Each
-  //    higher level fields worse spiders. See docs/DESIGN_SPIDERS.md. ──
+  //    higher level fields worse spiders. See docs/design/combat/SPIDERS.md. ──
   {
     id: "clear_diggings_2",
     map: { x: 0.492, y: 0.546 },
@@ -65,7 +63,7 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
   //    empty). The survival loop's answer to a food crisis: meat on four legs.
   //    Forced-only (sentinel requires); recurring (NOT unique) so it can return
   //    each time the food runs low. Rewards meat (a hunt legitimately does), plus
-  //    the wild boar's own loot. See docs/DESIGN_TIER1_GEAR.md §Boar missions. ──
+  //    the wild boar's own loot. See docs/docs/design/combat/NOVICE_ITEMS.md §Boar missions. ──
   {
     id: "wild_boar_hunt", // rewards boar specifically (its only source)
     map: { x: 0.458, y: 0.55 },

@@ -591,7 +591,7 @@ export interface DeathRecord {
 /** A lingering wound carried home from combat. Blocks passive HP regen while
  *  present; decays over game-time (see applyTicks). `remainingRounds` is the
  *  DoT's remaining duration at the moment combat ended — it future-proofs the
- *  banked "decay over real time" refinement (see DESIGN_RECOVERY_AND_RETREAT). */
+ *  banked "decay over real time" refinement (see docs/IDEAS.md (Adventurer recovery)). */
 export interface AdventurerCondition {
   /** "froth" is the rabid-boar bite-sickness: unlike the bleed/poison DoTs it
    *  does NOT fade on its own — it worsens (drains HP toward a KO floor) and

@@ -13,7 +13,7 @@ export const WEAPONS: ItemDefinition[] = [
     stats: {}, dmgMin: 4, dmgMax: 7, durationMod: 1, lootMod: 1,
     recipeId: "iron_sword", consumable: false,
   },
-  // ── Uncommon swords (rung 3) — mixed sources; see DESIGN_NOVICE_ITEMS.md ──
+  // ── Uncommon swords (rung 3) — mixed sources; see docs/design/combat/NOVICE_ITEMS.md ──
   {
     id: "broadsword", rarity: "uncommon", name: "Broadsword", icon: "⚔️", slot: "mainHand", weaponType: "sword",
     description: "+1 STR",

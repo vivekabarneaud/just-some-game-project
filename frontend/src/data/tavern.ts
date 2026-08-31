@@ -1,5 +1,5 @@
 // ─── Tavern: hospitality mechanics ──────────────────────────────
-// Phase 1-2 of the tavern rework (docs/DESIGN_TAVERN.md). The economy loop:
+// Phase 1-2 of the tavern rework (docs/IDEAS.md (Tavern & merchants)). The economy loop:
 //   staffing (adult servers, shared with the garrison pool) gates whether beds
 //   can be served; pricing trades occupancy for margin; reputation (the tavern's
 //   own bar) raises the occupancy ceiling. Numbers are placeholder — tune to

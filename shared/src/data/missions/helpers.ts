@@ -112,7 +112,6 @@ export type MissionRank = "novice" | "apprentice" | "journeyman" | "veteran" | "
 /**
  * A mission's rank is determined by which pool it lives in, not its `difficulty`
  * field. `difficulty` is the sub-star count (1-3) within a rank.
- *
  * Story missions and expeditions are their own "ranks" for UI purposes even
  * though they overlap in difficulty with the regular pools.
  */
@@ -235,7 +234,7 @@ export function calcSuccessChance(
  * Calculate effective mission duration after wizard speed bonus.
  */
 /** The settlement's spot on the mission map (normalized). Travel time is the
- *  round trip from here to a mission's pin. See docs/DESIGN_MISSION_MAP.md. */
+ *  round trip from here to a mission's pin. */
 // The hub adventurers set out from and return to (also the origin for travel
 // distance). Measured to the heart of the settlement art (below the label).
 export const SETTLEMENT_MAP_POS = { x: 0.487, y: 0.553 };
@@ -345,18 +344,15 @@ export function calcDeathChance(
 /**
  * Resolve permadeath for a finished combat. Single source of truth for both
  * the actual deploy-time roll and the team-assembly preview's Monte Carlo.
- *
  * Inputs: who fell during combat (HP ≤ 0), the team, the mission, supplies.
  * Output: ids that permanently died (Pantheon entries) and ids whose roll
  * was undone by a priest revive (loot-modal "X was revived" line).
- *
  * Roll order:
  *   1. Per-fallen death roll: `Math.random() * 100 < calcDeathChance × 1.5`.
  *   2. Warrior Shield Wall — soaks one ally death; 50% chance the warrior
  *      dies in their place.
  *   3. Priest Divine Grace — each non-dead priest gets one revive attempt
  *      per remaining death, at PRIEST_REVIVE_CHANCE.
- *
  * Uses Math.random() (not the seeded combat PRNG), so callers running this
  * inside a Monte-Carlo loop get fresh variance per iteration.
  */

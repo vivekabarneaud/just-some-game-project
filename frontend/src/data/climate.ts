@@ -3,7 +3,7 @@
 // One deterministic "climate" per WORLD year (the wall-clock year from
 // getGlobalSeason — shared across players, like the ambient weather). Unlike the
 // 72-window ambient mood, this is ONE roll per year, so years actually differ
-// (aggregating the ambient weather washes out to ~constant — see DESIGN_WEATHER_YIELD.md).
+// (aggregating the ambient weather washes out to ~constant — see docs/IDEAS.md (Weather)).
 //
 // Deterministic → reproducible, no save state. A "guard" rule keeps it fair
 // (no back-to-back droughts). A settlement's own first year gets a grace pass

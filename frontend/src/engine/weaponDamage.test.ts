@@ -5,7 +5,7 @@ import {
 } from "@medieval-realm/shared/data/combat";
 
 // Phase 1 weapon-damage model: a physical hit rolls the attacker's weapon range,
-// then scales by the primary stat. See docs/DESIGN_NOVICE_ITEMS.md §2.
+// then scales by the primary stat. See docs/design/combat/NOVICE_ITEMS.md §2.
 
 /** Average physical damage of `attacker` vs `defender` across many seeds. */
 function avgDamage(attacker: any, defender: any, n = 400): number {

@@ -1,6 +1,6 @@
 // ─── Traveling Merchants ─────────────────────────────────────────
 // Named, origin-tied visitors who pass through and trade on the spot — the
-// first slice of the traveling-merchant arc (docs/DESIGN_TRAVELING_MERCHANTS.md).
+// first slice of the traveling-merchant arc (docs/IDEAS.md (Tavern & merchants)).
 // A visitor is a person: a name, a culture, a line of flavour, and a small pool
 // of offers. Trade is INSTANT while they are here — the visit itself is the
 // window, so no marketplace is required (that is the hook: build one and finer

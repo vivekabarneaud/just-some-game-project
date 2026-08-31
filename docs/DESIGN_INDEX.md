@@ -15,7 +15,7 @@ about systems that shipped months earlier.
 ```
 docs/
   ROADMAP.md  IDEAS.md  DESIGN_INDEX.md  TECH_DEBT.md   ← the four you open
-  design/     combat/  settlement/  world/  roster/     ← plans, by subject
+  design/     combat/  settlement/  world/              ← plans, by subject
   lore/       TIMELINE.md is the authority; the rest are threads
   cast/       per-character canon, recruitable cast + NPCs
   art/        PROMPTS.md (what Act 1 needs) · CULTURES.md (later acts)
@@ -34,6 +34,12 @@ When something ships, its open remainder moves to `ROADMAP.md` or `IDEAS.md` and
 the doc is deleted. So the docs that survive are mostly **plans for things that
 don't exist yet** — read them to build from, not to learn what the game does.
 
+And the second half of that rule, applied 2026-08-31: **a doc that holds an
+idea rather than decided numbers belongs in `IDEAS.md`, not in its own file.**
+Ten went that way; their substance is in the ideas list under "Folded in from
+deleted design docs". What survives here holds balance work a one-line summary
+would throw away.
+
 Two exceptions kept on purpose: **principle docs** (rules that govern future
 authoring) and **lore canon** (creative source material, not specs).
 
@@ -44,16 +50,7 @@ authoring) and **lore canon** (creative source material, not specs).
 | design/combat/MARSH.md | The snake family, Blind, grapple-at-range-0, venom carried home. The fenbalm/reeds economy around it already exists — read before redesigning. |
 | design/combat/SPIDERS.md | Web-root, ambush, brood mother. `silk` still doesn't exist as a material. The quarry spider-gate is built. |
 | design/combat/ENCHANTED_SCROLLS.md | Five recipes, complete to the numbers. **Parked** — every one needs Mage Tower 2+ and Act 1 has no reachable magic. |
-| design/world/TRAVELING_MERCHANTS.md | Culture shelves, route progression, rotation, rapport. Slice 1 (Cobb + the Lammast wagon) is built. |
-| design/settlement/KEPT_ANIMALS.md | Cats + the vermin loop. Dogs are built — note its "breeds deferred" line is **stale**, breeds shipped. |
-| design/world/APOTHECARY.md | Tier-gated stations, offensive channels, plant gating. The brew engine and desk are built. |
-| design/world/WEATHER.md | Storms, blizzards, Layer-3 aether storms. Layers 1–2 are built (merged from the deleted WEATHER_YIELD). |
 | design/settlement/BUILDING_TOOLS.md | ~18 tools + buff slots. Only `cutting_board` exists. |
-| design/roster/ROSTER_ECONOMY.md | Wages, states, retirement. Must key off the arrival model now — the cap is already bypassed. |
-| design/settlement/FACTION_BALANCE.md | Church + Thornveil escalation. Zero mechanical state in code; needs the Chapel→Shrine rethink first. |
-| design/settlement/RAID_REINFORCEMENTS.md | Call-for-help + Pigeon Loft. For the multiplayer push. |
-| design/settlement/WORKERS_PLAGUES.md | §2 plague events. Staffing + ailments shipped (as named-hands coverage, not the doc's pool model). |
-| design/roster/QUIRKS_REWORK.md | A quirk-text bank. Its premise drifted — under a curated cast, quirks want to be per-character. |
 | design/world/FORAGING_MINIGAME.md | **In progress** on `feat/foraging-minigame`. Data + sandbox built; trip economy, herbier and larder wiring open. |
 
 ## Partial — shipped core, live remainder
@@ -63,7 +60,6 @@ authoring) and **lore canon** (creative source material, not specs).
 | design/combat/COMBAT_FOUNDATION.md | The stat schema is the **authoring contract** and still accurate. Open: damage schools (declared, never applied), the movement knob, spell/heal power, the VIT×8-vs-×10 reconciliation. §"current reality" is obsolete. |
 | design/combat/TIER1_ENEMIES.md | Zone hazards, knockback immunity, breakthrough charge, the rest of the roster. Charge, knockback, packs, morale and the AI knobs shipped. |
 | design/combat/POSITIONAL_COMBAT.md | P3 (raids get positions), P4 talents, enemy flanking, pull/reach/leap. P1+P2 shipped for missions. |
-| design/combat/RECOVERY_AND_RETREAT.md | Rescue/drag-out, the Infirmary (**better as Edda than a building**), the log-union refactor, per-mission `noRetreat`. |
 | design/combat/NOVICE_ITEMS.md | Phase 2 caster spell-weapons. Phase 1 (weapon damage, rarity) shipped. |
 | design/BALANCE_PASS.md | Open ledger, ~2 of 9 landed. |
 
@@ -114,6 +110,13 @@ DESIGN_SEASONAL_GATHERS · DESIGN_SCARCITY_MISSIONS. **Superseded:**
 DESIGN_ROSTER_CURATION (characters now arrive one at a time with their own
 stories) and DESIGN_TALENT_TREES (per-character trees replace the class pentagon
 — the direction lives in `docs/cast/`). Their unbuilt remainders are in `IDEAS.md`.
+
+**Folded into `IDEAS.md` 2026-08-31 (idea, not spec):** APOTHECARY ·
+KEPT_ANIMALS · WEATHER · TRAVELING_MERCHANTS (these four were already
+duplicated word-for-idea by the ideas list) · RECOVERY_AND_RETREAT ·
+RAID_REINFORCEMENTS · FACTION_BALANCE · ROSTER_ECONOMY · QUIRKS_REWORK (worth
+opening in git — it holds ~50 unused quirk texts) · WORKERS_PLAGUES. This
+emptied `design/roster/`.
 
 Notable: `GAME_DESIGN.md` (the founding doc; held the resource taxonomy and the
 dragon sketch) · `NOVEL.md` (three chapters of prose, pre-rewrite canon) ·

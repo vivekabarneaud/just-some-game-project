@@ -2,7 +2,6 @@ import type { ExpeditionTemplate } from "./types.js";
 
 // ─── Starter Expeditions ────────────────────────────────────────
 // Multi-event missions. Each event slot resolves in order as the mission ticks.
-// See docs/DESIGN_EXPEDITIONS.md.
 
 export const EXPEDITION_POOL: ExpeditionTemplate[] = [
   // ── Spider Hollow Descent — forest/cave ────────────────────────

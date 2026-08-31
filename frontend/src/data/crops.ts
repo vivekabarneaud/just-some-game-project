@@ -81,7 +81,7 @@ export function getSeasonYield(crop: CropDefinition, level: number): number {
 // free spring→autumn; in winter, when the grass is gone, they live off these
 // hayricks (then fall back to larder grain/veggies, then starve). Fiber crops
 // (flax) leave no fodder-hay. Tune HAY_PER_GRAIN by playtest — the larder backs
-// it up, so this is a buffer, not the whole winter supply. See DESIGN_LIVESTOCK.md.
+// it up, so this is a buffer, not the whole winter supply. See docs/IDEAS.md (Animals).
 export const HAY_PER_GRAIN = 0.35;
 
 /** Hay produced by a harvest of `grainAmount` (0 for non-food/fiber crops). */
@@ -93,7 +93,6 @@ export function getHayFromHarvest(crop: CropDefinition, grainAmount: number): nu
 // ─── Soil depletion / crop rotation ─────────────────────────────
 // Planting the same crop in a row depletes the soil. Rotating refreshes it.
 // Leaving a field idle through a growing season grants a rest bonus.
-//
 // Tuning knobs — if changed, update getSoilStatus() text to match.
 
 /** Yield multiplier by consecutive-same-crop streak (0 = fresh, 3+ = exhausted). */

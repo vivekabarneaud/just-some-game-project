@@ -455,7 +455,7 @@ export type AnimalSpecies = "dog" | "cat";
 export type AnimalJob = "idle" | "guard" | "hunt" | "mouse";
 export type AnimalOrigin = "stray" | "thornwoods" | "bred";
 /** A named working animal the settlement keeps (dogs now, cats later). See
- *  docs/DESIGN_KEPT_ANIMALS.md. `idle` = at the fire (pet/charm, no effect). */
+ *  docs/IDEAS.md (Animals). `idle` = at the fire (pet/charm, no effect). */
 export interface KeptAnimal {
   id: string;
   name: string;
@@ -493,7 +493,6 @@ export interface PlayerHive {
 
 // ─── Defenses (rework v1) ─────────────────────────────────────────
 // Multi-instance walls/watchtowers/barracks organized by ring.
-// See docs/DESIGN_DEFENSES.md.
 
 export type DefenseRing = "outer" | "middle" | "inner";
 
@@ -509,7 +508,6 @@ export interface PlayerWall {
  * Per-building garrison: a roster of trained units stationed at this watchtower
  * or barracks. Headcount caps at the building's level (see capacity formulas in
  * defenses.ts). All units in a garrison level together; trainedLevel is shared.
- *
  * Combat is resolved at the squad level (one CombatUnit per garrison with HP
  * pooled across the headcount) — see raidCombat.ts when Phase 2 lands.
  */
@@ -635,7 +633,7 @@ export interface GameState {
   buildingWorkers?: Record<string, number>;
   /** Live founder ailments (injury/illness) keyed by building id — a hurt/sick
    *  founder works their building at reduced pace until they recover. See
-   *  DESIGN_WORKERS_PLAGUES §illness and shared/data/ailments. */
+   *  docs/IDEAS.md (Plague events) and shared/data/ailments. */
   buildingAilments?: Record<string, BuildingAilment>;
   /** "The household" — named, protected residents (founders + named arrivals
    *  like the Thornwood boy), by age. A subset of `citizens`: it's the death
@@ -644,7 +642,7 @@ export interface GameState {
    *  via scripted beats, not the statistical aging tick. */
   namedResidents: CitizenCounts;
   // ── Defenses (rework v1): multi-instance walls/towers/barracks per ring,
-  //    plus counters for recruited soldier-citizens. See DESIGN_DEFENSES.md.
+  //    plus counters for recruited soldier-citizens.
   walls: PlayerWall[];
   watchtowers: PlayerWatchtower[];
   barracks: PlayerBarracks[];
@@ -713,7 +711,7 @@ export interface GameState {
   discoveredRecipes: string[]; // recipe IDs discovered through research
   /** Free-form alchemy: recipe cards the player has brewed (keyed by the
    *  deterministic recipeIdFor). A brewed potion in inventory uses this id as
-   *  its itemId; this store is what the potion DOES. See DESIGN_APOTHECARY. */
+   *  its itemId; this store is what the potion DOES. See docs/IDEAS.md (Alchemy). */
   alchemyRecipes?: Record<string, StoredAlchemyRecipe>;
   /** Free-form cooking: discovered dishes (the cookbook) + how many of each the
    *  player has prepared (the pantry stock a later economy pass will draw on). */
@@ -1226,7 +1224,7 @@ const NAME_SUFFIXES = [
 ];
 
 /** Names reserved for canon NPC neighbour settlements (see
- *  docs/DESIGN_ACT1_SETTING.md). A player town must never be auto-named one of
+ *  docs/design/world/ACT1_SETTING.md). A player town must never be auto-named one of
  *  these, so generateSettlementName() re-rolls on a hit. Lowercased for
  *  case-insensitive comparison. None are currently producible by the
  *  prefix+suffix generator, but this guards against future pool drift. */
@@ -1313,7 +1311,7 @@ export function createInitialState(): GameState {
     fruitsUnlocked: startingUnlockedFruits(),
     honey: 0,
     // Bio-accurate founder mapping: Edda + Father Corin elderly,
-    // Jory + Tomas adults, Nell child. See docs/DESIGN_CITIZEN_CATEGORIES.md.
+    // Jory + Tomas adults, Nell child.
     citizens: founderCitizens(),
     buildingWorkers: {},
     namedResidents: founderHousehold(),
@@ -1942,7 +1940,6 @@ function streamStatusOf(s: GameState): StreamStatus {
  *  Crops drink continuously EXCEPT while it's raining (the sky waters them then),
  *  thirstier in a dry-year heat. When the reserve runs dry the crops go short
  *  (citizens and livestock have priority).
- *
  *  The cistern's SLUICE flips the whole model: open, intake to the reserve is
  *  paused and it drains out (the settlement drinks from the live flow instead of
  *  the store), so the reserve runs low and a downpour can't back up and drown
@@ -2494,7 +2491,7 @@ function applyAnimalFeed(s: GameState, elapsedHours: number): Map<string, number
 /** Flock population change each tick (livestock slice 2): a fed flock breeds in
  *  the warm seasons (needs a pair + room, never past capacity); an unfed flock
  *  loses head to hunger. Mutates pen.count. Never auto-culls — shrinkage is only
- *  starvation; deliberate culling is a separate player action. See DESIGN_LIVESTOCK.md. */
+ *  starvation; deliberate culling is a separate player action. See docs/IDEAS.md (Animals). */
 // ── Kept animals: the living layer (leveling, growth, happiness, breeding, strays) ──
 /** Room for dogs is set by the Kennel (none without one). Owner-bound dogs (a
  *  character's own hound, e.g. Nessa's) don't live in the kennel and so don't

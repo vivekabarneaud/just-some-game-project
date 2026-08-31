@@ -7,7 +7,6 @@ import type { CombatPotionEffect } from "../items/index.js";
  *   feral    : random target, ignores threat (mindless beasts, low-tier mobs)
  *   tactical : threat-aware scored pick (default — most enemies)
  *   cunning  : prioritize backline (priest > wizard) over threat (smart casters, elites)
- *
  * Boss flag is orthogonal — a feral dragon is fine. AI tier shapes targeting only.
  */
 export type AITier = "feral" | "tactical" | "cunning";
@@ -17,10 +16,8 @@ export type AITier = "feral" | "tactical" | "cunning";
  * is a few ORTHOGONAL knobs rather than one tier string: defaults plus opt-in
  * exceptions, the same philosophy as the stat schema. Deliberately small and
  * flat — knobs, not a behavior-tree engine.
- *
  * The legacy `aiTier` still works and maps onto `targeting` unchanged, so no
  * existing enemy changes behaviour (see ai/profile.ts).
- *
  * The doc's fourth knob, **movement** (charger/kiter/holder/flanker), is NOT
  * here yet: that one is a rewrite of the positional layer's role-derived
  * `isRanged`/`canBypass`, so it stays on the existing `charge`/`combatRole`
@@ -79,13 +76,12 @@ export type TauntImmunity = "none" | "normal" | "all";
  * Combatant role. Finer-grained than `isEnemy` — splits the player's side into
  * regular adventurers, scripted NPC allies (Niamh), and entities (walls/wards
  * shipping in a later branch). Enemy is its own side.
- *
  * `isEnemy` stays as the two-side discriminator so existing targeting / round /
  * damage code keeps working untouched. `kind` is additive.
  */
 export type CombatKind = "adventurer" | "ally" | "entity" | "enemy";
 
-/** Damage schools (Combat Foundation — docs/DESIGN_COMBAT_FOUNDATION.md). Physical
+/** Damage schools (Combat Foundation — docs/design/combat/COMBAT_FOUNDATION.md). Physical
  *  is handled by Armor + Parry, NOT a resistance. Light + Hollow are lore-locked. */
 export type DamageSchool =
   | "physical" | "aether" | "fire" | "frost" | "lightning" | "light" | "hollow" | "nature";

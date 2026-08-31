@@ -110,7 +110,7 @@ export interface PlayerPen {
 export type AnimalSpecies = "dog" | "cat";
 export type AnimalJob = "idle" | "guard" | "hunt" | "mouse";
 
-/** A named working animal the settlement keeps (see docs/DESIGN_KEPT_ANIMALS.md).
+/** A named working animal the settlement keeps (see docs/IDEAS.md (Animals)).
  *  Dogs guard flocks / work the hunting camp; cats (later) keep vermin down.
  *  Cozy + attachment-driven: named companions posted to useful work. */
 export type AnimalOrigin = "stray" | "thornwoods" | "bred";
@@ -391,7 +391,7 @@ export interface GameState {
    *  bench beyond capacity. Drawn from the shared adult pool. */
   buildingWorkers?: Record<string, number>;
   /** Live founder ailments (injury/illness) keyed by building id. See
-   *  shared/data/ailments + DESIGN_WORKERS_PLAGUES §illness. */
+   *  shared/data/ailments + docs/IDEAS.md (Plague events). */
   buildingAilments?: Record<string, { ailmentId: string; founderId: string; hoursRemaining: number }>;
   citizens: {
     toddlers: number;
@@ -433,7 +433,7 @@ export interface GameState {
   foragedTotal: number;
   discoveredRecipes: string[];
   /** Free-form alchemy recipe cards, keyed by the deterministic recipe id.
-   *  See shared/data/alchemy + docs/DESIGN_APOTHECARY.md. */
+   *  See shared/data/alchemy + docs/IDEAS.md (Alchemy). */
   alchemyRecipes?: Record<string, import("./data/alchemy/types.js").StoredAlchemyRecipe>;
   kitchenDishes?: Record<string, import("./data/kitchen/types.js").StoredDish>;
   cookedDishes?: Record<string, number>;

@@ -2,7 +2,7 @@
 // Pure + deterministic (stable live preview). Each ingredient is PREPARED its
 // own way (roast the meat, boil the staple, combine), exactly like the alchemy
 // brew engine — the technique shapes what that ingredient contributes. Spices
-// amplify; a meal wants a staple or it comes out thin. See docs/DESIGN_KITCHEN.md.
+// amplify; a meal wants a staple or it comes out thin. See docs/IDEAS.md (Kitchen).
 
 import type { CookTechnique, DishChannel, DishEffect, DishResult, CookPlacement, FoodFlavor } from "./types.js";
 import { getFoodIngredient } from "./ingredients.js";

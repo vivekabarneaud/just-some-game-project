@@ -1,5 +1,5 @@
 // ─── Free-form alchemy — core types ─────────────────────────────────────────
-// The emergent brew engine (see docs/DESIGN_APOTHECARY.md). A player places
+// The emergent brew engine (see docs/IDEAS.md (Alchemy)). A player places
 // ingredients (grabbed from ROLE shelves) onto TECHNIQUE stations; each
 // ingredient contributes effects KEYED BY its technique; the brew is the summed,
 // capped profile. This file is the vocabulary; brew.ts is the engine.

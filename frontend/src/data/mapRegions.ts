@@ -4,10 +4,9 @@
 // painted shape when revealed. A region reveals for good the moment its trigger
 // fires (a scout/story mission completed, or a chronicle beat). Settlement +
 // Hometown are always drawn (handled in the map as fixed windows, not here).
-//
 // PLACEHOLDER triggers (2026-08-05): the region art (region_1..5, from IMG_0144
 // –48) and these mappings are provisional. Refine — rename ids + retune triggers
-// — once the final regions are painted. See docs/DESIGN_MISSION_MAP.md (fog).
+// — once the final regions are painted.
 
 export interface MapRegion {
   id: string;

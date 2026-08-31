@@ -1,7 +1,6 @@
 // ─── Defenses helpers ─────────────────────────────────────────────
 // Cost tables, slot-cap calculators, and ring-unlock rules for the
 // multi-instance walls / watchtowers / barracks system.
-// See docs/DESIGN_DEFENSES.md.
 
 import type { SettlementTier } from "./buildings";
 import type { DefenseRing, GameState } from "~/engine/gameState";
@@ -107,7 +106,6 @@ export function maxArchers(state: GameState): number {
 /** Adults available to take a soldier/archer slot. Children, toddlers, and
  *  the elderly are not combat-eligible — that's the whole point of the
  *  per-category rework: Nell can't carry a spear, Edda is too old.
- *
  *  We also reserve the household's adults from conscription, so named folk
  *  (Jory, Tomas, and any named adult who joins) can't be silently drafted
  *  into a watchtower. Reads the live `namedResidents.adults` floor so it

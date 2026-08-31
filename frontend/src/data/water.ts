@@ -4,7 +4,7 @@
 // When it's short: citizens first, then livestock, then crops. The cistern has a
 // sluice: shut, it banks water (a drought buffer); open, it stops banking and
 // runs the reserve low so a downpour can't back up and drown the fields.
-// See docs/DESIGN_WEATHER_YIELD.md §5.
+// See docs/IDEAS.md (Weather) §5.
 
 import type { ClimateBand } from "./climate";
 import type { WeatherType } from "./weather";

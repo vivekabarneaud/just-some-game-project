@@ -432,7 +432,7 @@ export const BUILDINGS: BuildingDefinition[] = [
     // and there's actual meat surplus to motivate a cellar.
     unlockedAt: { requiresBuildings: ["hunting_camp"] },
   },
-  // ── Water infrastructure (weather → yield, see DESIGN_WEATHER_YIELD.md) ──
+  // ── Water infrastructure (weather → yield, see docs/IDEAS.md (Weather)) ──
   {
     id: "well",
     name: "Well",

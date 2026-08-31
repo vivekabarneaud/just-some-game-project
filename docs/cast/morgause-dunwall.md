@@ -39,7 +39,7 @@ She is recruited as plain **Morgause Dunwall** — the title was *taken* from he
 - **The commander / force-multiplier.** A bespoke warrior tree that *buffs and protects the whole squad* — rally, formation, tactics, terrain reads, ally shielding — rather than personal damage. Distinct from lone fighters (Hester's axe, Godric's wall). **The mechanic is the wound:** a woman who never had her own pours herself into the people around her. Ties naturally to the **militia / "Watch the Walls" defense** system. (Per-character talent rework pending; class stays the chassis.)
 
 ## Commander mechanic — the retreat brain (design, 2026-06-29)
-Her *signature* mechanic in the Model-C flee/rescue system (full design: `design/combat/RECOVERY_AND_RETREAT.md`). **She doesn't add damage — she cuts losses to bad judgment.** This is the wound made into a mechanic: a woman who never had her own pours her command into keeping these people alive. Locked in concept; numbers tunable.
+Her *signature* mechanic in the Model-C flee/rescue system (what's left of it: `docs/IDEAS.md`, Adventurer recovery). **She doesn't add damage — she cuts losses to bad judgment.** This is the wound made into a mechanic: a woman who never had her own pours her command into keeping these people alive. Locked in concept; numbers tunable.
 
 **The brain — a deterministic time-to-kill projection** (runs every round; cheap; *identical in real combat AND in the 200× deploy preview*, so previewed odds stay honest — this is why we rejected "rollouts in real combat only," which would make the preview lie):
 - our rounds-to-win = enemy effective HP ÷ team effective DPS (alive, non-broken).

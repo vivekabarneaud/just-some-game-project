@@ -17,12 +17,11 @@ import FramedItemCard, { itemFrameUrl as frameUrl, gradeFilter } from "~/compone
  *  shelf → the stations it allows light up gold, the ones it can't use dim with
  *  a reason → click one to prepare it that way. Several ingredients per station,
  *  several per shelf.
- *
  *  The buttons hang ABOVE their object rather than the objects being clickable:
  *  simpler to read at a glance, and it leaves each station room to show what's
  *  in it. Positions are percentages onto the art (see STATIONS), so the painting
  *  can be swapped or re-cropped per settlement tier without touching layout.
- *  See docs/DESIGN_KITCHEN.md. */
+ *  See docs/IDEAS.md (Kitchen). */
 
 /** The cooking surface, painted. `x`/`y` are percentages onto KITCHEN_ART and
  *  point at the object itself; the label + contents tray hangs just above it.

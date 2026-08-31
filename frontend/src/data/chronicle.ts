@@ -2,7 +2,7 @@
 // (docs/LORE_AUDIT_2026-06-11.md #6): the land grant is from the CROWN/King Aldren
 // (not a Merchant/Corsair league), there IS a Crown tithe (not "no taxes"), and the
 // pantheon is eight, not "seven". Do NOT cite this file as canon — see
-// docs/LORE_TIMELINE.md (top authority). Slated for a wipe-and-rebuild pass.
+// docs/lore/TIMELINE.md (top authority). Slated for a wipe-and-rebuild pass.
 export interface ChronicleEntry {
   id: string;
   title: string;

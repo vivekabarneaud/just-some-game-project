@@ -1,5 +1,5 @@
 // ─── Founder ailments — injuries & illnesses on the settlement's own ─────────
-// The character-driven layer of DESIGN_WORKERS_PLAGUES: a named founder who's
+// The character-driven illness layer: a named founder who's
 // hurt or sick works their building at reduced pace (via the staffing HP lever)
 // until they recover. ALWAYS survivable by rest alone (the guaranteed exit); a
 // cure item just speeds it. Mild by design — texture, not punishment.

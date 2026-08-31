@@ -1,7 +1,7 @@
 // ─── Free-form cooking — types ──────────────────────────────────────────────
 // Sibling to the alchemy engine (see ../alchemy/types.ts). A DISH is cooked with
 // ONE technique (you simmer the whole pot) over a handful of ingredients; the
-// technique shapes WHICH mild boons come out. See docs/DESIGN_KITCHEN.md.
+// technique shapes WHICH mild boons come out. See docs/IDEAS.md (Kitchen).
 
 /** The pantry shelf an ingredient sits on (its cooking role). */
 export type FoodRole = "staple" | "protein" | "veg" | "fruit" | "dairy" | "spice";

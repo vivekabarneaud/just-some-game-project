@@ -484,7 +484,7 @@ export const QUEST_DEFINITIONS: QuestDefinition[] = [
   // strawberry unlock is being redesigned as a later, summer-firing adventurer
   // mission ("find Nell asleep in the wild strawberries"). Until that lands,
   // strawberries stay locked (their garden shows as "???"). See
-  // docs/DESIGN_FARMING_EXPANSION.md §5.
+  // docs/IDEAS.md (Farming).
 
   // ╔══════════════════════════════════════════════════════════════╗
   // ║ SETTLEMENT — Chapter 3: The Shepherd                        ║

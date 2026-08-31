@@ -5,7 +5,7 @@ import { getClimate, climateOverrideBand, type ClimateBand } from "./climate";
 
 // ─── Weather (ambient mood layer) ──────────────────────────────────────────
 //
-// Two-layer model (see docs/DESIGN_WEATHER.md):
+// Two-layer model (see docs/IDEAS.md (Weather)):
 //   Layer 1 — Ambient mood weather (THIS FILE, cosmetic only for now).
 //   Layer 2 — Natural events (drought / storm / blizzard) with mechanics. TODO.
 //   Layer 3 — Unnatural (aether) storms as a story tell. TODO, scripted + emergent.
