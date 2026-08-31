@@ -23,5 +23,10 @@ export const MAP_REGIONS: MapRegion[] = [
   { id: "west_marsh",   mask: "/images/map/region_2.png", revealedBy: { missionDone: "marsh_clearing" } },    // west / the fen
   { id: "lammast_road", mask: "/images/map/region_3.png", revealedBy: { chronicleFired: "ch1_lammast_arrival" } }, // north-east / Lammast
   { id: "old_watch",    mask: "/images/map/region_4.png", revealedBy: { missionDone: "story_1_scouting" } },  // south / the Old Watch
-  { id: "east_reach",   mask: "/images/map/region_5.png", revealedBy: { missionDone: "merchant_escort_first" } }, // east / the reach — repointed 2026-08-31 when first_patrol was cut
+  // The east reach stays FOGGED on purpose. Its old trigger (first_patrol) was
+  // cut 2026-08-31, and the obvious replacements all come from the wrong
+  // direction — Cobb travels the north road, so escorting him should not
+  // uncover the east. Sentinel id: nothing satisfies it until an eastward
+  // exploration mission is authored, at which point put its id here.
+  { id: "east_reach",   mask: "/images/map/region_5.png", revealedBy: { missionDone: "east_reach_exploration" } }, // east / the reach — AWAITING CONTENT
 ];

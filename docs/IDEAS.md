@@ -180,8 +180,15 @@ premises are kept here even though the missions are gone.
 Two of these (The Miller's Boy, The Old Bridge) had both been renamed **"The Fold"**,
 which looks like an abandoned merge into the fold chain that `fold_vigil` now holds.
 
-**Map consequence:** `east_reach` (region 5) was revealed only by The Northern
-Bounds. It's now repointed to `merchant_escort_first` — live, pinned in the east,
-and a mission every player does. Change the trigger if a better eastern mission
-turns up.
+**⭐ Wanted: an eastward exploration mission.** `east_reach` (map region 5) was
+revealed only by The Northern Bounds, and it now stays **deliberately fogged** —
+its `revealedBy` points at a sentinel id (`east_reach_exploration`) that nothing
+satisfies. Repointing it at an existing mission was the wrong fix: the obvious
+candidate is Cobb's escort, and Cobb travels the **north** road, so uncovering
+the east by walking north with a merchant is geography nobody would believe.
+
+So the east is closed until something earns it. What it wants is a genuine
+*exploration* mission — go and look, come back knowing what's out there — which
+is a mission type Act 1 doesn't have yet and probably should. When it exists,
+put its id in the region's trigger.
 
