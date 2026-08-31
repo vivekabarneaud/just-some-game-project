@@ -1,6 +1,6 @@
 # Quirks Rework — Design Spec
 
-**Status (2026-08-14 audit):** BACKLOG, and the premise has drifted — under the curated-cast direction (DESIGN_ROSTER_CURATION), quirks likely become per-character authored fields rather than a tagged random pool. Keep as a quirk-text bank; the tagging system is probably dead.
+**Status (2026-08-14 audit):** BACKLOG, and the premise has drifted — under the per-character direction (each character introduced with their own story, see docs/cast/), quirks likely become per-character authored fields rather than a tagged random pool. Keep as a quirk-text bank; the tagging system is probably dead.
 
 ## Problem
 

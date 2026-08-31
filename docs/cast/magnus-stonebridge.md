@@ -32,7 +32,7 @@
 
 ## Relationships
 - **Aldwin** — brother and the man who raised him; won't let him leave to "spare" him. The bond is the spine of both characters.
-- **The dramatic irony he can't see:** Aldwin does magic too (unwitting Light/Solara healing) — they're the same force (aether), sorted by the Church into "holy" and "damned." (See Aldwin's file + `LORE_TIMELINE.md`.)
+- **The dramatic irony he can't see:** Aldwin does magic too (unwitting Light/Solara healing) — they're the same force (aether), sorted by the Church into "holy" and "damned." (See Aldwin's file + `lore/TIMELINE.md`.)
 
 ## Combat identity & talents (parked 2026-06-29)
 **Archetype: the caged firestorm (wizard) — restraint vs unleash.** Default = he **throttles** himself: small, controlled, *low-attention* magic (makes himself small, stays hidden). **Unleash** is a deliberate, devastating choice he only takes **when it's safe — when the enemies' attention is elsewhere** (mechanically: when his own threat/aggro is low because Godric/Gareth hold the line). So he's a **team payoff**: the tank pulls eyes, Aldwin shields his back, *then* the boy levels the field. The firestorm needs cover — the brothers' whole life in one mechanic. Talent model = Godric's template (see [godric-thornwood.md](godric-thornwood.md)).
@@ -76,4 +76,4 @@ So early game (roster mostly untrusted Ashwick) he's **alone or with Aldwin** �
 - A **control arc** (wild → disciplined) tied to loyalty/leveling.
 
 ## Cross-refs
-- `premade-characters.ts` char_029; `LORE_TIMELINE.md` (the three magic traditions; the Doctrine); aldwin-stonebridge.md.
+- `premade-characters.ts` char_029; `lore/TIMELINE.md` (the three magic traditions; the Doctrine); aldwin-stonebridge.md.

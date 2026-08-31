@@ -68,4 +68,4 @@ Her *signature* mechanic in the Model-C flee/rescue system (full design: `docs/D
 - Whether her Zah'kari heritage ever surfaces in-fiction beyond the one line (default: it stays light).
 
 ## Cross-refs
-- `premade-characters.ts` char_020; `LORE_TIMELINE.md` (Zah'kari / the Sunward Kingdoms, Varek); the militia / defense system; [[project_chapter_3_defense_quest]] ("Watch the Walls").
+- `premade-characters.ts` char_020; `lore/TIMELINE.md` (Zah'kari / the Sunward Kingdoms, Varek); the militia / defense system; [[project_chapter_3_defense_quest]] ("Watch the Walls").

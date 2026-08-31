@@ -54,4 +54,4 @@ See [elspeth-ravencroft.md](elspeth-ravencroft.md) for the full arc; Edmund's si
 - `shared/src/data/premade-characters.ts` — char_009 (bio, class/race/origin, `questOnly`, trait `lucky`); `CHAR_RELATIONSHIPS` char_009 = "Son of Elspeth Ravencroft".
 - `shared/src/data/missions/sideChainMissions.ts` — `a_mothers_errand` ("A Mother's Errand").
 - [elspeth-ravencroft.md](elspeth-ravencroft.md) — his mother (char_007).
-- `LORE_TIMELINE.md` — world facts (always wins on Crown/Church/magic/Wastes).
+- `lore/TIMELINE.md` — world facts (always wins on Crown/Church/magic/Wastes).

@@ -1,6 +1,6 @@
 # Valenheart — Master Lore Timeline & Schema
 
-**Status: TOP CANON AUTHORITY.** This is the single source of truth for cosmology, the Sundering, eras, cultures, and factions wherever it speaks. It **supersedes `LORE_FINAL.md` and `LORE_EIGHTH_GOD.md`** on the cosmology / Sundering axis (gods are celestial; the Sundering is the Cassandra–Netheron version). Where any doc disagrees with this one, **this one wins.** Those two remain CANON-PARTIAL *references*: `LORE_FINAL.md` for faction/NPC/race texture (mind the name drift — Dryven→**Drayven**, Kess→**Niamh**), `LORE_EIGHTH_GOD.md` for the Eighth's existence/nature. `FOUNDING_CHARACTERS.md` is the parallel authority for the six founders. Also stale, NOT canon: `frontend/src/data/chronicle.ts` (pre-lock v1 draft — see `LORE_AUDIT_2026-06-11.md`). Full consolidation (folding FINAL + EIGHTH_GOD in here) is still planned; until then this doc is authoritative.
+**Status: TOP CANON AUTHORITY.** This is the single source of truth for cosmology, the Sundering, eras, cultures, and factions wherever it speaks. It **supersedes `lore/FACTIONS.md` and `lore/EIGHTH_GOD.md`** on the cosmology / Sundering axis (gods are celestial; the Sundering is the Cassandra–Netheron version). Where any doc disagrees with this one, **this one wins.** Those two remain CANON-PARTIAL *references*: `lore/FACTIONS.md` for faction/NPC/race texture (mind the name drift — Dryven→**Drayven**, Kess→**Niamh**), `lore/EIGHTH_GOD.md` for the Eighth's existence/nature. `lore/FOUNDERS.md` is the parallel authority for the six founders. Also stale, NOT canon: `frontend/src/data/chronicle.ts` (pre-lock v1 draft — see `LORE_AUDIT_2026-06-11.md`). Full consolidation (folding FINAL + EIGHTH_GOD in here) is still planned; until then this doc is authoritative.
 
 This is the consolidated schema. Read it top to bottom for the chronology. Use the cultural sections for per-people deep dives. Open threads at the bottom flag what still needs locking.
 
@@ -68,7 +68,7 @@ All magic flows from the **Aether**, the residual energy of creation woven into 
 
 **Contain, don't cleanse `[LOCKED 2026-06]`.** Corruption of *matter/ground* (a tainted spring, tree, grain) cannot be quickly cleansed: the Aether cycle is broken (Netheron dead), so there is no fresh good Aether to pour back in. A **ward** (Primal) is a *barrier* — it stops the bleed/spread but does not clean what is already corrupted; **"a broken ward simply returns the area to its underlying thinning state."** True cleansing of a *small* spot may be possible slowly via Primal coaxing (nursing the land back over a long time), never quickly and never at scale. So the practical answer to local corruption is to **contain** it (cap/mark/ward + cull the afflicted + a priest settles any lingering dead), and live with a sealed bad spot. "Hold, don't win."
 
-Other proposed magic-adjacent practices (Khor'vani Alchemy, Khazdurim Rune-craft) are parked in `docs/LORE_OPEN_IDEAS.md` pending discussion. Do not rely on them for canon writing yet.
+Other proposed magic-adjacent practices (Khor'vani Alchemy, Khazdurim Rune-craft) are parked in `docs/lore/OPEN_IDEAS.md` pending discussion. Do not rely on them for canon writing yet.
 
 ### The Aether Cycle — Netheron's Lost Function
 

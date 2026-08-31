@@ -36,7 +36,7 @@ The **mystery on the quest card is deliberate**: the woman who comes to the gate
 - **Method:** poison, the quiet way. She is not a duelist and does not pretend to be.
 
 ## Talent / ability ideas
-Bespoke **assassin / poisoner** tree on the assassin chassis (class is the frame; per-character talent rework pending). Direction from `DESIGN_ROSTER_CURATION.md`:
+Bespoke **assassin / poisoner** tree on the assassin chassis (class is the frame; per-character talent rework pending). Direction from the retired roster-curation doc (in git — superseded by per-character introduction):
 - **Poison master.** Leading design: an **extra Elspeth-only mission supply slot** stocked with her own bespoke strong potions, chosen pre-mission (working names: Widow's Kiss = heavy DoT; Dead Man's Draught = cheat death once; Quietus = burst). Reuses the existing per-adventurer supply-slot tech.
 - **Simple fallback:** a trait granting +poison / DoT damage.
 - **Interim trait shipped:** `survivor` (fits "she survives because she had to learn to").
@@ -62,6 +62,6 @@ The single-mission recruit was under-cooked; deepened into a proper little arc. 
 ## Cross-refs
 - Data: `shared/src/data/premade-characters.ts` (char_007; `CHAR_RELATIONSHIPS` char_007 / char_009).
 - Mission: `shared/src/data/missions/sideChainMissions.ts` → `a_mothers_errand` ("A Mother's Errand").
-- Design: `docs/DESIGN_ROSTER_CURATION.md` — Ashwick ability drafts (#4 Elspeth), signature-feature taxonomy (#3 bespoke consumable set, #6 pair synergy), loyalty-as-spine, quest-unlock recruitment flagship (Edmund & Elspeth).
+- Design: the retired roster-curation doc (in git — superseded by per-character introduction) — Ashwick ability drafts (#4 Elspeth), signature-feature taxonomy (#3 bespoke consumable set, #6 pair synergy), loyalty-as-spine, quest-unlock recruitment flagship (Edmund & Elspeth).
 - Cast: [edmund-blackwood.md](edmund-blackwood.md) (son, char_009).
-- World facts defer to `docs/LORE_TIMELINE.md`.
+- World facts defer to `docs/lore/TIMELINE.md`.

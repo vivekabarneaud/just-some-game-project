@@ -41,5 +41,5 @@ A military **reprisal** — the army's work, *not* the Inquisition's: a poor bor
 ## Cross-refs
 - Bios: `shared/src/data/premade-characters.ts` (char_000, char_005, char_021); relationships at `CHAR_RELATIONSHIPS` (Thornwood siblings).
 - Overview flavor: `frontend/src/data/overview_flavors.ts` (`hunters_arriving`, `hunters_settling`).
-- World: `docs/LORE_TIMELINE.md` (Nordveld, the northern war, desertion, the Doctrine).
+- World: `docs/lore/TIMELINE.md` (Nordveld, the northern war, desertion, the Doctrine).
 - Sibling files: nessa-thornwood.md, gareth-thornwood.md, godric-thornwood.md, thornwood-boy.md.

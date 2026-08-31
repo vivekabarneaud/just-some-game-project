@@ -17,7 +17,7 @@
 - **He all but raised Magnus.** ~15 when the boy was born, eldest in a poor house — he's more father than brother. That's the root of how fiercely he protects him.
 - **Why he shelters the hunted — "both," with a spine.** He was always soft-hearted, but **raising and hiding one hunted innocent for twenty years is what forged that softness into a vocation.** He keeps a door open to every hunted soul because he has spent his life hiding one; every refugee in his chapel is, in a way, a stand-in for the brother he can't stop protecting. The priesthood came from real faith *and* because holy orders let his heart do its work (mercy, shelter, standing, cover).
 - **His faith has been a contradiction for twenty years**, not a recent crack: a servant of the Radiant One who quietly, constantly defies the Church's cruelty. Loving Magnus is the sharpest edge of a lifelong tension. (This is **Caelen's doubt at the family scale** — the brother is the evidence that breaks the teaching. He is *not sorry.*)
-- **THE IRONY (dramatic, for the player — Aldwin does NOT know it):** priests are **unwitting Light practitioners** (Solara's domain — light, warmth, hope; reframed from Primal 2026-06-30). His healing, his comfort to the dying, the warm light of his "blessing" *are real Aether-work* he calls "answered prayer." **The man who spent his life hiding his brother the wizard is, unknowingly, a mage himself** — the only difference being labeling and visibility. Future Doctrine-shattering reveal. (See `LORE_TIMELINE.md` priest note.)
+- **THE IRONY (dramatic, for the player — Aldwin does NOT know it):** priests are **unwitting Light practitioners** (Solara's domain — light, warmth, hope; reframed from Primal 2026-06-30). His healing, his comfort to the dying, the warm light of his "blessing" *are real Aether-work* he calls "answered prayer." **The man who spent his life hiding his brother the wizard is, unknowingly, a mage himself** — the only difference being labeling and visibility. Future Doctrine-shattering reveal. (See `lore/TIMELINE.md` priest note.)
 
 ## Family (parents)
 - **Parents alive, left behind — the brothers are exiles, not orphans.** To save Magnus (the Inquisition punishes a wizard's kin), they fled and can never safely return or send word. So **the man who shelters everyone had to abandon his own living parents** — a quiet, private grief he doesn't speak of.
@@ -53,4 +53,4 @@
 - **The unwitting-magic reveal** — when/how Aldwin learns *he* does magic (a gut-punch tied to the Doctrine's collapse). Banked.
 
 ## Cross-refs
-- `premade-characters.ts` char_017; `LORE_TIMELINE.md` (priests = unwitting **Light/Solara** + the Inquisition-irony note); Caelen; [[founder_edda]]; [[founder_father_corin]]; magnus-stonebridge.md.
+- `premade-characters.ts` char_017; `lore/TIMELINE.md` (priests = unwitting **Light/Solara** + the Inquisition-irony note); Caelen; [[founder_edda]]; [[founder_father_corin]]; magnus-stonebridge.md.

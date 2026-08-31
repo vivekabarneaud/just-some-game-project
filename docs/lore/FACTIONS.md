@@ -1,10 +1,15 @@
+> **Scope (2026-08-31):** this doc owns **factions, races and the standing NPC
+> cast**. It was formerly `lore/FACTIONS.md`, and its cosmology sections are
+> **superseded by `TIMELINE.md`** — read them as drafting history, not canon.
+> Known name drift the timeline settles: Dryven→**Drayven**, Kess→**Niamh**.
+
 # Valenheart — Definitive Lore
 
-> ⚠ **CANON STATUS:** `LORE_TIMELINE.md` is the **top authority — read it first.** This doc is **CANON-PARTIAL**: still authoritative for **factions, named characters, locations, and races**, but its **cosmology / Sundering is superseded** by TIMELINE (see the notes below).
+> ⚠ **CANON STATUS:** `lore/TIMELINE.md` is the **top authority — read it first.** This doc is **CANON-PARTIAL**: still authoritative for **factions, named characters, locations, and races**, but its **cosmology / Sundering is superseded** by TIMELINE (see the notes below).
 >
-> **STATUS UPDATE (April 2026):** The cosmology and the origin of the Sundering have been reframed — the current canonical account now lives in **`LORE_TIMELINE.md`** (which overtook the interim `LORE_EIGHTH_GOD.md`). Headline changes: the pantheon is eight gods, not seven (an Eighth, the god of Malice, was sealed in the Ironspine Deeps and forgotten); Netheron was the full Aether-cycle engineer, not only the Shepherd of the dead; the Sundering was engineered by the Eighth's long-planted agents, not a purely tragic accident. This document remains valid for factions, named characters, locations, and mechanics not touched by that reframe. A full consolidation pass is planned.
+> **STATUS UPDATE (April 2026):** The cosmology and the origin of the Sundering have been reframed — the current canonical account now lives in **`lore/TIMELINE.md`** (which overtook the interim `lore/EIGHTH_GOD.md`). Headline changes: the pantheon is eight gods, not seven (an Eighth, the god of Malice, was sealed in the Ironspine Deeps and forgotten); Netheron was the full Aether-cycle engineer, not only the Shepherd of the dead; the Sundering was engineered by the Eighth's long-planted agents, not a purely tragic accident. This document remains valid for factions, named characters, locations, and mechanics not touched by that reframe. A full consolidation pass is planned.
 >
-> **CANON NOTE (2026-06-05):** `LORE_TIMELINE.md` is now the top authority and supersedes both this doc and `LORE_EIGHTH_GOD.md` on the cosmology / Sundering axis. Name drift to be aware of when reading below: **Commander Dryven → Drayven**, and the ranger warden **Kess → Niamh** (TIMELINE's names win). This doc is still the richest source for faction/NPC/race texture.
+> **CANON NOTE (2026-06-05):** `lore/TIMELINE.md` is now the top authority and supersedes both this doc and `lore/EIGHTH_GOD.md` on the cosmology / Sundering axis. Name drift to be aware of when reading below: **Commander Dryven → Drayven**, and the ranger warden **Kess → Niamh** (TIMELINE's names win). This doc is still the richest source for faction/NPC/race texture.
 
 ---
 

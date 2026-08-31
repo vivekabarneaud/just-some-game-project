@@ -100,4 +100,4 @@ Success = out (survives, comes home wounded, leaves the fight). Fail = parting b
 
 ## Notes
 - The current code's forgiving death *roll* is a reasonable **interim** under C (losses rarely kill), so no urgent change is needed before the build — the "0% success → ~10% death" the user flagged is actually *fine* under C (you flee and mostly survive); it just needs **reframing the outcome as "failed, team wounded"** rather than a death percentage, which Phase 1/2 does.
-- Cross-refs: [[project_adventurer_recovery]] (the original recovery memo), `DESIGN_ROSTER_ECONOMY.md` (the superseded 100%-on-KO), `DESIGN_EXPEDITIONS.md` (Adrenaline), `DESIGN_TALENT_TREES.md` (bespoke trees — the talent home), the death-confirm modal (already built).
+- Cross-refs: [[project_adventurer_recovery]] (the original recovery memo), `DESIGN_ROSTER_ECONOMY.md` (the superseded 100%-on-KO), the retired expeditions doc (in git) (Adrenaline), the retired talent-trees doc (in git — per-character trees live in docs/cast/) (bespoke trees — the talent home), the death-confirm modal (already built).

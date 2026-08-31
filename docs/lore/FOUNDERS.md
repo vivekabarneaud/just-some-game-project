@@ -31,7 +31,7 @@ Working order (April 2026):
 ### Nordveld lineage
 - Grandmother **Helga** was Nordveld. Fell in love with an Ashwick trader who came north. Followed him south. Her people objected — the faith clash (Nordveld's old gods vs. the Radiant One). She married anyway.
 - Kept the old gods privately in her new Ashwick life. Did little rituals in corners. Taught a thread of them to Edda as a secret game between grandmother and girl.
-- Helga was **not** a practicing *völva* — she had married out and assimilated. Her rituals are folk-level crumbs, not theology. This is deliberately softer than canon Nordveld (LORE_FINAL.md paints Nordveld as an Inquisition-flagged healer tradition). Helga is what happens when Nordveld emigrates and thins across generations.
+- Helga was **not** a practicing *völva* — she had married out and assimilated. Her rituals are folk-level crumbs, not theology. This is deliberately softer than canon Nordveld (lore/FACTIONS.md paints Nordveld as an Inquisition-flagged healer tradition). Helga is what happens when Nordveld emigrates and thins across generations.
 
 ### Faith
 Mixed, un-theologized. She genuinely believes in the Radiant One (Dominion-raised, church-going). Helga's little rituals she keeps doing because Helga did them, because they are hers, because they are a private sanctuary. She does not choose between the two — she just does both. Invokes **Nereia** (sea/river goddess) by her grandmother's habit when the river or catch matters.

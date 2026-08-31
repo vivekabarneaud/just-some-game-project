@@ -2,7 +2,7 @@
 
 **Status:** Holding pen for proposed lore items that need further discussion before being promoted to canon. Items here are **not authoritative** and should not be relied on for chronicle, cinematic, or mission writing without locking with the user first.
 
-When an item is locked, move it into `LORE_TIMELINE.md` (or the relevant standalone doc) and delete it from this file. When an item is rejected, leave a one-line note here so future sessions don't reintroduce it.
+When an item is locked, move it into `lore/TIMELINE.md` (or the relevant standalone doc) and delete it from this file. When an item is rejected, leave a one-line note here so future sessions don't reintroduce it.
 
 ---
 
@@ -40,7 +40,7 @@ When an item is locked, move it into `LORE_TIMELINE.md` (or the relevant standal
 
 **Proposal (parked May 2026):** A chatbot at the Shrine where the Lord can ask questions and receive a "divine response." Player offers a small token (chamomile sprig, astral shard) and asks. The chatbot has access to:
 - Game state (resources, buildings, current quests, adventurers)
-- Lore knowledge base (`LORE_TIMELINE.md`, founding characters, factions)
+- Lore knowledge base (`lore/TIMELINE.md`, founding characters, factions)
 - The Lord's chronicle entries
 
 Three implementation paths:

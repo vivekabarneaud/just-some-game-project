@@ -45,4 +45,4 @@
 - Assign a backstory trait.
 
 ## Cross-refs
-- [thornwood-family.md](thornwood-family.md); `premade-characters.ts` char_005; `LORE_TIMELINE.md` (Nordveld, the northern war).
+- [thornwood-family.md](thornwood-family.md); `premade-characters.ts` char_005; `lore/TIMELINE.md` (Nordveld, the northern war).

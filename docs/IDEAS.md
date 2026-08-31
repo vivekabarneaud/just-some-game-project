@@ -228,3 +228,17 @@ the same novice and side-chain pool as level 1 (the board filters on
 `minGuildLevel <= guildLevel`, so nothing breaks — the tier is simply empty until
 it's rewritten).
 
+## Rescued from deleted design docs (2026-08-31)
+
+The docs went because their systems shipped; these are the parts that hadn't.
+
+**Defenses** (`DESIGN_DEFENSES`, built) — specialized soldier types beyond the generic garrison · adventurers auto-garrisoning when idle · **named officers** commanding a wall · a settlement-map view of the rings · a fourth ring at city tier.
+
+**Races & origins** (`DESIGN_RACES_ORIGINS`, built) — the **per-tag weakness/resistance multiplier table**. Only two binary immunities exist today (ghost→physical unless spirit-sensitive, aether→magical); the designed table had fire/frost/holy/silver multipliers per tag. Blocked on damage schools actually being applied.
+
+**Tier-1 gear** (`DESIGN_TIER1_GEAR`, built) — **set bonuses** (Pack Hunter, the boar tank set), deliberately deferred to later acts so Act 1 gear stays clean · the plate and mail lines · tainted/Hollow crafting from the Patriarch's corrupted materials, which needs a worldbuilding decision first.
+
+**Permadeath softeners** (`DESIGN_ROSTER_CURATION`, superseded) — the roster-cut idea is dead, replaced by introducing characters one at a time with their own stories. But two levers from it survive and matter more now that each character is bespoke: **Phoenix Tears**, an alchemy revival item that gives the alchemy tree real late-game purpose and makes death costly-but-recoverable rather than purely brutal; and the priest **"Divine Grace"** passive (party death-risk reduction + revive chance) — `revived: string[]` is already tracked in game state.
+
+**Cosmetic skins** for recruited characters — also from roster curation, also still open.
+

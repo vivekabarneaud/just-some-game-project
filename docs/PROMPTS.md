@@ -1,6 +1,6 @@
 # Midjourney Prompts — The Shattered Realm (TODO)
 
-Prompts for images not yet generated. Completed prompts have been moved to `PROMPTS_DONE.md`.
+Prompts for images not yet generated. Completed prompts have been moved to the retired art done-log (in git).
 
 Style reference: "Realistic digital painting, dark moody atmosphere, game icon style"
 Enemy portraits: --ar 1:1 (square, for cards)

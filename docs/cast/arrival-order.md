@@ -35,4 +35,4 @@ A character arrives **only when there's a believable reason for *this* person to
 The detailed **story-beat map** — story 1-14, the settlement tier at each beat, and the precise unlock point for every character. This summary is the framework; the beat map pins the numbers and unblocks [[project_chapter_3_defense_quest]].
 
 ## Cross-refs
-- [stonebridge-arrival.md](stonebridge-arrival.md); [[project_settlement_tiers]]; [[project_chapter_3_defense_quest]]; `LORE_TIMELINE.md`.
+- [stonebridge-arrival.md](stonebridge-arrival.md); [[project_settlement_tiers]]; [[project_chapter_3_defense_quest]]; `lore/TIMELINE.md`.

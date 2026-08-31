@@ -48,7 +48,7 @@ Both instances use the same shape:
 | 4+ | 2 more seasons | Final warning — **Warden Niamh** in person | "⚠️ Warden Niamh stands at your gate: 'Rowena was polite. I'm not. Regrow the trees, or we'll regrow them over your lumber mill.'" |
 | 5+ | 1 more season | **Thornveil raid** | Silvaneth archers + Thornveil Rangers attack, damage the Lumber Mill, repeat each season until resolved. |
 
-*(Name note: "Warden Niamh" was "Kess" in older drafts — current lore canon renamed her. See `LORE_TIMELINE.md`.)*
+*(Name note: "Warden Niamh" was "Kess" in older drafts — current lore canon renamed her. See `lore/TIMELINE.md`.)*
 
 **Resolution:** upgrade Sylvan Regrowth to parity → clears warnings + a positive event ("🌿 The forest sighs. Green shoots push through the stumps..."). **Over-investment:** +1 → +2 happiness; +2 → +10% forager output; +3 → Thornveil reputation (future faction system).
 

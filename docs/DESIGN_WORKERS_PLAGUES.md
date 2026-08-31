@@ -115,7 +115,7 @@ The Cat Shelter's *everyday* purpose, not just plague-prevention:
 ### Charm layer (the heart of the idea)
 - **+Happiness** — joy, not just utility.
 - **Named, adoptable cats** with little personalities, wandering the overview (handcraft ethos, like the cast).
-- **Adoption → the pet system.** Shelter cats can be adopted as **companions** — this is where Nettle's cat and adventurers' pet-cats come from. Links building ↔ pets ↔ cast into one loop (adopt a stray → it becomes a hero's familiar). See `DESIGN_ROSTER_CURATION.md` (signature companions).
+- **Adoption → the pet system.** Shelter cats can be adopted as **companions** — this is where Nettle's cat and adventurers' pet-cats come from. Links building ↔ pets ↔ cast into one loop (adopt a stray → it becomes a hero's familiar). See the retired roster-curation doc (in git — superseded by per-character introduction) (signature companions).
 
 ### Scoping note
 The **food-theft half needs only the existing pantry/food system** — no plague system required. So the Cat Shelter can ship EARLY (cozy "protect food / adopt cats / +happiness" building), with the plague-prevention layer added when the rest of this doc lands. Alpha-friendly, not post-alpha-locked.
@@ -146,7 +146,7 @@ Hunting dogs are even more natural (hunters bring hounds; no origin question). C
 - **Cat Shelter** = cozy, *cared for* (naming-as-care, can drift away), vermin/food/plague/happiness, source of **cat** companions (Nettle's cat).
 - **Hunting Camp kennel** = working, *trained* (loyal working animals), boosts hunting yields (more game with hounds; could guard/scout), source of **dog** companions — **this is where Isla's lurcher comes from.**
 - Mirrors the Isla-dog (trained/functional) vs Nettle-cat (loved/emotional) distinction AT THE BUILDING LEVEL: cats are loved, dogs are trained.
-- **Scope guard:** keep the kennel UTILITARIAN — no full cozy-happiness sub-loop like the shelter (dogs are working animals; the contrast is the point, and it avoids two copies of the same system). See `DESIGN_ROSTER_CURATION.md` (signature companions).
+- **Scope guard:** keep the kennel UTILITARIAN — no full cozy-happiness sub-loop like the shelter (dogs are working animals; the contrast is the point, and it avoids two copies of the same system). See the retired roster-curation doc (in git — superseded by per-character introduction) (signature companions).
 
 ### Cat Shelter introduction — chronicle-driven unlock (2026-06-22)
 The feature is introduced through the story, not a build-menu button (consistent with the game's chronicle-leads-mechanic approach). Three beats, all in the Lord's voice (em-dash-free):

@@ -50,22 +50,7 @@ authoring) and **lore canon** (creative source material, not specs).
 | DESIGN_POSITIONAL_COMBAT.md | P3 (raids get positions), P4 talents, enemy flanking, pull/reach/leap. P1+P2 shipped for missions. |
 | DESIGN_RECOVERY_AND_RETREAT.md | Rescue/drag-out, the Infirmary (**better as Edda than a building**), the log-union refactor, per-mission `noRetreat`. |
 | DESIGN_NOVICE_ITEMS.md | Phase 2 caster spell-weapons. Phase 1 (weapon damage, rarity) shipped. |
-| DESIGN_EXPEDITIONS.md | Phase 5 authored expeditions, the volatility badge, pause-with-choice, in-expedition retreat. Only **one** expedition remains authored. |
-| DESIGN_TALENT_TREES.md | Trees display; combat reads ~3 ids. Blocked on the per-character-trees decision. |
-| DESIGN_MISSION_MAP.md | Pin authoring, and Phase-3 climate (field exists, nothing sets it). |
-| DESIGN_SEASONAL_GATHERS.md | **Winter has no gather.** First Greens, Mushroom Foraging, the specials. |
-| DESIGN_SIDE_STORIES.md | The Bog Witch back half — and Aldith now needs a purpose-built enemy. |
-| DESIGN_ROSTER_CURATION.md | The 229→~50 pool cut never happened. The recruitment rework (scripted arrivals) shipped. |
-| DESIGN_CONTENT_EXPANSION.md | Gems/Jewelcrafter/rings built. Its Act-1 palette proposal is now **ratified** — see ROADMAP reference. |
 | DESIGN_BALANCE_PASS.md | Open ledger, ~2 of 9 landed. |
-| DESIGN_SCARCITY_MISSIONS.md | Built via engine `forceMission`, with the once-per-board guardrail. |
-
-## Built — kept only as reference
-
-DESIGN_DEFENSES.md (ring sim; the tier→ring table was corrected) ·
-DESIGN_CITIZEN_CATEGORIES.md (code added a founder floor) ·
-DESIGN_RACES_ORIGINS.md (the per-tag resist multiplier table is the one gap) ·
-DESIGN_TIER1_GEAR.md (11 items, test-locked; sidearm shipped)
 
 ## Principles — rules for future authoring
 
@@ -74,20 +59,22 @@ DESIGN_ENEMY_AUDIT_METHOD.md (work **vertically**: a family top-to-bottom, enemi
 DESIGN_CRAFTING_PROGRESSION.md (leather→mail→plate by material and craft, not slot-locks) ·
 ANACHRONISMS.md (a decision log, not a checklist — it's why jollof keeps its tomato)
 
-## Lore canon
+## Lore — now a folder
 
-**`LORE_TIMELINE.md` is the single top authority.** `FOUNDING_CHARACTERS.md` is
-the parallel authority for the six founders; `docs/cast/` covers the recruitable
-cast and NPCs (non-overlapping, and its README defers upward).
+`docs/lore/` holds the canon, with **`TIMELINE.md` as the single authority** and
+every other file a *thread* subordinate to it. See `docs/lore/README.md`.
 
-LORE_TIMELINE.md · FOUNDING_CHARACTERS.md · docs/cast/ ·
-LORE_FINAL.md + LORE_EIGHTH_GOD.md (canon-partial; **the fold into TIMELINE is approved and pending**) ·
-LORE_OPEN_IDEAS.md (holding) · LORE_AUDIT_2026-06-11.md · DESIGN_LORE_EXPANSION.md (Varek's court — **zero of it in code**, and its header flags 5 canon breaks: resolve before using)
+TIMELINE.md (the spine) · EIGHTH_GOD.md (the Malice-god reframe, late reveal) ·
+FACTIONS.md (factions/races/NPCs — its old cosmology is superseded by TIMELINE) ·
+FOUNDERS.md (the six) · VAREK.md (the ghost court — **not built, carries canon
+breaks**, header says so) · OPEN_IDEAS.md (holding pen)
+
+`docs/cast/` is the sibling: per-character canon for the recruitable cast and NPCs.
 
 ## Story & art
 
 STORY_PLAYER_SCRIPT.md — Stories 2–13, **authored but dormant behind `CH2_GATE`**. Good prose to draw on; its combat content is placeholder. The shipped Ch1 isn't in it.
-PROMPTS.md / PROMPTS_DONE.md — the art backlog and its done-log.
+PROMPTS.md — the art backlog. (Its done-log was deleted 2026-08-31; shipped assets live on R2.)
 
 ---
 
@@ -100,6 +87,15 @@ parked, because a parked doc still costs attention every time the folder opens.
 git log --diff-filter=D --oneline -- docs/     # find the deleting commit
 git show <commit>^:docs/FILE.md > FILE.md      # restore one
 ```
+
+**Deleted 2026-08-31 (built, so the code documents them):** PROMPTS_DONE ·
+DESIGN_CONTENT_EXPANSION · DESIGN_RACES_ORIGINS · DESIGN_DEFENSES ·
+DESIGN_EXPEDITIONS · DESIGN_CITIZEN_CATEGORIES · DESIGN_MISSION_MAP ·
+DESIGN_SIDE_STORIES · DESIGN_TIER1_GEAR · LORE_AUDIT_2026-06-11 ·
+DESIGN_SEASONAL_GATHERS · DESIGN_SCARCITY_MISSIONS. **Superseded:**
+DESIGN_ROSTER_CURATION (characters now arrive one at a time with their own
+stories) and DESIGN_TALENT_TREES (per-character trees replace the class pentagon
+— the direction lives in `docs/cast/`). Their unbuilt remainders are in `IDEAS.md`.
 
 Notable: `GAME_DESIGN.md` (the founding doc; held the resource taxonomy and the
 dragon sketch) · `NOVEL.md` (three chapters of prose, pre-rewrite canon) ·

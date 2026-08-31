@@ -3,7 +3,7 @@
 One file per character. This is the **deep canon** for each member of the cast: everything that is too good (or too spoilery) to fit in the recruit-card bio. The card shows the surface; these files hold the soul, and most of it is meant to be **discovered** in play (tavern conversations, loyalty milestones, story beats), not dumped.
 
 ## Rules
-- **`LORE_TIMELINE.md` always wins** on world facts (Crown, Church, Varek, the Wastes, magic). If a character file disagrees with the timeline, the timeline is right.
+- **`lore/TIMELINE.md` always wins** on world facts (Crown, Church, Varek, the Wastes, magic). If a character file disagrees with the timeline, the timeline is right.
 - **No invention without a flag.** If something isn't decided yet, write it under **Open threads / TBD** rather than inventing canon.
 - **Player-facing prose has no em dashes** (the recruit-card bio especially). Design notes in these files can use them freely.
 - Filenames are kebab-case: `nessa-thornwood.md`. Families get a shared context file too (e.g. `thornwood-family.md`) so the common backstory lives in one place and the sibling files cross-reference it.

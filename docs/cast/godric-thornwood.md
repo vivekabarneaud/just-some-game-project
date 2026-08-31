@@ -52,4 +52,4 @@
 - Assign a backstory trait.
 
 ## Cross-refs
-- [thornwood-family.md](thornwood-family.md); `premade-characters.ts` char_021; `LORE_TIMELINE.md` (levy/conscription, the northern war).
+- [thornwood-family.md](thornwood-family.md); `premade-characters.ts` char_021; `lore/TIMELINE.md` (levy/conscription, the northern war).
