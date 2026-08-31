@@ -399,6 +399,12 @@ export interface GameState {
     elderly: number;
   };
   season: Season;
+  /** World year the settlement was founded in. The season is shared by every
+   *  player, but the YEAR is local: a settlement's year is its own age, which
+   *  is `settlementYear(worldYear, foundingYear)` in shared/data/calendar.
+   *  Added 2026-08-31 because the backend tick needs it to stop assigning the
+   *  world year (one instance of the 4.1 shadow-drift). */
+  foundingYear?: number;
   seasonElapsed: number;
   year: number;
   lastTick: number;

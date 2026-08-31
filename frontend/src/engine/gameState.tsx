@@ -188,10 +188,12 @@ import type { StreamStatus } from "~/data/water";
 import { resolveCurrentWeather, HEATWAVE_HEAT_KILL_PER_HOUR, DELUGE_DROWN_KILL_PER_HOUR, CHRONIC_WILT_PER_HOUR, type WeatherType } from "~/data/weather";
 import { type Season,
   SEASON_ELAPSED_SPAN,
+  REAL_SEASON_HOURS,
   HARVEST_DURATION_HOURS,
   nextSeason,
   IS_DEV,
   getGlobalSeason,
+  settlementYear,
 } from "~/data/seasons";
 import { STORY_CHAINS, runStoryChains, next3amUTC } from "~/engine/story/chains";
 import { type Adventurer,
@@ -4050,8 +4052,13 @@ export function GameProvider(props: ParentProps) {
       produce((s) => {
         // Advance season
         if (IS_DEV) {
-          // Dev mode: season driven by game ticks (affected by speed)
-          s.seasonElapsed += elapsedHours;
+          // Dev: the season accumulates from game-hours, which is what lets the
+          // speed buttons move it (prod re-derives from the wall clock, so
+          // speed cannot). Scaled so x1 matches the world clock EXACTLY — one
+          // season per SEASON_DAYS real days — and the buttons multiply from
+          // there. It used to add raw game-hours, making x1 seasons 3x faster
+          // than production, so dev pacing never told you the truth.
+          s.seasonElapsed += elapsedHours * (SEASON_ELAPSED_SPAN / REAL_SEASON_HOURS);
           while (s.seasonElapsed >= SEASON_ELAPSED_SPAN) {
             s.seasonElapsed -= SEASON_ELAPSED_SPAN;
             advanceSeason(s);
@@ -4067,7 +4074,7 @@ export function GameProvider(props: ParentProps) {
           }
           s.seasonElapsed = global.progress * SEASON_ELAPSED_SPAN;
           // Season is global/shared, but YEAR is local = settlement age.
-          s.year = Math.max(1, global.year - (s.foundingYear ?? global.year) + 1);
+          s.year = settlementYear(global.year, s.foundingYear);
 
           // No year-type forecast: the year is unpredictable, discovered as it's
           // lived. Its character comes through the weather it throws (a dry year
