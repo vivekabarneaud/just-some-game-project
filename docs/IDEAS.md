@@ -68,3 +68,21 @@ its line — the code becomes the documentation.
 ## Combat
 
 - **Enchanted team scrolls** — five recipes, fully specced with exact ingredients and effects, in `DESIGN_ENCHANTED_SCROLLS.md`. Parked because every one is gated behind Mage Tower 2+ and Act 1 has no reachable magic. Unpark when magic becomes player-facing.
+
+## Later acts (pulled out of Act 1, 2026-08-31)
+
+Act 1's palette is the grounded one: wolves, boars, bears, cave spiders, marsh
+adders, rats, the thinning's dead. The exotics below leapfrogged that tone, so
+their **missions were deleted** and their **bestiary entries kept** — an undiscovered
+enemy stays hidden, so it costs nothing to leave a designed creature waiting for
+the act it belongs to.
+
+- **Dragons** — `wyrmling`, `dragon_hatchling`. Missions removed: `wyrmling_den`, `dragon_nest`, `feral_drake_hunt`. Ties into the long-term dragon system.
+- **Elementals** — `flame_wisp`, `ember_elemental`, `frost_elemental`. Missions removed: `fire_spring`, `elemental_rift`, `aether_convergence`, `magma_depths`. Note `flame_wisp` and `ember_elemental` are near-identical fire elementals: **merge them, or make one a fast swarm-add**, before either returns.
+- **Corrupted treant** — mission removed: `corrupted_grove`. The one exotic worth reconsidering for Act 1's *edge*: a single sickening tree near the thinning as a glimpse of deeper horror. Would need the "home is safe" rule respected — out there, never at the hearth.
+- **Fungal crawler** — cool, no home yet. Shared `corrupted_grove` with the treant. Drops `glowcap_spore`, which nothing crafts.
+- **Dormant gear that came with them** — `dragonbone_sword`, `dragonfire_staff`, `wyrmscale_armor`, `wyrmscale_greaves` and friends are still craftable-in-principle, but their materials (`dragonfire_ash`, `wyrmshell_plate`, `livingflame_bead`) now have no source. They wake up together with the enemies.
+- **A real Wastes wolf** — the name freed up by the Tier-1 pass. Undead wolves, or living wolves that scavenged corpses and aether at the Wastes' edge and came back wrong.
+- **`captain_hale_stub`** — flagged in-file as an npc-escort test stub, but referenced live in `storyMissions`. Resolve with the story thread it belongs to.
+- **Enemy naming polish** — the flatly descriptive ones (Forest Bear, Marsh Adder, Dire/Frost/Storm Elemental) could take place or faction flavour to match the rest of the roster.
+
