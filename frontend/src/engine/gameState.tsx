@@ -1484,12 +1484,18 @@ export function createInitialState(): GameState {
     mageTower: { level: 0, damaged: false, upgrading: false },
     soldiers: 0,
     archers: 0,
-    // Dev runs its own fast local calendar (starts in spring). Prod seeds the
-    // fresh settlement AT the current shared-world season/progress, so the very
-    // first tick doesn't fast-forward spring -> now and fire a burst of stale
-    // season banners ("Spring has arrived" followed instantly by summer).
-    season: IS_DEV ? "spring" : getGlobalSeason().season,
-    seasonElapsed: IS_DEV ? 0 : getGlobalSeason().progress * SEASON_ELAPSED_SPAN,
+    // BOTH modes now seed the fresh settlement AT the current shared-world
+    // season and progress. Prod needs it so the very first tick doesn't
+    // fast-forward spring -> now and fire a burst of stale season banners
+    // ("Spring has arrived" followed instantly by summer). Dev used to force
+    // spring, which was only ever "start the local calendar at its beginning" —
+    // but seasonElapsed is the same 0..SEASON_ELAPSED_SPAN scale in both modes,
+    // so dev can start at the real season and simply keep accumulating from
+    // there. What still differs is how the season ADVANCES, not where it
+    // begins: prod re-derives it from the wall clock every tick, dev adds up
+    // game-hours so the speed buttons can actually move it.
+    season: getGlobalSeason().season,
+    seasonElapsed: getGlobalSeason().progress * SEASON_ELAPSED_SPAN,
     year: 1,
     foundingYear: getGlobalSeason().year,
     // foundingWinterGrace left undefined — latched on the first tick.
