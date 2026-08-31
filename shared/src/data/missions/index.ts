@@ -37,7 +37,6 @@ import type { MissionTemplate } from "./types.js";
 export { NOVICE_MISSIONS } from "./noviceMissions.js";
 export { APPRENTICE_MISSIONS } from "./apprenticeMissions.js";
 export { EXPEDITION_POOL } from "./expeditions.js";
-export { STAGED_MISSIONS } from "./stagedMissions.js";
 export { SIDE_CHAIN_MISSIONS } from "./sideChainMissions.js";
 
 /** All regular (non-story) missions. */

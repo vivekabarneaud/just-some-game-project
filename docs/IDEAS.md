@@ -119,3 +119,12 @@ the act it belongs to.
 - **`captain_hale_stub`** — flagged in-file as an npc-escort test stub, but referenced live in `storyMissions`. Resolve with the story thread it belongs to.
 - **Enemy naming polish** — the flatly descriptive ones (Forest Bear, Marsh Adder, Dire/Frost/Storm Elemental) could take place or faction flavour to match the rest of the roster.
 
+## Rescued from deleted missions
+
+Seeds worth keeping from missions that were themselves placeholders. The mission
+was wrong; the idea underneath wasn't.
+
+- **Frontier news** — from the deleted `tavern_intel` ("gather rumours", too generic). Reframe as *news from the road*, which now has a natural home: the tavern's rooms-and-travellers system is built, and travellers are exactly who would carry it.
+- **The Shaman's Hex** — from the deleted `goblin_shaman_camp`. *Livestock sickening, crops wilting in one specific field, and the trail leads to whoever is doing it.* A good mystery structure that survives losing the goblins entirely — swap the culprit for something Act-1-appropriate and the shape still works.
+- **The Burning Crypt** — from the deleted `burnt_crypt`. *A crypt has caught fire from the inside; burnt skeletons walk out at night trailing flames.* Too early and far too close to home for Act 1, but a real image, and Wastes-grade content for later.
+

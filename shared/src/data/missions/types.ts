@@ -103,9 +103,10 @@ export interface MissionTemplate {
    *  must not spoil. Also the hook for any future side-quest log. */
   sideChain?: { id: string; name: string };
   /** Parked placeholder. Still resolvable by getMission() (so saves mid-flight
-   *  don't break) but never generated onto the board. Lives in
-   *  STAGED_MISSIONS — the holding pen we pull from and rework. Un-stage by
-   *  moving it back into its tier array and dropping this flag. */
+   *  don't break) but never generated onto the board. Un-stage by reworking the
+   *  mission so it fits the world and dropping this flag — or delete it.
+   *  (The separate STAGED_MISSIONS holding pen was removed 2026-08-31; parked
+   *  missions now just carry this flag inside their own tier file.) */
   staged?: boolean;
   /** Urgent settlement-side response (a spider infestation in the quarry, a
    *  food crisis) — usually forced onto the board from game state. Drives the
