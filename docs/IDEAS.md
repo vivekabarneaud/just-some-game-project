@@ -34,6 +34,65 @@ its line — the code becomes the documentation.
 - **Per-dish gold value** — a sell hook for cooked dishes (Kitchen phase C2c).
 - **Rarity frames on dish cards** — quality tint + ornament frame, matching the item cards.
 
+### The flour wave (waiting on The Works)
+
+`The Works` is designed on `feat/foraging-minigame` (commit d6d6715) and unmerged:
+a building that transforms passively like the brewery tick, deliberately not
+called a mill because a watermill site was power, not one machine. `grind` turns
+any grain into **flour** (a `food`, not a material, so the kitchen needs no
+special case), chestnut into chestnut flour, acorn into acorn flour, oak bark
+into tanbark. Yield, not friction: a measure of grain feeds further as flour
+than as porridge. When it lands, six dishes switch from wheat-as-crust to flour
+(Apple Pie, Cherry Cobbler, Game Pie, Fish Pie, Eel Pie, Pear Pie).
+
+- **Parasol mushroom** — doesn't exist anywhere yet, not in the kitchen pantry and
+  not in the foraging design (which lists only cepe, chanterelle, field mushroom,
+  morel). Wants a foraging entry first. It's the one mushroom that fries
+  differently: big flat caps that cook whole like a cutlet instead of shrinking
+  into a pan-fry.
+- **Breaded Parasol Caps** — parasol + flour + eggs, fried. The parasol's signature
+  dish (French *coulemelles panées*). *"Caps as wide as a hand, dipped in flour
+  and egg and fried until they crackle. Eats like meat, and costs nothing but a
+  walk."* Chain is three deep: parasol → flour → the dish.
+- **Breading stays the parasol's alone** (user, 2026-08-31). Deliberately NOT
+  generalised to "any breaded mushroom" even though flour would allow it. Each
+  mushroom should earn its own idea rather than share one.
+
+### Dish naming rule (agreed 2026-08-31)
+
+Name the FOOD, never the cook. "Ploughman's Broth" and "Farmhand's Fry" slide
+off; "Venison in Berries" and "Eel in Green Sauce" stick. Descriptive
+everywhere, and let **flatness** mark the tier:
+
+- **plain tier** — flat on purpose, because nothing special happened: Fried
+  Mushrooms, Boiled Roots, Cut Fruit, Poached Fish.
+- **a real find** — descriptive AND specific, so it reads as a dish someone
+  meant: Mushrooms and Wild Garlic, Venison in Berries, Fire-Charred Mushrooms.
+
+Same register, so nothing feels bolted on, but you can hear which one is a
+discovery. Rename pass pending on the occupational names (Ploughman's Broth →
+Meat, Root and Barley; Shepherd's Roast → Roast Meat and Roots; Fisherman's Fry
+→ Fried Fish and Eggs; Forager's Board → Cut Greens and Berries; Bolete Fry →
+King Bolete and Wild Garlic). Keep **Hearth Stew** and **Harvest Roast**: they
+name an *occasion*, not a cook, which is why they land.
+
+**Three outcomes when a player adds an ingredient**, rather than two: it's a
+*garnish* when the addition is in the same register (forest food onto forest
+food); a *new dish* when it changes what the meal is FOR (a root turns a side
+into supper, milk turns plain into rich); and the *plain tier* when it merely
+works (fried mushrooms with boiled fish isn't wrong, it just isn't anything).
+
+**Plain-tier names could name their own ingredient** — one authored dish whose
+name reads "Fried Chanterelles" when the pot holds only chanterelles and "Fried
+Mushrooms" when it's a mix. One entry, concrete names, needs a small engine bit.
+
+**Coverage as of 2026-08-31:** at the prep a player would naturally reach for,
+only 11 of 39 ingredients hit an authored dish. 2% of two-ingredient pots match,
+0% of three-ingredient ones. Body slots must match EXACTLY in count, so a
+one-slot dish can never catch a two-body pot — which is why *garnish tolerance*
+(letting one extra body behave like an extra spice already does) is worth more
+than any number of new dishes.
+
 ## Farming
 
 - **Buying seed at market / rare seeds by culture** — how specialty crops get acquired. Today seeds only unlock via quests, so pear, cherry and grapes are locked teasers with no path to them.
