@@ -74,7 +74,10 @@ breaks**, header says so) · OPEN_IDEAS.md (holding pen)
 ## Story & art
 
 STORY_PLAYER_SCRIPT.md — Stories 2–13, **authored but dormant behind `CH2_GATE`**. Good prose to draw on; its combat content is placeholder. The shipped Ch1 isn't in it.
-PROMPTS.md — the art backlog. (Its done-log was deleted 2026-08-31; shipped assets live on R2.)
+PROMPTS.md — the art backlog. Audited 2026-08-31: the Tier-5, Divine and Dragon
+mission sections were removed (all for deleted content), and 18 references to
+"Kess" became **Niamh**, the name the timeline settled. Its done-log was deleted;
+shipped assets live on R2.
 
 ---
 

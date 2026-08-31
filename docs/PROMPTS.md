@@ -14,9 +14,7 @@ Raid scenes: --ar 1:1 or --ar 16:9
 Full-screen cinematic images. First-person POV where noted. Wide aspect ratio for full-bleed display.
 All use: realistic digital painting, dark moody atmosphere, cinematic lighting, no text, no UI --ar 16:9
 
-
 ### Story Mission 1 — Scouting the Surroundings
-
 
 ### Story Mission 2 — The Hilltop Ruins
 
@@ -64,31 +62,31 @@ Wide panoramic shot from a ridge edge looking south, a stark divide between livi
 
 **Story 4 Slide 1 — The Ranger Arrives**
 A hooded figure standing at the edge of a frontier settlement at dawn, a Thornveil Ranger in weathered green-and-brown leather armor with a longbow across her back and a faintly glowing runic blade at her hip, morning mist behind her, she is standing still and watching with calm intensity, the settlement's wooden palisade and crude buildings visible behind the viewer, she has been waiting to be noticed, realistic digital painting, dark moody atmosphere, cinematic lighting, no text --ar 16:9
-> Journal text: A stranger arrived at dawn. Hooded, armed, patient. She'd been watching us — for how long, she wouldn't say. Her name is Kess. A Thornveil Ranger. She says we need to hear what she knows.
+> Journal text: A stranger arrived at dawn. Hooded, armed, patient. She'd been watching us — for how long, she wouldn't say. Her name is Niamh. A Thornveil Ranger. She says we need to hear what she knows.
 
-**Story 4 Slide 2 — Kess Explains**
-Interior of a simple wooden building or tent, first-person POV sitting across a table from Kess the Ranger, a rough map spread between them showing markings for ward-lines and the Wastes boundary drawn in red, a single candle flickering between them casting warm light and deep shadows, Kess leaning forward with a grim but not unkind expression, her finger pointing at a location on the map, her runic blade propped against the table edge glowing faintly blue, realistic digital painting, dark moody atmosphere, cinematic lighting, no text --ar 16:9
+**Story 4 Slide 2 — Niamh Explains**
+Interior of a simple wooden building or tent, first-person POV sitting across a table from Niamh the Ranger, a rough map spread between them showing markings for ward-lines and the Wastes boundary drawn in red, a single candle flickering between them casting warm light and deep shadows, Niamh leaning forward with a grim but not unkind expression, her finger pointing at a location on the map, her runic blade propped against the table edge glowing faintly blue, realistic digital painting, dark moody atmosphere, cinematic lighting, no text --ar 16:9
 > Journal text: She laid a map on the table and pointed south. *"That dead forest? That's the boundary's edge. And it's moving north."* The Dominion didn't mention that in the land grants. The Thornveil maintain ancient ward-stones that hold the line — but they're failing. Too few druids, too much ground.
 
 **Story 4 Slide 3 — The Spirit Blade**
-Close-up of Kess's weathered hand resting on the hilt of her blade, the runes along the blade glowing faintly blue-white with spirit energy, her other hand visible pointing at a spot on the map in the background, shallow depth of field focusing on the blade and her scarred hand, the blue glow reflecting off the wooden table surface, realistic digital painting, dark moody atmosphere, cinematic lighting, no text --ar 16:9
+Close-up of Niamh's weathered hand resting on the hilt of her blade, the runes along the blade glowing faintly blue-white with spirit energy, her other hand visible pointing at a spot on the map in the background, shallow depth of field focusing on the blade and her scarred hand, the blue glow reflecting off the wooden table surface, realistic digital painting, dark moody atmosphere, cinematic lighting, no text --ar 16:9
 > Journal text: She offered a deal: help reinforce the nearest ward-stone, and she'll teach us what she knows about the Wastes. I asked about her blade. She looked at it like an old friend. *"Spirit-touched. For when the dead don't stay dead."*
 
 ### Story Mission 5 — The Cracked Ward-Stone
 
-**POV rule:** The team (wizard + adventurers + Kess) goes south to reinforce the ward-stone. The player stays at the settlement and waits. Slides 1–2 show what happened out there as the team described it on return. Slide 3 is Kess back at the settlement in the morning, talking to the player.
+**POV rule:** The team (wizard + adventurers + Niamh) goes south to reinforce the ward-stone. The player stays at the settlement and waits. Slides 1–2 show what happened out there as the team described it on return. Slide 3 is Niamh back at the settlement in the morning, talking to the player.
 
 **Story 5 Slide 1 — The Ritual (as they described it)**
-A moss-covered stone monolith in a moonlit forest clearing, cracked down the middle with ancient runes carved into its surface, a wizard in dark robes standing before it with hands extended channeling streams of blue-white light into the stone, Kess the Ranger kneeling beside the stone chanting with her eyes closed, the runes flickering between dark and glowing, magical energy swirling in the air like luminous mist, the surrounding forest dark and watchful, realistic digital painting, dark moody atmosphere, cinematic lighting, no text --ar 16:9
-> Journal text: They left at dawn and I didn't sleep that night. Our wizard told me later that the ritual took hours — she channeled Aether into the stone while Kess chanted in a language the Thornveil keep to themselves. The runes flickered, dimmed, then held. A faint blue glow pushing back the grey.
+A moss-covered stone monolith in a moonlit forest clearing, cracked down the middle with ancient runes carved into its surface, a wizard in dark robes standing before it with hands extended channeling streams of blue-white light into the stone, Niamh the Ranger kneeling beside the stone chanting with her eyes closed, the runes flickering between dark and glowing, magical energy swirling in the air like luminous mist, the surrounding forest dark and watchful, realistic digital painting, dark moody atmosphere, cinematic lighting, no text --ar 16:9
+> Journal text: They left at dawn and I didn't sleep that night. Our wizard told me later that the ritual took hours — she channeled Aether into the stone while Niamh chanted in a language the Thornveil keep to themselves. The runes flickered, dimmed, then held. A faint blue glow pushing back the grey.
 
 **Story 5 Slide 2 — The Dead Come (as they described it)**
 Night scene in the ward-stone clearing, translucent pale spectral figures emerging from grey mist on all sides, reaching with confused ghostly hands, some with expressions of bewilderment rather than malice, adventurers in defensive formation around the glowing ward-stone with weapons drawn, blue ward-light clashing with grey ghostly mist, sparks of magical energy where spirits meet the ward's barrier, tense and eerie but not evil, realistic digital painting, dark moody atmosphere, cinematic lighting, no text --ar 16:9
-> Journal text: The dead came, Kess said. Not with hate — with confusion. Spirits that didn't understand why they were there, drawn to the weakening ward like moths to a crack of light. The team held the line while the ritual finished. No one died. A close thing.
+> Journal text: The dead came, Niamh said. Not with hate — with confusion. Spirits that didn't understand why they were there, drawn to the weakening ward like moths to a crack of light. The team held the line while the ritual finished. No one died. A close thing.
 
-**Story 5 Slide 3 — Kess Returns at Dawn**
-First-person POV sitting on a wooden bench outside the settlement's main hall at sunrise, Kess the Thornveil Ranger sitting across from the viewer on an opposite bench, travel-stained and exhausted, her blade across her lap, dawn mist rising from the ground between them, a clay cup of tea in her hand, the settlement's rough wooden buildings behind her, she is looking directly at the viewer with a tired evaluating expression and half-smile, a sense of hard-won victory and deeper questions ahead, realistic digital painting, warm morning light, cinematic lighting, no text --ar 16:9
-> Journal text: Kess came back with the others at first light, too tired to go to bed. I sat with her outside the hall while the sun came up, and she told me the truth. The god of death was destroyed thousands of years ago. Without him, the boundary between the living and the dead is failing. *"Everyone has a theory. My people just patch the wards and hope someone smarter comes along."* She looked at me. *"You're building something here. That takes a certain kind of stubborn. We could use stubborn."*
+**Story 5 Slide 3 — Niamh Returns at Dawn**
+First-person POV sitting on a wooden bench outside the settlement's main hall at sunrise, Niamh the Thornveil Ranger sitting across from the viewer on an opposite bench, travel-stained and exhausted, her blade across her lap, dawn mist rising from the ground between them, a clay cup of tea in her hand, the settlement's rough wooden buildings behind her, she is looking directly at the viewer with a tired evaluating expression and half-smile, a sense of hard-won victory and deeper questions ahead, realistic digital painting, warm morning light, cinematic lighting, no text --ar 16:9
+> Journal text: Niamh came back with the others at first light, too tired to go to bed. I sat with her outside the hall while the sun came up, and she told me the truth. The god of death was destroyed thousands of years ago. Without him, the boundary between the living and the dead is failing. *"Everyone has a theory. My people just patch the wards and hope someone smarter comes along."* She looked at me. *"You're building something here. That takes a certain kind of stubborn. We could use stubborn."*
 
 ### Story Mission 6 — The Robin's Message
 
@@ -100,9 +98,9 @@ A small ordinary robin perched on a crude wooden watchtower railing in morning l
 Close-up first-person POV of two hands holding a small unfurled scroll, the handwriting elegant but trembling with age, a candle flickering on a wooden table beside the hands casting warm amber light, the scroll's wax seal broken and lying on the table, the text partially visible but not readable at this resolution, the paper is very old and the ink has a faint luminous quality, intimate and mysterious, realistic digital painting, dark moody atmosphere, cinematic lighting, no text --ar 16:9
 > Journal text: *"I have watched your settlement. You reinforce wards. You ask questions instead of praying for answers. This is rare."* The letter says the boundary is failing. That the wards are buying time, nothing more. But the writer believes the answer is close. *"Follow the robin when it flies south. It knows the way. — H.F."*
 
-**Story 6 Slide 3 — Kess Recognizes**
-First-person POV with Kess reading over the viewer's shoulder, her expression shifting from curiosity to surprise to recognition, the scroll visible in the lower foreground held by the viewer's hands, through a window behind Kess the robin is still visible perched on the watchtower railing outside, waiting, morning light from the window illuminating half of Kess's face, the other half in shadow, a moment of realization, realistic digital painting, dark moody atmosphere, cinematic lighting, no text --ar 16:9
-> Journal text: Kess read it over my shoulder. *"A robin? The elders say she used ravens."* Then she understood. *"She changed. Because someone was intercepting them."* Halldora Frostvik. They say she was alive before the Dominion existed. They say she knows why the world is broken. The robin is still on the watchtower. Waiting.
+**Story 6 Slide 3 — Niamh Recognizes**
+First-person POV with Niamh reading over the viewer's shoulder, her expression shifting from curiosity to surprise to recognition, the scroll visible in the lower foreground held by the viewer's hands, through a window behind Niamh the robin is still visible perched on the watchtower railing outside, waiting, morning light from the window illuminating half of Niamh's face, the other half in shadow, a moment of realization, realistic digital painting, dark moody atmosphere, cinematic lighting, no text --ar 16:9
+> Journal text: Niamh read it over my shoulder. *"A robin? The elders say she used ravens."* Then she understood. *"She changed. Because someone was intercepting them."* Halldora Frostvik. They say she was alive before the Dominion existed. They say she knows why the world is broken. The robin is still on the watchtower. Waiting.
 
 ---
 
@@ -128,56 +126,9 @@ All use: realistic digital painting, dark moody background, game icon style, squ
 
 ## Enemy Portraits
 
-### Tier 5 — Legendary
-
-**Ancient Wyrm**
-Extreme close-up portrait of an ancient wyrm, a thousand-year-old dragon of terrifying scale, only the massive head visible filling the entire frame, scales of deep burnished bronze and obsidian black, each scale the size of a shield, enormous intelligent golden eyes with ancient knowing fury, nostrils flaring with streams of white-hot fire and smoke, massive horns sweeping back like a crown, lower jaw beginning to open revealing an inferno building in the throat, scars from centuries of battle across the snout, mountains and burning landscape reflected in the enormous eye, dramatic warm fire lighting, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
-
-**Shadow Lord**
-Extreme close-up portrait of a shadow lord, a being of pure concentrated darkness given terrible form, a tall regal figure made of swirling living shadow, a crown of darkness floating above a featureless void-black face with two piercing white eyes like stars in an abyss, reality visibly warping and bending around its presence like a gravitational lens, one hand raised with tendrils of darkness reaching toward the viewer consuming the light, space itself cracking like glass around its fingers, absolute darkness behind with faint terrified faces visible in the shadow, contrast of pure black and blinding white pinpoint lighting, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
-
-**Fallen Seraph**
-Extreme close-up portrait of a fallen seraph, a corrupted angelic being of immense power, beautiful androgynous face streaked with tears of liquid light, expression of righteous fury and deep sorrow simultaneously, three pairs of wings — two still radiant white gold and two corrupted to dark purple-black, ornate golden armor cracked and bleeding divine light from the fractures, wielding a blazing sword of pure white fire in one hand, the other hand open and weeping golden light, a halo above the head cracked and flickering between gold and dark purple, ruins of a sky-temple floating in clouds behind, dramatic golden and purple divine lighting, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
-
-**Aether Colossus**
-Extreme close-up portrait of an aether colossus, only the upper body and head visible at this scale, a towering construct of pure crystallized Aether dozens of feet tall, body made of massive interlocking crystal formations of blue-white and violet, two enormous eyes of blinding white arcane energy, no mouth just a resonating crystal core in the chest pulsing with overwhelming power, one colossal crystalline fist raised about to slam down at the viewer, smaller crystal fragments orbiting its body like satellites, cracks of pure energy running across its surface, deep underground cavern too small to contain it with the ceiling crumbling, blinding blue-white arcane lighting, realistic digital painting, dark moody background, game icon style, square composition, no text --ar 1:1
-
----
-
-### Divine Missions
-
-**Abandoned Shrine**
-Wide shot of an ancient overgrown shrine to a forgotten god, crumbling stone altar with faded divine symbols, massive stone pillars wrapped in vines and roots, a temple guardian standing motionless in the center with golden light flickering from its visor, adventurers entering through a collapsed archway, sunlight streaming through holes in the roof creating dramatic light shafts, golden-green ancient lighting, realistic digital painting, oil painting style, dark moody atmosphere, no text --ar 16:9
-
-**Fallen Seraph Hunt**
-Wide shot of a massive impact crater in a field, something glowing with intense golden-white light at the center, corrupted purple-black energy flickering within the golden glow, the surrounding area bleached white by divine energy, crops flattened in a radial pattern, an adventurer party approaching the crater's edge shielding their eyes, brilliant golden light fighting purple corruption, realistic digital painting, oil painting style, dark moody atmosphere, no text --ar 16:9
-
-### Dragon Missions
-
-**Dragon Nest**
-Wide shot of a rocky cliffside with a large cave entrance, scorched earth and charred bones scattered around, two dragon hatchlings visible at the cave mouth hissing with small flames, an adventurer party climbing the cliff path below, enormous claw marks gouged into the rock face, an ominously empty sky suggesting the mother could return, warm orange light from the cave against cool blue sky, realistic digital painting, oil painting style, dark moody atmosphere, no text --ar 16:9
-
-**Ancient Wyrm Lair**
-Wide shot of a vast mountain cavern filled with an enormous hoard of gold coins treasure and bones, the ancient wyrm coiled atop the treasure pile with one enormous eye open watching, the dragon's scale reflecting the golden treasure light, adventurers visible as tiny figures at the cavern entrance barely visible against the dragon's scale, smoke and heat haze filling the upper cavern, warm golden treasure light, realistic digital painting, oil painting style, dark moody atmosphere, no text --ar 16:9
-
-**Feral Drake Hunt**
-Wide shot of a barren wasteland at the border, dead grey trees and cracked earth, massive claw prints and scorched ground, an adventurer party tracking the drake with weapons ready, the feral drake visible in the distance perched on a rocky outcrop watching them with intelligent predator eyes, red sunset sky reflecting off the grey wasteland, realistic digital painting, oil painting style, dark moody atmosphere, no text --ar 16:9
-
-**Wasteland Wyrm Lair**
-Wide shot of a corrupted dragon nest deep in the grey zone, blackened eggs in a nest of dead vegetation and bones, sickly green-black energy seeping from the ground, the wasteland wyrm coiled protectively around the nest with necrotic breath wisping from its jaws, dead grey landscape stretching to the horizon, no living thing visible anywhere, sickly green-black corrupted lighting, realistic digital painting, oil painting style, dark moody atmosphere, no text --ar 16:9
-
-
 ### Journeyman & Expert Mission Scenes (Prompts Already Listed Above)
 
 These mission IDs don't have an `image:` URL wired up yet, but their prompts already exist earlier in this file under **Divine Missions** and **Dragon Missions** (lines 147–168). Generate from those and save as the filenames below:
-
-- `abandoned_shrine.png` → see **Abandoned Shrine** prompt (mission id `abandoned_shrine`, "The Abandoned Shrine")
-- `fallen_seraph_hunt.png` → see **Fallen Seraph Hunt** prompt (mission id `fallen_seraph_hunt`, "The Weeping Light")
-- `dragon_nest.png` → see **Dragon Nest** prompt (mission id `dragon_nest`, "The Wyrm's Nest")
-- `ancient_wyrm_lair.png` → see **Ancient Wyrm Lair** prompt (mission id `ancient_wyrm_lair`)
-- `feral_drake_hunt.png` → see **Feral Drake Hunt** prompt (mission id `feral_drake_hunt`)
-- `wasteland_wyrm_lair.png` → see **Wasteland Wyrm Lair** prompt (mission id `wasteland_wyrm_lair`, "The Corrupted Nest")
-
 
 ## Expedition Scenes
 
@@ -185,7 +136,6 @@ Expeditions are multi-event deep-dive missions — the splash image should feel 
 
 **Spider Hollow Descent** — `spider_hollow_descent.png`
 Wide shot looking down into a vertical shaft beneath an old village well, thick layered curtains of grey-white spider silk draping the stone walls like rotted tapestries, a knotted rope ladder disappearing into the gloom with two adventurers already descending — one holding a flickering torch that casts a small sphere of warm light in the enormous dark space, dozens of pale cave spiders of varying sizes visible clinging to the silk above and below, multi-layered tunnel mouths branching off the shaft at different depths, an enormous silhouette of a broodmother barely visible in the deepest darkness, drifting strands of silk catching the torchlight, claustrophobic and vast at once, realistic digital painting, oil painting style, dark moody atmosphere, cinematic lighting, no text --ar 16:9
-
 
 ## Item & Resource Icons
 
@@ -462,7 +412,6 @@ Half-body portrait of an East Asian featured hill dwarf female assassin with war
 
 ## Human Origins — Variants 4 & 5
 
-
 (120 prompts for Ashwick, Nordveld, Meridian, Zah'kari, Tianzhou, Khor'vani — to be generated from task output)
 
 ---
@@ -669,14 +618,11 @@ A Khor'vani astronomical observatory at night, a massive open-roofed circular ch
 
 ---
 
-
 ---
-
 
 ## Building Tier Variants — Remaining
 
 Style: Oil painting, dark medieval fantasy, muted blue-grey palette with warm firelight accents, atmospheric, gritty realism, banner composition, no text --ar 2:1
-
 
 ### Defenses — Walls (4 tiers)
 
@@ -694,7 +640,6 @@ A proper stone curtain wall of dressed ashlar blocks, square crenellations along
 **Wall — City**
 A massive fortified city wall of polished granite ashlar with intermediate flanking towers, machicolations projecting from the parapet, a vast iron-bound gatehouse with double portcullis, knights in plate harness drilling on the wall-walk, the gatehouse's twin towers rising above the curtain wall, a deep dry moat below, the city's spires and rooftops behind the wall, low golden hour light, oil painting, dark medieval fantasy, muted blue-grey palette with warm firelight accents, atmospheric, gritty realism, banner composition, no text --ar 2:1
 
-
 ### Defenses — Watchtowers (4 tiers)
 
 Naming: `watchtower.png` (camp — replaces existing legacy file), `watchtower_village.png`, `watchtower_town.png`, `watchtower_city.png`.
@@ -710,7 +655,6 @@ A square stone watchtower of dressed ashlar blocks four storeys tall, crenellati
 
 **Watchtower — City**
 A grand round stone keep-tower of polished granite, machicolations and cap-house roof in dark slate, six storeys high with arrow slits and gun-loops at every level, a gilded weathervane atop a conical spire, master archers in surcoats drawing longbows from the parapet, a great bronze warning bell mounted under the cap-house, a lord's banner snapping above, the city laid out below, low golden light, oil painting, dark medieval fantasy, muted blue-grey palette with warm firelight accents, atmospheric, gritty realism, banner composition, no text --ar 2:1
-
 
 ### Defenses — Barracks (4 tiers)
 
@@ -728,7 +672,6 @@ A long stone barracks-block with arched doorways and slate roof, a paved drillin
 **Barracks — City**
 A grand stone garrison complex with arched colonnades along the facade, a vast cobbled parade ground filled with knights in plate harness drilling in formation, a master-at-arms on a raised platform calling cadence, a banner-flagged armoury wing with vaulted doors open showing racks of polished plate and pole-arms, a stone watchtower at one corner of the compound, a fountain in the centre of the yard, late afternoon light, oil painting, dark medieval fantasy, muted blue-grey palette with warm firelight accents, atmospheric, gritty realism, banner composition, no text --ar 2:1
 
-
 ## Kitchen Recipe Icons
 
 Food item icons: single dish on dark background, square format.
@@ -736,9 +679,7 @@ All use: realistic digital painting, dark moody background, warm candlelight fro
 
 ### Basic (Kitchen Lv.1)
 
-
 ### Intermediate (Kitchen Lv.3)
-
 
 ## Alchemy Potion Icons
 
@@ -746,8 +687,6 @@ Potion/elixir icons: single bottle or container on dark background, square forma
 All use: realistic digital painting, dark moody background, warm candlelight from one side, game icon style, square composition, no text --ar 1:1
 
 ### Novice
-
-
 
 ---
 
