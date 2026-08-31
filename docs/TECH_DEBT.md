@@ -8,6 +8,8 @@
 
 ## Tier 1 — Live bugs
 
+- [x] **1.11 Raid victory loot silently dropped (found 2026-08-31, fixed with 2.1).** Both raid resolvers inlined `s.resources[key] = Math.min(caps[key], s.resources[key] + amount)`, which only has buckets for gold/wood/stone. `wolf_pack` awards **40 meat**, and meat is a FOOD (`s.foods`, not `s.resources`) — so the grant evaluated to `NaN`, the player got **nothing** for winning, and `resources.meat = NaN` was persisted into the save. Same family as 1.6. Fixed by routing victory loot through `grantReward`, the dispatcher quest- and mission-claims already use (its own docstring records the identical bug being fixed there once before). Guarded by a data test: every raid's `victoryLoot` must name something the game can bank. *S.*
+
 - [x] **1.1 Raid double-apply on reload.** The offline raid resolver (`frontend/src/engine/gameState.tsx` ~3592, server-load path) lacks the `if (ir.combatLog) continue` guard the tick path has (~5622). A raid resolved live but not yet acknowledged (playback unwatched) survives in `incomingRaids`, round-trips to the server, and gets re-resolved on reload: loot or plunder/citizen deaths applied twice. *Fix: add the same guard. S / low risk.*
 - [x] **1.2 Offline raid defeats can kill founders.** Offline casualty math (~3645) uses `sim.archersLost + sim.soldiersLost` (drops `militiaLost`) and decrements `citizens.adults` directly instead of `reduceByPriority(..., s.namedResidents)` like the tick path (~5679). Named residents/founders lose their protection on away-raids. *S / medium risk (population invariants).*
 - [x] **1.3 Offline raid loot ignores storage caps.** Tick path clamps to `calcStorageCaps` (~5719); offline path does a bare `+=` (~3660). *S.*
@@ -27,7 +29,7 @@
 
 ## Tier 2 — Duplication that is already diverging
 
-- [ ] **2.1 The two offline raid resolvers.** ~115 lines in the server-load path (~3592-3707) duplicating the tick resolver (~5617-5793); their drift IS bugs 1.1-1.3. After those are patched and pinned by tests, extract one `resolveRaid(state, ir, opts)` so it can't drift again. *L / medium.*
+- [x] **2.1 The two offline raid resolvers.** ~115 lines in the server-load path (~3592-3707) duplicating the tick resolver (~5617-5793); their drift IS bugs 1.1-1.3. After those are patched and pinned by tests, extract one `resolveRaid(state, ir, opts)` so it can't drift again. *L / medium.*
 - [x] **2.2 `pages/CharacterEncyclopedia.tsx` is a byte-level duplicate of `pages/chronicle/ChronicleCharacters.tsx`** (diff = 3 lines: fn name + an `<h1>`). Make one render the other with a title prop, or drop the route. *S.*
 - [ ] **2.3 Three `UpgradeIndicator` implementations.** Shared `components/UpgradeIndicator.tsx` uses the portaled Tooltip (fixed clipping); `pages/Defenses.tsx:96` and `pages/Buildings.tsx:275,385` hand-roll forks that still carry the already-fixed clipping bug. *M.*
 - [ ] **2.4 Ten hand-rolled modals bypass `FramedModal`.** LootModal, QuestClaimModal, MemoryPreviewModal, EventModal, SettingsModal, ChronicleEntryModal, DogAssignSection, Tavern, ChronicleCast, AdventurersGuild (inline Portal). Consequences: only FramedModal closes on Escape; backdrop alphas drift (0.6/0.7/0.75/0.78); z-index ratchet (1000→1050→1100→1200; Tooltip 9999, Cinematic 10000). *Fix in stages: (a) `--z-*` scale + shared backdrop token, (b) Escape handling, (c) migrate the closest pairs (LootModal/QuestClaimModal share ~70 lines). M.*
@@ -38,12 +40,12 @@
 - [ ] **2.7 Three parallel food-rate impls** (`calcProductionRates` / `calcFoodRates` / `calcFoodBreakdown`) — after the 1.4 patch, unify on one typed `foodSources(state)` producer folded three ways. *M.*
 - [ ] **2.8 Raid strength year-scaling copy-pasted** (`gameState.tsx:1744` vs `data/raids.ts:388`, + the warning-time block). Extract `spawnScriptedRaid`. *S.*
 - [ ] **2.9 Cost-line renderers ×7.** `Defenses.tsx:68` has the good abstraction (CostLine/CostPart/shortageBlocker); BuildingModal (×2, comment admits "mirrors the upgrade cost row"), Buildings, Enchanting, Shrine, MenuDishCard, CraftingPage each re-invent affordability coloring. *M.*
-- [ ] **2.10 Desk twins.** `AlchemyDesk.tsx`/`KitchenDesk.tsx` (299/297 ln) share byte-identical `STEP_BTN`/`PAGE_BTN` style consts; `QUALITY_COLOR` defined 4×; `TIER_ICONS`, `STAT_LABELS` 2× each. Extract a shared `deskStyles.ts`. *M.*
-- [ ] **2.11 Portrait `_zoomed` + onError fallback: 3 competing strategies** across 8 call sites (one with NO fallback). One `<Portrait>` component. *S.*
-- [ ] **2.12 XP-bar markup ×3** (Guild `XpBar` vs hand-copies in AdventurerPickerCard/MissionRosterStrip that "mirror HpBar's track exactly" by hand). Generalize HpBar → `<StatBar>`. *S-M.*
+- [x] **2.10 Desk twins.** `AlchemyDesk.tsx`/`KitchenDesk.tsx` (299/297 ln) share byte-identical `STEP_BTN`/`PAGE_BTN` style consts; `QUALITY_COLOR` defined 4×; `TIER_ICONS`, `STAT_LABELS` 2× each. Extract a shared `deskStyles.ts`. *M.*
+- [x] **2.11 Portrait `_zoomed` + onError fallback: 3 competing strategies** across 8 call sites (one with NO fallback). One `<Portrait>` component. *S.*
+- [x] **2.12 XP-bar markup ×3** (Guild `XpBar` vs hand-copies in AdventurerPickerCard/MissionRosterStrip that "mirror HpBar's track exactly" by hand). Generalize HpBar → `<StatBar>`. *S-M.*
 - [~] **2.13 Flavor union ×4** (`FoodPreference` in adventurers.ts + dead copy in shared gameState.ts; `FoodFlavor` in kitchen/types.ts; inline union in items/types.ts) → 5 `as any` casts. One-line re-export fixes it. *S.*
-- [ ] **2.14 Season/resource icon tables re-rolled locally.** BuildingModal local `SEASONS` shadows `SEASON_META`; CraftingPage + Shrine private resource-emoji tables bypass `data/resources.ts`. *S.*
-- [ ] **2.15 Two enemy cards** (`MissionEnemyCard` 247 ln vs `EnemyCard` 191 ln) — deliberate visual split, but the reveal-tier logic + frame selection should be one hook. *M.*
+- [x] **2.14 Season/resource icon tables re-rolled locally.** BuildingModal local `SEASONS` shadows `SEASON_META`; CraftingPage + Shrine private resource-emoji tables bypass `data/resources.ts`. *S.*
+- [x] **2.15 Two enemy cards** (`MissionEnemyCard` 247 ln vs `EnemyCard` 191 ln) — deliberate visual split, but the reveal-tier logic + frame selection should be one hook. *M.*
 
 ## Tier 3 — Dead weight (deletion)
 

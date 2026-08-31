@@ -267,6 +267,7 @@ import { type IncomingRaid,
   getRaidChance,
   RAID_POOL,
   type DefenseBreakdown,
+  type RaidTemplate,
 } from "~/data/raids";
 
 import { QUEST_DEFINITIONS,
@@ -318,6 +319,160 @@ import { isLoggedIn } from "~/api/auth";
 export function buildRaidCaptainUnit(advs: Adventurer[], kind: "watchtower" | "barracks"): CombatUnit | null {
   const adv = advs.find((a) => a.premadeId === TRAINER_ID[kind] && a.alive && !a.onMission);
   return adv ? buildAdventurerUnit(adv) : null;
+}
+
+/** What resolving one raid did to the settlement, so a caller can narrate it.
+ *
+ *  Two paths resolve raids: the live tick and the offline server-load catch-up.
+ *  They used to be ~115 lines of copy-paste, and their drift WAS bugs 1.1-1.3
+ *  (double-apply on reload, dropped militia losses, uncapped offline loot).
+ *  Now both apply identical state changes through resolveRaidAgainstState and
+ *  differ only in the telling: the tick emits a play-by-play and stashes the
+ *  log for playback, the offline path writes one "while you were away" line and
+ *  skips playback (N replay overlays would bury a returning player).
+ *
+ *  This is also the seam to lift into shared/ when the backend starts resolving
+ *  raids server-side, the way co-op expeditions already do. simulateRaidCombat
+ *  is already there; this is the aftermath half. */
+export interface RaidResolution {
+  sim: ReturnType<typeof simulateRaidCombat>;
+  raidName: string;
+  /** Plunder taken on defeat. All zero on victory. */
+  stolen: { gold: number; wood: number; stone: number; food: number };
+  /** Citizens taken by the plunder, on top of the sim's own casualties. */
+  extraCitizensLost: number;
+  /** Display names of buildings the plunder damaged. */
+  damagedBuildings: string[];
+  /** Captains who came home hurt. `fell` = dragged from the wall. */
+  woundedCaptains: { name: string; fell: boolean }[];
+}
+
+/** Run the siege and apply every consequence to `s`. Mutates walls, garrisons,
+ *  troop totals, captain HP, citizens, resources and buildings; returns the
+ *  facts so the caller can decide what to say. Does NOT touch the event log,
+ *  stash the combat log, or splice the raid off the queue - those differ per
+ *  caller. Tolerates the loose shapes older server saves come back with. */
+export function resolveRaidAgainstState(s: GameState, raidId: string, template: RaidTemplate): RaidResolution {
+  const advs = s.adventurers ?? [];
+  const walls = s.walls ?? [];
+  const towers = s.watchtowers ?? [];
+  const barracks = s.barracks ?? [];
+
+  const sim = simulateRaidCombat({
+    raidId,
+    encounters: template.encounters!,
+    walls: walls.map((w) => ({ ring: w.ring, level: w.level, hp: w.hp, maxHp: w.level * WALL_BASE_HP })),
+    // Trainer coordination buff: +1 effective trained level while the
+    // building's trainer (Gareth / Morgause) is home.
+    watchtowers: towers.map((t) => ({ ring: t.ring, level: t.level, damaged: t.damaged, archerCount: t.garrison?.count ?? 0, trainedLevel: (t.garrison?.trainedLevel ?? 0) + (trainerHome(advs, "watchtower") ? 1 : 0) })),
+    barracks: barracks.map((b) => ({ ring: b.ring, level: b.level, damaged: b.damaged, soldierCount: b.garrison?.count ?? 0, trainedLevel: (b.garrison?.trainedLevel ?? 0) + (trainerHome(advs, "barracks") ? 1 : 0) })),
+    militiaCount: militiaCount(s),
+    watchtowerCaptain: buildRaidCaptainUnit(advs, "watchtower"),
+    barracksCaptain: buildRaidCaptainUnit(advs, "barracks"),
+  });
+
+  // ── Sim after-state: walls, damage, per-building casualties ──
+  for (const wf of sim.wallFinalHp) {
+    const w = walls.find((x) => x.ring === wf.ring);
+    if (w) w.hp = wf.hp;
+  }
+  for (const ring of sim.damagedTowerRings) {
+    const t = towers.find((x) => x.ring === ring);
+    if (t) t.damaged = true;
+  }
+  for (const ring of sim.damagedBarracksRings) {
+    const b = barracks.find((x) => x.ring === ring);
+    if (b) b.damaged = true;
+  }
+  // Per-building so each garrison drops by its OWN losses; totals follow.
+  for (const c of sim.archerCasualtiesByRing) {
+    const t = towers.find((x) => x.ring === c.ring);
+    if (t?.garrison) t.garrison.count = Math.max(0, t.garrison.count - c.lost);
+  }
+  for (const c of sim.soldierCasualtiesByRing) {
+    const b = barracks.find((x) => x.ring === c.ring);
+    if (b?.garrison) b.garrison.count = Math.max(0, b.garrison.count - c.lost);
+  }
+  s.archers = Math.max(0, (s.archers ?? 0) - sim.archersLost);
+  s.soldiers = Math.max(0, (s.soldiers ?? 0) - sim.soldiersLost);
+
+  // Captain wounds: they come home at their own final HP, floored at 1. They
+  // never die at the wall - the roster and townsfolk take the deaths, the
+  // captain carries the wound.
+  const woundedCaptains: { name: string; fell: boolean }[] = [];
+  for (const oc of [sim.watchtowerCaptainOutcome, sim.barracksCaptainOutcome]) {
+    if (!oc) continue;
+    const adv = advs.find((a) => a.id === oc.advId);
+    if (!adv) continue;
+    adv.currentHp = Math.max(1, Math.round(oc.hp));
+    if (oc.fell) woundedCaptains.push({ name: adv.name, fell: true });
+  }
+
+  // Soldier + archer + militia casualties are adult deaths, clamped so the
+  // settlement never drops below BASE_POPULATION, and routed through
+  // reduceByPriority so founders / named residents keep their floor.
+  if (s.citizens) {
+    const totalLoss = sim.archersLost + sim.soldiersLost + sim.militiaLost;
+    const popTotal = totalPopulation(s.citizens);
+    const actual = Math.min(totalLoss, Math.max(0, popTotal - BASE_POPULATION));
+    if (actual > 0) s.citizens = reduceByPriority(s.citizens, actual, ["adults"], s.namedResidents);
+  }
+
+  const stolen = { gold: 0, wood: 0, stone: 0, food: 0 };
+  const damagedBuildings: string[] = [];
+  let extraCitizensLost = 0;
+
+  if (sim.victory) {
+    // Through grantReward, the same dispatcher quest- and mission-claims use.
+    // Both raid paths used to inline `s.resources[key] = Math.min(cap, ...)`,
+    // which only has buckets for gold/wood/stone -- so wolf_pack's "40 meat"
+    // (meat is a FOOD, it lives in s.foods) wrote resources.meat = NaN and the
+    // player got nothing. grantReward already routes meat -> venison in the
+    // food store, and caps it. Fixed 2026-08-31 with the resolver merge.
+    const resCaps = calcStorageCaps(s.buildings);
+    for (const loot of template.victoryLoot) {
+      grantReward(s, { resource: loot.resource, amount: loot.amount }, resCaps);
+    }
+  } else {
+    // ── Defeat: plunder on top of the sim's attrition ──
+    const pct = template.resourceStealPercent;
+    stolen.gold = Math.floor(s.resources.gold * pct);
+    stolen.wood = Math.floor(s.resources.wood * pct);
+    stolen.stone = Math.floor(s.resources.stone * pct);
+    stolen.food = s.foods ? Math.floor(getTotalFood(s.foods) * pct) : 0;
+    s.resources.gold = Math.max(0, s.resources.gold - stolen.gold);
+    s.resources.wood = Math.max(0, s.resources.wood - stolen.wood);
+    s.resources.stone = Math.max(0, s.resources.stone - stolen.stone);
+    if (stolen.food > 0 && s.foods) consumeFood(s.foods, stolen.food);
+
+    if (template.killsCitizens && s.citizens) {
+      const popTotal = totalPopulation(s.citizens);
+      const proposed = Math.min(template.maxCitizenLoss, Math.max(1, Math.floor(popTotal * 0.1)));
+      extraCitizensLost = Math.min(proposed, Math.max(0, popTotal - BASE_POPULATION));
+      if (extraCitizensLost > 0) {
+        // Adults first (defenders / labor), then elderly, children, toddlers.
+        s.citizens = reduceByPriority(s.citizens, extraCitizensLost, ["adults", "elderly", "children", "toddlers"], s.namedResidents);
+      }
+    }
+
+    // Damage 1-3 random buildings (legacy plunder mechanic).
+    const damageable = s.buildings.filter((b) => b.level > 0 && !b.damaged && b.buildingId !== "town_hall");
+    const damageCount = Math.min(damageable.length, 1 + Math.floor(Math.random() * 3));
+    for (let d = 0; d < damageCount; d++) {
+      if (damageable.length === 0) break;
+      const idx = Math.floor(Math.random() * damageable.length);
+      damageable[idx].damaged = true;
+      const def = BUILDINGS.find((b) => b.id === damageable[idx].buildingId);
+      if (def) damagedBuildings.push(def.name);
+      damageable.splice(idx, 1);
+    }
+  }
+
+  s.lastRaidOutcome = sim.victory ? "victory" : "defeat";
+  s.lastRaidTime = 0;
+  s.raidsResolvedCount = (s.raidsResolvedCount ?? 0) + 1;
+
+  return { sim, raidName: template.name ?? raidId, stolen, extraCitizensLost, damagedBuildings, woundedCaptains };
 }
 
 export type GameEventType =
@@ -3621,113 +3776,15 @@ export function GameProvider(props: ParentProps) {
             if (ir.remaining <= 0) {
               const template = getRaid(ir.raidId);
               if (template && template.encounters?.length) {
-                const sim = simulateRaidCombat({
-                  raidId: ir.raidId,
-                  encounters: template.encounters,
-                  walls: (serverState.walls ?? []).map((w: any) => ({ ring: w.ring, level: w.level, hp: w.hp, maxHp: w.level * WALL_BASE_HP })),
-                  watchtowers: (serverState.watchtowers ?? []).map((t: any) => ({ ring: t.ring, level: t.level, damaged: t.damaged, archerCount: t.garrison?.count ?? 0, trainedLevel: (t.garrison?.trainedLevel ?? 0) + (trainerHome(serverState.adventurers ?? [], "watchtower") ? 1 : 0) })),
-                  barracks: (serverState.barracks ?? []).map((b: any) => ({ ring: b.ring, level: b.level, damaged: b.damaged, soldierCount: b.garrison?.count ?? 0, trainedLevel: (b.garrison?.trainedLevel ?? 0) + (trainerHome(serverState.adventurers ?? [], "barracks") ? 1 : 0) })),
-                  militiaCount: militiaCount(serverState as GameState),
-                  watchtowerCaptain: buildRaidCaptainUnit(serverState.adventurers ?? [], "watchtower"),
-                  barracksCaptain: buildRaidCaptainUnit(serverState.adventurers ?? [], "barracks"),
-                });
-
-                // Apply sim after-state
-                for (const wf of sim.wallFinalHp) {
-                  const w = serverState.walls?.find((x: any) => x.ring === wf.ring);
-                  if (w) w.hp = wf.hp;
-                }
-                for (const ring of sim.damagedTowerRings) {
-                  const t = serverState.watchtowers?.find((x: any) => x.ring === ring);
-                  if (t) t.damaged = true;
-                }
-                for (const ring of sim.damagedBarracksRings) {
-                  const b = serverState.barracks?.find((x: any) => x.ring === ring);
-                  if (b) b.damaged = true;
-                }
-                // Per-building casualties — same as the client-tick path.
-                for (const c of sim.archerCasualtiesByRing) {
-                  const t = serverState.watchtowers?.find((x: any) => x.ring === c.ring);
-                  if (t?.garrison) t.garrison.count = Math.max(0, t.garrison.count - c.lost);
-                }
-                for (const c of sim.soldierCasualtiesByRing) {
-                  const b = serverState.barracks?.find((x: any) => x.ring === c.ring);
-                  if (b?.garrison) b.garrison.count = Math.max(0, b.garrison.count - c.lost);
-                }
-                serverState.archers = Math.max(0, (serverState.archers ?? 0) - sim.archersLost);
-                serverState.soldiers = Math.max(0, (serverState.soldiers ?? 0) - sim.soldiersLost);
-                // Captain wounds — same as the live path, floored at 1.
-                for (const oc of [sim.watchtowerCaptainOutcome, sim.barracksCaptainOutcome]) {
-                  if (!oc) continue;
-                  const adv = (serverState.adventurers ?? []).find((a: any) => a.id === oc.advId);
-                  if (adv) adv.currentHp = Math.max(1, Math.round(oc.hp));
-                }
-                // Soldier + archer + militia casualties = adult deaths, same as
-                // the live tick path: clamped to the BASE_POPULATION floor and
-                // routed through reduceByPriority so founders/named residents
-                // keep their protection on away-raids too.
-                const totalAdultLoss = sim.archersLost + sim.soldiersLost + sim.militiaLost;
-                if (totalAdultLoss > 0 && (serverState as any).citizens) {
-                  const popTotal = totalPopulation((serverState as any).citizens);
-                  const allowed = Math.max(0, popTotal - BASE_POPULATION);
-                  const actual = Math.min(totalAdultLoss, allowed);
-                  if (actual > 0) {
-                    (serverState as any).citizens = reduceByPriority((serverState as any).citizens, actual, ["adults"], serverState.namedResidents);
-                  }
-                }
-
-                const raidName = template.name ?? ir.raidId;
-                if (sim.victory) {
-                  // Clamp to storage caps, same as the live path — offline
-                  // victories shouldn't overfill the warehouse.
-                  const resCaps = calcStorageCaps(serverState.buildings);
-                  for (const loot of template.victoryLoot) {
-                    if (loot.resource === "astralShards") {
-                      serverState.astralShards += loot.amount;
-                    } else {
-                      const key = loot.resource as keyof typeof serverState.resources;
-                      serverState.resources[key] = Math.min(resCaps[key], serverState.resources[key] + loot.amount);
-                    }
-                  }
-                } else {
-                  const stealPct = template.resourceStealPercent;
-                  serverState.resources.gold = Math.max(0, serverState.resources.gold - Math.floor(serverState.resources.gold * stealPct));
-                  serverState.resources.wood = Math.max(0, serverState.resources.wood - Math.floor(serverState.resources.wood * stealPct));
-                  serverState.resources.stone = Math.max(0, serverState.resources.stone - Math.floor(serverState.resources.stone * stealPct));
-                  if (serverState.foods) consumeFood(serverState.foods, Math.floor(getTotalFood(serverState.foods) * stealPct));
-                  if (template.killsCitizens && (serverState as any).citizens) {
-                    const popTotal = totalPopulation((serverState as any).citizens);
-                    const extra = Math.min(template.maxCitizenLoss, Math.max(1, Math.floor(popTotal * 0.1)));
-                    const allowed = Math.max(0, popTotal - BASE_POPULATION);
-                    const actual = Math.min(extra, allowed);
-                    if (actual > 0) {
-                      // Adults first (defenders), then elderly, children, toddlers —
-                      // through the same reducer as the live path so named
-                      // residents keep their floor.
-                      (serverState as any).citizens = reduceByPriority((serverState as any).citizens, actual, ["adults", "elderly", "children", "toddlers"], serverState.namedResidents);
-                    }
-                  }
-                  // Damage 1-3 random buildings
-                  const damageable = serverState.buildings.filter((b: any) => b.level > 0 && !b.damaged && b.buildingId !== "town_hall");
-                  const damageCount = Math.min(damageable.length, 1 + Math.floor(Math.random() * 3));
-                  for (let d = 0; d < damageCount; d++) {
-                    if (damageable.length === 0) break;
-                    const idx = Math.floor(Math.random() * damageable.length);
-                    damageable[idx].damaged = true;
-                    damageable.splice(idx, 1);
-                  }
-                }
-
-                serverState.lastRaidOutcome = sim.victory ? "victory" : "defeat";
-                serverState.lastRaidTime = 0;
-                serverState.raidsResolvedCount = (serverState.raidsResolvedCount ?? 0) + 1;
+                // Same consequences as the live tick, one implementation.
+                const r = resolveRaidAgainstState(serverState as GameState, ir.raidId, template);
                 if (!serverState.eventLog) serverState.eventLog = [];
                 serverState.eventLog.unshift({
-                  type: sim.victory ? "raid_victory" : "raid_defeat",
-                  icon: sim.victory ? "🛡️" : "💔",
-                  message: sim.victory
-                    ? `Repelled ${raidName} while you were away! Loot: ${template.victoryLoot.map((l) => `+${l.amount} ${l.resource}`).join(", ")}`
-                    : `Defeated by ${raidName} while you were away! Resources stolen, buildings damaged.`,
+                  type: r.sim.victory ? "raid_victory" : "raid_defeat",
+                  icon: r.sim.victory ? "🛡️" : "💔",
+                  message: r.sim.victory
+                    ? `Repelled ${r.raidName} while you were away! Loot: ${template.victoryLoot.map((l) => `+${l.amount} ${l.resource}`).join(", ")}`
+                    : `Defeated by ${r.raidName} while you were away! Resources stolen, buildings damaged.`,
                   timestamp: Date.now(),
                 });
               }
@@ -5662,158 +5719,49 @@ export function GameProvider(props: ParentProps) {
           if (ir.remaining <= 0) {
             const template = getRaid(ir.raidId);
             if (template && template.encounters?.length) {
-              // ── Run the siege sim ────────────────────────────────
-              const sim = simulateRaidCombat({
-                raidId: ir.raidId,
-                encounters: template.encounters,
-                walls: s.walls.map((w) => ({ ring: w.ring, level: w.level, hp: w.hp, maxHp: w.level * WALL_BASE_HP })),
-                // Trainer coordination buff: +1 effective trained level while the
-                // building's trainer (Gareth / Morgause) is home.
-                watchtowers: s.watchtowers.map((t) => ({ ring: t.ring, level: t.level, damaged: t.damaged, archerCount: t.garrison.count, trainedLevel: t.garrison.trainedLevel + (trainerHome(s.adventurers, "watchtower") ? 1 : 0) })),
-                barracks: s.barracks.map((b) => ({ ring: b.ring, level: b.level, damaged: b.damaged, soldierCount: b.garrison.count, trainedLevel: b.garrison.trainedLevel + (trainerHome(s.adventurers, "barracks") ? 1 : 0) })),
-                militiaCount: militiaCount(s),
-                watchtowerCaptain: buildRaidCaptainUnit(s.adventurers, "watchtower"),
-                barracksCaptain: buildRaidCaptainUnit(s.adventurers, "barracks"),
-              });
+              // Same consequences as the offline path, one implementation.
+              const r = resolveRaidAgainstState(s, ir.raidId, template);
+              const sim = r.sim;
 
-              // ── Apply sim after-state ────────────────────────────
-              for (const wf of sim.wallFinalHp) {
-                const w = s.walls.find((x) => x.ring === wf.ring);
-                if (w) w.hp = wf.hp;
+              // ── Narrate it: the play-by-play the offline path skips ──
+              for (const c of r.woundedCaptains) {
+                pushEvent(s, "adventurer_wounded", "🩸", `${c.name} was dragged from the wall, gravely wounded`);
               }
-              for (const ring of sim.damagedTowerRings) {
-                const t = s.watchtowers.find((x) => x.ring === ring);
-                if (t) t.damaged = true;
-              }
-              for (const ring of sim.damagedBarracksRings) {
-                const b = s.barracks.find((x) => x.ring === ring);
-                if (b) b.damaged = true;
-              }
-              // Apply casualties per-building so each garrison's count drops by
-              // its own losses. Totals + population shrink alongside.
-              for (const c of sim.archerCasualtiesByRing) {
-                const t = s.watchtowers.find((x) => x.ring === c.ring);
-                if (t) t.garrison.count = Math.max(0, t.garrison.count - c.lost);
-              }
-              for (const c of sim.soldierCasualtiesByRing) {
-                const b = s.barracks.find((x) => x.ring === c.ring);
-                if (b) b.garrison.count = Math.max(0, b.garrison.count - c.lost);
-              }
-              s.archers = Math.max(0, s.archers - sim.archersLost);
-              s.soldiers = Math.max(0, s.soldiers - sim.soldiersLost);
-              // Captain wounds — Gareth / Morgause come home at their own final
-              // HP, floored at 1. They never die at the wall (the roster and
-              // townsfolk take the deaths); the captain carries the wound. Only
-              // set when they actually fought (were home + held a ring).
-              for (const oc of [sim.watchtowerCaptainOutcome, sim.barracksCaptainOutcome]) {
-                if (!oc) continue;
-                const adv = s.adventurers.find((a) => a.id === oc.advId);
-                if (!adv) continue;
-                adv.currentHp = Math.max(1, Math.round(oc.hp));
-                if (oc.fell) {
-                  pushEvent(s, "adventurer_wounded", "🩸", `${adv.name} was dragged from the wall, gravely wounded`);
-                }
-              }
-              // Soldier + archer + militia casualties = adult deaths. Total
-              // clamped so we never drop below the BASE_POPULATION floor.
-              // The household (founders + named) is protected by the
-              // s.namedResidents floor on the reducer.
-              {
-                const totalLoss = sim.archersLost + sim.soldiersLost + sim.militiaLost;
-                const popTotal = totalPopulation(s.citizens);
-                const allowed = Math.max(0, popTotal - BASE_POPULATION);
-                const actual = Math.min(totalLoss, allowed);
-                if (actual > 0) {
-                  s.citizens = reduceByPriority(s.citizens, actual, ["adults"], s.namedResidents);
-                }
-              }
-
-              const raidName = template.name ?? ir.raidId;
-
-              // Per-casualty event lines so the player can see the breakdown
-              // beyond the summary. Pushed before the summary so the summary
+              // Per-casualty lines, pushed before the summary so the summary
               // ends up at the top of the log.
               if (sim.soldiersLost > 0) {
-                const word = sim.soldiersLost === 1 ? "soldier" : "soldiers";
-                pushEvent(s, "citizen_died", "⚔️", `${sim.soldiersLost} ${word} fell defending the walls`);
+                pushEvent(s, "citizen_died", "⚔️", `${sim.soldiersLost} ${sim.soldiersLost === 1 ? "soldier" : "soldiers"} fell defending the walls`);
               }
               if (sim.archersLost > 0) {
-                const word = sim.archersLost === 1 ? "archer" : "archers";
-                pushEvent(s, "citizen_died", "🏹", `${sim.archersLost} ${word} fell at the watchtower`);
+                pushEvent(s, "citizen_died", "🏹", `${sim.archersLost} ${sim.archersLost === 1 ? "archer" : "archers"} fell at the watchtower`);
               }
               if (sim.militiaLost > 0) {
-                const word = sim.militiaLost === 1 ? "villager" : "villagers";
-                pushEvent(s, "citizen_died", "🍞", `${sim.militiaLost} ${word} fell with pitchforks in hand`);
+                pushEvent(s, "citizen_died", "🍞", `${sim.militiaLost} ${sim.militiaLost === 1 ? "villager" : "villagers"} fell with pitchforks in hand`);
               }
 
               if (sim.victory) {
-                // ── Victory: grant loot ────────────────────────────
-                const resCaps = calcStorageCaps(s.buildings);
-                for (const loot of template.victoryLoot) {
-                  if (loot.resource === "astralShards") {
-                    s.astralShards += loot.amount;
-                  } else {
-                    const key = loot.resource as keyof ResourceState;
-                    s.resources[key] = Math.min(resCaps[key], s.resources[key] + loot.amount);
-                  }
-                }
                 const lootStr = template.victoryLoot.map((l) => `+${l.amount} ${l.resource}`).join(", ");
-                const parts = [`Repelled ${raidName}!`, `Loot: ${lootStr}`];
+                const parts = [`Repelled ${r.raidName}!`, `Loot: ${lootStr}`];
                 const losses = sim.archersLost + sim.soldiersLost + sim.militiaLost;
                 if (losses > 0) parts.push(`Casualties: ${losses}`);
                 pushEvent(s, "raid_victory", "🛡️", parts.join(" · "));
               } else {
-                // ── Defeat: plunder on top of sim attrition ────────
-                const stealPct = template.resourceStealPercent;
-                const stolen = {
-                  gold: Math.floor(s.resources.gold * stealPct),
-                  wood: Math.floor(s.resources.wood * stealPct),
-                  stone: Math.floor(s.resources.stone * stealPct),
-                  food: Math.floor(getTotalFood(s.foods) * stealPct),
-                };
-                s.resources.gold = Math.max(0, s.resources.gold - stolen.gold);
-                s.resources.wood = Math.max(0, s.resources.wood - stolen.wood);
-                s.resources.stone = Math.max(0, s.resources.stone - stolen.stone);
-                if (stolen.food > 0) consumeFood(s.foods, stolen.food);
-
-                let extraCitizensLost = 0;
-                if (template.killsCitizens) {
-                  const popTotal = totalPopulation(s.citizens);
-                  const proposed = Math.min(template.maxCitizenLoss, Math.max(1, Math.floor(popTotal * 0.1)));
-                  const allowed = Math.max(0, popTotal - BASE_POPULATION);
-                  extraCitizensLost = Math.min(proposed, allowed);
-                  if (extraCitizensLost > 0) {
-                    // Adults first (defenders / labor), then elderly, children, toddlers.
-                    s.citizens = reduceByPriority(s.citizens, extraCitizensLost, ["adults", "elderly", "children", "toddlers"], s.namedResidents);
-                    const word = extraCitizensLost === 1 ? "citizen" : "citizens";
-                    pushEvent(s, "citizen_died", "💀", `${extraCitizensLost} ${word} taken in the plunder`);
-                  }
+                if (r.extraCitizensLost > 0) {
+                  pushEvent(s, "citizen_died", "💀", `${r.extraCitizensLost} ${r.extraCitizensLost === 1 ? "citizen" : "citizens"} taken in the plunder`);
                 }
-
-                // Damage 1-3 random buildings (legacy plunder mechanic).
-                const damageable = s.buildings.filter((b) => b.level > 0 && !b.damaged && b.buildingId !== "town_hall");
-                const damageCount = Math.min(damageable.length, 1 + Math.floor(Math.random() * 3));
-                let damagedBuildings = 0;
-                for (let d = 0; d < damageCount; d++) {
-                  if (damageable.length === 0) break;
-                  const idx = Math.floor(Math.random() * damageable.length);
-                  damageable[idx].damaged = true;
-                  damagedBuildings++;
-                  const def = BUILDINGS.find((b) => b.id === (damageable[idx] as any).buildingId);
-                  if (def) pushEvent(s, "building_damaged", "🔧", `${def.name} was damaged in the raid`);
-                  damageable.splice(idx, 1);
+                for (const name of r.damagedBuildings) {
+                  pushEvent(s, "building_damaged", "🔧", `${name} was damaged in the raid`);
                 }
-
                 const lostParts: string[] = [];
-                if (stolen.gold > 0) lostParts.push(`${stolen.gold}g`);
-                if (stolen.wood > 0) lostParts.push(`${stolen.wood}w`);
-                if (stolen.stone > 0) lostParts.push(`${stolen.stone}s`);
-                if (stolen.food > 0) lostParts.push(`${stolen.food}f`);
-                const parts = [`Defeated by ${raidName}!`];
+                if (r.stolen.gold > 0) lostParts.push(`${r.stolen.gold}g`);
+                if (r.stolen.wood > 0) lostParts.push(`${r.stolen.wood}w`);
+                if (r.stolen.stone > 0) lostParts.push(`${r.stolen.stone}s`);
+                if (r.stolen.food > 0) lostParts.push(`${r.stolen.food}f`);
+                const parts = [`Defeated by ${r.raidName}!`];
                 if (lostParts.length > 0) parts.push(`Lost: ${lostParts.join(", ")}`);
-                const totalCitizensLost = extraCitizensLost + sim.archersLost + sim.soldiersLost;
+                const totalCitizensLost = r.extraCitizensLost + sim.archersLost + sim.soldiersLost;
                 if (totalCitizensLost > 0) parts.push(`Citizens lost: ${totalCitizensLost}`);
-                if (damagedBuildings > 0) parts.push(`Buildings damaged: ${damagedBuildings}`);
+                if (r.damagedBuildings.length > 0) parts.push(`Buildings damaged: ${r.damagedBuildings.length}`);
                 pushEvent(s, "raid_defeat", "💔", parts.join(" · "));
               }
 
@@ -5823,9 +5771,8 @@ export function GameProvider(props: ParentProps) {
               ir.combatRoster = sim.roster;
               ir.combatVictory = sim.victory;
               ir.combatViewed = false;
-              s.lastRaidOutcome = sim.victory ? "victory" : "defeat";
-              s.lastRaidTime = 0;
-              s.raidsResolvedCount = (s.raidsResolvedCount ?? 0) + 1;
+              // (lastRaidOutcome / lastRaidTime / raidsResolvedCount are set by
+              // resolveRaidAgainstState, for both paths.)
             } else {
               // No template or no encounters — splice silently. Shouldn't
               // happen now that all raid templates carry encounter sets.
