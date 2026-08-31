@@ -1,8 +1,7 @@
 // ─── 1D positional layer (P1) ───────────────────────────────────────────────
-// Ports the validated sandbox model (docs/DESIGN_POSITIONAL_COMBAT.md; prototype
+// Ports the validated sandbox model (docs/design/combat/POSITIONAL_COMBAT.md; prototype
 // at frontend/src/prototype/) onto production CombatUnits. Ally side = !isEnemy
 // (starts low on the X axis), enemy side = isEnemy (starts high); they close.
-//
 // Baseline numbers live here; gear/talents scale them later. This module is the
 // pure positional logic — placement, movement, engagement, and the reach /
 // pinned / behind predicates the attack layer consults. It is wired into the sim

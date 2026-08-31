@@ -3,7 +3,7 @@ import type { CombatUnit } from "./types.js";
 // ── Weapon-damage model (Phase 1) ────────────────────────────────────────────
 // Physical auto-attacks roll a base in the wielder's weapon range, then scale it
 // by the primary stat: raw = roll × (1 + primaryStat × ATTACK_STAT_SCALE).
-// See docs/DESIGN_NOVICE_ITEMS.md §2.
+// See docs/design/combat/NOVICE_ITEMS.md §2.
 
 /** Each point of primary stat adds this fraction to a physical hit. */
 export const ATTACK_STAT_SCALE = 0.1;

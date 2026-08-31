@@ -1,5 +1,4 @@
-import type {
-  FriendListResponse,
+import type { FriendListResponse,
   SendFriendRequestRequest,
   RespondFriendRequestRequest,
 } from "@medieval-realm/shared";

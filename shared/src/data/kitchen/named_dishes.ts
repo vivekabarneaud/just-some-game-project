@@ -4,7 +4,6 @@
 // dish — "a ham needs pork") or an `anyOf` list (a forgiving dish — "a stew
 // takes any red meat"). This is what lets the meat-split feel good: substitute
 // freely where it doesn't matter, demand the real thing where it does.
-//
 // A named dish has its OWN stable id, so every variant (venison stew, pork stew)
 // stacks under the one name. Effects still come from cook() (single source of
 // truth); the name is a blessed label on a matching pot.
@@ -294,7 +293,7 @@ export const NAMED_DISHES: NamedDish[] = [
     slots: [one("wheat", "roast"), one("honey", "boil"), one("lavender", "chop")],
     note: "Little wheat cakes baked with honey and lavender. Edda's, and she will not share the trick." },
 
-  // FUTURE (return when the ingredients exist — recorded in DESIGN_KITCHEN §9):
+  // FUTURE (return when the ingredients exist — recorded in docs/IDEAS.md (Kitchen)):
   //   Marrow & Rye  → needs the rye grain
   //   Honey Oats    → needs the oats grain
   //   Summer/Orchard/Green boards → need cheese as a cook-with ingredient + wild mint
@@ -367,7 +366,6 @@ export function matchNamedDish(placements: CookPlacement[]): NamedDish | undefin
   return best;
 }
 
-export const namedDishId = (d: NamedDish): string => d.id;
 
 /** The dish a pot resolves to for DISPLAY / use: cook() for the boons, the named
  *  dish's name when it matches, and a quality FLOOR — a recognised named dish is

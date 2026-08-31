@@ -1,22 +1,18 @@
 import { createSignal, createMemo, createEffect, createResource, untrack, For, Show, onCleanup } from "solid-js";
 import { useGame } from "~/engine/gameState";
-import {
-  ADVENTURER_CLASSES,
+import { ADVENTURER_CLASSES,
   CLASS_COLORS,
   CLASS_BASE_STATS,
   CLASS_STAT_GROWTH,
-  getXpForLevel,
   getClassMeta,
   getZoomedPortraitUrl,
   getFoodPref,
-  RANK_NAMES,
-  RANK_COLORS,
   type Adventurer,
   type AdventurerClass,
   getDeployCost,
 } from "@medieval-realm/shared/data/adventurers";
 import { TRAINER_ID } from "~/data/defenses";
-import { getItem, getAvailableSupplies, getAvailableFood, getSupplyEffect, getCombatPotionEffect, getFoodEffect, getRecoveryEffect, MATCHED_FOOD_HP_BONUS } from "@medieval-realm/shared/data/items";
+import { getAvailableSupplies, getAvailableFood, getSupplyEffect, getCombatPotionEffect, getFoodEffect, getRecoveryEffect, MATCHED_FOOD_HP_BONUS } from "@medieval-realm/shared/data/items";
 import { describeEffect } from "@medieval-realm/shared/data/alchemy/describe";
 
 // Channels a brewed potion applies as a COMBAT buff (see setup.applyBrewBuffs).
@@ -24,8 +20,7 @@ const BREW_COMBAT_CHANNELS = new Set(["str", "dex", "int", "vit", "wis", "crit",
 const isBrewCombatUseful = (effects: { channel: string }[]) => effects.some((e) => BREW_COMBAT_CHANNELS.has(e.channel) || e.channel.startsWith("resist_"));
 import type { AdventurerMissionSupplies } from "@medieval-realm/shared/data/missions";
 import SupplySlot from "./SupplySlot";
-import {
-  type MissionTemplate,
+import { type MissionTemplate,
   calcSuccessChance,
   rollPermanentDeaths,
   calcEffectiveDuration,
@@ -44,7 +39,6 @@ import { resolveFullExpedition, calcAdventurerMaxHp } from "@medieval-realm/shar
 import { MISSION_RANK_LABELS, MISSION_RANK_COLORS, missionFrameAssets, tierFrame } from "~/data/constants";
 import { CardFrame } from "~/components/CardFrame";
 import MissionEnemyCard from "./MissionEnemyCard";
-import TeamSlot from "./TeamSlot";
 import AdventurerPickerCard from "./AdventurerPickerCard";
 import AdventurerVitals from "./AdventurerVitals";
 import Tooltip from "./Tooltip";
@@ -56,18 +50,12 @@ import { dishMissionBoons } from "@medieval-realm/shared/data/kitchen/mission";
 import { dishFlavors } from "@medieval-realm/shared/data/kitchen/cook";
 import { getFoodIngredient } from "@medieval-realm/shared/data/kitchen/ingredients";
 import type { CoopAdventurerSummary } from "@medieval-realm/shared";
+import { formatTimeShort } from "~/utils/format";
 
 function getMissionImage(missionId: string): string | undefined {
   return getMission(missionId)?.image;
 }
 
-function formatDuration(seconds: number): string {
-  if (seconds < 60) return `${seconds}s`;
-  if (seconds < 3600) return `${Math.floor(seconds / 60)}m`;
-  const h = Math.floor(seconds / 3600);
-  const m = Math.floor((seconds % 3600) / 60);
-  return m > 0 ? `${h}h ${m}m` : `${h}h`;
-}
 
 interface Props {
   mission: MissionTemplate;
@@ -1383,10 +1371,10 @@ export default function MissionAssemblyPanel(props: Props) {
 
         <div class="mission-detail-stats">
           <div>
-            <span class="mission-detail-label">Duration</span> {formatDuration(baseTotal())}
+            <span class="mission-detail-label">Duration</span> {formatTimeShort(baseTotal())}
             <Show when={travelSec() > 0}>
               <span style={{ color: "var(--text-muted)", "font-size": "0.85em" }}>
-                {" "}({formatDuration(freshMission().duration)} on site + {formatDuration(travelSec())} travel)
+                {" "}({formatTimeShort(freshMission().duration)} on site + {formatTimeShort(travelSec())} travel)
               </span>
             </Show>
           </div>
@@ -1495,7 +1483,7 @@ export default function MissionAssemblyPanel(props: Props) {
             </span>
           </div>
           <div style={{ "font-size": "0.85rem", color: "var(--text-secondary)" }}>
-            Duration: {formatDuration(effectiveDuration())}
+            Duration: {formatTimeShort(effectiveDuration())}
             {effectiveDuration() < baseTotal() && (
               <span style={{ color: "var(--accent-blue)", "margin-left": "4px" }}>
                 (Wizard -{Math.round((1 - effectiveDuration() / baseTotal()) * 100)}%)

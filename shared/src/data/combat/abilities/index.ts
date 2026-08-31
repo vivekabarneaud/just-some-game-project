@@ -1,4 +1,3 @@
-import type { AdventurerClass } from "../../adventurers.js";
 import type { CombatContext, CombatUnit } from "../types.js";
 import type { ClassAbilityHandler, ClassAbilityRegistry } from "./types.js";
 import { WARRIOR_ABILITIES } from "./warrior.js";

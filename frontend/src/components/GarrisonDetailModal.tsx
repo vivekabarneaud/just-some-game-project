@@ -2,8 +2,7 @@ import { Show } from "solid-js";
 import { useGame } from "~/engine/gameState";
 import type { DefenseRing } from "~/engine/gameState";
 import { getZoomedPortraitUrl, getPortraitUrl } from "@medieval-realm/shared/data/adventurers";
-import {
-  getWatchtowerArcherCap,
+import { getWatchtowerArcherCap,
   getBarracksSoldierCap,
   ARCHER_COST,
   SOLDIER_COST,

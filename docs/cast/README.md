@@ -3,32 +3,32 @@
 One file per character. This is the **deep canon** for each member of the cast: everything that is too good (or too spoilery) to fit in the recruit-card bio. The card shows the surface; these files hold the soul, and most of it is meant to be **discovered** in play (tavern conversations, loyalty milestones, story beats), not dumped.
 
 ## Rules
-- **`LORE_TIMELINE.md` always wins** on world facts (Crown, Church, Varek, the Wastes, magic). If a character file disagrees with the timeline, the timeline is right.
+- **`lore/TIMELINE.md` always wins** on world facts (Crown, Church, Varek, the Wastes, magic). If a character file disagrees with the timeline, the timeline is right.
 - **No invention without a flag.** If something isn't decided yet, write it under **Open threads / TBD** rather than inventing canon.
 - **Player-facing prose has no em dashes** (the recruit-card bio especially). Design notes in these files can use them freely.
-- Filenames are kebab-case: `nessa-thornwood.md`. Families get a shared context file too (e.g. `thornwood-family.md`) so the common backstory lives in one place and the sibling files cross-reference it.
+- Filenames are kebab-case: `cast/nessa-thornwood.md`. Families get a shared context file too (e.g. `cast/thornwood-family.md`) so the common backstory lives in one place and the sibling files cross-reference it.
 
 ## Index
 ### The Thornwoods (the "hunters family" — unlocks the Adventurer's Guild)
-- [thornwood-family.md](thornwood-family.md) — shared family canon (parents, the winter, the boy, the reunion)
-- [nessa-thornwood.md](nessa-thornwood.md) — char_000, archer, the lifelong mother
-- [gareth-thornwood.md](gareth-thornwood.md) — char_005, archer, the limits of conscience
-- [godric-thornwood.md](godric-thornwood.md) — char_021, warrior, the wall born of grief
-- [thornwood-boy.md](thornwood-boy.md) — Jack, the adopted child (settlement NPC)
+- [cast/thornwood-family.md](cast/thornwood-family.md) — shared family canon (parents, the winter, the boy, the reunion)
+- [cast/nessa-thornwood.md](cast/nessa-thornwood.md) — char_000, archer, the lifelong mother
+- [cast/gareth-thornwood.md](cast/gareth-thornwood.md) — char_005, archer, the limits of conscience
+- [cast/godric-thornwood.md](cast/godric-thornwood.md) — char_021, warrior, the wall born of grief
+- [cast/thornwood-boy.md](cast/thornwood-boy.md) — Jack, the adopted child (settlement NPC)
 
 ### Curated cast (deepened)
-- [hester-ironbark.md](hester-ironbark.md) — char_019, warrior, the wall she built
-- [elspeth-ravencroft.md](elspeth-ravencroft.md) — char_007, assassin, the reluctant poisoner-mother (quest-unlock)
-- [edmund-blackwood.md](edmund-blackwood.md) — char_009, assassin, the gambler (quest-unlock)
-- [morgause-dunwall.md](morgause-dunwall.md) — char_020, warrior, the discarded commander
-- [sable.md](sable.md) — char_008, assassin, the street orphan with nothing to lose (mononym, ex-Lyra)
-- [aldwin-stonebridge.md](aldwin-stonebridge.md) — char_017, priest, the shelterer-priest whose faith cracks for love of his wizard brother
-- [magnus-stonebridge.md](magnus-stonebridge.md) — char_029, wizard, the hunted prodigy (your first magic; ex-Alaric)
-- [stonebridge-arrival.md](stonebridge-arrival.md) — *story arc:* the magic-unlock beat (their arrival, Magnus's confession, the Lord's mercy, the faith-crack)
-- [arrival-order.md](arrival-order.md) — *planning:* who arrives when and *why* (the three arrival engines + the rough Act-1 order + unlock gates)
+- [cast/hester-ironbark.md](cast/hester-ironbark.md) — char_019, warrior, the wall she built
+- [cast/elspeth-ravencroft.md](cast/elspeth-ravencroft.md) — char_007, assassin, the reluctant poisoner-mother (quest-unlock)
+- [cast/edmund-blackwood.md](cast/edmund-blackwood.md) — char_009, assassin, the gambler (quest-unlock)
+- [cast/morgause-dunwall.md](cast/morgause-dunwall.md) — char_020, warrior, the discarded commander
+- [cast/sable.md](cast/sable.md) — char_008, assassin, the street orphan with nothing to lose (mononym, ex-Lyra)
+- [cast/aldwin-stonebridge.md](cast/aldwin-stonebridge.md) — char_017, priest, the shelterer-priest whose faith cracks for love of his wizard brother
+- [cast/magnus-stonebridge.md](cast/magnus-stonebridge.md) — char_029, wizard, the hunted prodigy (your first magic; ex-Alaric)
+- [cast/stonebridge-arrival.md](cast/stonebridge-arrival.md) — *story arc:* the magic-unlock beat (their arrival, Magnus's confession, the Lord's mercy, the faith-crack)
+- [cast/arrival-order.md](cast/arrival-order.md) — *planning:* who arrives when and *why* (the three arrival engines + the rough Act-1 order + unlock gates)
 
 ### Side-story figures (NPCs)
-- [aldith-the-bog-witch.md](aldith-the-bog-witch.md) — the Bog Witch & her dead granddaughter Ada
+- [cast/aldith-the-bog-witch.md](cast/aldith-the-bog-witch.md) — the Bog Witch & her dead granddaughter Ada
 
 ---
 

@@ -27,13 +27,21 @@ export default function Tooltip(props: TooltipProps) {
   const [anchor, setAnchor] = createSignal<DOMRect | null>(null);
   const [cursor, setCursor] = createSignal<{ x: number; y: number } | null>(null);
 
-  // Avoid triggering the JSX getter on `props.content` — accessing an inline
-  // JSX prop forces eager evaluation of its reactive inserts. We only care
-  // whether content was provided at all, not its value.
+  // Only ever called from inside the render tree below, NEVER from an event
+  // handler. Reading `props.text` / `props.content` fires the inline-JSX prop
+  // getter, which evaluates the caller's expression — and if that expression
+  // creates a computation (a `<For>` in the content, a memoised ternary over
+  // store data), doing it from a handler creates it with NO OWNER, so it is
+  // never disposed. That was the source of the "computations created outside a
+  // `createRoot`" flood: every hover leaked a computation still subscribed to
+  // the game store, so every later tick had to re-run all of them.
   const hasContent = () => !!(props.text || (props.content != null));
 
   const show = (e: MouseEvent) => {
-    if (!hasContent()) return;
+    // Deliberately does NOT check hasContent(): the <Show> below already gates
+    // rendering on it, from inside the owner where any computation the getter
+    // creates gets disposed properly. Showing an empty tooltip is impossible
+    // either way; reading props here was the leak.
     const target = e.currentTarget as HTMLElement;
     setAnchor(target.getBoundingClientRect());
     setCursor({ x: e.clientX, y: e.clientY });

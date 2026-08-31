@@ -1,11 +1,10 @@
 import { describe, it, expect } from "vitest";
-import {
-  calcDamageResult, setCombatSeed, buildEnemyUnits,
+import { calcDamageResult, setCombatSeed, buildEnemyUnits,
   ATTACK_STAT_SCALE, rarityWeaponRange, derivedDamageRange,
 } from "@medieval-realm/shared/data/combat";
 
 // Phase 1 weapon-damage model: a physical hit rolls the attacker's weapon range,
-// then scales by the primary stat. See docs/DESIGN_NOVICE_ITEMS.md §2.
+// then scales by the primary stat. See docs/design/combat/NOVICE_ITEMS.md §2.
 
 /** Average physical damage of `attacker` vs `defender` across many seeds. */
 function avgDamage(attacker: any, defender: any, n = 400): number {
@@ -17,7 +16,7 @@ function avgDamage(attacker: any, defender: any, n = 400): number {
   return total / n;
 }
 // Two identical wolves, mutated per test (classless → power = max(str,dex)).
-const freshWolf = () => buildEnemyUnits([{ enemyId: "wild_wolf", count: 1 }])[0];
+const freshWolf = () => buildEnemyUnits([{ enemyId: "grey_wolf", count: 1 }])[0];
 
 describe("rarityWeaponRange", () => {
   it("climbs with rarity", () => {

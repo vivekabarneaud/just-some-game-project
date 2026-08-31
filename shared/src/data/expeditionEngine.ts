@@ -2,9 +2,7 @@
 // Resolves expedition events one at a time during the tick loop.
 // Events mutate ActiveMission state directly (HP, rewards, log, event index).
 
-import type {
-  ActiveMission,
-  ExpeditionTemplate,
+import type { ExpeditionTemplate,
   ExpeditionEvent,
   ExpeditionEventSlot,
   ResolvedExpeditionEvent,

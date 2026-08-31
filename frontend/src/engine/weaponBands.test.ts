@@ -2,8 +2,7 @@
 // (importing gameState-adjacent shared modules is fine, but keep the env
 // consistent with the other combat tests that touch adventurer builders)
 import { describe, it, expect } from "vitest";
-import {
-  buildAdventurerUnit, buildEnemyUnits, weaponAt, inReach,
+import { buildAdventurerUnit, buildEnemyUnits, weaponAt, inReach,
   weaponBand, MELEE_BAND, RANGED_BAND, CLOSE_IN_FRACTION,
   type CombatUnit,
 } from "@medieval-realm/shared/data/combat";
@@ -60,7 +59,7 @@ describe("adventurer weapon profiles", () => {
   it("inReach is band-based: a melee unit can't strike at range, an archer can", () => {
     const bow = archer({ mainHand: "short_bow" });
     const knife = archer({ mainHand: "crude_fang_dagger" }); // archers may wield daggers
-    const wolf = buildEnemyUnits([{ enemyId: "wild_wolf", count: 1 }])[0];
+    const wolf = buildEnemyUnits([{ enemyId: "grey_wolf", count: 1 }])[0];
     apart(bow, wolf, 30);
     expect(inReach(bow, wolf)).toBe(true);
     apart(knife, wolf, 30);
@@ -72,13 +71,13 @@ describe("adventurer weapon profiles", () => {
 
 describe("enemy natural-attack profiles", () => {
   it("a melee creature carries one contact profile", () => {
-    const wolf = buildEnemyUnits([{ enemyId: "wild_wolf", count: 1 }])[0];
+    const wolf = buildEnemyUnits([{ enemyId: "grey_wolf", count: 1 }])[0];
     expect(wolf.weapons?.length).toBe(1);
     expect(wolf.weapons![0]).toMatchObject({ kind: "primary", minRange: MELEE_BAND.min, maxRange: MELEE_BAND.max });
   });
 
   it("a back-row creature fights at range with a claws fallback at the close-in fraction", () => {
-    const poacher = buildEnemyUnits([{ enemyId: "bandit_poacher", count: 1 }])[0]; // combatRole "back"
+    const poacher = buildEnemyUnits([{ enemyId: "poacher", count: 1 }])[0]; // combatRole "back"
     expect(poacher.weapons?.map((w) => w.kind)).toEqual(["primary", "sidearm"]);
     const [shot, knife] = poacher.weapons!;
     expect(shot.minRange).toBe(RANGED_BAND.min);

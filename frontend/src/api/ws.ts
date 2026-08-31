@@ -16,7 +16,7 @@
 
 import { getToken } from "./client";
 
-export type WsEvent =
+type WsEvent =
   | { type: "hello"; playerId: string }
   | { type: "error"; reason: string }
   | { type: "coop:invite"; coopId: string }

@@ -45,7 +45,7 @@ export function simulateCombat(
     hpOverride?: Record<string, number>;
     skipRecoveryHeal?: boolean;
     /** Turn off the whole retreat/reflex layer (expeditions + special missions,
-     *  which are lethal by design). Model C — see DESIGN_RECOVERY_AND_RETREAT. */
+     *  which are lethal by design). Model C — see docs/IDEAS.md (Adventurer recovery). */
     disableRetreat?: boolean;
   },
 ): CombatResult | null {

@@ -14,7 +14,7 @@ import FramedItemCard, { itemFrameUrl as frameUrl, gradeFilter } from "~/compone
  *  framed item-style cards). Right: the lab — technique STATIONS up top, ROLE
  *  SHELVES below (each a button opening a plant picker modal), and the output.
  *  Pick a plant from a shelf → the stations highlight → click one to prepare it.
- *  Steep/Distil/Char are parked for now. See docs/DESIGN_APOTHECARY.md. */
+ *  Steep/Distil/Char are parked for now. See docs/IDEAS.md (Alchemy) for what's still unbuilt. */
 
 /** The bench, painted. `x`/`y` are percentages onto ALCHEMY_ART and point at the
  *  object itself; the slot button and its contents sit on top. Mirrors the

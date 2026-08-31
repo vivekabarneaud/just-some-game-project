@@ -19,7 +19,7 @@ import SettingsModal from "./components/SettingsModal";
 import { installGlobalClickSound } from "./engine/sounds";
 import { INTRO_CINEMATIC } from "./data/cinematics";
 import { STORY_MISSIONS } from "@medieval-realm/shared/data/missions";
-import { SEASON_META, SEASON_ELAPSED_SPAN, IS_DEV, nextSeason, seasonFoodOutlookNote, getGlobalSeason } from "./data/seasons";
+import { SEASON_META, SEASON_ELAPSED_SPAN, IS_DEV, nextSeason, seasonFoodOutlookNote } from "./data/seasons";
 import { resolveCurrentWeather, type WeatherType } from "./data/weather";
 import { getMission } from "@medieval-realm/shared/data/missions";
 import { useGame } from "./engine/gameState";
@@ -179,7 +179,7 @@ export default function App(props: ParentProps) {
   // weather resolution the chip/ambience do, so it can't disagree with them.
   let lastHarshWeather: WeatherType | null = null;
   createEffect(() => {
-    const w = resolveCurrentWeather(state.season, state.seasonElapsed, getGlobalSeason().year);
+    const w = resolveCurrentWeather(state);
     if (lastHarshWeather === null) { lastHarshWeather = w; return; }
     if (w === lastHarshWeather) return;
     lastHarshWeather = w;
@@ -355,7 +355,7 @@ export default function App(props: ParentProps) {
           // page-filling signal the crops are under a weather emergency. Both
           // backdrops are mounted, stacked; a pure opacity crossfade in place makes
           // the season sun *become* angry rather than swap.
-          const heat = () => resolveCurrentWeather(state.season, state.seasonElapsed, state.year) === "heat_wave";
+          const heat = () => resolveCurrentWeather(state) === "heat_wave";
           return (
             <>
               <Show when={seasonSrc()}>

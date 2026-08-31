@@ -39,7 +39,7 @@ export default function WeatherAmbience() {
   const { state } = useGame();
 
   const weather = createMemo(() =>
-    resolveCurrentWeather(state.season, state.seasonElapsed, state.year),
+    resolveCurrentWeather(state),
   );
 
   // Drive the weather UI mood: <html data-weather="rain"> etc. → palette shift.

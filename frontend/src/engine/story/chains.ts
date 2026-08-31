@@ -17,7 +17,7 @@
  *  the runner's halt sentinel) until their condition holds; the rest are
  *  idempotent effects. Keep this surface small — add a primitive only when a
  *  real chain needs it. */
-export interface StoryChainApi {
+interface StoryChainApi {
   /** Suspend until a unique/side-chain mission has been completed. */
   awaitMissionDone(missionId: string): void;
   /** Suspend until a mission has been completed at least `count` times (uses the
@@ -385,7 +385,7 @@ export const STORY_CHAINS: StoryChain[] = [
       api.awaitBuilding("town_hall", 3);
       api.awaitSeason("summer", 2);
       api.fireChronicleModal("ch2_nell_wandering");   // worry — opens the search mission
-      api.awaitMissionDone("find_nell");              // the team goes and finds her
+      api.awaitMissionDone("wheres_nell");              // the team goes and finds her
       api.fireChronicleModal("ch2_nell_found");       // relief + the strawberry hollow
       api.unlockSeed("strawberries");                 // Edda's cutting → a cultivated bed
       api.unlockRecipe("strawberry_jam");             // and Edda's jam from Nell's berries

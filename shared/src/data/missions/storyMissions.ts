@@ -31,7 +31,7 @@ export const STORY_MISSIONS: StoryMission[] = [
     difficulty: 1,
     minGuildLevel: 1,
     tags: ["exploration", "outdoor"],
-    encounters: [{ enemyId: "wild_wolf", count: 3 }],
+    encounters: [{ enemyId: "grey_wolf", count: 3 }],
     chronicleEntryId: "ch1_first_scouts",
   },
   // ─── Chapter 1 spine, beats 2–4 (promoted from side-chains 2026-07-27) ──
@@ -63,7 +63,7 @@ export const STORY_MISSIONS: StoryMission[] = [
     difficulty: 2,
     minGuildLevel: 1,
     tags: ["combat", "outdoor"],
-    encounters: [{ enemyId: "dominion_thug", count: 5 }],
+    encounters: [{ enemyId: "dominion_tough", count: 5 }],
     unique: true,
     chronicleEntryId: "ch1_hester_rescue", // Beat 1: she flees, "murderer" hangs
   },
@@ -87,7 +87,7 @@ export const STORY_MISSIONS: StoryMission[] = [
     difficulty: 1,
     minGuildLevel: 1,
     tags: ["outdoor", "survival"],
-    encounters: [{ enemyId: "wild_wolf", count: 1 }],
+    encounters: [{ enemyId: "grey_wolf", count: 1 }],
     unique: true,
     chronicleEntryId: "ch1_woodcutter_ghost", // Beat 2a: the ghost puzzle
   },
@@ -201,7 +201,7 @@ export const STORY_MISSIONS: StoryMission[] = [
     difficulty: 2,
     minGuildLevel: 1,
     tags: ["exploration", "outdoor", "survival"],
-    encounters: [{ enemyId: "wailing_phantom", count: 1 }, { enemyId: "cursed_spirit", count: 3 }],
+    encounters: [{ enemyId: "wastes_phantom", count: 1 }, { enemyId: "grief_bound_spirit", count: 3 }],
     // The team can't hurt ghosts yet (no binding until Niamh, story_4). This is
     // a DISCOVERY: they meet the dead, steel does nothing. Completion rides on
     // headcount, not on winning the fight (which is impossible): a full team of
@@ -246,8 +246,8 @@ export const STORY_MISSIONS: StoryMission[] = [
     // story thread authors him (captain_hale_stub is still a stub).
     encounters: [
       { enemyId: "captain_hale_stub", count: 1 },
-      { enemyId: "wraith", count: 1 },
-      { enemyId: "cursed_spirit", count: 3 },
+      { enemyId: "wastes_phantom", count: 1 },
+      { enemyId: "grief_bound_spirit", count: 3 },
     ],
     npcAlly: {
       npcId: "niamh",
@@ -288,16 +288,16 @@ export const STORY_MISSIONS: StoryMission[] = [
     biome: "Forest",
     events: [
       // Outbound — wolves on the forest road. Warm-up fight.
-      { type: "fixed", event: { kind: "combat", encounters: [{ enemyId: "wild_wolf", count: 3 }] } },
+      { type: "fixed", event: { kind: "combat", encounters: [{ enemyId: "grey_wolf", count: 3 }] } },
       // Outbound — the dangerous slot. Bear, brigands, or a heavier wolf pack.
       { type: "random", pool: [
         { weight: 2, event: { kind: "combat", encounters: [{ enemyId: "forest_bear", count: 1 }] } },
-        { weight: 2, event: { kind: "combat", encounters: [{ enemyId: "bandit_thug", count: 3 }] } },
-        { weight: 1, event: { kind: "combat", encounters: [{ enemyId: "wild_wolf", count: 3 }] } },
+        { weight: 2, event: { kind: "combat", encounters: [{ enemyId: "displaced_brigand", count: 3 }] } },
+        { weight: 1, event: { kind: "combat", encounters: [{ enemyId: "grey_wolf", count: 3 }] } },
       ]},
       // Return — lighter. Stragglers, an angry bear, or a herder's thanks.
       { type: "random", pool: [
-        { weight: 2, event: { kind: "combat", encounters: [{ enemyId: "bandit_thug", count: 2 }] } },
+        { weight: 2, event: { kind: "combat", encounters: [{ enemyId: "displaced_brigand", count: 2 }] } },
         { weight: 1, event: { kind: "combat", encounters: [{ enemyId: "forest_bear", count: 1 }] } },
         { weight: 1, event: { kind: "treasure", rewards: [{ resource: "wheat", amount: 10 }] } },
       ]},
@@ -330,9 +330,9 @@ export const STORY_MISSIONS: StoryMission[] = [
     minGuildLevel: 1,
     tags: ["exploration", "combat", "magical"],
     encounters: [
-      { enemyId: "wailing_phantom", count: 1 },
-      { enemyId: "wraith", count: 2 },
-      { enemyId: "cursed_spirit", count: 4 },
+      { enemyId: "wastes_phantom", count: 1 },
+      { enemyId: "wastes_phantom", count: 2 },
+      { enemyId: "grief_bound_spirit", count: 4 },
     ],
     chronicleEntryId: "ch2_broken_stone",
   },
@@ -365,18 +365,18 @@ export const STORY_MISSIONS: StoryMission[] = [
       ]}},
       // Event 2 — Ruins area, the two flanking broken stones. Random pool.
       { type: "random", pool: [
-        { weight: 2, event: { kind: "combat", encounters: [{ enemyId: "wraith", count: 1 }, { enemyId: "cursed_spirit", count: 2 }] } },
+        { weight: 2, event: { kind: "combat", encounters: [{ enemyId: "wastes_phantom", count: 1 }, { enemyId: "grief_bound_spirit", count: 2 }] } },
         { weight: 1, event: { kind: "encounter", text: "The two stones flanking the old watch stand whole, the south one seamed with old mending. The ground between them is quiet. The ground south of their reach is not. The team passes the line of their protection with eyes down.", outcomes: [
           { weight: 1, text: "Nothing rises. The old watch stays quiet today. The team marks both stones and rides on.", effect: { type: "nothing" } },
         ]}},
-        { weight: 1, event: { kind: "combat", encounters: [{ enemyId: "cursed_spirit", count: 3 }] } },
+        { weight: 1, event: { kind: "combat", encounters: [{ enemyId: "grief_bound_spirit", count: 3 }] } },
       ]},
       // Event 3 — west intact stone (atmospheric, no combat)
       { type: "fixed", event: { kind: "encounter", text: "The west stone stands beyond the line of any country the settlement has walked before. It hums faintly when the wind moves through the trees nearby.", outcomes: [
         { weight: 1, text: "The team marks it standing. The pattern is starting to make sense.", effect: { type: "nothing" } },
       ]}},
       // Event 4 — left X (deep west), hard combat at the new sabotaged stone
-      { type: "fixed", event: { kind: "combat", encounters: [{ enemyId: "wailing_phantom", count: 1 }, { enemyId: "wraith", count: 1 }, { enemyId: "cursed_spirit", count: 3 }] } },
+      { type: "fixed", event: { kind: "combat", encounters: [{ enemyId: "wastes_phantom", count: 1 }, { enemyId: "wastes_phantom", count: 1 }, { enemyId: "grief_bound_spirit", count: 3 }] } },
       // Event 5 — return home with the map (atmospheric wrap-up)
       { type: "fixed", event: { kind: "encounter", text: "On the seventh day the team rides for home with the parchment safe inside an oiled cloth. The country between them and the settlement runs gentle and quiet.", outcomes: [
         { weight: 1, text: "They eat well, sleep soundly, and ride through the gate at first light.", effect: { type: "nothing" } },
@@ -406,7 +406,7 @@ export const STORY_MISSIONS: StoryMission[] = [
     minGuildLevel: 1,
     tags: ["exploration"],
     encounters: [
-      { enemyId: "wild_wolf", count: 3 },
+      { enemyId: "grey_wolf", count: 3 },
     ],
     chronicleEntryId: "ch2_silver_birches",
   },
@@ -432,9 +432,9 @@ export const STORY_MISSIONS: StoryMission[] = [
     minGuildLevel: 1,
     tags: ["combat", "magical", "escort"],
     encounters: [
-      { enemyId: "wailing_phantom", count: 1 },
-      { enemyId: "wraith", count: 2 },
-      { enemyId: "cursed_spirit", count: 5 },
+      { enemyId: "wastes_phantom", count: 1 },
+      { enemyId: "wastes_phantom", count: 2 },
+      { enemyId: "grief_bound_spirit", count: 5 },
     ],
     npcAlly: {
       npcId: "niamh",
@@ -479,7 +479,7 @@ export const STORY_MISSIONS: StoryMission[] = [
         { weight: 2, event: { kind: "encounter", text: "They ride east and post markers above the east intact stone and the dwarves' mended stone. Birds are at the base of the mended one that were not at the base in summer. The team marks the line anyway.", outcomes: [
           { weight: 1, text: "We do not yet trust permanence.", effect: { type: "nothing" } },
         ]}},
-        { weight: 1, event: { kind: "combat", encounters: [{ enemyId: "wild_wolf", count: 3 }] } },
+        { weight: 1, event: { kind: "combat", encounters: [{ enemyId: "grey_wolf", count: 3 }] } },
       ]},
       // Event 3 — west intact stone (atmospheric)
       { type: "fixed", event: { kind: "encounter", text: "They turn west on the fifth day and post markers above the west intact stone without incident.", outcomes: [
@@ -514,9 +514,9 @@ export const STORY_MISSIONS: StoryMission[] = [
     minGuildLevel: 1,
     tags: ["combat", "magical", "escort"],
     encounters: [
-      { enemyId: "wailing_phantom", count: 1 },
-      { enemyId: "wraith", count: 3 },
-      { enemyId: "cursed_spirit", count: 4 },
+      { enemyId: "wastes_phantom", count: 1 },
+      { enemyId: "wastes_phantom", count: 3 },
+      { enemyId: "grief_bound_spirit", count: 4 },
     ],
     npcAlly: {
       npcId: "niamh",
@@ -552,9 +552,9 @@ export const STORY_MISSIONS: StoryMission[] = [
     minGuildLevel: 1,
     tags: ["combat", "magical", "escort"],
     encounters: [
-      { enemyId: "wailing_phantom", count: 1 },
-      { enemyId: "wraith", count: 3 },
-      { enemyId: "cursed_spirit", count: 4 },
+      { enemyId: "wastes_phantom", count: 1 },
+      { enemyId: "wastes_phantom", count: 3 },
+      { enemyId: "grief_bound_spirit", count: 4 },
     ],
     npcAlly: {
       npcId: "niamh",
@@ -576,30 +576,6 @@ export const STORY_MISSIONS: StoryMission[] = [
   },
 ];
 
-/** Get the next story mission that is currently locked specifically by a quest
- *  prerequisite — i.e. the player has met the prior-mission prerequisite and
- *  the guild-level requirement, but a parallel quest must still complete. Used
- *  by the UI to render a "???" placeholder card with the unlock hint. Returns
- *  null when no quest-locked story mission is next in line (which means either
- *  the current story mission is unlocked normally, or the chain has run out). */
-export function getLockedStoryMission(
-  guildLevel: number,
-  completedStoryMissions: readonly string[],
-  completedQuests: readonly string[] = [],
-): { mission: StoryMission; lockedByQuest: string } | null {
-  const completed = new Set(completedStoryMissions);
-  const quests = new Set(completedQuests);
-  for (const m of STORY_MISSIONS) {
-    if (completed.has(m.id)) continue;
-    if (m.minGuildLevel > guildLevel) return null;
-    if (m.prerequisite && !completed.has(m.prerequisite)) return null;
-    if (m.prerequisiteQuest && !quests.has(m.prerequisiteQuest)) {
-      return { mission: m, lockedByQuest: m.prerequisiteQuest };
-    }
-    return null; // story mission is unlocked normally; no locked card to show
-  }
-  return null;
-}
 
 /** Get the current story mission available to the player, or null */
 export function getCurrentStoryMission(

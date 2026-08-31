@@ -1,11 +1,12 @@
 import { createSignal } from "solid-js";
 import type { Season } from "./seasons";
 import { SEASON_ORDER, SEASON_ELAPSED_SPAN, IS_DEV, getGlobalSeason } from "./seasons";
+import { worldYearOf } from "@medieval-realm/shared/data/calendar";
 import { getClimate, climateOverrideBand, type ClimateBand } from "./climate";
 
 // ─── Weather (ambient mood layer) ──────────────────────────────────────────
 //
-// Two-layer model (see docs/DESIGN_WEATHER.md):
+// Two-layer model (see docs/IDEAS.md (Weather)):
 //   Layer 1 — Ambient mood weather (THIS FILE, cosmetic only for now).
 //   Layer 2 — Natural events (drought / storm / blizzard) with mechanics. TODO.
 //   Layer 3 — Unnatural (aether) storms as a story tell. TODO, scripted + emergent.
@@ -74,7 +75,6 @@ const WEATHER_WINDOWS = 72;
 // events span a few windows, so these are punchier than any per-year rate.
 // Tune here. Applied only to standing crops in growing seasons.
 export const HEATWAVE_HEAT_KILL_PER_HOUR = 0.02;   // withering even if watered
-export const HEATWAVE_THIRST_KILL_PER_HOUR = 0.06; // extra when the reserve is dry (× shortfall)
 // Deluge drowning is deliberately GENTLER than a heat wave's worst case (0.08):
 // drought is the deadlier threat, a flood the milder one, so a misjudged sluice
 // in a wet year stings less than getting caught dry. Scaled by how full the
@@ -156,26 +156,42 @@ export function resolveWeather(season: Season, progress: number, year: number): 
  * derived from. Every weather consumer (the sidebar chip, WeatherAmbience, the
  * RainCanvas, the audio bed) MUST go through this so they can never disagree.
  * In dev it follows the local game clock; in prod it follows the shared world
- * clock (`getGlobalSeason`, incl. its year — the year seeds the roll).
+ * clock (`getGlobalSeason`).
  *
- * IMPORTANT: the year here is the *weather roll* year (world year in prod), NOT
- * the settlement-age "Year N" shown in the UI (that's `state.year`, a separate
- * display value). Feeding `state.year` in here is what desynced the chip from
- * the rendered/audible weather.
+ * It takes the whole clock and works the year out ITSELF, on purpose. The year
+ * used to be a caller-supplied argument, and 12 of the 14 call sites passed
+ * `state.year` — which is settlement AGE, the "Year N" shown in the UI, not the
+ * world year the roll is seeded by. Prod hid it (prod ignores the argument and
+ * reads the wall clock), but in dev the sidebar chip and the rendered rain were
+ * rolling different weather off different years. The docstring here warned
+ * about it and only two call sites had been fixed. Now no caller can get it
+ * wrong, because no caller supplies it.
  */
-export function currentWeatherInfo(
-  season: Season,
-  seasonElapsed: number,
-  year: number,
-): { season: Season; progress: number; year: number } {
-  return IS_DEV
-    ? { season, progress: seasonElapsed / SEASON_ELAPSED_SPAN, year }
-    : getGlobalSeason();
+export interface WeatherClock {
+  season: Season;
+  seasonElapsed: number;
+  /** Settlement AGE — the UI's "Year N". Not the weather-roll year. */
+  year: number;
+  /** World year at founding. With `year` it recovers the local world year. */
+  foundingYear?: number;
+}
+
+export function currentWeatherInfo(clock: WeatherClock): { season: Season; progress: number; year: number } {
+  if (!IS_DEV) return getGlobalSeason();
+  return {
+    season: clock.season,
+    progress: clock.seasonElapsed / SEASON_ELAPSED_SPAN,
+    // The local clock's equivalent of the world year. On a fresh save this IS
+    // getGlobalSeason().year, so dev weather starts identical to prod; and it
+    // advances when the speed buttons carry the local clock across a year, so
+    // accelerating actually rolls new weather instead of replaying year one.
+    year: worldYearOf(clock.year, clock.foundingYear),
+  };
 }
 
 /** Convenience: resolve the weather straight from the game clock inputs. */
-export function resolveCurrentWeather(season: Season, seasonElapsed: number, year: number): WeatherType {
-  const i = currentWeatherInfo(season, seasonElapsed, year);
+export function resolveCurrentWeather(clock: WeatherClock): WeatherType {
+  const i = currentWeatherInfo(clock);
   return resolveWeather(i.season, i.progress, i.year);
 }
 
@@ -188,8 +204,8 @@ const isWetWeather = (w: WeatherType) => w === "rain" || w === "storm" || w === 
  * state and lasts about one window before fading. Deliberately "after" the rain,
  * not during. Skips the season-boundary lookback for simplicity.
  */
-export function forageBloomNow(season: Season, seasonElapsed: number, year: number): boolean {
-  const info = currentWeatherInfo(season, seasonElapsed, year);
+export function forageBloomNow(clock: WeatherClock): boolean {
+  const info = currentWeatherInfo(clock);
   if (isWetWeather(resolveWeather(info.season, info.progress, info.year))) return false; // still raining
   const prevProgress = info.progress - 1 / WEATHER_WINDOWS;
   if (prevProgress < 0) return false; // start of the season — no prior window to read

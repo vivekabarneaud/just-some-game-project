@@ -591,7 +591,7 @@ export interface DeathRecord {
 /** A lingering wound carried home from combat. Blocks passive HP regen while
  *  present; decays over game-time (see applyTicks). `remainingRounds` is the
  *  DoT's remaining duration at the moment combat ended — it future-proofs the
- *  banked "decay over real time" refinement (see DESIGN_RECOVERY_AND_RETREAT). */
+ *  banked "decay over real time" refinement (see docs/IDEAS.md (Adventurer recovery)). */
 export interface AdventurerCondition {
   /** "froth" is the rabid-boar bite-sickness: unlike the bleed/poison DoTs it
    *  does NOT fade on its own — it worsens (drains HP toward a KO floor) and
@@ -730,12 +730,6 @@ export function getXpForLevel(level: number): number {
   return Math.floor(15 * Math.pow(1.5, level - 1));
 }
 
-/** Total XP accumulated across all levels */
-export function getTotalXpForLevel(level: number): number {
-  let total = 0;
-  for (let i = 1; i < level; i++) total += getXpForLevel(i);
-  return total;
-}
 
 /** XP gained from a mission */
 export function getMissionXp(difficulty: number, success: boolean): number {
@@ -779,7 +773,6 @@ export function applyXp(adv: Adventurer, xpGain: number): { leveled: boolean; ra
 
 // ─── Portrait system ────────────────────────────────────────────
 
-export const CDN_CHARS_PLACEHOLDER_DELETED = true; // marker for deletion below
 
 
 // ─── Portrait system ────────────────────────────────────────────
@@ -825,14 +818,6 @@ export function getCharacterSummary(premadeId?: string): string | undefined {
   return m ? m[0].trim() : bio;
 }
 
-/** Pick a premade character not already in use, optionally filtered by origin. */
-function pickPremadeCharacter(usedNames?: Set<string>, allowedOrigins?: Set<Origin>): PremadeCharacter | null {
-  let pool: PremadeCharacter[] = PREMADE_CHARACTERS.filter((c) => !c.questOnly);
-  if (allowedOrigins) pool = pool.filter((c) => allowedOrigins.has(c.origin));
-  if (usedNames) pool = pool.filter((c) => !usedNames.has(c.name));
-  if (pool.length === 0) return null;
-  return pool[Math.floor(Math.random() * pool.length)];
-}
 
 /** Pick a weighted random backstory trait */
 function pickTrait(): BackstoryTrait {
@@ -845,17 +830,6 @@ function pickTrait(): BackstoryTrait {
   return BACKSTORY_TRAITS[BACKSTORY_TRAITS.length - 1];
 }
 
-/** Gold cost to recruit an adventurer based on their rank */
-export function getRecruitCost(rank: AdventurerRank): number {
-  const COSTS: Record<AdventurerRank, number> = {
-    1: 25,
-    2: 75,
-    3: 200,
-    4: 500,
-    5: 1200,
-  };
-  return COSTS[rank];
-}
 
 /** Per-adventurer deploy wage by rank — the cost to send one hero on a mission
  *  (supplies + pay). Deploy cost is the sum over the deployed team, so a bigger
@@ -938,30 +912,6 @@ function buildAdventurerFromPremade(id: string, premade: PremadeCharacter, maxRa
   return adv;
 }
 
-/** Generate an adventurer candidate from the premade pool. Pass guildLevel
- *  to gate the origin pool by settlement fame (Lv.1 = local only, Lv.5 = all),
- *  completedStoryMissions to apply story-gated unlocks (e.g. Feldgrund
- *  recruits appear once story 6 is done), and completedQuests to apply
- *  quest-gated unlocks (e.g. Silvaneth recruits after Watch the Walls). */
-export function generateCandidate(
-  id: string,
-  maxRank: AdventurerRank = 2,
-  usedNames?: Set<string>,
-  guildLevel = 5,
-  completedStoryMissions: readonly string[] = [],
-  completedQuests: readonly string[] = [],
-): Adventurer {
-  const allowed = new Set(getOriginsForGuildLevel(guildLevel, completedStoryMissions, completedQuests));
-  const premade = pickPremadeCharacter(usedNames, allowed);
-  if (premade) return buildAdventurerFromPremade(id, premade, maxRank);
-  // Origin-pool exhaustion: fall back to any allowed-origin char even if name reused
-  const browsable = PREMADE_CHARACTERS.filter((c) => !c.questOnly);
-  const allowedPool = browsable.filter((c) => allowed.has(c.origin));
-  const fallback = allowedPool.length > 0
-    ? allowedPool[Math.floor(Math.random() * allowedPool.length)]
-    : browsable[Math.floor(Math.random() * browsable.length)];
-  return buildAdventurerFromPremade(id, fallback, maxRank);
-}
 
 /** Build a specific premade as a roster-ready adventurer (for quest-unlock recruits). */
 export function buildRecruitFromPremadeId(advId: string, premadeId: string, rank: AdventurerRank = 1): Adventurer | null {
@@ -969,31 +919,7 @@ export function buildRecruitFromPremadeId(advId: string, premadeId: string, rank
   return premade ? buildAdventurerFromPremade(advId, premade, rank) : null;
 }
 
-/** Max adventurer rank available — based on guild level AND average top-3 adventurer levels */
-export function getMaxRecruitRank(guildLevel: number, adventurers?: Adventurer[]): AdventurerRank {
-  // Guild level sets the hard cap
-  const guildCap: AdventurerRank = guildLevel >= 5 ? 5 : guildLevel >= 4 ? 4 : guildLevel >= 3 ? 3 : guildLevel >= 2 ? 2 : 1;
 
-  if (!adventurers || adventurers.length === 0) return Math.min(guildCap, 1) as AdventurerRank;
-
-  // Average level of top 3 adventurers determines soft cap
-  const sorted = [...adventurers].filter((a) => a.alive).sort((a, b) => b.level - a.level);
-  const top3 = sorted.slice(0, 3);
-  const avgLevel = top3.reduce((sum, a) => sum + a.level, 0) / top3.length;
-
-  let levelCap: AdventurerRank = 1;
-  if (avgLevel >= 16) levelCap = 5;
-  else if (avgLevel >= 10) levelCap = 4;
-  else if (avgLevel >= 6) levelCap = 3;
-  else if (avgLevel >= 3) levelCap = 2;
-
-  return Math.min(guildCap, levelCap) as AdventurerRank;
-}
-
-/** Number of recruitment candidates shown per refresh */
-export function getCandidateCount(guildLevel: number): number {
-  return Math.min(2 + guildLevel, 6); // 3 at Lv1, up to 6
-}
 
 /** Max roster size based on guild level */
 export function getMaxRoster(guildLevel: number): number {
@@ -1002,5 +928,3 @@ export function getMaxRoster(guildLevel: number): number {
 
 // ─── Recruitment refresh interval (game-hours) ──────────────────
 
-export const RECRUIT_REFRESH_HOURS = 6; // ~1 real day with 4-day seasons
-export const MISSION_REFRESH_HOURS = 6; // ~1 real day with 4-day seasons

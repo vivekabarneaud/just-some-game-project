@@ -45,7 +45,3 @@ export function easeHoursFor(sum: RecoverySummary, line: "fever" | "gut" | "woun
   return byLine + sum.general;
 }
 
-/** Would this brew do anything for a resting, un-ailing hero? (heal only). */
-export function healsHp(sum: RecoverySummary): boolean {
-  return sum.healHp > 0;
-}

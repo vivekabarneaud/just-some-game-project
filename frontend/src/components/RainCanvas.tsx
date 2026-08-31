@@ -56,7 +56,7 @@ export default function RainCanvas(props: { variant?: "screen" | "strip" }) {
   const layers = () => (props.variant === "strip" ? LAYERS_STRIP : LAYERS_SCREEN);
   let canvas!: HTMLCanvasElement;
 
-  const weather = () => resolveCurrentWeather(state.season, state.seasonElapsed, state.year);
+  const weather = () => resolveCurrentWeather(state);
   // Memoized weather TYPE so the render effect only re-runs on an actual weather
   // change, not every tick (weather() reads seasonElapsed) — otherwise the drop
   // set re-seeds ~1×/sec.

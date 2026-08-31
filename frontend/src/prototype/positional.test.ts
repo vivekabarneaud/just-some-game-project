@@ -1,10 +1,8 @@
 // ─── Positional combat BALANCE WORKBENCH ────────────────────────────────────
 // The permanent sandbox for tuning the 1D positional model + (eventually) real
-// encounters as gear/talents/enemies land. See docs/DESIGN_POSITIONAL_COMBAT.md.
-//
+// encounters as gear/talents/enemies land. See docs/design/combat/POSITIONAL_COMBAT.md.
 //   run : cd frontend && npx vitest run src/prototype/positional.test.ts
 //   view: cat "$(node -e 'console.log(require("os").tmpdir())')/positional_sandbox.txt"
-//
 // Add scenarios below; tweak DEFAULT_TUNE / unit() stats to feel out balance.
 
 import { describe, it, expect } from "vitest";

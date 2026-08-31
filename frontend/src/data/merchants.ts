@@ -1,6 +1,6 @@
 // ─── Traveling Merchants ─────────────────────────────────────────
 // Named, origin-tied visitors who pass through and trade on the spot — the
-// first slice of the traveling-merchant arc (docs/DESIGN_TRAVELING_MERCHANTS.md).
+// first slice of the traveling-merchant arc (docs/IDEAS.md (Tavern & merchants)).
 // A visitor is a person: a name, a culture, a line of flavour, and a small pool
 // of offers. Trade is INSTANT while they are here — the visit itself is the
 // window, so no marketplace is required (that is the hook: build one and finer
@@ -93,7 +93,7 @@ export const TRAVELING_MERCHANTS: TravelingMerchant[] = [
       { id: "grain_for_timber", label: "Grain bartered for our timber", give: "wood", giveAmount: 30, receive: "food", receiveAmount: 60 },
       { id: "lammast_buys_timber", label: "They'll take cut timber for Lammast's barns", give: "wood", giveAmount: 40, receive: "gold", receiveAmount: 30 },
     ],
-    returnUnlock: { missionDone: "lammast_first_trade" },
+    returnUnlock: { missionDone: "boundary_stone" },
   },
 ];
 
@@ -102,8 +102,8 @@ export const TRAVELING_MERCHANTS: TravelingMerchant[] = [
 // and sets up a stall that lingers until the next morning (the daily 3AM-UTC
 // boundary — the same clock the mission board refreshes on). He returns every
 // 2-3 real days; a better tavern (reputation) brings him sooner.
-export const MERCHANT_BASE_INTERVAL_DAYS = 3;   // days between visits at low reputation
-export const MERCHANT_REP_SPEEDUP_DAYS = 1;     // down to 2 days at full reputation
+const MERCHANT_BASE_INTERVAL_DAYS = 3;   // days between visits at low reputation
+const MERCHANT_REP_SPEEDUP_DAYS = 1;     // down to 2 days at full reputation
 
 /** Days between return visits, shortened by tavern reputation. */
 export function merchantIntervalDays(reputation: number): number {

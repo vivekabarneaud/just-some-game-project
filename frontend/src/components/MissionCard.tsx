@@ -6,18 +6,12 @@ import { getEnemy } from "@medieval-realm/shared/data/enemies";
 import { MISSION_RANK_LABELS, MISSION_RANK_COLORS } from "~/data/constants";
 import { useGame } from "~/engine/gameState";
 import EnemyCard from "./EnemyCard";
+import { formatTimeShort } from "~/utils/format";
 
 function getMissionImage(missionId: string): string | undefined {
   return getMission(missionId)?.image;
 }
 
-function formatDuration(seconds: number): string {
-  if (seconds < 60) return `${seconds}s`;
-  if (seconds < 3600) return `${Math.floor(seconds / 60)}m`;
-  const h = Math.floor(seconds / 3600);
-  const m = Math.floor((seconds % 3600) / 60);
-  return m > 0 ? `${h}h ${m}m` : `${h}h`;
-}
 
 /** Difficulty (1-star..) → rank fallback for missions with no board rank
  *  (chain / side-chain missions are rank-neutral in the pools). Keeps their
@@ -189,7 +183,7 @@ export default function MissionCard(props: MissionCardProps) {
                 {mission().name}
               </div>
               <div style={{ "font-size": "0.8rem", color: "var(--text-muted)" }}>
-                {formatDuration(mission().duration + missionTravelSeconds(mission()))} · {mission().deployCost}g deploy cost
+                {formatTimeShort(mission().duration + missionTravelSeconds(mission()))} · {mission().deployCost}g deploy cost
               </div>
             </div>
           </div>

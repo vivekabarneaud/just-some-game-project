@@ -12,7 +12,7 @@ export interface DeityDefinition {
   blessingEffect: string; // parseable effect key
 }
 
-export const DEITIES: DeityDefinition[] = [
+const DEITIES: DeityDefinition[] = [
   {
     id: "sylvana",
     name: "Sylvana",

@@ -16,22 +16,22 @@ import CombatPlayback from "~/components/CombatPlayback";
 type Enc = { enemyId: string; count: number };
 
 const PRESETS: { label: string; encounters: Enc[] }[] = [
-  { label: "Lone Grey Wolf", encounters: [{ enemyId: "wild_wolf", count: 1 }] },
-  { label: "Grey Wolf pack ×3", encounters: [{ enemyId: "wild_wolf", count: 3 }] },
+  { label: "Lone Grey Wolf", encounters: [{ enemyId: "grey_wolf", count: 1 }] },
+  { label: "Grey Wolf pack ×3", encounters: [{ enemyId: "grey_wolf", count: 3 }] },
   { label: "Mixed pack (2 grey, gaunt, starving)", encounters: [
-    { enemyId: "wild_wolf", count: 2 }, { enemyId: "gaunt_wolf", count: 1 }, { enemyId: "starving_wolf", count: 1 },
+    { enemyId: "grey_wolf", count: 2 }, { enemyId: "gaunt_wolf", count: 1 }, { enemyId: "starving_wolf", count: 1 },
   ] },
-  { label: "Alpha + 2 grey", encounters: [{ enemyId: "alpha_wolf", count: 1 }, { enemyId: "wild_wolf", count: 2 }] },
+  { label: "Alpha + 2 grey", encounters: [{ enemyId: "greyfang", count: 1 }, { enemyId: "grey_wolf", count: 2 }] },
   { label: "— boars (for later) —", encounters: [] },
   { label: "Lone Wild Boar", encounters: [{ enemyId: "wild_boar", count: 1 }] },
   { label: "Rabid Boar ×2", encounters: [{ enemyId: "rabid_boar", count: 2 }] },
   { label: "— outlaws (morale) —", encounters: [] },
-  { label: "Leaderless mob (5 Toughs)", encounters: [{ enemyId: "dominion_thug", count: 5 }] },
+  { label: "Leaderless mob (5 Toughs)", encounters: [{ enemyId: "dominion_tough", count: 5 }] },
   { label: "Led mob (Tollman + 3 Toughs + Brigand)", encounters: [
-    { enemyId: "reaver_captain", count: 1 }, { enemyId: "dominion_thug", count: 3 }, { enemyId: "bandit_thug", count: 1 },
+    { enemyId: "tollman", count: 1 }, { enemyId: "dominion_tough", count: 3 }, { enemyId: "displaced_brigand", count: 1 },
   ] },
   { label: "Dirty crew (Brigand, Poacher, Cutthroat)", encounters: [
-    { enemyId: "bandit_thug", count: 1 }, { enemyId: "bandit_poacher", count: 1 }, { enemyId: "bandit_cutthroat", count: 1 },
+    { enemyId: "displaced_brigand", count: 1 }, { enemyId: "poacher", count: 1 }, { enemyId: "cutthroat", count: 1 },
   ] },
 ];
 

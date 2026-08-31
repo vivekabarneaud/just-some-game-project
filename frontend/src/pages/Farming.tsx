@@ -1,7 +1,7 @@
 import { For, Show, onMount, createSignal } from "solid-js";
 import { useGame, type GameState, type PlayerField, type PlayerGarden, type PlayerPen, type PlayerHive, type PlayerOrchard } from "~/engine/gameState";
 import { CROPS, type CropId, getCrop, getFieldCost, getFieldBuildTime, getSeasonYield, getSoilMultiplier, getSoilStatus, getHayFromHarvest, MAX_FIELDS, FIELD_MAX_LEVEL } from "~/data/crops";
-import { getVeggie, getGardenCost, getGardenBuildTime, getSeedCapacity, getEffectiveGardenRate, getLiveGardenRate, getSproutedPlants, getGerminationRate, canPlantVeggie, isVeggieProducing, isSeedUnlocked, MAX_GARDENS, GARDEN_MAX_LEVEL } from "~/data/gardens";
+import { getVeggie, getGardenCost, getGardenBuildTime, getSeedCapacity, getEffectiveGardenRate, getLiveGardenRate, getSproutedPlants, getGerminationRate, canPlantVeggie, isVeggieProducing, isSeedUnlocked, GARDEN_MAX_LEVEL } from "~/data/gardens";
 import { getAnimal, getPenCost, getPenBuildTime, getPenProduction, getPenCapacity, getAnimalBuyCost, getCullYield, CULL_MEAT, getWoolSeasonMod, PEN_MAX_LEVEL, type AnimalId } from "@medieval-realm/shared/data/livestock";
 import { ANIMAL_FEED, FEED_CATEGORY_ICON, FEED_CATEGORY_LABEL, FOOD_CATEGORY, isGrazer, type FeedCategory } from "~/data/animalFeed";
 import { getFoodMeta, type FoodItemType } from "~/data/foods";
@@ -1636,7 +1636,7 @@ function useFarmingScrollToHash() {
  *
  *  "Active" = first quest whose rewards are unclaimed AND whose condition is
  *  still unmet. Once the player satisfies the condition the highlight fades. */
-export function getActiveFarmingQuestAnchor(state: GameState): string | null {
+function getActiveFarmingQuestAnchor(state: GameState): string | null {
   // Walk the new quest definitions, picking the first active (triggered + not
   // yet claimed) farming quest whose condition isn't satisfied yet.
   for (const q of QUEST_DEFINITIONS) {
@@ -1762,7 +1762,7 @@ export default function Farming() {
             weather it keeps throwing, not forecast as a verdict, so a hard or
             easy year stays a thing you live through rather than a label. */}
         {(() => {
-          const w = () => resolveCurrentWeather(state.season, state.seasonElapsed, state.year);
+          const w = () => resolveCurrentWeather(state);
           const m = () => WEATHER_META[w()];
           const hasStandingCrop = () =>
             state.gardens.some((g) => g.plantedYear != null && (g.plantsAlive ?? 0) > 0) ||

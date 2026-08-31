@@ -5,7 +5,6 @@
 // the flags rather than the modifiers list directly.
 
 import type { CombatContext } from "./types.js";
-import type { MissionModifier } from "../missions/types.js";
 
 /** Evaluate every active modifier against current context, stamping unit
  *  flags accordingly. Idempotent — safe to call once per round. */

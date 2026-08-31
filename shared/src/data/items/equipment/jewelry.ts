@@ -12,13 +12,6 @@ export const JEWELRY: ItemDefinition[] = [
     recipeId: "fang_necklace", consumable: false,
   },
   {
-    id: "war_banner", rarity: "rare", name: "War Banner", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/tailoring/war_banner.png", icon: "🏴", slot: "trinket",
-    description: "+1 STR to entire party. Orc warlord's standard, restitched and blessed.",
-    classes: [],
-    stats: { str: 1 }, durationMod: 1, lootMod: 1,
-    recipeId: "war_banner", consumable: false,
-  },
-  {
     id: "copper_band", rarity: "common", name: "Copper Band", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/jewelcrafting/copper_band.png", icon: "💍", slot: "ring1",
     description: "+1 VIT. Simple copper ring, polished smooth. Better than nothing.",
     classes: [], stats: { vit: 1 }, durationMod: 1, lootMod: 1, recipeId: "copper_band", consumable: false,
@@ -54,27 +47,12 @@ export const JEWELRY: ItemDefinition[] = [
     classes: ["priest"], stats: { wis: 2, vit: 1 }, durationMod: 1, lootMod: 1, recipeId: "emerald_loop", consumable: false,
   },
   {
-    id: "moonstone_seal", rarity: "rare", name: "Moonstone Seal", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/jewelcrafting/moonstone_ring.png", icon: "💍", slot: "ring1",
-    description: "+3 WIS, +2 INT, +1 VIT. Divine light trapped in stone. The priests weep when they see it.",
-    classes: ["priest", "wizard"], stats: { wis: 3, int: 2, vit: 1 }, durationMod: 1, lootMod: 1, recipeId: "moonstone_seal", consumable: false,
-  },
-  {
-    id: "void_band", rarity: "rare", name: "Void Band", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/jewelcrafting/void_ring.png", icon: "💍", slot: "ring1",
-    description: "+3 DEX, +2 STR. The shadows seem darker near your hand. You move faster. You don't question why.",
-    classes: ["assassin"], stats: { dex: 3, str: 2 }, durationMod: 1, lootMod: 1, recipeId: "void_band", consumable: false,
-  },
-  {
     // The thrill jackpot: a rare FIND (rarity = scarcity, not power), not craftable.
     // +Luck lifts the party's loot-drop chance; ~1% off any bandit. uniqueEquip
     // so you can't stack two. Luck value is a starting knob — tune with LUCK_*.
     id: "stranger_signet", rarity: "rare", name: "Stranger's Signet", icon: "💍", slot: "ring1",
     description: "+5 Luck. A traveller's signet, taken off them on the road north. It fit someone once, and they had a name. Now it just fits you.",
     classes: [], stats: {}, raw: { luck: 5 }, uniqueEquip: true, durationMod: 1, lootMod: 1, recipeId: "stranger_signet", consumable: false,
-  },
-  {
-    id: "dragonfire_ring", rarity: "rare", name: "Dragonfire Ring", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/jewelcrafting/dragonscale_ring.png", icon: "💍", slot: "ring1",
-    description: "+3 STR, +2 VIT. Dragon blood fused with ruby. It pulses like a second heartbeat.",
-    classes: ["warrior"], stats: { str: 3, vit: 2 }, durationMod: 1, lootMod: 1, recipeId: "dragonfire_ring", consumable: false,
   },
   {
     id: "holy_pendant", rarity: "uncommon", name: "Holy Pendant", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/jewelcrafting/moonstone_pendant.png", icon: "✝️", slot: "amulet",
@@ -90,11 +68,6 @@ export const JEWELRY: ItemDefinition[] = [
     id: "predator_tooth", rarity: "uncommon", name: "Predator's Tooth", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/jewelcrafting/alpha_fang_amulet.png", icon: "🦷", slot: "amulet",
     description: "+2 DEX, +1 STR. An alpha wolf's fang on braided sinew. The pack respects the kill.",
     classes: ["archer", "assassin"], stats: { dex: 2, str: 1 }, durationMod: 1, lootMod: 1, recipeId: "predator_tooth", consumable: false,
-  },
-  {
-    id: "warlord_chain", rarity: "rare", name: "Warlord's Chain", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/jewelcrafting/warlord_chain.png", icon: "⛓️", slot: "amulet",
-    description: "+2 STR, +2 VIT. Orc-steel links and a fire ruby clasp. Taken from a chief who doesn't need it anymore.",
-    classes: ["warrior"], stats: { str: 2, vit: 2 }, durationMod: 1, lootMod: 1, recipeId: "warlord_chain", consumable: false,
   },
   {
     id: "ghostveil_locket", rarity: "uncommon", name: "Ghostveil Locket", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/jewelcrafting/spirit_locket.png", icon: "👻", slot: "amulet",

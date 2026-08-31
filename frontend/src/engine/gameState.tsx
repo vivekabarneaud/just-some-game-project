@@ -1,5 +1,4 @@
-import {
-  createContext,
+import { createContext,
   createSignal,
   onMount,
   Show,
@@ -8,8 +7,7 @@ import {
   type ParentProps,
 } from "solid-js";
 import { createStore, produce, reconcile } from "solid-js/store";
-import {
-  BUILDINGS,
+import { BUILDINGS,
   type BuildingCost,
   type FoodType,
   type PlayerBuilding,
@@ -63,8 +61,7 @@ import {
   gatheringSeasonMod,
 } from "~/data/buildings";
 import { FOUNDING_CHARACTERS } from "~/data/founding_characters";
-import {
-  getWallCost,
+import { getWallCost,
   getWatchtowerCost,
   getBarracksCost,
   getWallRepairCost,
@@ -85,8 +82,7 @@ import {
   getBarracksSoldierCap,
   getTrainTime,
 } from "~/data/defenses";
-import {
-  type CitizenCounts,
+import { type CitizenCounts,
   founderCitizens,
   founderHousehold,
   totalPopulation,
@@ -98,8 +94,7 @@ import {
   addCitizens,
 } from "~/data/citizens";
 import { getRobinEvent, getRobinForStoryMission } from "~/data/robins";
-import {
-  type CropId,
+import { type CropId,
   getCrop,
   getFieldCost,
   getFieldBuildTime,
@@ -109,8 +104,7 @@ import {
   MAX_FIELDS,
   FIELD_MAX_LEVEL,
 } from "~/data/crops";
-import {
-  type VeggieId,
+import { type VeggieId,
   VEGGIES,
   getVeggie,
   getGardenCost,
@@ -128,8 +122,7 @@ import {
   isVeggieProducing,
   GARDEN_MAX_LEVEL,
 } from "~/data/gardens";
-import {
-  type AnimalId,
+import { type AnimalId,
   ANIMALS,
   getAnimal,
   getPenCost,
@@ -149,8 +142,7 @@ import {
   getWoolSeasonMod,
   PEN_MAX_LEVEL,
 } from "@medieval-realm/shared/data/livestock";
-import {
-  type FoodItemType,
+import { type FoodItemType,
   emptyFoods,
   getTotalFood,
   consumeFood,
@@ -164,21 +156,18 @@ import {
   BERRY_TYPES,
   type DishKind,
 } from "~/data/foods";
-import {
-  ANIMAL_FEED,
+import { ANIMAL_FEED,
   isGrazer,
   consumeFromCategories,
 } from "~/data/animalFeed";
-import {
-  getHiveCost,
+import { getHiveCost,
   getHiveBuildTime,
   getHoneyRate,
   getHoneyStorageCap,
   MAX_HIVES,
   HIVE_MAX_LEVEL,
 } from "~/data/apiary";
-import {
-  type FruitId,
+import { type FruitId,
   FRUITS,
   getFruit,
   getOrchardCost,
@@ -196,18 +185,18 @@ import {
 import { getClimate, getClimateYield, climateOverrideBand, setClimateOverride, isWetBand, climateRainFactor, type ClimateBand } from "~/data/climate";
 import { WELL_ID, CISTERN_ID, getWellOutput, wellFactor, getCisternRainCatch, getWaterCap, ambientRainFactor, gardenWaterDemand, fieldWaterDemand, orchardWaterDemand, penWaterDemand, getSluiceDrain, delugeDrownFactor, STREAM_YIELD, streamStatus, streamFactor, cropHeatFactor, citizenWaterDemand } from "~/data/water";
 import type { StreamStatus } from "~/data/water";
-import { resolveCurrentWeather, HEATWAVE_HEAT_KILL_PER_HOUR, DELUGE_DROWN_KILL_PER_HOUR, CHRONIC_WILT_PER_HOUR, type WeatherType } from "~/data/weather";
-import {
-  type Season,
+import { resolveCurrentWeather, currentWeatherInfo, HEATWAVE_HEAT_KILL_PER_HOUR, DELUGE_DROWN_KILL_PER_HOUR, CHRONIC_WILT_PER_HOUR, type WeatherType } from "~/data/weather";
+import { type Season,
   SEASON_ELAPSED_SPAN,
+  REAL_SEASON_HOURS,
   HARVEST_DURATION_HOURS,
   nextSeason,
   IS_DEV,
   getGlobalSeason,
+  settlementYear,
 } from "~/data/seasons";
 import { STORY_CHAINS, runStoryChains, next3amUTC } from "~/engine/story/chains";
-import {
-  type Adventurer,
+import { type Adventurer,
   type Race,
   buildRecruitFromPremadeId,
   getArrivedPremades,
@@ -219,10 +208,8 @@ import {
   PERSONALITY_QUIRKS,
   getPortraitUrl,
 } from "@medieval-realm/shared/data/adventurers";
-import { PREMADE_CHARACTERS } from "@medieval-realm/shared/data/premade-characters";
 import { getNpcAlly } from "@medieval-realm/shared/data/npcs";
-import {
-  type ActiveMission,
+import { type ActiveMission,
   type CompletedMission,
   type MissionReward,
   type MissionTemplate,
@@ -231,7 +218,6 @@ import {
   eligiblePinnedMissions,
   MISSION_POOL,
   NOVICE_MISSIONS,
-  EXPERT_MISSIONS,
   getMissionBoardSize,
   calcSuccessChance,
   rollPermanentDeaths,
@@ -247,14 +233,12 @@ import {
 import { getEnemy } from "@medieval-realm/shared/data/enemies";
 import { forageBloomNow } from "~/data/weather";
 import { pickAdultPortrait, pickPuppyPortrait, breedAptitude, DOG_BREED_KEYS, DOG_NAMES, type DogBreed } from "~/data/dogBreeds";
-import {
-  getMissionXp,
+import { getMissionXp,
   applyXp,
   RANK_NAMES,
   getZoomedPortraitUrl,
 } from "@medieval-realm/shared/data/adventurers";
-import {
-  type InventoryItem,
+import { type InventoryItem,
   type ItemSlot,
   getItem,
   getItemByRecipe,
@@ -270,28 +254,26 @@ import {
   isRingSlot,
   isSidearmCapable,
 } from "@medieval-realm/shared/data/items";
-import {
-  calcStats as calcAdvStats,
+import { calcStats as calcAdvStats,
   getUnspentStatPoints,
   type AdventurerStats,
   STAT_KEYS,
   getLoyaltyRank,
-  FOOD_PREFERENCES,
   ORIGIN_RECIPES,
 } from "@medieval-realm/shared/data/adventurers";
-import {
-  type IncomingRaid,
+import { type IncomingRaid,
   getRaid,
   calcDefense,
   calcWarningTime,
+  scaleRaidStrength,
   spawnRaid,
   getRaidChance,
   RAID_POOL,
   type DefenseBreakdown,
+  type RaidTemplate,
 } from "~/data/raids";
 
-import {
-  QUEST_DEFINITIONS,
+import { QUEST_DEFINITIONS,
   isQuestTriggered,
   isChapterComplete,
 } from "~/data/quests";
@@ -319,8 +301,7 @@ import type { CombatUnit } from "@medieval-realm/shared/data/combat";
 import { simulateRaidCombat } from "@medieval-realm/shared/data/raidCombat";
 import { canUnlockTalent } from "~/data/talents";
 import { getEnchantment } from "~/data/enchantments";
-import {
-  listSettlements,
+import { listSettlements,
   loadSettlement as loadSettlementApi,
   saveSettlement as saveSettlementApi,
   createSettlement as createSettlementApi,
@@ -341,6 +322,180 @@ import { isLoggedIn } from "~/api/auth";
 export function buildRaidCaptainUnit(advs: Adventurer[], kind: "watchtower" | "barracks"): CombatUnit | null {
   const adv = advs.find((a) => a.premadeId === TRAINER_ID[kind] && a.alive && !a.onMission);
   return adv ? buildAdventurerUnit(adv) : null;
+}
+
+/** What resolving one raid did to the settlement, so a caller can narrate it.
+ *
+ *  Two paths resolve raids: the live tick and the offline server-load catch-up.
+ *  They used to be ~115 lines of copy-paste, and their drift WAS bugs 1.1-1.3
+ *  (double-apply on reload, dropped militia losses, uncapped offline loot).
+ *  Now both apply identical state changes through resolveRaidAgainstState and
+ *  differ only in the telling: the tick emits a play-by-play and stashes the
+ *  log for playback, the offline path writes one "while you were away" line and
+ *  skips playback (N replay overlays would bury a returning player).
+ *
+ *  This is also the seam to lift into shared/ when the backend starts resolving
+ *  raids server-side, the way co-op expeditions already do. simulateRaidCombat
+ *  is already there; this is the aftermath half. */
+export interface RaidResolution {
+  sim: ReturnType<typeof simulateRaidCombat>;
+  raidName: string;
+  /** Plunder taken on defeat. All zero on victory. */
+  stolen: { gold: number; wood: number; stone: number; food: number };
+  /** Citizens taken by the plunder, on top of the sim's own casualties. */
+  extraCitizensLost: number;
+  /** Display names of buildings the plunder damaged. */
+  damagedBuildings: string[];
+  /** Captains who came home hurt. `fell` = dragged from the wall. */
+  woundedCaptains: { name: string; fell: boolean }[];
+}
+
+/** Run the siege and apply every consequence to `s`. Mutates walls, garrisons,
+ *  troop totals, captain HP, citizens, resources and buildings; returns the
+ *  facts so the caller can decide what to say. Does NOT touch the event log,
+ *  stash the combat log, or splice the raid off the queue - those differ per
+ *  caller. Tolerates the loose shapes older server saves come back with. */
+export function resolveRaidAgainstState(s: GameState, raidId: string, template: RaidTemplate): RaidResolution {
+  const advs = s.adventurers ?? [];
+  const walls = s.walls ?? [];
+  const towers = s.watchtowers ?? [];
+  const barracks = s.barracks ?? [];
+
+  const sim = simulateRaidCombat({
+    raidId,
+    encounters: template.encounters!,
+    walls: walls.map((w) => ({ ring: w.ring, level: w.level, hp: w.hp, maxHp: w.level * WALL_BASE_HP })),
+    // Trainer coordination buff: +1 effective trained level while the
+    // building's trainer (Gareth / Morgause) is home.
+    watchtowers: towers.map((t) => ({ ring: t.ring, level: t.level, damaged: t.damaged, archerCount: t.garrison?.count ?? 0, trainedLevel: (t.garrison?.trainedLevel ?? 0) + (trainerHome(advs, "watchtower") ? 1 : 0) })),
+    barracks: barracks.map((b) => ({ ring: b.ring, level: b.level, damaged: b.damaged, soldierCount: b.garrison?.count ?? 0, trainedLevel: (b.garrison?.trainedLevel ?? 0) + (trainerHome(advs, "barracks") ? 1 : 0) })),
+    militiaCount: militiaCount(s),
+    watchtowerCaptain: buildRaidCaptainUnit(advs, "watchtower"),
+    barracksCaptain: buildRaidCaptainUnit(advs, "barracks"),
+  });
+
+  // ── Sim after-state: walls, damage, per-building casualties ──
+  for (const wf of sim.wallFinalHp) {
+    const w = walls.find((x) => x.ring === wf.ring);
+    if (w) w.hp = wf.hp;
+  }
+  for (const ring of sim.damagedTowerRings) {
+    const t = towers.find((x) => x.ring === ring);
+    if (t) t.damaged = true;
+  }
+  for (const ring of sim.damagedBarracksRings) {
+    const b = barracks.find((x) => x.ring === ring);
+    if (b) b.damaged = true;
+  }
+  // Per-building so each garrison drops by its OWN losses; totals follow.
+  for (const c of sim.archerCasualtiesByRing) {
+    const t = towers.find((x) => x.ring === c.ring);
+    if (t?.garrison) t.garrison.count = Math.max(0, t.garrison.count - c.lost);
+  }
+  for (const c of sim.soldierCasualtiesByRing) {
+    const b = barracks.find((x) => x.ring === c.ring);
+    if (b?.garrison) b.garrison.count = Math.max(0, b.garrison.count - c.lost);
+  }
+  s.archers = Math.max(0, (s.archers ?? 0) - sim.archersLost);
+  s.soldiers = Math.max(0, (s.soldiers ?? 0) - sim.soldiersLost);
+
+  // Captain wounds: they come home at their own final HP, floored at 1. They
+  // never die at the wall - the roster and townsfolk take the deaths, the
+  // captain carries the wound.
+  const woundedCaptains: { name: string; fell: boolean }[] = [];
+  for (const oc of [sim.watchtowerCaptainOutcome, sim.barracksCaptainOutcome]) {
+    if (!oc) continue;
+    const adv = advs.find((a) => a.id === oc.advId);
+    if (!adv) continue;
+    adv.currentHp = Math.max(1, Math.round(oc.hp));
+    if (oc.fell) woundedCaptains.push({ name: adv.name, fell: true });
+  }
+
+  // Soldier + archer + militia casualties are adult deaths, clamped so the
+  // settlement never drops below BASE_POPULATION, and routed through
+  // reduceByPriority so founders / named residents keep their floor.
+  if (s.citizens) {
+    const totalLoss = sim.archersLost + sim.soldiersLost + sim.militiaLost;
+    const popTotal = totalPopulation(s.citizens);
+    const actual = Math.min(totalLoss, Math.max(0, popTotal - BASE_POPULATION));
+    if (actual > 0) s.citizens = reduceByPriority(s.citizens, actual, ["adults"], s.namedResidents);
+  }
+
+  const stolen = { gold: 0, wood: 0, stone: 0, food: 0 };
+  const damagedBuildings: string[] = [];
+  let extraCitizensLost = 0;
+
+  if (sim.victory) {
+    // Through grantReward, the same dispatcher quest- and mission-claims use.
+    // Both raid paths used to inline `s.resources[key] = Math.min(cap, ...)`,
+    // which only has buckets for gold/wood/stone -- so wolf_pack's "40 meat"
+    // (meat is a FOOD, it lives in s.foods) wrote resources.meat = NaN and the
+    // player got nothing. grantReward already routes meat -> venison in the
+    // food store, and caps it. Fixed 2026-08-31 with the resolver merge.
+    const resCaps = calcStorageCaps(s.buildings);
+    for (const loot of template.victoryLoot) {
+      grantReward(s, { resource: loot.resource, amount: loot.amount }, resCaps);
+    }
+  } else {
+    // ── Defeat: plunder on top of the sim's attrition ──
+    const pct = template.resourceStealPercent;
+    stolen.gold = Math.floor(s.resources.gold * pct);
+    stolen.wood = Math.floor(s.resources.wood * pct);
+    stolen.stone = Math.floor(s.resources.stone * pct);
+    stolen.food = s.foods ? Math.floor(getTotalFood(s.foods) * pct) : 0;
+    s.resources.gold = Math.max(0, s.resources.gold - stolen.gold);
+    s.resources.wood = Math.max(0, s.resources.wood - stolen.wood);
+    s.resources.stone = Math.max(0, s.resources.stone - stolen.stone);
+    if (stolen.food > 0 && s.foods) consumeFood(s.foods, stolen.food);
+
+    if (template.killsCitizens && s.citizens) {
+      const popTotal = totalPopulation(s.citizens);
+      const proposed = Math.min(template.maxCitizenLoss, Math.max(1, Math.floor(popTotal * 0.1)));
+      extraCitizensLost = Math.min(proposed, Math.max(0, popTotal - BASE_POPULATION));
+      if (extraCitizensLost > 0) {
+        // Adults first (defenders / labor), then elderly, children, toddlers.
+        s.citizens = reduceByPriority(s.citizens, extraCitizensLost, ["adults", "elderly", "children", "toddlers"], s.namedResidents);
+      }
+    }
+
+    // Damage 1-3 random buildings (legacy plunder mechanic).
+    const damageable = s.buildings.filter((b) => b.level > 0 && !b.damaged && b.buildingId !== "town_hall");
+    const damageCount = Math.min(damageable.length, 1 + Math.floor(Math.random() * 3));
+    for (let d = 0; d < damageCount; d++) {
+      if (damageable.length === 0) break;
+      const idx = Math.floor(Math.random() * damageable.length);
+      damageable[idx].damaged = true;
+      const def = BUILDINGS.find((b) => b.id === damageable[idx].buildingId);
+      if (def) damagedBuildings.push(def.name);
+      damageable.splice(idx, 1);
+    }
+  }
+
+  s.lastRaidOutcome = sim.victory ? "victory" : "defeat";
+  s.lastRaidTime = 0;
+  s.raidsResolvedCount = (s.raidsResolvedCount ?? 0) + 1;
+
+  return { sim, raidName: template.name ?? raidId, stolen, extraCitizensLost, damagedBuildings, woundedCaptains };
+}
+
+/** Highest undamaged watchtower level. Narratively the tallest tower has the
+ *  longest line of sight, so it is the one that sets the warning time. */
+function lookoutLevel(s: GameState): number {
+  return (s.watchtowers ?? []).filter((t) => !t.damaged).reduce((max, t) => Math.max(max, t.level), 0);
+}
+
+/** Queue an incoming raid. Warning time comes from the lookout unless
+ *  `remainingSeconds` overrides it (a scripted story beat, or the dev trigger).
+ *  Three sites used to inline this, two of them with their own copy of the
+ *  lookout scan. Emitting the "raid approaching" event stays with the caller:
+ *  the random raid announces itself, the scripted one lets the story do it. */
+function queueIncomingRaid(s: GameState, raid: RaidTemplate, strength: number, remainingSeconds?: number): void {
+  s.incomingRaids.push({
+    raidId: raid.id,
+    remaining: remainingSeconds ?? calcWarningTime(raid.baseWarning, lookoutLevel(s)) * 3600,
+    strength,
+    warned: true,
+  });
 }
 
 export type GameEventType =
@@ -369,8 +524,7 @@ export interface GameEvent {
 
 import { type CraftingRecipe, type ActiveCraft, CRAFTING_RECIPES, passiveCookTime, isRecipeDiscovered, getBuildingToolByRecipe, getBuildingTool, getRequiredTool, type BuildingToolDef } from "./crafting";
 import { playSound } from "./sounds";
-import {
-  calcAdventurerMaxHp,
+import { calcAdventurerMaxHp,
   resolveEventSlot,
   resolveExpeditionEvent,
   applyBetweenEventHeal,
@@ -382,7 +536,7 @@ export { CRAFTING_RECIPES, passiveCookTime, isRecipeDiscovered, getBuildingTool,
 
 /** How many dishes a kitchen can keep-cooking at once: one per level (naturally
  *  capped by the number of food recipes it has unlocked). */
-export function cookSlotsForLevel(level: number): number {
+function cookSlotsForLevel(level: number): number {
   return Math.max(1, level);
 }
 export { getBuildingToolsForBuilding, BUILDING_TOOLS } from "./crafting";
@@ -456,7 +610,7 @@ export type AnimalSpecies = "dog" | "cat";
 export type AnimalJob = "idle" | "guard" | "hunt" | "mouse";
 export type AnimalOrigin = "stray" | "thornwoods" | "bred";
 /** A named working animal the settlement keeps (dogs now, cats later). See
- *  docs/DESIGN_KEPT_ANIMALS.md. `idle` = at the fire (pet/charm, no effect). */
+ *  docs/IDEAS.md (Animals). `idle` = at the fire (pet/charm, no effect). */
 export interface KeptAnimal {
   id: string;
   name: string;
@@ -494,7 +648,6 @@ export interface PlayerHive {
 
 // ─── Defenses (rework v1) ─────────────────────────────────────────
 // Multi-instance walls/watchtowers/barracks organized by ring.
-// See docs/DESIGN_DEFENSES.md.
 
 export type DefenseRing = "outer" | "middle" | "inner";
 
@@ -510,11 +663,10 @@ export interface PlayerWall {
  * Per-building garrison: a roster of trained units stationed at this watchtower
  * or barracks. Headcount caps at the building's level (see capacity formulas in
  * defenses.ts). All units in a garrison level together; trainedLevel is shared.
- *
  * Combat is resolved at the squad level (one CombatUnit per garrison with HP
  * pooled across the headcount) — see raidCombat.ts when Phase 2 lands.
  */
-export interface Garrison {
+interface Garrison {
   /** Current headcount stationed here. Capped by the building level. */
   count: number;
   /** Collective level of every unit in this garrison. New recruits join at this
@@ -555,7 +707,7 @@ export const WALL_BASE_HP = 100;
 /** Mage Tower: single instance, lives at the Inner ring (Town tier). Gates
  *  enchanting recipes by level. Doesn't fight in raids — purely a research
  *  building stationed inside the keep. */
-export interface PlayerMageTower {
+interface PlayerMageTower {
   level: number;       // 0 = unbuilt
   damaged: boolean;
   upgrading: boolean;
@@ -616,7 +768,6 @@ export interface GameState {
    *  when their seed/cutting is acquired). */
   fruitsUnlocked: FruitId[];
   /** Last world-year a drought plant-kill was applied — so it fires once/year. */
-  lastDroughtKillYear?: number;
   /** Cumulative garden plants killed by environmental stress (heat / drowning /
    *  thirst). The away digest diffs this to report how many wilted offline. */
   plantsWiltedEnv?: number;
@@ -636,7 +787,7 @@ export interface GameState {
   buildingWorkers?: Record<string, number>;
   /** Live founder ailments (injury/illness) keyed by building id — a hurt/sick
    *  founder works their building at reduced pace until they recover. See
-   *  DESIGN_WORKERS_PLAGUES §illness and shared/data/ailments. */
+   *  docs/IDEAS.md (Plague events) and shared/data/ailments. */
   buildingAilments?: Record<string, BuildingAilment>;
   /** "The household" — named, protected residents (founders + named arrivals
    *  like the Thornwood boy), by age. A subset of `citizens`: it's the death
@@ -645,7 +796,7 @@ export interface GameState {
    *  via scripted beats, not the statistical aging tick. */
   namedResidents: CitizenCounts;
   // ── Defenses (rework v1): multi-instance walls/towers/barracks per ring,
-  //    plus counters for recruited soldier-citizens. See DESIGN_DEFENSES.md.
+  //    plus counters for recruited soldier-citizens.
   walls: PlayerWall[];
   watchtowers: PlayerWatchtower[];
   barracks: PlayerBarracks[];
@@ -687,7 +838,6 @@ export interface GameState {
    *  reroll). See SCARCITY_ONCE_PER_BOARD. */
   scarcityDoneThisBoard?: string[];
   missionBoard: MissionTemplate[];
-  missionRefreshIn: number; // game-hours until next mission board refresh
   // Harvest tracking
   yearHarvest: Record<string, number>; // { "wheat": 120, "flax": 60 }
   // Materials & Crafting
@@ -704,7 +854,6 @@ export interface GameState {
   armor: number;
   potions: number;
   gems: number;
-  ironMinedTotal: number; // tracks total iron for gem proc
   // Herbs
   herbs: Record<string, number>; // { chamomile: 5, mugwort: 3, ... }
   foragedTotal: number; // tracks total food foraged for herb procs
@@ -714,7 +863,7 @@ export interface GameState {
   discoveredRecipes: string[]; // recipe IDs discovered through research
   /** Free-form alchemy: recipe cards the player has brewed (keyed by the
    *  deterministic recipeIdFor). A brewed potion in inventory uses this id as
-   *  its itemId; this store is what the potion DOES. See DESIGN_APOTHECARY. */
+   *  its itemId; this store is what the potion DOES. See docs/IDEAS.md (Alchemy). */
   alchemyRecipes?: Record<string, StoredAlchemyRecipe>;
   /** Free-form cooking: discovered dishes (the cookbook) + how many of each the
    *  player has prepared (the pantry stock a later economy pass will draw on). */
@@ -728,7 +877,6 @@ export interface GameState {
   inventory: InventoryItem[];
   /** One-time flag so the starting medical supplies (bandages) are granted once
    *  — to new games and, via migration, to saves that predate them. */
-  startingSuppliesGiven?: boolean;
   craftingQueue: ActiveCraft[];
   /** Passive "keep cooking" assignments: buildingId → recipeId. While set, the
    *  building auto-re-crafts that recipe whenever it's idle and has ingredients
@@ -852,7 +1000,7 @@ export interface GameState {
   bioFragmentsSeen: string[];
 }
 
-export interface FoodSource {
+interface FoodSource {
   type: FoodType | string;
   label: string;
   icon: string;
@@ -863,7 +1011,7 @@ export interface FoodSource {
   wild?: boolean;
 }
 
-export interface TavernDish {
+interface TavernDish {
   id: string;
   name: string;
   icon: string;
@@ -881,7 +1029,7 @@ export interface TavernDish {
   cooked?: boolean;
 }
 
-export interface GameActions {
+interface GameActions {
   upgradeBuilding: (buildingId: string) => boolean;
   panicBuildBuilding: (buildingId: string) => boolean;
   canAfford: (cost: BuildingCost) => boolean;
@@ -1114,7 +1262,6 @@ export interface GameActions {
   /** Dev-only: replace the mission board with every novice mission, ignoring prerequisites. */
   devSpawnAllNoviceMissions: () => void;
   /** Dev-only: replace the board with the veteran (expert-pool) missions — for previewing high-rank frames. */
-  devSpawnVeteranMissions: () => void;
   claimQuestReward: (questId: string) => boolean;
   startAlchemyResearch: () => boolean;
   startAlchemyCraft: (recipeId: string, quantity?: number) => boolean;
@@ -1156,7 +1303,7 @@ const STORAGE_KEY = "medieval-realm-save";
 /** Bump this on ANY save-schema change. A loaded save whose version doesn't match
  *  is DISCARDED (fresh start) rather than migrated — "reset over migrations", so we
  *  don't carry backward-compat backfill code. Solo/alpha: disposable saves. */
-export const SAVE_VERSION = 1;
+export const SAVE_VERSION = 2;  // 2: enemy + mission ids renamed to match display names (2026-08-31)
 /** Dev-only manual snapshot slot — a copy of the save blob the player can stash
  *  and roll back to while testing. Separate from the live save key. */
 const SNAPSHOT_KEY = "medieval-realm-dev-snapshot";
@@ -1228,7 +1375,7 @@ const NAME_SUFFIXES = [
 ];
 
 /** Names reserved for canon NPC neighbour settlements (see
- *  docs/DESIGN_ACT1_SETTING.md). A player town must never be auto-named one of
+ *  docs/design/world/ACT1_SETTING.md). A player town must never be auto-named one of
  *  these, so generateSettlementName() re-rolls on a hit. Lowercased for
  *  case-insensitive comparison. None are currently producible by the
  *  prefix+suffix generator, but this guards against future pool drift. */
@@ -1315,7 +1462,7 @@ export function createInitialState(): GameState {
     fruitsUnlocked: startingUnlockedFruits(),
     honey: 0,
     // Bio-accurate founder mapping: Edda + Father Corin elderly,
-    // Jory + Tomas adults, Nell child. See docs/DESIGN_CITIZEN_CATEGORIES.md.
+    // Jory + Tomas adults, Nell child.
     citizens: founderCitizens(),
     buildingWorkers: {},
     namedResidents: founderHousehold(),
@@ -1339,12 +1486,18 @@ export function createInitialState(): GameState {
     mageTower: { level: 0, damaged: false, upgrading: false },
     soldiers: 0,
     archers: 0,
-    // Dev runs its own fast local calendar (starts in spring). Prod seeds the
-    // fresh settlement AT the current shared-world season/progress, so the very
-    // first tick doesn't fast-forward spring -> now and fire a burst of stale
-    // season banners ("Spring has arrived" followed instantly by summer).
-    season: IS_DEV ? "spring" : getGlobalSeason().season,
-    seasonElapsed: IS_DEV ? 0 : getGlobalSeason().progress * SEASON_ELAPSED_SPAN,
+    // BOTH modes now seed the fresh settlement AT the current shared-world
+    // season and progress. Prod needs it so the very first tick doesn't
+    // fast-forward spring -> now and fire a burst of stale season banners
+    // ("Spring has arrived" followed instantly by summer). Dev used to force
+    // spring, which was only ever "start the local calendar at its beginning" —
+    // but seasonElapsed is the same 0..SEASON_ELAPSED_SPAN scale in both modes,
+    // so dev can start at the real season and simply keep accumulating from
+    // there. What still differs is how the season ADVANCES, not where it
+    // begins: prod re-derives it from the wall clock every tick, dev adds up
+    // game-hours so the speed buttons can actually move it.
+    season: getGlobalSeason().season,
+    seasonElapsed: getGlobalSeason().progress * SEASON_ELAPSED_SPAN,
     year: 1,
     foundingYear: getGlobalSeason().year,
     // foundingWinterGrace left undefined — latched on the first tick.
@@ -1366,7 +1519,6 @@ export function createInitialState(): GameState {
     armor: 0,
     potions: 0,
     gems: 0,
-    ironMinedTotal: 0,
     herbs: {},
     foragedTotal: 0,
     exotics: {},
@@ -1376,7 +1528,6 @@ export function createInitialState(): GameState {
     lastTradeAt: 0,
     // The crew arrived with basic medical supplies — bandages to take on missions.
     inventory: [{ itemId: "bandage", quantity: 5 }],
-    startingSuppliesGiven: true,
     craftingQueue: [],
     autoCook: {},
     buildingTools: {},
@@ -1398,7 +1549,6 @@ export function createInitialState(): GameState {
     missionCompletions: {},
     scarcityDoneThisBoard: [],
     missionBoard: [],
-    missionRefreshIn: 0,
     incomingRaids: [],
     hoursSinceLastRaid: 48, // start with 48h of calm
     raidsResolvedCount: 0,
@@ -1747,19 +1897,7 @@ function applyEventEvaluation(s: GameState): void {
       if (event.unlocks?.raidSpawn) {
         const raid = RAID_POOL.find((r) => r.id === event.unlocks!.raidSpawn!.raidId);
         if (raid) {
-          const yearBonus = 1 + (s.year - 1) * 0.20;
-          const strength = Math.floor(raid.strength * yearBonus);
-          const wtLevel = s.watchtowers
-            .filter((t) => !t.damaged)
-            .reduce((max, t) => Math.max(max, t.level), 0);
-          const warningHours = calcWarningTime(raid.baseWarning, wtLevel);
-          const scriptedWarning = event.unlocks!.raidSpawn!.warningSeconds;
-          s.incomingRaids.push({
-            raidId: raid.id,
-            remaining: scriptedWarning ?? warningHours * 3600,
-            strength,
-            warned: true,
-          });
+          queueIncomingRaid(s, raid, scaleRaidStrength(raid.strength, s.year), event.unlocks!.raidSpawn!.warningSeconds);
           // Reset the probability timer so a random raid doesn't pile up on
           // this scripted one within the same window.
           s.hoursSinceLastRaid = 0;
@@ -1780,12 +1918,12 @@ function isHarvestTime(season: Season, seasonElapsed: number): boolean {
  *  season modifier. Fires AFTER the rain (see forageBloomNow), not during. */
 export const RAIN_FORAGE_MUSHROOM_FRACTION = 0.5;
 export function isForagerBlooming(state: GameState): boolean {
-  return forageBloomNow(state.season, state.seasonElapsed, state.year);
+  return forageBloomNow(state);
 }
 
 // ─── Derived calculations ────────────────────────────────────────
 
-export interface BuildingStaffMember {
+interface BuildingStaffMember {
   id?: string;
   name: string;
   kind: "founder" | "adventurer";
@@ -1888,8 +2026,11 @@ export function getBuildingStaffing(s: GameState, buildingId: string, level: num
  *  time gets the same good/bad year — the shared basis the water storage/trade
  *  economy needs. No backend: it's a pure function of the clock, like the
  *  ambient weather. */
-function cropClimateBand(_state: GameState): ClimateBand {
-  return climateOverrideBand() ?? getClimate(getGlobalSeason().year);
+function cropClimateBand(state: GameState): ClimateBand {
+  // Reads the SAME clock as the weather (currentWeatherInfo), so the band and
+  // the sky can never disagree — in dev that means accelerating into a new
+  // local year gets you a new band, not year one's forever.
+  return climateOverrideBand() ?? getClimate(currentWeatherInfo(state).year);
 }
 function buildingLevel(s: GameState, id: string): number {
   return s.buildings.find((b) => b.buildingId === id)?.level ?? 0;
@@ -1911,7 +2052,7 @@ function cropWaterDemand(s: GameState): number {
 
 /** The sky right now (drives the momentary rain boost on cistern catch). */
 function currentWeatherOf(s: GameState) {
-  return resolveCurrentWeather(s.season, s.seasonElapsed, getGlobalSeason().year);
+  return resolveCurrentWeather(s);
 }
 /** Water the livestock drink each hour (year-round, per head). */
 function animalWaterDemand(s: GameState): number {
@@ -1944,7 +2085,6 @@ function streamStatusOf(s: GameState): StreamStatus {
  *  Crops drink continuously EXCEPT while it's raining (the sky waters them then),
  *  thirstier in a dry-year heat. When the reserve runs dry the crops go short
  *  (citizens and livestock have priority).
- *
  *  The cistern's SLUICE flips the whole model: open, intake to the reserve is
  *  paused and it drains out (the settlement drinks from the live flow instead of
  *  the store), so the reserve runs low and a downpour can't back up and drown
@@ -2139,7 +2279,7 @@ export interface GatheredFood {
    *  fowl here. Empty for the forager/fishing. Reusable for future splits. */
   extras: GatheredExtra[];
 }
-export interface GatheredExtra { type: FoodItemType; label: string; icon: string; rate: number; }
+interface GatheredExtra { type: FoodItemType; label: string; icon: string; rate: number; }
 
 /** How the Hunting Camp's steady catch splits across venison / rabbit / wild fowl,
  *  per season (each column ~sums to 1, so total output is unchanged — variety, not
@@ -2496,7 +2636,7 @@ function applyAnimalFeed(s: GameState, elapsedHours: number): Map<string, number
 /** Flock population change each tick (livestock slice 2): a fed flock breeds in
  *  the warm seasons (needs a pair + room, never past capacity); an unfed flock
  *  loses head to hunger. Mutates pen.count. Never auto-culls — shrinkage is only
- *  starvation; deliberate culling is a separate player action. See DESIGN_LIVESTOCK.md. */
+ *  starvation; deliberate culling is a separate player action. See docs/IDEAS.md (Animals). */
 // ── Kept animals: the living layer (leveling, growth, happiness, breeding, strays) ──
 /** Room for dogs is set by the Kennel (none without one). Owner-bound dogs (a
  *  character's own hound, e.g. Nessa's) don't live in the kennel and so don't
@@ -2891,10 +3031,10 @@ function calcMaxPopulation(buildings: PlayerBuilding[]): number {
 /** Adventurers eat less than a townsfolk — they're hardy and forage/provision on
  *  the side. Keeps the early game (when the 3 Thornwood adventurers are a big
  *  share of the mouths) from tipping into a long deficit that blocks arrivals. */
-export const ADVENTURER_FOOD_MULTIPLIER = 0.5;
+const ADVENTURER_FOOD_MULTIPLIER = 0.5;
 /** Consumption multiplier while the founding-winter rationing grace is active —
  *  a settlement founded in winter tightens its belts through that first winter. */
-export const FOUNDING_WINTER_RATION = 0.7;
+const FOUNDING_WINTER_RATION = 0.7;
 
 // ── Famine mechanics ──────────────────────────────────────────────
 // When the larder runs low the settlement tightens its belts (eats less, so a
@@ -2903,16 +3043,16 @@ export const FOUNDING_WINTER_RATION = 0.7;
 // always possible and a famine never becomes an inescapable death spiral.
 /** Rations tighten to this fraction once the larder holds under
  *  FAMINE_RATION_THRESHOLD_HOURS of food — buys recovery time before it hits 0. */
-export const FAMINE_RATION = 0.6;
-export const FAMINE_RATION_THRESHOLD_HOURS = 6;
+const FAMINE_RATION = 0.6;
+const FAMINE_RATION_THRESHOLD_HOURS = 6;
 /** Larder is in deficit AND under this many game-hours from empty → the Wild
  *  Boar Hunt is forced onto the board (meat on four legs). Tunable; a touch
  *  tighter than the famine-ration threshold so it reads as the emergency. */
-export const WILD_BOAR_HUNT_FOOD_HOURS = 3;
+const WILD_BOAR_HUNT_FOOD_HOURS = 3;
 /** Water reserve running out within this many hours (and in deficit) surfaces the
  *  North Stream haul — a touch more lead time than the food hunt, since a dry
  *  spell wilts crops gradually rather than starving folk outright. */
-export const WATER_FETCH_HOURS = 8;
+const WATER_FETCH_HOURS = 8;
 /** Forced scarcity missions that run at most ONCE per board cycle: after one
  *  resolves (success or failure) it won't be re-forced until the board
  *  refreshes — the daily 3AM reroll or a shard reroll (the cadence from
@@ -2928,8 +3068,8 @@ export const SCARCITY_ONCE_PER_BOARD = new Set([
 ]);
 /** Hours of continuous starvation for the work penalty to reach its floor, and
  *  the floor itself (10% = a 90% cut to wood/stone/gold production). */
-export const FAMINE_WORK_RAMP_HOURS = 12;
-export const FAMINE_WORK_FLOOR = 0.1;
+const FAMINE_WORK_RAMP_HOURS = 12;
+const FAMINE_WORK_FLOOR = 0.1;
 
 export function calcFoodConsumption(citizens: CitizenCounts, adventurerMouths = 0, rationMult = 1): number {
   // Per-category multipliers: toddlers 0.5×, children 0.75×, adults 1.0×, elderly 0.75×.
@@ -3329,7 +3469,7 @@ export function useGame() {
  *  refresh (which has nothing left to catch up) still shows it, and surfaced as a
  *  dismissible card on the Overview. Session-scoped by design: it's a return
  *  greeting, not save data. */
-export interface AwayReport {
+interface AwayReport {
   hoursAway: number;
   seasonBefore: Season;
   seasonAfter: Season;
@@ -3649,113 +3789,15 @@ export function GameProvider(props: ParentProps) {
             if (ir.remaining <= 0) {
               const template = getRaid(ir.raidId);
               if (template && template.encounters?.length) {
-                const sim = simulateRaidCombat({
-                  raidId: ir.raidId,
-                  encounters: template.encounters,
-                  walls: (serverState.walls ?? []).map((w: any) => ({ ring: w.ring, level: w.level, hp: w.hp, maxHp: w.level * WALL_BASE_HP })),
-                  watchtowers: (serverState.watchtowers ?? []).map((t: any) => ({ ring: t.ring, level: t.level, damaged: t.damaged, archerCount: t.garrison?.count ?? 0, trainedLevel: (t.garrison?.trainedLevel ?? 0) + (trainerHome(serverState.adventurers ?? [], "watchtower") ? 1 : 0) })),
-                  barracks: (serverState.barracks ?? []).map((b: any) => ({ ring: b.ring, level: b.level, damaged: b.damaged, soldierCount: b.garrison?.count ?? 0, trainedLevel: (b.garrison?.trainedLevel ?? 0) + (trainerHome(serverState.adventurers ?? [], "barracks") ? 1 : 0) })),
-                  militiaCount: militiaCount(serverState as GameState),
-                  watchtowerCaptain: buildRaidCaptainUnit(serverState.adventurers ?? [], "watchtower"),
-                  barracksCaptain: buildRaidCaptainUnit(serverState.adventurers ?? [], "barracks"),
-                });
-
-                // Apply sim after-state
-                for (const wf of sim.wallFinalHp) {
-                  const w = serverState.walls?.find((x: any) => x.ring === wf.ring);
-                  if (w) w.hp = wf.hp;
-                }
-                for (const ring of sim.damagedTowerRings) {
-                  const t = serverState.watchtowers?.find((x: any) => x.ring === ring);
-                  if (t) t.damaged = true;
-                }
-                for (const ring of sim.damagedBarracksRings) {
-                  const b = serverState.barracks?.find((x: any) => x.ring === ring);
-                  if (b) b.damaged = true;
-                }
-                // Per-building casualties — same as the client-tick path.
-                for (const c of sim.archerCasualtiesByRing) {
-                  const t = serverState.watchtowers?.find((x: any) => x.ring === c.ring);
-                  if (t?.garrison) t.garrison.count = Math.max(0, t.garrison.count - c.lost);
-                }
-                for (const c of sim.soldierCasualtiesByRing) {
-                  const b = serverState.barracks?.find((x: any) => x.ring === c.ring);
-                  if (b?.garrison) b.garrison.count = Math.max(0, b.garrison.count - c.lost);
-                }
-                serverState.archers = Math.max(0, (serverState.archers ?? 0) - sim.archersLost);
-                serverState.soldiers = Math.max(0, (serverState.soldiers ?? 0) - sim.soldiersLost);
-                // Captain wounds — same as the live path, floored at 1.
-                for (const oc of [sim.watchtowerCaptainOutcome, sim.barracksCaptainOutcome]) {
-                  if (!oc) continue;
-                  const adv = (serverState.adventurers ?? []).find((a: any) => a.id === oc.advId);
-                  if (adv) adv.currentHp = Math.max(1, Math.round(oc.hp));
-                }
-                // Soldier + archer + militia casualties = adult deaths, same as
-                // the live tick path: clamped to the BASE_POPULATION floor and
-                // routed through reduceByPriority so founders/named residents
-                // keep their protection on away-raids too.
-                const totalAdultLoss = sim.archersLost + sim.soldiersLost + sim.militiaLost;
-                if (totalAdultLoss > 0 && (serverState as any).citizens) {
-                  const popTotal = totalPopulation((serverState as any).citizens);
-                  const allowed = Math.max(0, popTotal - BASE_POPULATION);
-                  const actual = Math.min(totalAdultLoss, allowed);
-                  if (actual > 0) {
-                    (serverState as any).citizens = reduceByPriority((serverState as any).citizens, actual, ["adults"], serverState.namedResidents);
-                  }
-                }
-
-                const raidName = template.name ?? ir.raidId;
-                if (sim.victory) {
-                  // Clamp to storage caps, same as the live path — offline
-                  // victories shouldn't overfill the warehouse.
-                  const resCaps = calcStorageCaps(serverState.buildings);
-                  for (const loot of template.victoryLoot) {
-                    if (loot.resource === "astralShards") {
-                      serverState.astralShards += loot.amount;
-                    } else {
-                      const key = loot.resource as keyof typeof serverState.resources;
-                      serverState.resources[key] = Math.min(resCaps[key], serverState.resources[key] + loot.amount);
-                    }
-                  }
-                } else {
-                  const stealPct = template.resourceStealPercent;
-                  serverState.resources.gold = Math.max(0, serverState.resources.gold - Math.floor(serverState.resources.gold * stealPct));
-                  serverState.resources.wood = Math.max(0, serverState.resources.wood - Math.floor(serverState.resources.wood * stealPct));
-                  serverState.resources.stone = Math.max(0, serverState.resources.stone - Math.floor(serverState.resources.stone * stealPct));
-                  if (serverState.foods) consumeFood(serverState.foods, Math.floor(getTotalFood(serverState.foods) * stealPct));
-                  if (template.killsCitizens && (serverState as any).citizens) {
-                    const popTotal = totalPopulation((serverState as any).citizens);
-                    const extra = Math.min(template.maxCitizenLoss, Math.max(1, Math.floor(popTotal * 0.1)));
-                    const allowed = Math.max(0, popTotal - BASE_POPULATION);
-                    const actual = Math.min(extra, allowed);
-                    if (actual > 0) {
-                      // Adults first (defenders), then elderly, children, toddlers —
-                      // through the same reducer as the live path so named
-                      // residents keep their floor.
-                      (serverState as any).citizens = reduceByPriority((serverState as any).citizens, actual, ["adults", "elderly", "children", "toddlers"], serverState.namedResidents);
-                    }
-                  }
-                  // Damage 1-3 random buildings
-                  const damageable = serverState.buildings.filter((b: any) => b.level > 0 && !b.damaged && b.buildingId !== "town_hall");
-                  const damageCount = Math.min(damageable.length, 1 + Math.floor(Math.random() * 3));
-                  for (let d = 0; d < damageCount; d++) {
-                    if (damageable.length === 0) break;
-                    const idx = Math.floor(Math.random() * damageable.length);
-                    damageable[idx].damaged = true;
-                    damageable.splice(idx, 1);
-                  }
-                }
-
-                serverState.lastRaidOutcome = sim.victory ? "victory" : "defeat";
-                serverState.lastRaidTime = 0;
-                serverState.raidsResolvedCount = (serverState.raidsResolvedCount ?? 0) + 1;
+                // Same consequences as the live tick, one implementation.
+                const r = resolveRaidAgainstState(serverState as GameState, ir.raidId, template);
                 if (!serverState.eventLog) serverState.eventLog = [];
                 serverState.eventLog.unshift({
-                  type: sim.victory ? "raid_victory" : "raid_defeat",
-                  icon: sim.victory ? "🛡️" : "💔",
-                  message: sim.victory
-                    ? `Repelled ${raidName} while you were away! Loot: ${template.victoryLoot.map((l) => `+${l.amount} ${l.resource}`).join(", ")}`
-                    : `Defeated by ${raidName} while you were away! Resources stolen, buildings damaged.`,
+                  type: r.sim.victory ? "raid_victory" : "raid_defeat",
+                  icon: r.sim.victory ? "🛡️" : "💔",
+                  message: r.sim.victory
+                    ? `Repelled ${r.raidName} while you were away! Loot: ${template.victoryLoot.map((l) => `+${l.amount} ${l.resource}`).join(", ")}`
+                    : `Defeated by ${r.raidName} while you were away! Resources stolen, buildings damaged.`,
                   timestamp: Date.now(),
                 });
               }
@@ -4013,8 +4055,13 @@ export function GameProvider(props: ParentProps) {
       produce((s) => {
         // Advance season
         if (IS_DEV) {
-          // Dev mode: season driven by game ticks (affected by speed)
-          s.seasonElapsed += elapsedHours;
+          // Dev: the season accumulates from game-hours, which is what lets the
+          // speed buttons move it (prod re-derives from the wall clock, so
+          // speed cannot). Scaled so x1 matches the world clock EXACTLY — one
+          // season per SEASON_DAYS real days — and the buttons multiply from
+          // there. It used to add raw game-hours, making x1 seasons 3x faster
+          // than production, so dev pacing never told you the truth.
+          s.seasonElapsed += elapsedHours * (SEASON_ELAPSED_SPAN / REAL_SEASON_HOURS);
           while (s.seasonElapsed >= SEASON_ELAPSED_SPAN) {
             s.seasonElapsed -= SEASON_ELAPSED_SPAN;
             advanceSeason(s);
@@ -4030,7 +4077,7 @@ export function GameProvider(props: ParentProps) {
           }
           s.seasonElapsed = global.progress * SEASON_ELAPSED_SPAN;
           // Season is global/shared, but YEAR is local = settlement age.
-          s.year = Math.max(1, global.year - (s.foundingYear ?? global.year) + 1);
+          s.year = settlementYear(global.year, s.foundingYear);
 
           // No year-type forecast: the year is unpredictable, discovered as it's
           // lived. Its character comes through the weather it throws (a dry year
@@ -5690,158 +5737,49 @@ export function GameProvider(props: ParentProps) {
           if (ir.remaining <= 0) {
             const template = getRaid(ir.raidId);
             if (template && template.encounters?.length) {
-              // ── Run the siege sim ────────────────────────────────
-              const sim = simulateRaidCombat({
-                raidId: ir.raidId,
-                encounters: template.encounters,
-                walls: s.walls.map((w) => ({ ring: w.ring, level: w.level, hp: w.hp, maxHp: w.level * WALL_BASE_HP })),
-                // Trainer coordination buff: +1 effective trained level while the
-                // building's trainer (Gareth / Morgause) is home.
-                watchtowers: s.watchtowers.map((t) => ({ ring: t.ring, level: t.level, damaged: t.damaged, archerCount: t.garrison.count, trainedLevel: t.garrison.trainedLevel + (trainerHome(s.adventurers, "watchtower") ? 1 : 0) })),
-                barracks: s.barracks.map((b) => ({ ring: b.ring, level: b.level, damaged: b.damaged, soldierCount: b.garrison.count, trainedLevel: b.garrison.trainedLevel + (trainerHome(s.adventurers, "barracks") ? 1 : 0) })),
-                militiaCount: militiaCount(s),
-                watchtowerCaptain: buildRaidCaptainUnit(s.adventurers, "watchtower"),
-                barracksCaptain: buildRaidCaptainUnit(s.adventurers, "barracks"),
-              });
+              // Same consequences as the offline path, one implementation.
+              const r = resolveRaidAgainstState(s, ir.raidId, template);
+              const sim = r.sim;
 
-              // ── Apply sim after-state ────────────────────────────
-              for (const wf of sim.wallFinalHp) {
-                const w = s.walls.find((x) => x.ring === wf.ring);
-                if (w) w.hp = wf.hp;
+              // ── Narrate it: the play-by-play the offline path skips ──
+              for (const c of r.woundedCaptains) {
+                pushEvent(s, "adventurer_wounded", "🩸", `${c.name} was dragged from the wall, gravely wounded`);
               }
-              for (const ring of sim.damagedTowerRings) {
-                const t = s.watchtowers.find((x) => x.ring === ring);
-                if (t) t.damaged = true;
-              }
-              for (const ring of sim.damagedBarracksRings) {
-                const b = s.barracks.find((x) => x.ring === ring);
-                if (b) b.damaged = true;
-              }
-              // Apply casualties per-building so each garrison's count drops by
-              // its own losses. Totals + population shrink alongside.
-              for (const c of sim.archerCasualtiesByRing) {
-                const t = s.watchtowers.find((x) => x.ring === c.ring);
-                if (t) t.garrison.count = Math.max(0, t.garrison.count - c.lost);
-              }
-              for (const c of sim.soldierCasualtiesByRing) {
-                const b = s.barracks.find((x) => x.ring === c.ring);
-                if (b) b.garrison.count = Math.max(0, b.garrison.count - c.lost);
-              }
-              s.archers = Math.max(0, s.archers - sim.archersLost);
-              s.soldiers = Math.max(0, s.soldiers - sim.soldiersLost);
-              // Captain wounds — Gareth / Morgause come home at their own final
-              // HP, floored at 1. They never die at the wall (the roster and
-              // townsfolk take the deaths); the captain carries the wound. Only
-              // set when they actually fought (were home + held a ring).
-              for (const oc of [sim.watchtowerCaptainOutcome, sim.barracksCaptainOutcome]) {
-                if (!oc) continue;
-                const adv = s.adventurers.find((a) => a.id === oc.advId);
-                if (!adv) continue;
-                adv.currentHp = Math.max(1, Math.round(oc.hp));
-                if (oc.fell) {
-                  pushEvent(s, "adventurer_wounded", "🩸", `${adv.name} was dragged from the wall, gravely wounded`);
-                }
-              }
-              // Soldier + archer + militia casualties = adult deaths. Total
-              // clamped so we never drop below the BASE_POPULATION floor.
-              // The household (founders + named) is protected by the
-              // s.namedResidents floor on the reducer.
-              {
-                const totalLoss = sim.archersLost + sim.soldiersLost + sim.militiaLost;
-                const popTotal = totalPopulation(s.citizens);
-                const allowed = Math.max(0, popTotal - BASE_POPULATION);
-                const actual = Math.min(totalLoss, allowed);
-                if (actual > 0) {
-                  s.citizens = reduceByPriority(s.citizens, actual, ["adults"], s.namedResidents);
-                }
-              }
-
-              const raidName = template.name ?? ir.raidId;
-
-              // Per-casualty event lines so the player can see the breakdown
-              // beyond the summary. Pushed before the summary so the summary
+              // Per-casualty lines, pushed before the summary so the summary
               // ends up at the top of the log.
               if (sim.soldiersLost > 0) {
-                const word = sim.soldiersLost === 1 ? "soldier" : "soldiers";
-                pushEvent(s, "citizen_died", "⚔️", `${sim.soldiersLost} ${word} fell defending the walls`);
+                pushEvent(s, "citizen_died", "⚔️", `${sim.soldiersLost} ${sim.soldiersLost === 1 ? "soldier" : "soldiers"} fell defending the walls`);
               }
               if (sim.archersLost > 0) {
-                const word = sim.archersLost === 1 ? "archer" : "archers";
-                pushEvent(s, "citizen_died", "🏹", `${sim.archersLost} ${word} fell at the watchtower`);
+                pushEvent(s, "citizen_died", "🏹", `${sim.archersLost} ${sim.archersLost === 1 ? "archer" : "archers"} fell at the watchtower`);
               }
               if (sim.militiaLost > 0) {
-                const word = sim.militiaLost === 1 ? "villager" : "villagers";
-                pushEvent(s, "citizen_died", "🍞", `${sim.militiaLost} ${word} fell with pitchforks in hand`);
+                pushEvent(s, "citizen_died", "🍞", `${sim.militiaLost} ${sim.militiaLost === 1 ? "villager" : "villagers"} fell with pitchforks in hand`);
               }
 
               if (sim.victory) {
-                // ── Victory: grant loot ────────────────────────────
-                const resCaps = calcStorageCaps(s.buildings);
-                for (const loot of template.victoryLoot) {
-                  if (loot.resource === "astralShards") {
-                    s.astralShards += loot.amount;
-                  } else {
-                    const key = loot.resource as keyof ResourceState;
-                    s.resources[key] = Math.min(resCaps[key], s.resources[key] + loot.amount);
-                  }
-                }
                 const lootStr = template.victoryLoot.map((l) => `+${l.amount} ${l.resource}`).join(", ");
-                const parts = [`Repelled ${raidName}!`, `Loot: ${lootStr}`];
+                const parts = [`Repelled ${r.raidName}!`, `Loot: ${lootStr}`];
                 const losses = sim.archersLost + sim.soldiersLost + sim.militiaLost;
                 if (losses > 0) parts.push(`Casualties: ${losses}`);
                 pushEvent(s, "raid_victory", "🛡️", parts.join(" · "));
               } else {
-                // ── Defeat: plunder on top of sim attrition ────────
-                const stealPct = template.resourceStealPercent;
-                const stolen = {
-                  gold: Math.floor(s.resources.gold * stealPct),
-                  wood: Math.floor(s.resources.wood * stealPct),
-                  stone: Math.floor(s.resources.stone * stealPct),
-                  food: Math.floor(getTotalFood(s.foods) * stealPct),
-                };
-                s.resources.gold = Math.max(0, s.resources.gold - stolen.gold);
-                s.resources.wood = Math.max(0, s.resources.wood - stolen.wood);
-                s.resources.stone = Math.max(0, s.resources.stone - stolen.stone);
-                if (stolen.food > 0) consumeFood(s.foods, stolen.food);
-
-                let extraCitizensLost = 0;
-                if (template.killsCitizens) {
-                  const popTotal = totalPopulation(s.citizens);
-                  const proposed = Math.min(template.maxCitizenLoss, Math.max(1, Math.floor(popTotal * 0.1)));
-                  const allowed = Math.max(0, popTotal - BASE_POPULATION);
-                  extraCitizensLost = Math.min(proposed, allowed);
-                  if (extraCitizensLost > 0) {
-                    // Adults first (defenders / labor), then elderly, children, toddlers.
-                    s.citizens = reduceByPriority(s.citizens, extraCitizensLost, ["adults", "elderly", "children", "toddlers"], s.namedResidents);
-                    const word = extraCitizensLost === 1 ? "citizen" : "citizens";
-                    pushEvent(s, "citizen_died", "💀", `${extraCitizensLost} ${word} taken in the plunder`);
-                  }
+                if (r.extraCitizensLost > 0) {
+                  pushEvent(s, "citizen_died", "💀", `${r.extraCitizensLost} ${r.extraCitizensLost === 1 ? "citizen" : "citizens"} taken in the plunder`);
                 }
-
-                // Damage 1-3 random buildings (legacy plunder mechanic).
-                const damageable = s.buildings.filter((b) => b.level > 0 && !b.damaged && b.buildingId !== "town_hall");
-                const damageCount = Math.min(damageable.length, 1 + Math.floor(Math.random() * 3));
-                let damagedBuildings = 0;
-                for (let d = 0; d < damageCount; d++) {
-                  if (damageable.length === 0) break;
-                  const idx = Math.floor(Math.random() * damageable.length);
-                  damageable[idx].damaged = true;
-                  damagedBuildings++;
-                  const def = BUILDINGS.find((b) => b.id === (damageable[idx] as any).buildingId);
-                  if (def) pushEvent(s, "building_damaged", "🔧", `${def.name} was damaged in the raid`);
-                  damageable.splice(idx, 1);
+                for (const name of r.damagedBuildings) {
+                  pushEvent(s, "building_damaged", "🔧", `${name} was damaged in the raid`);
                 }
-
                 const lostParts: string[] = [];
-                if (stolen.gold > 0) lostParts.push(`${stolen.gold}g`);
-                if (stolen.wood > 0) lostParts.push(`${stolen.wood}w`);
-                if (stolen.stone > 0) lostParts.push(`${stolen.stone}s`);
-                if (stolen.food > 0) lostParts.push(`${stolen.food}f`);
-                const parts = [`Defeated by ${raidName}!`];
+                if (r.stolen.gold > 0) lostParts.push(`${r.stolen.gold}g`);
+                if (r.stolen.wood > 0) lostParts.push(`${r.stolen.wood}w`);
+                if (r.stolen.stone > 0) lostParts.push(`${r.stolen.stone}s`);
+                if (r.stolen.food > 0) lostParts.push(`${r.stolen.food}f`);
+                const parts = [`Defeated by ${r.raidName}!`];
                 if (lostParts.length > 0) parts.push(`Lost: ${lostParts.join(", ")}`);
-                const totalCitizensLost = extraCitizensLost + sim.archersLost + sim.soldiersLost;
+                const totalCitizensLost = r.extraCitizensLost + sim.archersLost + sim.soldiersLost;
                 if (totalCitizensLost > 0) parts.push(`Citizens lost: ${totalCitizensLost}`);
-                if (damagedBuildings > 0) parts.push(`Buildings damaged: ${damagedBuildings}`);
+                if (r.damagedBuildings.length > 0) parts.push(`Buildings damaged: ${r.damagedBuildings.length}`);
                 pushEvent(s, "raid_defeat", "💔", parts.join(" · "));
               }
 
@@ -5851,9 +5789,8 @@ export function GameProvider(props: ParentProps) {
               ir.combatRoster = sim.roster;
               ir.combatVictory = sim.victory;
               ir.combatViewed = false;
-              s.lastRaidOutcome = sim.victory ? "victory" : "defeat";
-              s.lastRaidTime = 0;
-              s.raidsResolvedCount = (s.raidsResolvedCount ?? 0) + 1;
+              // (lastRaidOutcome / lastRaidTime / raidsResolvedCount are set by
+              // resolveRaidAgainstState, for both paths.)
             } else {
               // No template or no encounters — splice silently. Shouldn't
               // happen now that all raid templates carry encounter sets.
@@ -5899,18 +5836,7 @@ export function GameProvider(props: ParentProps) {
           s.hoursSinceLastRaid = 0; // reset timer
           const spawn = spawnRaid(tier, s.year);
           if (spawn) {
-            // Use the highest tower level across rings — narratively, the
-            // tallest tower has the longest line of sight.
-            const wtLevel = s.watchtowers
-              .filter((t) => !t.damaged)
-              .reduce((max, t) => Math.max(max, t.level), 0);
-            const warningHours = calcWarningTime(spawn.raid.baseWarning, wtLevel);
-            s.incomingRaids.push({
-              raidId: spawn.raid.id,
-              remaining: warningHours * 3600,
-              strength: spawn.strength,
-              warned: true,
-            });
+            queueIncomingRaid(s, spawn.raid, spawn.strength);
             pushEvent(s, "raid_incoming", "⚠️", `${spawn.raid.name} approaching!`);
           }
         }
@@ -8162,12 +8088,7 @@ export function GameProvider(props: ParentProps) {
       const spawn = spawnRaid(tier, state.year);
       if (!spawn) return false;
       setState(produce((s) => {
-        s.incomingRaids.push({
-          raidId: spawn.raid.id,
-          remaining: 60, // 1 minute warning for testing
-          strength: spawn.strength,
-          warned: true,
-        });
+        queueIncomingRaid(s, spawn.raid, spawn.strength, 60); // 1 min, for testing
       }));
       return true;
     },
@@ -8299,12 +8220,6 @@ export function GameProvider(props: ParentProps) {
     devSpawnAllNoviceMissions() {
       setState(produce((s) => {
         s.missionBoard = [...NOVICE_MISSIONS];
-      }));
-      scheduleSave();
-    },
-    devSpawnVeteranMissions() {
-      setState(produce((s) => {
-        s.missionBoard = [...EXPERT_MISSIONS];
       }));
       scheduleSave();
     },

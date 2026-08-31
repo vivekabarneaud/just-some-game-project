@@ -288,7 +288,7 @@ export default function Sidebar(props: SidebarProps) {
       // A heat wave with a standing crop = the food supply is actively dying —
       // an act-now threat, so it gets the red urgent spark (run water / let it
       // pass is the answer). No crop standing → nothing to lose, no spark.
-      const info = currentWeatherInfo(state.season, state.seasonElapsed, state.year);
+      const info = currentWeatherInfo(state);
       const wx = resolveWeather(info.season, info.progress, info.year);
       const hasStandingCrop =
         state.gardens.some((g) => g.plantedYear != null && (g.plantsAlive ?? 0) > 0) ||
@@ -359,7 +359,7 @@ export default function Sidebar(props: SidebarProps) {
             // Season emblem in the header — but during a HEAT WAVE, swap in the
             // angry-sun emblem so the player instantly reads the warm/brown UI as a
             // real weather emergency (crops wilting), not a theme change.
-            const info = () => currentWeatherInfo(state.season, state.seasonElapsed, state.year);
+            const info = () => currentWeatherInfo(state);
             const wx = () => resolveWeather(info().season, info().progress, info().year);
             const heat = () => wx() === "heat_wave";
             return (
@@ -542,7 +542,7 @@ export default function Sidebar(props: SidebarProps) {
           // displayed "Year N" below is the settlement's OWN age (state.year),
           // deliberately separate — it must NOT feed the weather roll, or the
           // chip desyncs from the rendered/audible weather.
-          const seasonInfo = () => currentWeatherInfo(state.season, state.seasonElapsed, state.year);
+          const seasonInfo = () => currentWeatherInfo(state);
           return (
             <>
               <div class="season-display">

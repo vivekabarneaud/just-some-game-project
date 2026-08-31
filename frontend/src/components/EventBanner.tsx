@@ -13,7 +13,7 @@ import { playSound, type SoundId } from "~/engine/sounds";
  * system instead — banners are "the town crier", not a receipt.
  */
 
-export type EventType = "quest" | "season" | "raid" | "mission" | "coop" | "info";
+type EventType = "quest" | "season" | "raid" | "mission" | "coop" | "info";
 
 export interface EventBannerItem {
   id: number;

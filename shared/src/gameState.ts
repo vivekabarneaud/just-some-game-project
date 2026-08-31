@@ -110,7 +110,7 @@ export interface PlayerPen {
 export type AnimalSpecies = "dog" | "cat";
 export type AnimalJob = "idle" | "guard" | "hunt" | "mouse";
 
-/** A named working animal the settlement keeps (see docs/DESIGN_KEPT_ANIMALS.md).
+/** A named working animal the settlement keeps (see docs/IDEAS.md (Animals)).
  *  Dogs guard flocks / work the hunting camp; cats (later) keep vermin down.
  *  Cozy + attachment-driven: named companions posted to useful work. */
 export type AnimalOrigin = "stray" | "thornwoods" | "bred";
@@ -374,7 +374,6 @@ export interface GameState {
    *  when their seed/cutting is acquired). */
   fruitsUnlocked: FruitId[];
   /** Last world-year a drought plant-kill was applied — so it fires once/year. */
-  lastDroughtKillYear?: number;
   /** Cumulative garden plants killed by environmental stress (heat/drown/thirst),
    *  and the most recent cause; the away digest diffs the count. */
   plantsWiltedEnv?: number;
@@ -391,7 +390,7 @@ export interface GameState {
    *  bench beyond capacity. Drawn from the shared adult pool. */
   buildingWorkers?: Record<string, number>;
   /** Live founder ailments (injury/illness) keyed by building id. See
-   *  shared/data/ailments + DESIGN_WORKERS_PLAGUES §illness. */
+   *  shared/data/ailments + docs/IDEAS.md (Plague events). */
   buildingAilments?: Record<string, { ailmentId: string; founderId: string; hoursRemaining: number }>;
   citizens: {
     toddlers: number;
@@ -400,6 +399,12 @@ export interface GameState {
     elderly: number;
   };
   season: Season;
+  /** World year the settlement was founded in. The season is shared by every
+   *  player, but the YEAR is local: a settlement's year is its own age, which
+   *  is `settlementYear(worldYear, foundingYear)` in shared/data/calendar.
+   *  Added 2026-08-31 because the backend tick needs it to stop assigning the
+   *  world year (one instance of the 4.1 shadow-drift). */
+  foundingYear?: number;
   seasonElapsed: number;
   year: number;
   lastTick: number;
@@ -412,7 +417,6 @@ export interface GameState {
   activeMissions: ActiveMission[];
   completedMissions: CompletedMission[];
   missionBoard: MissionTemplate[];
-  missionRefreshIn: number;
   // Harvest tracking
   yearHarvest: Record<string, number>;
   // Materials & Crafting
@@ -428,12 +432,11 @@ export interface GameState {
   armor: number;
   potions: number;
   gems: number;
-  ironMinedTotal: number;
   herbs: Record<string, number>;
   foragedTotal: number;
   discoveredRecipes: string[];
   /** Free-form alchemy recipe cards, keyed by the deterministic recipe id.
-   *  See shared/data/alchemy + docs/DESIGN_APOTHECARY.md. */
+   *  See shared/data/alchemy + docs/IDEAS.md (Alchemy). */
   alchemyRecipes?: Record<string, import("./data/alchemy/types.js").StoredAlchemyRecipe>;
   kitchenDishes?: Record<string, import("./data/kitchen/types.js").StoredDish>;
   cookedDishes?: Record<string, number>;

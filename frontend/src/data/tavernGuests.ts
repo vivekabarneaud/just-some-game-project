@@ -4,7 +4,7 @@
 // DERIVED (no persistent guest state) — deterministic from a seed so it reads
 // stable within a period instead of reshuffling every render.
 
-export type TavernGuestKind = "traveler" | "notable" | "citizen";
+type TavernGuestKind = "traveler" | "notable" | "citizen";
 
 export interface TavernGuest {
   kind: TavernGuestKind;

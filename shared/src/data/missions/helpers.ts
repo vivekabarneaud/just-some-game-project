@@ -1,16 +1,12 @@
 import type { AdventurerStats, Adventurer } from "../adventurers.js";
 import { calcStats } from "../adventurers.js";
-import { getEquipmentStats, getSupplyEffect, getFoodEffect, MATCHED_FOOD_HP_BONUS, getMaterial, getItem } from "../items/index.js";
+import { getEquipmentStats, getSupplyEffect, getFoodEffect, getMaterial, getItem } from "../items/index.js";
 import { getHerb } from "../herbs.js";
 import type { MissionReward, MissionTemplate, MissionTag, MissionRequirements, AdventurerMissionSupplies } from "./types.js";
 import type { Season } from "../../gameState.js";
 import { NOVICE_MISSIONS } from "./noviceMissions.js";
-import { APPRENTICE_MISSIONS } from "./apprenticeMissions.js";
-import { JOURNEYMAN_MISSIONS } from "./journeymanMissions.js";
-import { EXPERT_MISSIONS } from "./expertMissions.js";
 import { STORY_MISSIONS } from "./storyMissions.js";
 import { EXPEDITION_POOL } from "./expeditions.js";
-import { STAGED_MISSIONS } from "./stagedMissions.js";
 import { SIDE_CHAIN_MISSIONS } from "./sideChainMissions.js";
 
 /** Pool used for the natural mission-board rotation AND for getMission lookup.
@@ -18,16 +14,10 @@ import { SIDE_CHAIN_MISSIONS } from "./sideChainMissions.js";
  *  this back into a ROTATION_POOL (rotation only) + ALL_MISSIONS (lookup). */
 const ALL_MISSIONS: MissionTemplate[] = [
   ...NOVICE_MISSIONS,
-  ...APPRENTICE_MISSIONS,
-  ...JOURNEYMAN_MISSIONS,
-  ...EXPERT_MISSIONS,
   // Side-story chains: rank-neutral (getMissionRank returns undefined), so the
   // board quota treats them like story/expedition content — always eligible
   // when their gates open, balanced by their own difficulty, never tier-filed.
   ...SIDE_CHAIN_MISSIONS,
-  // Staged placeholders: included for getMission() lookup only (a save with one
-  // mid-flight still resolves). generateMissionBoard filters out `staged`.
-  ...STAGED_MISSIONS,
 ];
 
 // ─── Reward formatting ─────────────────────────────────────────
@@ -122,15 +112,11 @@ export type MissionRank = "novice" | "apprentice" | "journeyman" | "veteran" | "
 /**
  * A mission's rank is determined by which pool it lives in, not its `difficulty`
  * field. `difficulty` is the sub-star count (1-3) within a rank.
- *
  * Story missions and expeditions are their own "ranks" for UI purposes even
  * though they overlap in difficulty with the regular pools.
  */
 export function getMissionRank(missionId: string): MissionRank | undefined {
   if (NOVICE_MISSIONS.some((m) => m.id === missionId)) return "novice";
-  if (APPRENTICE_MISSIONS.some((m) => m.id === missionId)) return "apprentice";
-  if (JOURNEYMAN_MISSIONS.some((m) => m.id === missionId)) return "journeyman";
-  if (EXPERT_MISSIONS.some((m) => m.id === missionId)) return "veteran";
   if (STORY_MISSIONS.some((m) => m.id === missionId)) return "story";
   if (EXPEDITION_POOL.some((m) => m.id === missionId)) return "expedition";
   return undefined;
@@ -248,7 +234,7 @@ export function calcSuccessChance(
  * Calculate effective mission duration after wizard speed bonus.
  */
 /** The settlement's spot on the mission map (normalized). Travel time is the
- *  round trip from here to a mission's pin. See docs/DESIGN_MISSION_MAP.md. */
+ *  round trip from here to a mission's pin. */
 // The hub adventurers set out from and return to (also the origin for travel
 // distance). Measured to the heart of the settlement art (below the label).
 export const SETTLEMENT_MAP_POS = { x: 0.487, y: 0.553 };
@@ -358,18 +344,15 @@ export function calcDeathChance(
 /**
  * Resolve permadeath for a finished combat. Single source of truth for both
  * the actual deploy-time roll and the team-assembly preview's Monte Carlo.
- *
  * Inputs: who fell during combat (HP ≤ 0), the team, the mission, supplies.
  * Output: ids that permanently died (Pantheon entries) and ids whose roll
  * was undone by a priest revive (loot-modal "X was revived" line).
- *
  * Roll order:
  *   1. Per-fallen death roll: `Math.random() * 100 < calcDeathChance × 1.5`.
  *   2. Warrior Shield Wall — soaks one ally death; 50% chance the warrior
  *      dies in their place.
  *   3. Priest Divine Grace — each non-dead priest gets one revive attempt
  *      per remaining death, at PRIEST_REVIVE_CHANCE.
- *
  * Uses Math.random() (not the seeded combat PRNG), so callers running this
  * inside a Monte-Carlo loop get fresh variance per iteration.
  */

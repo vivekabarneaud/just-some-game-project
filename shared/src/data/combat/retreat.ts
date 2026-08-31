@@ -3,7 +3,7 @@ import { combatRandom } from "./prng.js";
 import { getAttackPower, getInitiative, getDefenseReduction, getMagicResistReduction, dealsMagicalDamage } from "./stats.js";
 import { livingPackmates, PACK_NERVE_COURAGE } from "./positional.js";
 
-// ─── Tunables (Model C — see docs/DESIGN_RECOVERY_AND_RETREAT.md) ───────────────
+// ─── Tunables (Model C — see docs/IDEAS.md (Adventurer recovery)) ───────────────
 
 /** Survival reflex: a killing blow that overshoots 0 by at least this fraction of
  *  max HP is "overkill" and downs the hero outright; anything softer leaves them
@@ -30,10 +30,6 @@ const FLEE_MAX = 95;
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
-/** Player-side units still on the field (not downed, not fled). Includes allies. */
-function activeFighters(ctx: CombatContext): CombatUnit[] {
-  return ctx.adventurers.filter((u) => u.hp > 0 && !u.fled);
-}
 
 /** Adventurer-kind units still in the fight (excludes NPC allies/entities). */
 function activeAdventurers(ctx: CombatContext): CombatUnit[] {

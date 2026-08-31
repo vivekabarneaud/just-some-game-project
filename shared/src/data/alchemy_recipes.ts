@@ -272,7 +272,7 @@ export const ALCHEMY_RECIPES: AlchemyRecipeDefinition[] = [
 
   // ── Everyday remedies for the settlement's own (founder injuries/illness).
   // Mild, cheap, camp-accessible; they SPEED a recovery that rest would reach
-  // anyway (see DESIGN_WORKERS_PLAGUES §illness — no cure is ever mandatory).
+  // anyway (see docs/IDEAS.md (Plague events) — no cure is ever mandatory).
   {
     id: "woundwort_salve",
     name: "Woundwort Salve",
@@ -357,9 +357,6 @@ export const ALCHEMY_RECIPES: AlchemyRecipeDefinition[] = [
 
 // ─── Helpers ────────────────────────────────────────────────────
 
-export function getStarterRecipes(): AlchemyRecipeDefinition[] {
-  return ALCHEMY_RECIPES.filter((r) => r.starterRecipe);
-}
 
 export function getDiscoverableRecipes(labLevel: number, discovered: string[]): AlchemyRecipeDefinition[] {
   return ALCHEMY_RECIPES.filter((r) =>
@@ -369,11 +366,5 @@ export function getDiscoverableRecipes(labLevel: number, discovered: string[]): 
   );
 }
 
-export function getAvailableAlchemyRecipes(labLevel: number, discovered: string[]): AlchemyRecipeDefinition[] {
-  return ALCHEMY_RECIPES.filter((r) =>
-    r.minLabLevel <= labLevel &&
-    (r.starterRecipe || discovered.includes(r.id))
-  );
-}
 
 export const RESEARCH_BASE_COST = 50; // gold

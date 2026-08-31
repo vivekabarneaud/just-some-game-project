@@ -1,6 +1,5 @@
 import { describe, it, expect } from "vitest";
-import {
-  runStoryChains,
+import { runStoryChains,
   STORY_CHAINS,
   type StoryChain,
   type ChainState,
@@ -84,7 +83,7 @@ describe("runStoryChains — primitives", () => {
     expect(s.chronicleEntriesFired).toEqual(["ch2_nell_wandering"]); // worry fired, waiting on the mission
     expect(log).not.toContain("seed:strawberries");
 
-    s.completedUniqueMissionIds = ["find_nell"];
+    s.completedUniqueMissionIds = ["wheres_nell"];
     runStoryChains(s, [chain], makeDeps(s, 0, log));
     expect(s.chronicleEntriesFired).toContain("ch2_nell_found");
     expect(log).toContain("seed:strawberries");

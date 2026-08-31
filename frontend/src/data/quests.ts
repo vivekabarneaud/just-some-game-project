@@ -32,13 +32,6 @@ export interface ChapterState {
   completedChapters: number[];
 }
 
-export const INITIAL_CHAPTER_STATE: ChapterState[] = [
-  { storyline: "settlement", current: 1, completedChapters: [] },
-  { storyline: "guild", current: 0, completedChapters: [] },
-  { storyline: "story", current: 1, completedChapters: [] },
-  { storyline: "defense", current: 0, completedChapters: [] },
-  { storyline: "social", current: 1, completedChapters: [] },
-];
 
 // ─── Trigger system ──────────────────────────────────────────────
 
@@ -54,13 +47,13 @@ export type QuestTrigger =
 
 // ─── Quest definition ────────────────────────────────────────────
 
-export interface QuestReward {
+interface QuestReward {
   resource: "gold" | "wood" | "stone" | "wheat" | "fish" | "wool" | "astralShards";
   amount: number;
   label: string;
 }
 
-export interface QuestPrerequisite {
+interface QuestPrerequisite {
   /** True when this prerequisite is satisfied. */
   met: (state: GameState) => boolean;
   /** Short label shown on the locked card, e.g. "an Adventurer's Guild". */
@@ -142,14 +135,6 @@ export interface QuestDefinition {
 const bldg = (state: GameState, id: string) =>
   state.buildings.find((b) => b.buildingId === id);
 
-const chapterCompleted = (
-  state: GameState,
-  storyline: StorylineId,
-  chapter: number,
-): boolean => {
-  const cs = state.chapters?.find((c) => c.storyline === storyline);
-  return cs ? cs.completedChapters.includes(chapter) : false;
-};
 
 const chapterUnlocked = (
   state: GameState,
@@ -229,27 +214,10 @@ export function isQuestClaimable(
   return isQuestActive(quest, state) && quest.condition(state);
 }
 
-/** All currently active quests (not yet claimed), optionally filtered by storyline. */
-export function getActiveQuests(
-  state: GameState,
-  storyline?: StorylineId,
-): QuestDefinition[] {
-  return QUEST_DEFINITIONS.filter(
-    (q) =>
-      (!storyline || q.storyline === storyline) && isQuestActive(q, state),
-  );
-}
 
-/** First active quest (back-compat for "current quest" UI patterns). */
-export function getCurrentQuest(state: GameState): QuestDefinition | null {
-  for (const q of QUEST_DEFINITIONS) {
-    if (isQuestActive(q, state)) return q;
-  }
-  return null;
-}
 
 /** All quests in a specific chapter of a storyline. */
-export function getQuestsInChapter(
+function getQuestsInChapter(
   storyline: StorylineId,
   chapter: number,
 ): QuestDefinition[] {
@@ -484,7 +452,7 @@ export const QUEST_DEFINITIONS: QuestDefinition[] = [
   // strawberry unlock is being redesigned as a later, summer-firing adventurer
   // mission ("find Nell asleep in the wild strawberries"). Until that lands,
   // strawberries stay locked (their garden shows as "???"). See
-  // docs/DESIGN_FARMING_EXPANSION.md §5.
+  // docs/IDEAS.md (Farming).
 
   // ╔══════════════════════════════════════════════════════════════╗
   // ║ SETTLEMENT — Chapter 3: The Shepherd                        ║
