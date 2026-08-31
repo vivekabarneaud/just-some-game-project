@@ -1,6 +1,6 @@
 # Faction Balance — Thornveil & Church (Design Spec)
 
-**Status:** BACKLOG (merged 2026-06-05 from `DESIGN_THORNVEIL_BALANCE.md` + `DESIGN_CHURCH_BALANCE.md`, both archived). Neither side is built. ⚠️ The Church side needs a rethink first: the "Chapel" it relied on was renamed to **Shrine** with a deity-offering role, so the faith-offset building no longer exists as designed.
+**Status:** BACKLOG (merged 2026-06-05 from the retired Thornveil Balance doc (in git) + the retired Church Balance doc (in git), both archived). Neither side is built. ⚠️ The Church side needs a rethink first: the "Chapel" it relied on was renamed to **Shrine** with a deity-offering role, so the faith-offset building no longer exists as designed.
 
 ## Overview — the triangle
 
@@ -76,7 +76,7 @@ The Church escalation is **bureaucratic and cold** (forms, surveillance, data-dr
 To make both mechanics legible, split the overloaded Mage Tower:
 
 - **Mage Tower** (Defense/Magic) — produces mana crystals; houses spells: Sylvan Regrowth (forest), future active defense/scrying/ward spells.
-- **Enchanting Shop** (Crafting) — enchant equipment (existing), craft scrolls (the unbuilt third of `DESIGN_FOOD_SCROLLS_LOYALTY.md`). Unlocks at Village tier requiring Mage Tower Lv1; enchanting recipes move to `building: "enchanting_shop"`. Both draw on shared mana crystals → tension over where to spend.
+- **Enchanting Shop** (Crafting) — enchant equipment (existing), craft scrolls (the unbuilt third of the retired Food Scrolls Loyalty doc (in git)). Unlocks at Village tier requiring Mage Tower Lv1; enchanting recipes move to `building: "enchanting_shop"`. Both draw on shared mana crystals → tension over where to spend.
 
 ---
 

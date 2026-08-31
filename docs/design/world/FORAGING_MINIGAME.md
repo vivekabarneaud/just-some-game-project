@@ -2,7 +2,7 @@
 
 - **Status:** DESIGNING (2026-08-07). Concept agreed in discussion; nothing built.
 - **Purpose:** the "nothing left to do" valve for idle downtime, and the home for plant *variety* that a passive building can't carry.
-- **Cross-refs:** [[project_foraging_minigame]], `DESIGN_APOTHECARY.md`, `DESIGN_FARMING_EXPANSION.md`, the retired seasonal-gathers doc (in git), `DESIGN_TAVERN.md`.
+- **Cross-refs:** [[project_foraging_minigame]], `design/world/APOTHECARY.md`, the retired Farming Expansion doc (in git), the retired seasonal-gathers doc (in git), the retired Tavern doc (in git).
 
 ---
 

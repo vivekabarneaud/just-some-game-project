@@ -7,7 +7,7 @@
 - **Age:** ~35 *(about 15 years older than Magnus — old enough that he all but raised the boy)*
 - **Food preference:** hearty
 - **Trait(s):** TBD (healer/protector flavor — e.g. `pious_heart`, or a bespoke "sheltering" support trait)
-- **Family:** Elder brother of **Magnus Stonebridge** (char_029) — and effectively his father. **Parents alive, left behind** (see Family). Cross-ref [magnus-stonebridge.md](magnus-stonebridge.md).
+- **Family:** Elder brother of **Magnus Stonebridge** (char_029) — and effectively his father. **Parents alive, left behind** (see Family). Cross-ref [cast/magnus-stonebridge.md](cast/magnus-stonebridge.md).
 - **Role:** Half the **magic-unlock pair** — the priest who needs shelter, the shelterer who needs sheltering.
 
 ## Recruit-card bio (public surface)
@@ -35,7 +35,7 @@
   - **"Medieval bromance" cutscenes (user idea 2026-07-30):** picture short **cutscenes/cinematics that show the friendship *growing*** across the game — the two of them at ease, working shoulder to shoulder, a warmth deepening — a genuine bromance the player watches bloom, always with the quiet shadow of what Aldwin can't say. Ties into [[project_cinematics]] (post-story cinematics) as the delivery vehicle. Future, banked.
 
 ## Combat identity & talents (parked 2026-06-29)
-**Archetype: pure healer + protector (priest).** Heals, shields, wards — straight support, no offense to speak of; his power is keeping others alive, and keeping **Magnus** alive above all. Talent model = Godric's template (see [godric-thornwood.md](godric-thornwood.md)).
+**Archetype: pure healer + protector (priest).** Heals, shields, wards — straight support, no offense to speak of; his power is keeping others alive, and keeping **Magnus** alive above all. Talent model = Godric's template (see [cast/godric-thornwood.md](cast/godric-thornwood.md)).
 - *Signature passive — Answered Prayers (the secret):* his heals occasionally over-heal/cleanse, and his **light** comforts the **undead** to rest and drives back the **dark** (the thinning's wrongness, the perceptible dead) more than a priest's should, because he is an **unwitting Light practitioner** ([[project_magic_rules]]: priests = unwitting **Light/Solara** — both the literal light and its symbol, hope) — and *"it would never occur to him to wonder why."* A **discovery beat** (the player sees his prayers shrug off the Wastes' wrongness; he never does) *and* his arc (he is exactly the thing the Church would burn). *(NB: warding/containing corrupted matter is **Primal** — Niamh's domain; Aldwin's is the **Light** side: heal the living, comfort/guide the dead, push back the dark.)*
 - *Shields Magnus in priority:* heals/wards flow to his brother first; he'll hold a **Last Stand for Magnus** without hesitation, and **won't flee without him** (retreat system — he stays for the boy). His protection is *what lets Magnus unleash.*
 **Tree layout (2026-06-30):**
@@ -46,11 +46,11 @@
 - **T5 — capstones:** **Brother's Keeper** ⭐ (Sanctuary on Magnus auto + huge; while Aldwin lives Magnus can't be one-shot; Aldwin will Last-Stand for him) and **The Unasked Gift** ⭐ (loyalty — his unwitting magic surges into a true cleanse/ward on the corruption itself; the player sees the truth he never will).
 - *Minors:* +heal power, +ward strength, +WIS.
 - *Lore call RESOLVED 2026-06-30: priestly magic is **Light / Solara** (not Primal) — see [[project_magic_rules]] + LORE_TIMELINE. Aldwin's whole kit reads as light (warmth that heals, radiance that comforts the dead and drives back the dark). Tree structure unchanged.*
-- *Light-vs-Hollow (locked 2026-07-28):* Aldwin's Light is the **direct counter to Hollow** — he can drive a **small, fresh hollow-taint wound out of a LIVING body** (effortful; reads as a miracle / answered prayer, never as magic, so it doesn't blow his or Magnus's cover). NOT the Wastes, deep/established corruption, or the dead — those are beyond any priest. This is his **Chapter 2 miracle beat** (moved from Ch1, 2026-07-29): it needs a *tainted* boar to heal, and tainted boars only appear with the **Ch2 Hollow turn of the Maddened Herd** (the Ch1 `bad_blood` opener is a plain living rabid boar, no taint). He drives back a tainted-boar hollow wound that **Edda can't touch**, marking him precious + uncanny, and it throws the first real suspicion onto Magnus, seeding the **Ch2-end confession**. See [[LORE_FINAL]] "Light is the direct counter to Hollow" + [stonebridge-arrival.md](stonebridge-arrival.md).
+- *Light-vs-Hollow (locked 2026-07-28):* Aldwin's Light is the **direct counter to Hollow** — he can drive a **small, fresh hollow-taint wound out of a LIVING body** (effortful; reads as a miracle / answered prayer, never as magic, so it doesn't blow his or Magnus's cover). NOT the Wastes, deep/established corruption, or the dead — those are beyond any priest. This is his **Chapter 2 miracle beat** (moved from Ch1, 2026-07-29): it needs a *tainted* boar to heal, and tainted boars only appear with the **Ch2 Hollow turn of the Maddened Herd** (the Ch1 `bad_blood` opener is a plain living rabid boar, no taint). He drives back a tainted-boar hollow wound that **Edda can't touch**, marking him precious + uncanny, and it throws the first real suspicion onto Magnus, seeding the **Ch2-end confession**. See [[LORE_FINAL]] "Light is the direct counter to Hollow" + [cast/stonebridge-arrival.md](cast/stonebridge-arrival.md).
 
 ## Open threads / TBD
 - Assign a trait.
 - **The unwitting-magic reveal** — when/how Aldwin learns *he* does magic (a gut-punch tied to the Doctrine's collapse). Banked.
 
 ## Cross-refs
-- `premade-characters.ts` char_017; `lore/TIMELINE.md` (priests = unwitting **Light/Solara** + the Inquisition-irony note); Caelen; [[founder_edda]]; [[founder_father_corin]]; magnus-stonebridge.md.
+- `premade-characters.ts` char_017; `lore/TIMELINE.md` (priests = unwitting **Light/Solara** + the Inquisition-irony note); Caelen; [[founder_edda]]; [[founder_father_corin]]; cast/magnus-stonebridge.md.

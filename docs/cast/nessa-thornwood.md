@@ -5,7 +5,7 @@
 - **Class / Race / Origin:** Archer / Human / Ashwick
 - **Food preference:** sweet *(her mother's honey and sweet things — a sensory ghost)*
 - **Trait(s):** none assigned yet (TBD)
-- **Family:** Eldest of the three Thornwoods; sister of Gareth and Godric; mother-in-all-but-blood to the adopted boy. See [thornwood-family.md](thornwood-family.md).
+- **Family:** Eldest of the three Thornwoods; sister of Gareth and Godric; mother-in-all-but-blood to the adopted boy. See [cast/thornwood-family.md](cast/thornwood-family.md).
 
 ## Recruit-card bio (public surface)
 > Nessa was twelve when her mother died bringing Godric into the world, and from that morning she was the mother of the house: she raised the baby her father could not bring himself to look at, and decided who ate in the lean years, which on a failing farm is the same as deciding who lives. She learned the bow keeping crows off the barley, because a bird in the field was bread off the table, and she got so she never missed. Then came the winter that killed her father and the harvest both, and the rent did not soften for a dead season, so the land went too; in that same grief, with the ground still hard over her father, she took in a child the cold had orphaned, a starving scrap she had no way to feed and fed anyway. She carried that boy through every cold mile of the years that followed, and keeps a twist of barley seed from the old field she will neither plant nor throw away. She has been a mother her whole life and never once a wife or a child, and if that has cost her something she does not say so, because there has never been anyone whose job it was to ask.
@@ -29,7 +29,7 @@
 - Sweet tooth (the mother's honey). The barley-seed pouch. Never misses a shot.
 
 ## Combat identity & talents (parked 2026-06-29)
-**Archetype: Survival Hunter — the finisher + family anchor (archer).** Light woodland hunter: hides / uses terrain (**low aggro**), places **traps**, **evasive** (good dodge + flee), higher DEX/WIS, and **targets low-HP first** — she *finishes* exactly what Godric softens and pins on himself. Thematically she does the killing so the gentle giant doesn't have to ("she decided who ate, which is who lives"). She also **commands the Thornwoods only** — informal, family-scoped (Morgause commands anyone; Nessa just *her* three, because she raised them). Talent model = Godric's template (signature passive → minors-as-gates → fork → capstones; see [godric-thornwood.md](godric-thornwood.md)).
+**Archetype: Survival Hunter — the finisher + family anchor (archer).** Light woodland hunter: hides / uses terrain (**low aggro**), places **traps**, **evasive** (good dodge + flee), higher DEX/WIS, and **targets low-HP first** — she *finishes* exactly what Godric softens and pins on himself. Thematically she does the killing so the gentle giant doesn't have to ("she decided who ate, which is who lives"). She also **commands the Thornwoods only** — informal, family-scoped (Morgause commands anyone; Nessa just *her* three, because she raised them). Talent model = Godric's template (signature passive → minors-as-gates → fork → capstones; see [cast/godric-thornwood.md](cast/godric-thornwood.md)).
 **Tree layout (2026-06-29):**
 - *Signature passive (free, L1):* **Cull** — bonus damage to low-HP enemies; she never wastes a shot. Her targeting eye + the finisher who cleans up what Godric pins.
 - **Tier 1 — Foundations** (minors): **Keen Eye** (+DEX/rank), **Patience** (+WIS/rank).
@@ -44,4 +44,4 @@
 - Whether her drifting-with-the-boy years surface as a tavern conversation.
 
 ## Cross-refs
-- [thornwood-family.md](thornwood-family.md); `premade-characters.ts` char_000.
+- [cast/thornwood-family.md](cast/thornwood-family.md); `premade-characters.ts` char_000.

@@ -1,13 +1,13 @@
 > **Status (2026-08-31): a thread, not canon, and not built.** Varek's ghost court
 > exists **nowhere in code** — no court figures, no boss ladder, no missions. It
-> also carries canon breaks against `TIMELINE.md` (flagged in the original
+> also carries canon breaks against `lore/TIMELINE.md` (flagged in the original
 > header, including an age that doesn't fit the timeline). Treat it as a pitch for
 > late-game content: **reconcile against the timeline before building anything
 > from it.** The boss-progression idea lives in `IDEAS.md`.
 
 # Lore Expansion — Politics, Varek's Court & Cultural Depth
 
-> **⚠️ CANON NOTE (2026-06-11 audit):** this doc predates several canon locks and `lore/TIMELINE.md` wins where they disagree. Known stale points: "Dryven" → **Drayven**; the Khazdurim Deep Seals section (Netheron+Ferros essence) is replaced by the **Eighth God** canon (`lore/EIGHTH_GOD.md`); the five-year Zah'kari ground war contradicts TIMELINE's locked "Varek's conquest does not reach them in force"; **Aelindra "487 years old, remembers Le Déclin" is mathematically impossible** (Le Déclin was ~2000 years ago; elves live ≤500) — her age or memories must change; the pre-Varek Nordveld colony vs TIMELINE's invasion-during-Varek `[PROPOSAL]` is the open Nordveld canon gap, still needs a lock. Full list: `LORE_AUDIT_2026-06-11.md`. Still valuable for: Varek's biography/campaigns (Phases 1-3), the ghost court, Hearthlands→Ashenmark history, cultural politics.
+> **⚠️ CANON NOTE (2026-06-11 audit):** this doc predates several canon locks and `lore/TIMELINE.md` wins where they disagree. Known stale points: "Dryven" → **Drayven**; the Khazdurim Deep Seals section (Netheron+Ferros essence) is replaced by the **Eighth God** canon (`lore/EIGHTH_GOD.md`); the five-year Zah'kari ground war contradicts TIMELINE's locked "Varek's conquest does not reach them in force"; **Aelindra "487 years old, remembers Le Déclin" is mathematically impossible** (Le Déclin was ~2000 years ago; elves live ≤500) — her age or memories must change; the pre-Varek Nordveld colony vs TIMELINE's invasion-during-Varek `[PROPOSAL]` is the open Nordveld canon gap, still needs a lock. Full list: the retired Audit 2026-06-11 doc (in git). Still valuable for: Varek's biography/campaigns (Phases 1-3), the ghost court, Hearthlands→Ashenmark history, cultural politics.
 
 ## 1. Varek the Undying — Khor'vani Origin
 

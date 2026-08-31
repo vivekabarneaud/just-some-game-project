@@ -12,7 +12,7 @@ the unbuilt remainder. What shipped:
   cisterns, the sluice, per-crop water demand. `frontend/src/data/climate.ts`,
   `water.ts`.
 
-*Merged from `DESIGN_WEATHER_YIELD.md` (deleted 2026-08-19, fully built). The
+*Merged from the retired Weather Yield doc (in git) (deleted 2026-08-19, fully built). The
 build history and the rejected designs — reading yield off ambient weather, the
 sin-based hash, drought-as-year-long-plant-kill — are in git.*
 

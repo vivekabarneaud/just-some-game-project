@@ -13,7 +13,7 @@ spell-weapon work (`DESIGN_NOVICE_ITEMS` Phase 2).
 "team scroll slot" is now one shared slot beside the per-hero ones, not the old
 three-shared-potion area the original doc described.
 
-*Extracted from `DESIGN_FOOD_SCROLLS_LOYALTY.md` (deleted 2026-08-19; its food
+*Extracted from the retired Food Scrolls Loyalty doc (in git) (deleted 2026-08-19; its food
 and loyalty halves shipped, and its farming section duplicated
 `DESIGN_FARMING_EXPANSION`). Recover the original from git if needed.*
 

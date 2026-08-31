@@ -67,7 +67,7 @@ its line — the code becomes the documentation.
 
 ## Combat
 
-- **Enchanted team scrolls** — five recipes, fully specced with exact ingredients and effects, in `DESIGN_ENCHANTED_SCROLLS.md`. Parked because every one is gated behind Mage Tower 2+ and Act 1 has no reachable magic. Unpark when magic becomes player-facing.
+- **Enchanted team scrolls** — five recipes, fully specced with exact ingredients and effects, in `design/combat/ENCHANTED_SCROLLS.md`. Parked because every one is gated behind Mage Tower 2+ and Act 1 has no reachable magic. Unpark when magic becomes player-facing.
 
 ## Later acts (pulled out of Act 1, 2026-08-31)
 

@@ -68,7 +68,7 @@ The Khazdurim Watch is neither divinely appointed nor purely accidental. It exis
 
 The Khazdurim tragedy is doubled: they were careless, *and* they were deceived. They should have known better, but they were being steered.
 
-### Named detail (salvaged from the retired `LORE_DEEP_SEALS.md`)
+### Named detail (salvaged from the retired the retired Deep Seals doc (in git))
 
 The most powerful demon to breach the outer seals in recorded Khazdurim memory is **Bahruun, Warlord of the Third Depth**, known among demonkind as the **Herald of the Deep**. He broke the second seal, slaughtered an Anvil Guard team, and dismissed the two survivors — the sisters **Brunhild and Magna Hammerfall** — as not worth killing. *(In the older Deep Seals draft, Bahruun heralded a separate "King of Demons." Under current canon that role is the Eighth; Bahruun is one of the greater bound things in the Deeps, and his "the deep is coming" is the seal-decay signal, not a rival cosmology.)*
 

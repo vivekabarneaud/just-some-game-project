@@ -1,6 +1,6 @@
 > **Scope (2026-08-31):** this doc owns **factions, races and the standing NPC
 > cast**. It was formerly `lore/FACTIONS.md`, and its cosmology sections are
-> **superseded by `TIMELINE.md`** — read them as drafting history, not canon.
+> **superseded by `lore/TIMELINE.md`** — read them as drafting history, not canon.
 > Known name drift the timeline settles: Dryven→**Drayven**, Kess→**Niamh**.
 
 # Valenheart — Definitive Lore

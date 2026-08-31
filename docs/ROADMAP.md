@@ -39,7 +39,7 @@ scheduled that requires you to grind.
 |---|---|---|
 | **The big cleanup** | `chore/big-cleanup` | Review and merge. 2,500 lines cut: enemies 64→22, missions 124→60, materials 44→15, raids 13→6. `SAVE_VERSION` bumped to 2, so your save resets on load. |
 | **Tech debt B + C** | `chore/tech-debt-b-c` | **Needs one eyeball** — the CSS purge cut 1,468 lines with zero visual change *intended*. Check the login page, Farming, Defenses, Inventory and the quest panels, then merge. |
-| **Foraging minigame** | `feat/foraging-minigame` (local only) | Data + sandbox built. Remaining: the trip economy (one a day + Orison Shard renewal), the herbier, yield→larder wiring, home-page placement. Art in `FORAGING_PROMPTS.md`. |
+| **Foraging minigame** | `feat/foraging-minigame` (local only) | Data + sandbox built. Remaining: the trip economy (one a day + Orison Shard renewal), the herbier, yield→larder wiring, home-page placement. Art in ``FORAGING_PROMPTS.md` (on the foraging branch)`. |
 
 ---
 

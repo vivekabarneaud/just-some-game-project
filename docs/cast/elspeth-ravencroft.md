@@ -26,7 +26,7 @@ The **mystery on the quest card is deliberate**: the woman who comes to the gate
 - Comes alive only around **Edmund** — her whole reason for being there. Her watchfulness sharpens to fear whenever he runs toward a risk.
 
 ## Relationships
-- **Edmund Blackwood** (char_009) — her son. See [edmund-blackwood.md](edmund-blackwood.md). The defining bond of her life and her only reason for being in the guild. Cross-link both ways. Everything Edmund knows of blades, patience, and quiet, **she taught him** — the survival craft she'd been forced to learn. What she cannot forgive herself is that he came to *love* the danger she meant only to protect him from.
+- **Edmund Blackwood** (char_009) — her son. See [cast/edmund-blackwood.md](cast/edmund-blackwood.md). The defining bond of her life and her only reason for being in the guild. Cross-link both ways. Everything Edmund knows of blades, patience, and quiet, **she taught him** — the survival craft she'd been forced to learn. What she cannot forgive herself is that he came to *love* the danger she meant only to protect him from.
 - **Edmund's father (a Blackwood)** — the violent man she poisoned. Dead. The wound under everything. (Per `CHAR_RELATIONSHIPS` note: "Edmund's father was a Blackwood, Edmund is their son.") Name and details TBD.
 
 ## Preferences & specificities
@@ -57,11 +57,11 @@ The single-mission recruit was under-cooked; deepened into a proper little arc. 
 - Whether her poisoner supply-slot ability or the simple +DoT-trait fallback ships — **TBD** (design not yet built).
 - The exact bespoke-poison names (Widow's Kiss / Dead Man's Draught / Quietus) are **working-name drafts**, not locked.
 - Elspeth's age and where she's from within Ashwick — **TBD** (not in the data or timeline).
-- **Edmund's cast file ([edmund-blackwood.md](edmund-blackwood.md)) is indexed but not yet written** — cross-links assume it lands.
+- **Edmund's cast file ([cast/edmund-blackwood.md](cast/edmund-blackwood.md)) is indexed but not yet written** — cross-links assume it lands.
 
 ## Cross-refs
 - Data: `shared/src/data/premade-characters.ts` (char_007; `CHAR_RELATIONSHIPS` char_007 / char_009).
 - Mission: `shared/src/data/missions/sideChainMissions.ts` → `a_mothers_errand` ("A Mother's Errand").
 - Design: the retired roster-curation doc (in git — superseded by per-character introduction) — Ashwick ability drafts (#4 Elspeth), signature-feature taxonomy (#3 bespoke consumable set, #6 pair synergy), loyalty-as-spine, quest-unlock recruitment flagship (Edmund & Elspeth).
-- Cast: [edmund-blackwood.md](edmund-blackwood.md) (son, char_009).
+- Cast: [cast/edmund-blackwood.md](cast/edmund-blackwood.md) (son, char_009).
 - World facts defer to `docs/lore/TIMELINE.md`.

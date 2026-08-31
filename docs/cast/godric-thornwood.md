@@ -5,7 +5,7 @@
 - **Class / Race / Origin:** Warrior / Human / Ashwick
 - **Food preference:** spicy *(notably **not** sweet — he never knew his mother, never tasted her honey)*
 - **Trait(s):** none assigned yet (TBD)
-- **Family:** Youngest of the three Thornwoods; brother of Nessa and Gareth; Nessa raised him. See [thornwood-family.md](thornwood-family.md).
+- **Family:** Youngest of the three Thornwoods; brother of Nessa and Gareth; Nessa raised him. See [cast/thornwood-family.md](cast/thornwood-family.md).
 
 ## Recruit-card bio (public surface)
 > Godric never knew his mother. She died bringing him into the world, and he has only the stories Nessa tells, which are kind, and the way his father could never quite hold his eye, which was not. He grew up knowing without being told that he was the reason for a grief the family carried, and he grew huge as if to be worth it, taking the blows so the others would not have to and giving his food away before anyone could offer him theirs. When the levy took him for the northern war they put him at the front, big as he was, and he killed more than he will ever say and hated it every time, telling himself each time that he was only protecting the boys beside him. He never struck first, and gave any man the chance to run before he made him fight. Then came the day the killing stopped being protection and turned to something else, men who threatened no one put down because the war wanted it, and the one lie that held him together came apart in his hands. He laid down his spear and walked. Nessa raised him and her word is still law to him; he will tell you he is the least of the three Thornwoods, and not one of them will let that stand.
@@ -52,4 +52,4 @@
 - Assign a backstory trait.
 
 ## Cross-refs
-- [thornwood-family.md](thornwood-family.md); `premade-characters.ts` char_021; `lore/TIMELINE.md` (levy/conscription, the northern war).
+- [cast/thornwood-family.md](cast/thornwood-family.md); `premade-characters.ts` char_021; `lore/TIMELINE.md` (levy/conscription, the northern war).

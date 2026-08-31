@@ -27,7 +27,7 @@
 - He leaves men at empty tables (cleaned out, or cheated, or both) and never quite settles which it was.
 
 ## Relationships
-- **Elspeth Ravencroft** (char_007) — his mother. They join together and she comes to the guild only because he does; she will not let him walk into danger alone. Cross-link: [elspeth-ravencroft.md](elspeth-ravencroft.md).
+- **Elspeth Ravencroft** (char_007) — his mother. They join together and she comes to the guild only because he does; she will not let him walk into danger alone. Cross-link: [cast/elspeth-ravencroft.md](cast/elspeth-ravencroft.md).
 - **His father** — a violent Blackwood, dead by Elspeth's hand. Never named on the card; the shadow over both of them.
 
 ## Preferences & specificities
@@ -39,7 +39,7 @@
 - Class chassis is assassin (blades, patience, quiet, per the bio); the momentum branch would sit on top of that as his signature.
 
 ## Arrival arc — DEEPENED 2026-07-08 (design locked, not yet wired)
-See [elspeth-ravencroft.md](elspeth-ravencroft.md) for the full arc; Edmund's side:
+See [cast/elspeth-ravencroft.md](cast/elspeth-ravencroft.md) for the full arc; Edmund's side:
 - **The rescue is a stall, not an execution.** He is cornered/held over a card debt but NOT seconds from death — the toughs want their money or to make an example, and he is buying minutes the only way he knows (a grin, a promise of coin he can't make). Peak Edmund: talking his way along the cliff-edge, one bad beat from the drop. This gives the team a believable window to ride out. Reframe `a_mothers_errand`'s setup accordingly (currently reads "beaten to death").
 - **His mother does NOT adventure with him** — she's lab-bound (see her file), so the bond is expressed at home + in his kit, not as a deploy-together pair.
 - **"Mom's Poisons" — a path in his (future) talent tree.** His tree is the "whose blood is doing it" question made mechanical: a **gambler's luck / momentum** branch (his father's blood?) beside a **Mom's Poisons** branch (her survival craft she taught him), keystoned by **Dead Man's Draught (cheat-death-once)**. Not a packed consumable — a permanent part of who he is. Banks until the talent-tree system is built.
@@ -53,5 +53,5 @@ See [elspeth-ravencroft.md](elspeth-ravencroft.md) for the full arc; Edmund's si
 ## Cross-refs
 - `shared/src/data/premade-characters.ts` — char_009 (bio, class/race/origin, `questOnly`, trait `lucky`); `CHAR_RELATIONSHIPS` char_009 = "Son of Elspeth Ravencroft".
 - `shared/src/data/missions/sideChainMissions.ts` — `a_mothers_errand` ("A Mother's Errand").
-- [elspeth-ravencroft.md](elspeth-ravencroft.md) — his mother (char_007).
+- [cast/elspeth-ravencroft.md](cast/elspeth-ravencroft.md) — his mother (char_007).
 - `lore/TIMELINE.md` — world facts (always wins on Crown/Church/magic/Wastes).

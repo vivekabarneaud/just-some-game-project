@@ -117,5 +117,5 @@ Supporting build: durable `missionCompletions` tally + `MissionRequirements.miss
 - **Magic rules memory:** `[[project_magic_rules]]` (resurrection-via-sacrifice = the path Halldora refused → Cult; casters carry their own power; priests = unwitting Light/Solara).
 - **Code:** `shared/src/data/missions/sideChainMissions.ts` (`marsh_clearing`); `shared/src/data/herbs.ts` (`fenbalm`, marsh-only); `shared/src/data/enemies.ts` (`bog_witch`, `marsh_adder`, `swamp_revenant`); `shared/src/data/missions/apprenticeMissions.ts` (`bog_witch_lair` — stale placeholder, see TBD).
 - **Cast:** `[[founder_edda]]`, `[[founder_nell]]`, `[[founder_the_lord]]`.
-- **Sibling chains:** the Tainted Spring / boar chain (same "thinning into the everyday" family) — the retired side-stories doc (in git), `docs/DESIGN_ACT1_SETTING.md`.
+- **Sibling chains:** the Tainted Spring / boar chain (same "thinning into the everyday" family) — the retired side-stories doc (in git), `design/world/ACT1_SETTING.md`.
 - **Founder bios:** `docs/lore/FOUNDERS.md` (Edda's Mira/Mae loss, '47 fever).
