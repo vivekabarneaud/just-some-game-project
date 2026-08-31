@@ -106,8 +106,6 @@ const ORCHARD_GOLD_PER_LEVEL = 25;
 const ORCHARD_BASE_BUILD_TIME = 5; // seconds
 const ORCHARD_BUILD_TIME_MULTIPLIER = 1.4;
 export const ORCHARD_MAX_LEVEL = 6;
-const FRUIT_BASE_STORAGE = 50;
-const FRUIT_STORAGE_PER_LEVEL = 20;
 
 export function getOrchardCost(level: number): { wood: number; stone: number; gold: number } {
   return {

@@ -47,8 +47,6 @@ export const ANIMAL_FEED: Record<AnimalId, FeedCategory[]> = {
 /** Animals that can graze on fallow fields. */
 const GRAZERS: AnimalId[] = ["sheep", "goats"];
 
-/** Food/hour each fallow field provides to grazers combined. */
-const GRAZING_PER_FIELD = 3;
 
 export function isGrazer(animal: AnimalId): boolean {
   return GRAZERS.includes(animal);

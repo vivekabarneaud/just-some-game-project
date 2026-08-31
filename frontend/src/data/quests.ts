@@ -135,14 +135,6 @@ export interface QuestDefinition {
 const bldg = (state: GameState, id: string) =>
   state.buildings.find((b) => b.buildingId === id);
 
-const chapterCompleted = (
-  state: GameState,
-  storyline: StorylineId,
-  chapter: number,
-): boolean => {
-  const cs = state.chapters?.find((c) => c.storyline === storyline);
-  return cs ? cs.completedChapters.includes(chapter) : false;
-};
 
 const chapterUnlocked = (
   state: GameState,

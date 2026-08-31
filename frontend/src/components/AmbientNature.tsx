@@ -33,7 +33,7 @@ interface Bed {
 export default function AmbientNature() {
   const { state } = useGame();
 
-  const weather = () => resolveCurrentWeather(state.season, state.seasonElapsed, state.year);
+  const weather = () => resolveCurrentWeather(state);
   const isStormy = () => {
     const w = weather();
     return w === "storm" || w === "unnatural_storm";

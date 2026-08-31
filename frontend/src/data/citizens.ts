@@ -119,9 +119,6 @@ export function reduceByPriority(
 //   - Otherwise apply default 60/20/12/8 split (adults / children / elderly / toddlers).
 // Total is preserved.
 
-const DEFAULT_SPLIT: Record<CitizenCategory, number> = {
-  adults: 0.6, children: 0.2, elderly: 0.12, toddlers: 0.08,
-};
 
 
 // ─── Aging tick (yearly cohort step) ──────────────────────────

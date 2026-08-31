@@ -1762,7 +1762,7 @@ export default function Farming() {
             weather it keeps throwing, not forecast as a verdict, so a hard or
             easy year stays a thing you live through rather than a label. */}
         {(() => {
-          const w = () => resolveCurrentWeather(state.season, state.seasonElapsed, state.year);
+          const w = () => resolveCurrentWeather(state);
           const m = () => WEATHER_META[w()];
           const hasStandingCrop = () =>
             state.gardens.some((g) => g.plantedYear != null && (g.plantsAlive ?? 0) > 0) ||

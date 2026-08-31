@@ -185,7 +185,7 @@ import { type FruitId,
 import { getClimate, getClimateYield, climateOverrideBand, setClimateOverride, isWetBand, climateRainFactor, type ClimateBand } from "~/data/climate";
 import { WELL_ID, CISTERN_ID, getWellOutput, wellFactor, getCisternRainCatch, getWaterCap, ambientRainFactor, gardenWaterDemand, fieldWaterDemand, orchardWaterDemand, penWaterDemand, getSluiceDrain, delugeDrownFactor, STREAM_YIELD, streamStatus, streamFactor, cropHeatFactor, citizenWaterDemand } from "~/data/water";
 import type { StreamStatus } from "~/data/water";
-import { resolveCurrentWeather, HEATWAVE_HEAT_KILL_PER_HOUR, DELUGE_DROWN_KILL_PER_HOUR, CHRONIC_WILT_PER_HOUR, type WeatherType } from "~/data/weather";
+import { resolveCurrentWeather, currentWeatherInfo, HEATWAVE_HEAT_KILL_PER_HOUR, DELUGE_DROWN_KILL_PER_HOUR, CHRONIC_WILT_PER_HOUR, type WeatherType } from "~/data/weather";
 import { type Season,
   SEASON_ELAPSED_SPAN,
   REAL_SEASON_HOURS,
@@ -1918,7 +1918,7 @@ function isHarvestTime(season: Season, seasonElapsed: number): boolean {
  *  season modifier. Fires AFTER the rain (see forageBloomNow), not during. */
 export const RAIN_FORAGE_MUSHROOM_FRACTION = 0.5;
 export function isForagerBlooming(state: GameState): boolean {
-  return forageBloomNow(state.season, state.seasonElapsed, state.year);
+  return forageBloomNow(state);
 }
 
 // ─── Derived calculations ────────────────────────────────────────
@@ -2026,8 +2026,11 @@ export function getBuildingStaffing(s: GameState, buildingId: string, level: num
  *  time gets the same good/bad year — the shared basis the water storage/trade
  *  economy needs. No backend: it's a pure function of the clock, like the
  *  ambient weather. */
-function cropClimateBand(_state: GameState): ClimateBand {
-  return climateOverrideBand() ?? getClimate(getGlobalSeason().year);
+function cropClimateBand(state: GameState): ClimateBand {
+  // Reads the SAME clock as the weather (currentWeatherInfo), so the band and
+  // the sky can never disagree — in dev that means accelerating into a new
+  // local year gets you a new band, not year one's forever.
+  return climateOverrideBand() ?? getClimate(currentWeatherInfo(state).year);
 }
 function buildingLevel(s: GameState, id: string): number {
   return s.buildings.find((b) => b.buildingId === id)?.level ?? 0;
@@ -2049,7 +2052,7 @@ function cropWaterDemand(s: GameState): number {
 
 /** The sky right now (drives the momentary rain boost on cistern catch). */
 function currentWeatherOf(s: GameState) {
-  return resolveCurrentWeather(s.season, s.seasonElapsed, getGlobalSeason().year);
+  return resolveCurrentWeather(s);
 }
 /** Water the livestock drink each hour (year-round, per head). */
 function animalWaterDemand(s: GameState): number {

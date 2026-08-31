@@ -126,8 +126,6 @@ const GARDEN_BASE_COST = { wood: 20, stone: 5 };
 const GARDEN_COST_MULTIPLIER = 1.3;
 const GARDEN_BASE_BUILD_TIME = 5; // seconds
 const GARDEN_BUILD_TIME_MULTIPLIER = 1.4;
-/** Fixed at 4 — one slot per veggie type. Every save pre-spawns all four. */
-const MAX_GARDENS = VEGGIES.length;
 export const GARDEN_MAX_LEVEL = 8;
 
 export function getGardenCost(level: number): { wood: number; stone: number } {

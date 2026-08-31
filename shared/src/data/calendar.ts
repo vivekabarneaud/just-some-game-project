@@ -54,6 +54,14 @@ export function settlementYear(worldYear: number, foundingYear: number | undefin
   return Math.max(1, worldYear - (foundingYear ?? worldYear) + 1);
 }
 
+/** Inverse of settlementYear: recover the WORLD year from a settlement's age.
+ *  Dev needs it because its local clock can be accelerated past a year
+ *  boundary, and the weather roll is seeded by the world year — without this,
+ *  running dev through four seasons would replay the same year's weather. */
+export function worldYearOf(settlementAge: number, foundingYear: number | undefined): number {
+  return (foundingYear ?? 1) + Math.max(1, settlementAge) - 1;
+}
+
 export function nextSeason(current: Season): Season {
   return SEASON_ORDER[(SEASON_ORDER.indexOf(current) + 1) % SEASON_ORDER.length];
 }
