@@ -611,31 +611,6 @@ export const ENEMIES: EnemyDefinition[] = [
   // ── Tier 3 — Dangerous foes ───────────────────────────────────
   // Require level 6-10 with decent gear. Party composition matters.
   {
-    id: "dark_mage",
-    name: "Veil-Touched Scholar",
-    icon: "🧙",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/dark_mage.png",
-    description: "A scholar who dug too deep into pre-Sundering texts. The air crackles and tastes of copper near him.",
-    tier: 3,
-    stats: { str: 4, dex: 7, int: 26, vit: 14, wis: 18 },
-    tags: ["humanoid", "magical"],
-    combatRole: "back",
-    boss: true,
-    abilities: [
-      { id: "mind_control", name: "Dominate Mind", icon: "🧠", cooldown: 5, trigger: "always",
-        effect: { type: "mind_control", rounds: 1 } },
-      { id: "dark_bolt", name: "Dark Bolt", icon: "⚡", cooldown: 2, trigger: "always",
-        effect: { type: "damage_mult", mult: 1.8, targets: 1 } },
-    ],
-    loot: [
-      { type: "resource", resource: "astralShards", chance: 0.25, min: 1, max: 2 },
-      { type: "resource", resource: "nightbloom", chance: 0.15, min: 1, max: 1 },
-      { type: "resource", resource: "nettle", chance: 0.2, min: 1, max: 2 },
-      { type: "item", itemId: "enchanted_staff", chance: 0.08 },
-    ],
-    aiTier: "cunning"
-  },
-  {
     id: "wraith",
     name: "Netheron's Shade",
     icon: "👤",
@@ -687,29 +662,6 @@ export const ENEMIES: EnemyDefinition[] = [
       { type: "resource", resource: "ghostweave", chance: 0.4, min: 1, max: 2 },
       { type: "resource", resource: "soul_shard", chance: 0.25, min: 1, max: 1 },
     ],
-  },
-  {
-    id: "troll",
-    name: "Thornveil Troll",
-    icon: "🧌",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/troll.png",
-    description: "Massive, foul-smelling, and nearly impossible to kill. The Thornveil Rangers say they've been pushing further from the Wastes each year.",
-    tier: 3,
-    stats: { str: 28, dex: 4, int: 1, vit: 35, wis: 2 },
-    tags: ["beast"],
-    boss: true,
-    abilities: [
-      { id: "troll_regen", name: "Regeneration", icon: "💚", cooldown: 0, trigger: "round_start",
-        effect: { type: "heal_self", pct: 15 } },
-      { id: "troll_slam", name: "Ground Slam", icon: "💥", cooldown: 4, trigger: "always",
-        effect: { type: "aoe_damage", pct: 40, magical: false } },
-    ],
-    loot: [
-      { type: "resource", resource: "trollhide", chance: 0.4, min: 1, max: 2 },
-      { type: "resource", resource: "gnawed_marrow", chance: 0.6, min: 2, max: 4 },
-      { type: "resource", resource: "gold", chance: 0.5, min: 10, max: 30 },
-    ],
-    aiTier: "feral"
   },
 
   // ── Tier 3 — Elemental threats ──────────────────────────────

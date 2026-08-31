@@ -140,10 +140,20 @@ will ever see.
 that last one because goblins are deferred out of Act 1 by your own note
 ("Act 1 stays beasts + dead"), and village tier *is* reachable.
 
-**Kept as the town-tier ceiling:** `troll_attack` and `mercenary_company`. Neither
-is supernatural — a big corporeal beast, and human mercenaries with siege gear —
-so the ladder still has somewhere to go if a settlement outgrows Act 1, instead
-of a town facing nothing but camp-tier bandits.
+**Also removed** (2026-08-31, second pass): `troll_attack` and `mercenary_company`.
+I had kept these as a town-tier ceiling, but they were placeholders like the
+rest — better raids get written for that tier when a settlement can actually
+reach it.
+
+**What the roster is now:** four camp raids (hungry_bandits, wolf_pack,
+gaunt_wolf_pack, petty_thieves) and two village (bandit_raid, wild_boars).
+Bandits and beasts, which is exactly the Act-1 palette. **Nothing above village
+tier** — so a town or city settlement currently faces only village-tier raids
+until that content is written. That's a deliberate gap, not an oversight.
+
+**Wanted: town and city raids that make sense.** Mundane, human or animal, and
+scaled to a settlement with real walls. The siege mechanics already exist (rings,
+walls, watchtowers, barracks, garrisons) and are unused above village tier.
 
 **Enemies that went with them:** dragon_hatchling, feral_drake, gharkal_warlord,
 goblin_shaman, lich_apprentice.

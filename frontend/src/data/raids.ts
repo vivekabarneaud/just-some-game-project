@@ -166,40 +166,6 @@ export const RAID_POOL: RaidTemplate[] = [
   },
 
   // ── Town-tier raids ───────────────────────────────────────────
-  {
-    id: "mercenary_company",
-    name: "Mercenary Company",
-    description: "A well-equipped mercenary band demands tribute. Pay up or fight.",
-    icon: "⚔️",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/raids/mercenary_company.png",
-    tags: ["bandits", "siege"],
-    strength: 100,
-    encounters: [{ enemyId: "bandit_thug", count: 4 }, { enemyId: "bandit_captain", count: 2 }, { enemyId: "dark_mage", count: 1 }],
-    stealsResources: true,
-    resourceStealPercent: 0.25,
-    killsCitizens: true,
-    maxCitizenLoss: 8,
-    minTier: "town",
-    baseWarning: 10,
-    victoryLoot: [{ resource: "gold", amount: 120 }, { resource: "wood", amount: 50 }],
-  },
-  {
-    id: "troll_attack",
-    name: "Troll Attack",
-    description: "A massive troll has wandered down from the mountains, hungry and angry.",
-    icon: "👹",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/raids/troll_attack.png",
-    tags: ["monsters"],
-    strength: 80,
-    encounters: [{ enemyId: "troll", count: 1 }, { enemyId: "cave_spider", count: 2 }],
-    stealsResources: true,
-    resourceStealPercent: 0.15,
-    killsCitizens: true,
-    maxCitizenLoss: 8,
-    minTier: "town",
-    baseWarning: 6,
-    victoryLoot: [{ resource: "meat", amount: 100 }, { resource: "stone", amount: 40 }],
-  },
 
   // ── City-tier raids ───────────────────────────────────────────
 ];
