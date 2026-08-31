@@ -1,7 +1,6 @@
 import { For, Show } from "solid-js";
 import { useGame } from "~/engine/gameState";
-import {
-  getClassMeta,
+import { getClassMeta,
   getPortraitUrl,
   RANK_NAMES,
   RANK_COLORS,

@@ -32,13 +32,6 @@ export interface ChapterState {
   completedChapters: number[];
 }
 
-export const INITIAL_CHAPTER_STATE: ChapterState[] = [
-  { storyline: "settlement", current: 1, completedChapters: [] },
-  { storyline: "guild", current: 0, completedChapters: [] },
-  { storyline: "story", current: 1, completedChapters: [] },
-  { storyline: "defense", current: 0, completedChapters: [] },
-  { storyline: "social", current: 1, completedChapters: [] },
-];
 
 // ─── Trigger system ──────────────────────────────────────────────
 
@@ -229,24 +222,7 @@ export function isQuestClaimable(
   return isQuestActive(quest, state) && quest.condition(state);
 }
 
-/** All currently active quests (not yet claimed), optionally filtered by storyline. */
-export function getActiveQuests(
-  state: GameState,
-  storyline?: StorylineId,
-): QuestDefinition[] {
-  return QUEST_DEFINITIONS.filter(
-    (q) =>
-      (!storyline || q.storyline === storyline) && isQuestActive(q, state),
-  );
-}
 
-/** First active quest (back-compat for "current quest" UI patterns). */
-export function getCurrentQuest(state: GameState): QuestDefinition | null {
-  for (const q of QUEST_DEFINITIONS) {
-    if (isQuestActive(q, state)) return q;
-  }
-  return null;
-}
 
 /** All quests in a specific chapter of a storyline. */
 export function getQuestsInChapter(

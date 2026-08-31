@@ -1,5 +1,4 @@
-import type {
-  CreateTradeOfferRequest,
+import type { CreateTradeOfferRequest,
   AcceptTradeOfferRequest,
   TradeListResponse,
   OwnTradeListResponse,

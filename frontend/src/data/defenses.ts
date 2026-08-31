@@ -150,12 +150,6 @@ export function trainerHome(
 // raises the squad's HP and attack stat. Building level caps the trained
 // level — upgrade the tower/barracks before training higher.
 
-/** Gold to train one level UP (current → current+1). Linear ramp; tunable.
- *  Free baseline at level 0 means "untrained recruits"; the first investment
- *  raises them to lvl 1. */
-export function getTrainCost(targetLevel: number): { gold: number } {
-  return { gold: 50 + 50 * Math.max(0, targetLevel - 1) };
-}
 
 /** Game-seconds to train one level UP. Mason's Guild discount does NOT apply
  *  here (purely military investment, not construction). */
@@ -165,27 +159,6 @@ export function getTrainTime(targetLevel: number): number {
 
 // ─── Migration ────────────────────────────────────────────────────
 
-/** Spread a legacy global headcount across multiple ring buildings, outer
- *  first, capped at each building's per-level capacity. Used once at save-load
- *  time to convert pre-garrison-rework saves to the per-building model.
- *  Mutates the array in place. */
-export function distributeLegacyGarrison<T extends { level: number; garrison: { count: number; trainedLevel: number } }>(
-  buildings: T[],
-  legacyTotal: number,
-  capFor: (level: number) => number,
-): void {
-  if (!legacyTotal || legacyTotal <= 0) return;
-  // Skip if any garrison already has units — assume migration already ran.
-  if (buildings.some((b) => b.garrison.count > 0)) return;
-  let remaining = legacyTotal;
-  for (const b of buildings) {
-    if (remaining <= 0) break;
-    const cap = capFor(b.level);
-    const take = Math.min(cap, remaining);
-    b.garrison.count = take;
-    remaining -= take;
-  }
-}
 
 // ─── Ring unlocks ─────────────────────────────────────────────────
 

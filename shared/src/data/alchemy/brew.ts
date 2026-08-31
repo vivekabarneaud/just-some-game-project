@@ -59,8 +59,6 @@ const CAP: Partial<Record<EffectChannel, number>> = {
 };
 const DEFAULT_CAP = 50;
 
-/** Channels the engine treats as catalyst MODIFIERS, not summed output. */
-const MODIFIER_CHANNELS = new Set<EffectChannel>(["amplify", "extend"]);
 
 // diminish() lives in ../craft/placements.js (shared with the kitchen cook
 // engine): the biggest contribution counts full, each further one counts less.

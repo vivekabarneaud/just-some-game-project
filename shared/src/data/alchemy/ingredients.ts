@@ -182,6 +182,3 @@ export const INGREDIENTS: Ingredient[] = [
 export function getIngredient(id: string): Ingredient | undefined {
   return INGREDIENTS.find((i) => i.id === id);
 }
-export function ingredientsByRole(role: Ingredient["role"]): Ingredient[] {
-  return INGREDIENTS.filter((i) => i.role === role);
-}

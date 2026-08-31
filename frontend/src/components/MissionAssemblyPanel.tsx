@@ -1,22 +1,18 @@
 import { createSignal, createMemo, createEffect, createResource, untrack, For, Show, onCleanup } from "solid-js";
 import { useGame } from "~/engine/gameState";
-import {
-  ADVENTURER_CLASSES,
+import { ADVENTURER_CLASSES,
   CLASS_COLORS,
   CLASS_BASE_STATS,
   CLASS_STAT_GROWTH,
-  getXpForLevel,
   getClassMeta,
   getZoomedPortraitUrl,
   getFoodPref,
-  RANK_NAMES,
-  RANK_COLORS,
   type Adventurer,
   type AdventurerClass,
   getDeployCost,
 } from "@medieval-realm/shared/data/adventurers";
 import { TRAINER_ID } from "~/data/defenses";
-import { getItem, getAvailableSupplies, getAvailableFood, getSupplyEffect, getCombatPotionEffect, getFoodEffect, getRecoveryEffect, MATCHED_FOOD_HP_BONUS } from "@medieval-realm/shared/data/items";
+import { getAvailableSupplies, getAvailableFood, getSupplyEffect, getCombatPotionEffect, getFoodEffect, getRecoveryEffect, MATCHED_FOOD_HP_BONUS } from "@medieval-realm/shared/data/items";
 import { describeEffect } from "@medieval-realm/shared/data/alchemy/describe";
 
 // Channels a brewed potion applies as a COMBAT buff (see setup.applyBrewBuffs).
@@ -24,8 +20,7 @@ const BREW_COMBAT_CHANNELS = new Set(["str", "dex", "int", "vit", "wis", "crit",
 const isBrewCombatUseful = (effects: { channel: string }[]) => effects.some((e) => BREW_COMBAT_CHANNELS.has(e.channel) || e.channel.startsWith("resist_"));
 import type { AdventurerMissionSupplies } from "@medieval-realm/shared/data/missions";
 import SupplySlot from "./SupplySlot";
-import {
-  type MissionTemplate,
+import { type MissionTemplate,
   calcSuccessChance,
   rollPermanentDeaths,
   calcEffectiveDuration,
@@ -44,7 +39,6 @@ import { resolveFullExpedition, calcAdventurerMaxHp } from "@medieval-realm/shar
 import { MISSION_RANK_LABELS, MISSION_RANK_COLORS, missionFrameAssets, tierFrame } from "~/data/constants";
 import { CardFrame } from "~/components/CardFrame";
 import MissionEnemyCard from "./MissionEnemyCard";
-import TeamSlot from "./TeamSlot";
 import AdventurerPickerCard from "./AdventurerPickerCard";
 import AdventurerVitals from "./AdventurerVitals";
 import Tooltip from "./Tooltip";

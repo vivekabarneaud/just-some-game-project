@@ -41,14 +41,6 @@ export interface FoodCategoryMeta {
   order: number;
 }
 
-export const FOOD_CATEGORIES: FoodCategoryMeta[] = [
-  { id: "grain",  label: "Grains",          icon: "🌾", order: 1 },
-  { id: "veggie", label: "Vegetables",      icon: "🥬", order: 2 },
-  { id: "fruit",  label: "Fruits",          icon: "🍎", order: 3 },
-  { id: "animal", label: "Animal Products", icon: "🍖", order: 4 },
-  { id: "wild",   label: "Wild Foods",      icon: "🍄", order: 5 },
-  { id: "cooked", label: "Cooked Meals",    icon: "🍲", order: 6 },
-];
 
 export const FOOD_ITEMS: FoodItemMeta[] = [
   // Grains
@@ -250,11 +242,3 @@ export function addFood(
   return actual;
 }
 
-/** Migrate an old save's flat resources.food into the new typed foods map. */
-export function migrateFoodsFromLegacy(legacyFood: number | undefined): Record<FoodItemType, number> {
-  const foods = emptyFoods();
-  if (legacyFood && legacyFood > 0) {
-    foods.wheat = legacyFood;
-  }
-  return foods;
-}

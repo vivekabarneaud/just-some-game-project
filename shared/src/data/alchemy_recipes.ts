@@ -357,9 +357,6 @@ export const ALCHEMY_RECIPES: AlchemyRecipeDefinition[] = [
 
 // ─── Helpers ────────────────────────────────────────────────────
 
-export function getStarterRecipes(): AlchemyRecipeDefinition[] {
-  return ALCHEMY_RECIPES.filter((r) => r.starterRecipe);
-}
 
 export function getDiscoverableRecipes(labLevel: number, discovered: string[]): AlchemyRecipeDefinition[] {
   return ALCHEMY_RECIPES.filter((r) =>
@@ -369,11 +366,5 @@ export function getDiscoverableRecipes(labLevel: number, discovered: string[]): 
   );
 }
 
-export function getAvailableAlchemyRecipes(labLevel: number, discovered: string[]): AlchemyRecipeDefinition[] {
-  return ALCHEMY_RECIPES.filter((r) =>
-    r.minLabLevel <= labLevel &&
-    (r.starterRecipe || discovered.includes(r.id))
-  );
-}
 
 export const RESEARCH_BASE_COST = 50; // gold

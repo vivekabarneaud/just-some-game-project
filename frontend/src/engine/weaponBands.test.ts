@@ -2,8 +2,7 @@
 // (importing gameState-adjacent shared modules is fine, but keep the env
 // consistent with the other combat tests that touch adventurer builders)
 import { describe, it, expect } from "vitest";
-import {
-  buildAdventurerUnit, buildEnemyUnits, weaponAt, inReach,
+import { buildAdventurerUnit, buildEnemyUnits, weaponAt, inReach,
   weaponBand, MELEE_BAND, RANGED_BAND, CLOSE_IN_FRACTION,
   type CombatUnit,
 } from "@medieval-realm/shared/data/combat";

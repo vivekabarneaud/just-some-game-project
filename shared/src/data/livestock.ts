@@ -72,7 +72,6 @@ export const PEN_BASE_COST = { wood: 30, stone: 15 };
 export const PEN_COST_MULTIPLIER = 1.4;
 export const PEN_BASE_BUILD_TIME = 5; // seconds
 export const PEN_BUILD_TIME_MULTIPLIER = 1.5;
-export const MAX_PENS = 6;
 export const PEN_MAX_LEVEL = 8;
 
 // ── Population model (slice 1) ──

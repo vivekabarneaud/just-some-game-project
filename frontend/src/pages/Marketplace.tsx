@@ -3,7 +3,7 @@ import { useGame, getSettlementId } from "~/engine/gameState";
 import { getMerchant } from "~/data/merchants";
 import { getTotalFood } from "~/data/foods";
 import { fetchTradeOffers, fetchOwnTrades, createTradeOffer, acceptTradeOffer, cancelTradeOffer } from "~/api/trades";
-import type { TradeOfferInfo, CaravanInfo, TradeResourceKey } from "@medieval-realm/shared";
+import type { TradeOfferInfo, TradeResourceKey } from "@medieval-realm/shared";
 
 // ─── Resource types ─────────────────────────────────────────────
 

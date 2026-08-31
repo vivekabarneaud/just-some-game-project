@@ -2,8 +2,7 @@ import { createSignal, For, Show, onMount } from "solid-js";
 import { A } from "@solidjs/router";
 import { useGame } from "~/engine/gameState";
 import { playPageMountSound, playSound } from "~/engine/sounds";
-import {
-  QUEST_DEFINITIONS,
+import { QUEST_DEFINITIONS,
   STORYLINE_LABELS,
   STORYLINE_ICONS,
   isQuestActive,

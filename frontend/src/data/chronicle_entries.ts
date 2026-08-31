@@ -852,9 +852,6 @@ export function getChronicleEntry(id: string): ChronicleEntry | undefined {
   return CHRONICLE_ENTRIES.find((e) => e.id === id);
 }
 
-export function getChronicleChapter(id: string): ChronicleChapter | undefined {
-  return CHRONICLE_CHAPTERS.find((c) => c.id === id);
-}
 
 export function getEntriesByChapter(chapterId: string): ChronicleEntry[] {
   return CHRONICLE_ENTRIES

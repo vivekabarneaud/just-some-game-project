@@ -366,7 +366,6 @@ export function matchNamedDish(placements: CookPlacement[]): NamedDish | undefin
   return best;
 }
 
-export const namedDishId = (d: NamedDish): string => d.id;
 
 /** The dish a pot resolves to for DISPLAY / use: cook() for the boons, the named
  *  dish's name when it matches, and a quality FLOOR — a recognised named dish is

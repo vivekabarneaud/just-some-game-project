@@ -30,10 +30,6 @@ const FLEE_MAX = 95;
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
-/** Player-side units still on the field (not downed, not fled). Includes allies. */
-function activeFighters(ctx: CombatContext): CombatUnit[] {
-  return ctx.adventurers.filter((u) => u.hp > 0 && !u.fled);
-}
 
 /** Adventurer-kind units still in the fight (excludes NPC allies/entities). */
 function activeAdventurers(ctx: CombatContext): CombatUnit[] {

@@ -1,17 +1,12 @@
 import { A, useParams, useNavigate } from "@solidjs/router";
 import { For, Show } from "solid-js";
 import { useGame } from "~/engine/gameState";
-import {
-  getClassMeta,
+import { getClassMeta,
   RANK_NAMES,
   RANK_COLORS,
   getXpForLevel,
   calcStats,
   getUnspentStatPoints,
-  STAT_META,
-  type AdventurerRank,
-  type AdventurerClass,
-  type AdventurerStats,
   getPortraitUrl,
   getOrigin,
   RACE_NAMES,
@@ -19,7 +14,6 @@ import {
   getFoodPref,
   getLoyaltyRank,
   getNextLoyaltyRank,
-  LOYALTY_RANKS,
   getRelationship,
   CLASS_ABILITIES,
 } from "@medieval-realm/shared/data/adventurers";

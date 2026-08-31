@@ -14,15 +14,7 @@ export interface CitizenCounts {
 
 export type CitizenCategory = keyof CitizenCounts;
 
-export const CITIZEN_CATEGORIES: CitizenCategory[] = ["toddlers", "children", "adults", "elderly"];
 
-/** Display metadata for the topbar / event log. */
-export const CITIZEN_META: Record<CitizenCategory, { icon: string; label: string; singular: string }> = {
-  toddlers: { icon: "👶", label: "toddlers", singular: "toddler" },
-  children: { icon: "🧒", label: "children",  singular: "child"   },
-  adults:   { icon: "🧑", label: "adults",    singular: "adult"   },
-  elderly:  { icon: "👵", label: "elderly",   singular: "elder"   },
-};
 
 /** Per-category food multiplier applied to FOOD_PER_CITIZEN_PER_HOUR. */
 export const FOOD_MULTIPLIER: Record<CitizenCategory, number> = {
@@ -32,10 +24,6 @@ export const FOOD_MULTIPLIER: Record<CitizenCategory, number> = {
   elderly: 0.75,
 };
 
-/** Empty cohort — used for fresh state and as a fallback. */
-export function emptyCitizens(): CitizenCounts {
-  return { toddlers: 0, children: 0, adults: 0, elderly: 0 };
-}
 
 /** Founder mapping — bio-accurate slice of the 6 starting characters.
  *  Edda (71) + Father Corin (68) elderly. The Lord (~37) + Jory (36) +
@@ -135,17 +123,6 @@ const DEFAULT_SPLIT: Record<CitizenCategory, number> = {
   adults: 0.6, children: 0.2, elderly: 0.12, toddlers: 0.08,
 };
 
-export function migrateLegacyPopulation(legacy: number): CitizenCounts {
-  const total = Math.max(0, Math.floor(legacy));
-  if (total === 5) return founderCitizens();
-  // Floor each category, then dump the rounding remainder into adults so
-  // the total matches exactly.
-  const tod = Math.floor(total * DEFAULT_SPLIT.toddlers);
-  const ch = Math.floor(total * DEFAULT_SPLIT.children);
-  const eld = Math.floor(total * DEFAULT_SPLIT.elderly);
-  const ad = total - tod - ch - eld;
-  return { toddlers: tod, children: ch, adults: ad, elderly: eld };
-}
 
 // ─── Aging tick (yearly cohort step) ──────────────────────────
 // Deterministic fractions — reproducible, no RNG. Fires once per game-year

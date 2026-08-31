@@ -74,7 +74,6 @@ const WEATHER_WINDOWS = 72;
 // events span a few windows, so these are punchier than any per-year rate.
 // Tune here. Applied only to standing crops in growing seasons.
 export const HEATWAVE_HEAT_KILL_PER_HOUR = 0.02;   // withering even if watered
-export const HEATWAVE_THIRST_KILL_PER_HOUR = 0.06; // extra when the reserve is dry (× shortfall)
 // Deluge drowning is deliberately GENTLER than a heat wave's worst case (0.08):
 // drought is the deadlier threat, a flood the milder one, so a misjudged sluice
 // in a wet year stings less than getting caught dry. Scaled by how full the

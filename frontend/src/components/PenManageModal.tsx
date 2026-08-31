@@ -1,7 +1,6 @@
 import { For, Show } from "solid-js";
 import { useGame, type PlayerPen } from "~/engine/gameState";
-import {
-  getAnimal, getPenCapacity, getAnimalBuyCost, getCullYield,
+import { getAnimal, getPenCapacity, getAnimalBuyCost, getCullYield,
   getPenProduction, CULL_MEAT,
 } from "@medieval-realm/shared/data/livestock";
 import { getFoodMeta, type FoodItemType } from "~/data/foods";

@@ -1,20 +1,15 @@
 import { For, Show, createSignal, createMemo } from "solid-js";
 import { A } from "@solidjs/router";
 import { useGame } from "~/engine/gameState";
-import {
-  ENCHANTMENTS,
+import { ENCHANTMENTS,
   getEnchantment,
-  getEnchantmentsForSlot,
-  type EnchantmentDefinition,
 } from "~/data/enchantments";
-import {
-  getItem,
+import { getItem,
   getMaterial,
   type ItemSlot,
   type InventoryItem,
 } from "@medieval-realm/shared/data/items";
-import {
-  getPortraitUrl,
+import { getPortraitUrl,
   RANK_NAMES,
   RANK_COLORS,
   getClassMeta,

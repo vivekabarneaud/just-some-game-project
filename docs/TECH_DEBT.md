@@ -31,6 +31,8 @@
 - [ ] **2.2 `pages/CharacterEncyclopedia.tsx` is a byte-level duplicate of `pages/chronicle/ChronicleCharacters.tsx`** (diff = 3 lines: fn name + an `<h1>`). Make one render the other with a title prop, or drop the route. *S.*
 - [ ] **2.3 Three `UpgradeIndicator` implementations.** Shared `components/UpgradeIndicator.tsx` uses the portaled Tooltip (fixed clipping); `pages/Defenses.tsx:96` and `pages/Buildings.tsx:275,385` hand-roll forks that still carry the already-fixed clipping bug. *M.*
 - [ ] **2.4 Ten hand-rolled modals bypass `FramedModal`.** LootModal, QuestClaimModal, MemoryPreviewModal, EventModal, SettingsModal, ChronicleEntryModal, DogAssignSection, Tavern, ChronicleCast, AdventurersGuild (inline Portal). Consequences: only FramedModal closes on Escape; backdrop alphas drift (0.6/0.7/0.75/0.78); z-index ratchet (1000→1050→1100→1200; Tooltip 9999, Cinematic 10000). *Fix in stages: (a) `--z-*` scale + shared backdrop token, (b) Escape handling, (c) migrate the closest pairs (LootModal/QuestClaimModal share ~70 lines). M.*
+- [ ] **2.5b Citizen labels + emoji inlined.** `CITIZEN_META` (icon/label/singular per category) was deleted in the 3.6 sweep as dead — it is dead because `ResourceBar.tsx:648-660` and `gameState.tsx` hard-code 👶/🧒/👵 and their own capitalization. Harmless today, but it means **there is no single place to translate citizen category names**, which the French i18n pass will want. Re-introduce one table when i18n starts. *S.*
+
 - [ ] **2.5 `CONDITION_META` ignored by 3 files** (`AdventurerPickerCard:75`, `CombatLog:68`, `LootModal:264` re-map conditions inline) — player-facing tooltip prose has already drifted between screens. *S.*
 - [ ] **2.6 `formatDuration` copied verbatim** in `MissionAssemblyPanel.tsx:64` + `MissionCard.tsx:14`; identical to `utils/format.ts:5 formatTimeShort`. Buildings/Marketplace inline their own min/sec math. *S / zero risk.*
 - [ ] **2.7 Three parallel food-rate impls** (`calcProductionRates` / `calcFoodRates` / `calcFoodBreakdown`) — after the 1.4 patch, unify on one typed `foodSources(state)` producer folded three ways. *M.*
@@ -45,14 +47,24 @@
 
 ## Tier 3 — Dead weight (deletion)
 
+*Swept 2026-08-31 on `chore/big-cleanup`: 3.2 / 3.3 / 3.4 / 3.6 / 3.8 closed. 51
+dead symbols and 4 dead files removed (~640 lines), compiler-verified at every
+step. Method note: a "zero references" scan flags two very different things —
+truly dead code, and code that is merely over-exported (used inside its own
+file). Only the first is deletable; the second is 3.9. And never bulk-delete an
+unused **declaration**: this sweep's first attempt removed
+`const result = actions.recallAdventurers();`, whose value was unused but whose
+call was the whole point. Unused **imports** are safe to automate; unused
+declarations are not.*
+
 - [ ] **3.1 Unreachable migration code** in the server-load path (~3376-3585): chapter-pointer bumps, orchard shape migration, multi-hive collapse, legacy fruit split, 3→11-slot equipment migration, chapel→shrine rename — all behind the `saveVersion === SAVE_VERSION` guard whose own comment says no backfills are needed. Plus the adventurer-only dup-id re-fix (~3574) that `migrateSaveState` already does. *M (mostly deletion).*
-- [ ] **3.2 Leftover migration helpers, zero call sites:** `data/citizens.ts:141 migrateLegacyPopulation`, `data/foods.ts:254 migrateFoodsFromLegacy`, `data/defenses.ts:174 distributeLegacyGarrison`. *S.*
-- [ ] **3.3 `pages/chronicle/ChronicleLore.tsx`** — 99 lines, never imported/routed. *S.*
-- [ ] **3.4 Dead random-recruitment subsystem** in `shared/src/data/adventurers.ts:846-1003` (`generateCandidate`, `getCandidateCount`, `getRecruitCost`, `getMaxRecruitRank`, `RECRUIT_REFRESH_HOURS`, `MISSION_REFRESH_HOURS`) — superseded by the premade roster. *S.*
+- [x] **3.2 Leftover migration helpers, zero call sites:** `data/citizens.ts:141 migrateLegacyPopulation`, `data/foods.ts:254 migrateFoodsFromLegacy`, `data/defenses.ts:174 distributeLegacyGarrison`. *S.*
+- [x] **3.3 `pages/chronicle/ChronicleLore.tsx`** — 99 lines, never imported/routed. *S.*
+- [x] **3.4 Dead random-recruitment subsystem** in `shared/src/data/adventurers.ts:846-1003` (`generateCandidate`, `getCandidateCount`, `getRecruitCost`, `getMaxRecruitRank`, `RECRUIT_REFRESH_HOURS`, `MISSION_REFRESH_HOURS`) — superseded by the premade roster. *S.*
 - [ ] **3.5 Write-only/unused GameState fields** (persisted for nothing): `ironMinedTotal`, `missionRefreshIn`, `lastDroughtKillYear`, `startingSuppliesGiven`, `foragedTotal`, `lastTradeAt`. Remove with a SAVE_VERSION bump. *S.*
-- [ ] **3.6 ~20 dead exports in `frontend/src/data/`** (quests query helpers, constants, orchards/gardens cost fns, climate, raids, seasons, animalFeed, founding_characters, chronicle_entries, sounds — full list in the sweep). Verify `getSaplingCost`/`getSeedCost` were folded inline before deleting. *S.*
+- [x] **3.6 ~20 dead exports in `frontend/src/data/`** (quests query helpers, constants, orchards/gardens cost fns, climate, raids, seasons, animalFeed, founding_characters, chronicle_entries, sounds — full list in the sweep). Verify `getSaplingCost`/`getSeedCost` were folded inline before deleting. *S.*
 - [ ] **3.7 ~171 dead CSS classes (~1,650 lines, ~24% of global.css)** — dead subsystems include the login deed/notice-board art (`.lg-*` ~5683-5935), `.trade-*`, `.gear-inv-card-*`, `.team-adv-*`, `.raid-report-*`, `.mission-slot-*`, `.supply-slot-*`, `.crop-option-*`, `.field-card-*`, `.building-detail-*`, `.cost-grid`, `.shrine-deity-card`, `.parchment-card`, `.quest-rewards`. Grep each name before cutting (no dynamic class construction found except `weather-${}`). *L but mechanical.*
-- [ ] **3.8 Dead shared exports** (`MAX_PENS`, pen cost consts, `WOOL_SEASON_MOD`, `CULL_YIELD`, `ANIMAL_BUY_COST`, `getExotic`, `isExoticId`, `getAbility`, NPC consts `NIAMH`/`CORIN`/`TRUFFLE`, etc. — full list in sweep). *S.*
+- [x] **3.8 Dead shared exports** (`MAX_PENS`, pen cost consts, `WOOL_SEASON_MOD`, `CULL_YIELD`, `ANIMAL_BUY_COST`, `getExotic`, `isExoticId`, `getAbility`, NPC consts `NIAMH`/`CORIN`/`TRUFFLE`, etc. — full list in sweep). *S.*
 - [ ] **3.9 ~90 exports in `gameState.tsx` used only internally** — drop `export` to reveal the file's real seams and re-enable dead-code tooling. Compiler-verified. *S.*
 
 ## Tier 4 — Structural (discuss before touching)

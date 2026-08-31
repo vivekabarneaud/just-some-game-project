@@ -55,9 +55,6 @@ export function nextSeason(current: Season): Season {
   return SEASON_ORDER[(idx + 1) % SEASON_ORDER.length];
 }
 
-export function getSeasonProgress(elapsed: number): number {
-  return Math.min(1, elapsed / SEASON_ELAPSED_SPAN);
-}
 
 /** Shared copy for the season-change food warning (Overview card + top banner),
  *  so the two surfaces never drift. Returns null when the next season holds a

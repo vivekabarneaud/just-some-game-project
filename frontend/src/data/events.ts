@@ -1,6 +1,6 @@
 import type { GameState } from "~/engine/gameState";
 import type { QuestTrigger, StorylineId } from "./quests";
-import { QUEST_DEFINITIONS, isChapterComplete } from "./quests";
+import { isChapterComplete } from "./quests";
 
 // ─── Narrative event system ──────────────────────────────────────
 //

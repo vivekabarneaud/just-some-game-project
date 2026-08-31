@@ -1,6 +1,5 @@
 import { describe, it, expect } from "vitest";
-import {
-  runStoryChains,
+import { runStoryChains,
   STORY_CHAINS,
   type StoryChain,
   type ChainState,

@@ -823,12 +823,6 @@ export const BUILDINGS: BuildingDefinition[] = [
 // Applied to any building that doesn't specify its own tierLevelCaps.
 // Town Hall is exempt (no cap) since it IS the tier driver.
 
-export const DEFAULT_TIER_LEVEL_CAPS: Record<SettlementTier, number> = {
-  camp: 3,
-  village: 6,
-  town: 10,
-  city: 999, // effectively uncapped
-};
 
 /**
  * Effective max level for a building = Town Hall level.
@@ -886,8 +880,6 @@ export function applyMasonTimeReduction(buildTime: number, masonLevel: number): 
 
 // ─── Game constants ──────────────────────────────────────────────
 
-// Population capacity per Houses level
-export const HOUSES_POP_PER_LEVEL = 8;
 
 // Base population (you always have some citizens even without houses)
 export const BASE_POPULATION = 6;
@@ -954,7 +946,6 @@ export const CLOTHING_PER_CITIZENS = 1; // 1 clothing per citizen (1:1) — citi
 export const CLOTHING_DEGRADE_PER_DAY = 1; // clothing lost per game-day (24h)
 export const CLOTHING_WINTER_WOOD_REDUCTION = 0.3; // 30% less wood needed per clothed citizen
 export const CLOTHING_HAPPINESS_BONUS = 5; // happiness when fully clothed
-export const CLOTHING_HAPPINESS_PENALTY = -5; // happiness when not enough clothes
 
 // Ale system
 export const ALE_PRODUCTION_PER_BREWERY_LEVEL = 5; // ale/hour

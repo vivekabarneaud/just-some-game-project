@@ -1,6 +1,5 @@
 import { describe, it, expect } from "vitest";
-import {
-  calcDamageResult, setCombatSeed, buildEnemyUnits,
+import { calcDamageResult, setCombatSeed, buildEnemyUnits,
   ATTACK_STAT_SCALE, rarityWeaponRange, derivedDamageRange,
 } from "@medieval-realm/shared/data/combat";
 

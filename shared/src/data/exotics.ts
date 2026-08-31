@@ -52,10 +52,4 @@ export const EXOTICS: ExoticDefinition[] = [
 
 export const EXOTIC_IDS = EXOTICS.map((e) => e.id);
 
-export function getExotic(id: string): ExoticDefinition | undefined {
-  return EXOTICS.find((e) => e.id === id);
-}
 
-export function isExoticId(id: string): boolean {
-  return EXOTICS.some((e) => e.id === id);
-}

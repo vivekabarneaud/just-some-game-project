@@ -1,5 +1,4 @@
-import {
-  createContext,
+import { createContext,
   createSignal,
   onMount,
   Show,
@@ -8,8 +7,7 @@ import {
   type ParentProps,
 } from "solid-js";
 import { createStore, produce, reconcile } from "solid-js/store";
-import {
-  BUILDINGS,
+import { BUILDINGS,
   type BuildingCost,
   type FoodType,
   type PlayerBuilding,
@@ -63,8 +61,7 @@ import {
   gatheringSeasonMod,
 } from "~/data/buildings";
 import { FOUNDING_CHARACTERS } from "~/data/founding_characters";
-import {
-  getWallCost,
+import { getWallCost,
   getWatchtowerCost,
   getBarracksCost,
   getWallRepairCost,
@@ -85,8 +82,7 @@ import {
   getBarracksSoldierCap,
   getTrainTime,
 } from "~/data/defenses";
-import {
-  type CitizenCounts,
+import { type CitizenCounts,
   founderCitizens,
   founderHousehold,
   totalPopulation,
@@ -98,8 +94,7 @@ import {
   addCitizens,
 } from "~/data/citizens";
 import { getRobinEvent, getRobinForStoryMission } from "~/data/robins";
-import {
-  type CropId,
+import { type CropId,
   getCrop,
   getFieldCost,
   getFieldBuildTime,
@@ -109,8 +104,7 @@ import {
   MAX_FIELDS,
   FIELD_MAX_LEVEL,
 } from "~/data/crops";
-import {
-  type VeggieId,
+import { type VeggieId,
   VEGGIES,
   getVeggie,
   getGardenCost,
@@ -128,8 +122,7 @@ import {
   isVeggieProducing,
   GARDEN_MAX_LEVEL,
 } from "~/data/gardens";
-import {
-  type AnimalId,
+import { type AnimalId,
   ANIMALS,
   getAnimal,
   getPenCost,
@@ -149,8 +142,7 @@ import {
   getWoolSeasonMod,
   PEN_MAX_LEVEL,
 } from "@medieval-realm/shared/data/livestock";
-import {
-  type FoodItemType,
+import { type FoodItemType,
   emptyFoods,
   getTotalFood,
   consumeFood,
@@ -164,21 +156,18 @@ import {
   BERRY_TYPES,
   type DishKind,
 } from "~/data/foods";
-import {
-  ANIMAL_FEED,
+import { ANIMAL_FEED,
   isGrazer,
   consumeFromCategories,
 } from "~/data/animalFeed";
-import {
-  getHiveCost,
+import { getHiveCost,
   getHiveBuildTime,
   getHoneyRate,
   getHoneyStorageCap,
   MAX_HIVES,
   HIVE_MAX_LEVEL,
 } from "~/data/apiary";
-import {
-  type FruitId,
+import { type FruitId,
   FRUITS,
   getFruit,
   getOrchardCost,
@@ -197,8 +186,7 @@ import { getClimate, getClimateYield, climateOverrideBand, setClimateOverride, i
 import { WELL_ID, CISTERN_ID, getWellOutput, wellFactor, getCisternRainCatch, getWaterCap, ambientRainFactor, gardenWaterDemand, fieldWaterDemand, orchardWaterDemand, penWaterDemand, getSluiceDrain, delugeDrownFactor, STREAM_YIELD, streamStatus, streamFactor, cropHeatFactor, citizenWaterDemand } from "~/data/water";
 import type { StreamStatus } from "~/data/water";
 import { resolveCurrentWeather, HEATWAVE_HEAT_KILL_PER_HOUR, DELUGE_DROWN_KILL_PER_HOUR, CHRONIC_WILT_PER_HOUR, type WeatherType } from "~/data/weather";
-import {
-  type Season,
+import { type Season,
   SEASON_ELAPSED_SPAN,
   HARVEST_DURATION_HOURS,
   nextSeason,
@@ -206,8 +194,7 @@ import {
   getGlobalSeason,
 } from "~/data/seasons";
 import { STORY_CHAINS, runStoryChains, next3amUTC } from "~/engine/story/chains";
-import {
-  type Adventurer,
+import { type Adventurer,
   type Race,
   buildRecruitFromPremadeId,
   getArrivedPremades,
@@ -219,10 +206,8 @@ import {
   PERSONALITY_QUIRKS,
   getPortraitUrl,
 } from "@medieval-realm/shared/data/adventurers";
-import { PREMADE_CHARACTERS } from "@medieval-realm/shared/data/premade-characters";
 import { getNpcAlly } from "@medieval-realm/shared/data/npcs";
-import {
-  type ActiveMission,
+import { type ActiveMission,
   type CompletedMission,
   type MissionReward,
   type MissionTemplate,
@@ -246,14 +231,12 @@ import {
 import { getEnemy } from "@medieval-realm/shared/data/enemies";
 import { forageBloomNow } from "~/data/weather";
 import { pickAdultPortrait, pickPuppyPortrait, breedAptitude, DOG_BREED_KEYS, DOG_NAMES, type DogBreed } from "~/data/dogBreeds";
-import {
-  getMissionXp,
+import { getMissionXp,
   applyXp,
   RANK_NAMES,
   getZoomedPortraitUrl,
 } from "@medieval-realm/shared/data/adventurers";
-import {
-  type InventoryItem,
+import { type InventoryItem,
   type ItemSlot,
   getItem,
   getItemByRecipe,
@@ -269,17 +252,14 @@ import {
   isRingSlot,
   isSidearmCapable,
 } from "@medieval-realm/shared/data/items";
-import {
-  calcStats as calcAdvStats,
+import { calcStats as calcAdvStats,
   getUnspentStatPoints,
   type AdventurerStats,
   STAT_KEYS,
   getLoyaltyRank,
-  FOOD_PREFERENCES,
   ORIGIN_RECIPES,
 } from "@medieval-realm/shared/data/adventurers";
-import {
-  type IncomingRaid,
+import { type IncomingRaid,
   getRaid,
   calcDefense,
   calcWarningTime,
@@ -289,8 +269,7 @@ import {
   type DefenseBreakdown,
 } from "~/data/raids";
 
-import {
-  QUEST_DEFINITIONS,
+import { QUEST_DEFINITIONS,
   isQuestTriggered,
   isChapterComplete,
 } from "~/data/quests";
@@ -318,8 +297,7 @@ import type { CombatUnit } from "@medieval-realm/shared/data/combat";
 import { simulateRaidCombat } from "@medieval-realm/shared/data/raidCombat";
 import { canUnlockTalent } from "~/data/talents";
 import { getEnchantment } from "~/data/enchantments";
-import {
-  listSettlements,
+import { listSettlements,
   loadSettlement as loadSettlementApi,
   saveSettlement as saveSettlementApi,
   createSettlement as createSettlementApi,
@@ -368,8 +346,7 @@ export interface GameEvent {
 
 import { type CraftingRecipe, type ActiveCraft, CRAFTING_RECIPES, passiveCookTime, isRecipeDiscovered, getBuildingToolByRecipe, getBuildingTool, getRequiredTool, type BuildingToolDef } from "./crafting";
 import { playSound } from "./sounds";
-import {
-  calcAdventurerMaxHp,
+import { calcAdventurerMaxHp,
   resolveEventSlot,
   resolveExpeditionEvent,
   applyBetweenEventHeal,

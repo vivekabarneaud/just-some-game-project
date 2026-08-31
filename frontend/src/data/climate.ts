@@ -33,11 +33,6 @@ export const CLIMATE_META: Record<
   deluge:  { name: "Deluge",    icon: "🌊", color: "#4a90d9", blurb: "Relentless rain. Waterlogged roots drag the harvest down.", yield: 0.65 },
 };
 
-// Fraction of standing garden/field plants a drought kills. Kept only for the
-// dev "apply kill now" test tool. The year-type climate band is yield-only now
-// (getClimateYield); the killing is done by momentary WEATHER events (heat wave
-// / downpour) in weather.ts, not by the year.
-export const DROUGHT_PLANT_KILL = 0.4;
 
 // mulberry32 core — a good 0..1 hash for sequential integer seeds (the sin-based
 // ambient hash clusters badly one-roll-per-year; this doesn't).
@@ -77,10 +72,6 @@ export function getClimateYield(band: ClimateBand): number {
   return CLIMATE_META[band].yield;
 }
 
-/** Dry bands (a water deficit — a full reserve buffers the heat-wave thirst). */
-export function isDryBand(band: ClimateBand): boolean {
-  return band === "dry" || band === "drought";
-}
 /** Wet bands (a water surplus — a low reserve / open sluice avoids drowning). */
 export function isWetBand(band: ClimateBand): boolean {
   return band === "wet" || band === "deluge";

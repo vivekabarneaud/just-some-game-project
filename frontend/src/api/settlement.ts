@@ -1,5 +1,4 @@
-import type {
-  SettlementListResponse,
+import type { SettlementListResponse,
   SettlementResponse,
   SaveSettlementRequest,
   SaveSettlementResponse,
@@ -20,9 +19,6 @@ export function getExpectedUpdatedAt(): string | undefined {
   return _expectedUpdatedAt;
 }
 
-export function clearExpectedUpdatedAt() {
-  _expectedUpdatedAt = undefined;
-}
 
 export async function listSettlements(): Promise<SettlementListResponse> {
   return apiFetch<SettlementListResponse>("/settlements");

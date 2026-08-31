@@ -153,13 +153,6 @@ export function getGardenRate(_veggie: VeggieDefinition, level: number): number 
   return getSeedCapacity(level) * GARDEN_YIELD_PER_PLANT;
 }
 
-/** Scales seed cost lightly with level so bigger gardens cost a bit more to sow.
- *  NOTE: legacy gold-cost planting. Superseded by the per-crop seed system
- *  (getSeedCapacity / getEffectiveGardenRate); kept only for the marketplace
- *  buy price, which still reads it. */
-export function getSeedCost(veggie: VeggieDefinition, level: number): number {
-  return Math.max(1, Math.floor(veggie.seedCost * (1 + (level - 1) * 0.2)));
-}
 
 // ─── Per-crop seed system ───────────────────────────────────────
 // Seeds are what you SOW, not the harvest. Each seed becomes a plant that

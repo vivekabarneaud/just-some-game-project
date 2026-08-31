@@ -576,30 +576,6 @@ export const STORY_MISSIONS: StoryMission[] = [
   },
 ];
 
-/** Get the next story mission that is currently locked specifically by a quest
- *  prerequisite — i.e. the player has met the prior-mission prerequisite and
- *  the guild-level requirement, but a parallel quest must still complete. Used
- *  by the UI to render a "???" placeholder card with the unlock hint. Returns
- *  null when no quest-locked story mission is next in line (which means either
- *  the current story mission is unlocked normally, or the chain has run out). */
-export function getLockedStoryMission(
-  guildLevel: number,
-  completedStoryMissions: readonly string[],
-  completedQuests: readonly string[] = [],
-): { mission: StoryMission; lockedByQuest: string } | null {
-  const completed = new Set(completedStoryMissions);
-  const quests = new Set(completedQuests);
-  for (const m of STORY_MISSIONS) {
-    if (completed.has(m.id)) continue;
-    if (m.minGuildLevel > guildLevel) return null;
-    if (m.prerequisite && !completed.has(m.prerequisite)) return null;
-    if (m.prerequisiteQuest && !quests.has(m.prerequisiteQuest)) {
-      return { mission: m, lockedByQuest: m.prerequisiteQuest };
-    }
-    return null; // story mission is unlocked normally; no locked card to show
-  }
-  return null;
-}
 
 /** Get the current story mission available to the player, or null */
 export function getCurrentStoryMission(

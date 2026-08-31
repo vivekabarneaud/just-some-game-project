@@ -646,6 +646,3 @@ export function getEarnedTitle(adv: Adventurer): string | null {
   return null;
 }
 
-export function hasTalent(adv: Adventurer, talentId: string): boolean {
-  return adv.talents?.includes(talentId) ?? false;
-}
