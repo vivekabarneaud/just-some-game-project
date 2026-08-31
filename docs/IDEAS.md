@@ -242,3 +242,20 @@ The docs went because their systems shipped; these are the parts that hadn't.
 
 **Cosmetic skins** for recruited characters — also from roster curation, also still open.
 
+## Folded in from deleted design docs (2026-08-31)
+
+These had their own files until the files were mostly describing either shipped
+code or an idea this list already held. The detail is in git.
+
+**Adventurer recovery** (was `RECOVERY_AND_RETREAT`) — the retreat and rout model shipped. Left: **rescue / drag-out** (a teammate hauls a downed hero off the field instead of leaving them to the death roll — the only trace in code is a comment saying "stays downed, needs rescue/revive"); **treating lingering wounds**, which the code's own comment suggests belongs to *Edda* rather than an Infirmary building — she's the midwife, it costs no building slot, and it hands her a mechanical role the founder rework wants; **Rearguard / feign-death / commander talents**; a per-mission `noRetreat` flag for lethal story beats; timed condition decay; and die-at-home, both deliberately banked.
+
+**Raid reinforcements** (was its own doc) — call for help on an incoming raid; allies dispatch troops with a distance-based ETA and join the defender's ally pool if they arrive in time. **Framing that matters: mutual aid, not PvP** — nobody attacks anyone, players cooperate against the raids the world already throws. A **Pigeon Loft** building gates and scales reach and speed. Rides the existing co-op/world/websocket rails. Note the raid roster is camp-and-village only now, so this wants town-tier raids to exist first.
+
+**Faction balance** (was its own doc) — a **Church suspicion** meter and a **Thornveil anger** meter, driven by what the settlement does (deforestation angers the forest; visible magic draws the Church), each with an escalation ladder ending in faction-flavoured raids, and a faith-offset building to push back. **Blocked on the Chapel→Shrine rethink** — the Shrine is a deity-offering building now, so the Church side has no home. Zero mechanical state exists in code today.
+
+**Roster economy** (was its own doc) — continuous **wages** in gold per hour, paid all-or-none; a five-state machine (active / voluntary vacation / forced inactive / permanently retired / fallen); a per-adventurer **happiness** axis distinct from the shipped 0–100 loyalty; and dropping the hard roster cap. Needs rethinking against the arrival model: scripted arrivals already bypass the cap, so wages would key off arrivals rather than a recruit pool.
+
+**Quirks** (was `QUIRKS_REWORK`) — the *tagged random-quirk system* is dead: under the per-character direction each character gets authored quirks, like their signature trait. But the doc held roughly **50 quirk texts** against the 16 shipped ("Collects teeth from defeated enemies. Won't explain why."), and that text is worth mining when characters get deepened. In git.
+
+**Plague events** (was §2 of `WORKERS_PLAGUES`) — illness that spreads through the settlement rather than sitting on one worker: plague types, contagion, and the pressure that makes a healer matter. Staffing and the per-worker ailment lines (fever, gut, wound) already shipped, and the cat/vermin half moved to the Animals section above.
+
