@@ -21,11 +21,6 @@ export const OFFHAND: ItemDefinition[] = [
     recipeId: "wooden_shield", consumable: false, defense: 25,
   },
   {
-    id: "arcane_focus", rarity: "uncommon", name: "Arcane Focus", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/woodworker/crystal_orb.png", icon: "🔮", slot: "offHand",
-    description: "+2 INT, +1 WIS. A crystal orb that floats beside your hand. Show-off? Maybe. Effective? Definitely.",
-    classes: ["wizard"], stats: { int: 2, wis: 1 }, durationMod: 1, lootMod: 1, recipeId: "arcane_focus", consumable: false,
-  },
-  {
     id: "prayer_book", rarity: "uncommon", name: "Prayer Book", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/tailoring/tome_of_power.png", icon: "📖", slot: "offHand",
     description: "+2 WIS, +1 INT. Leather-bound, well-thumbed, with annotations in three languages.",
     classes: ["priest"], stats: { wis: 2, int: 1 }, durationMod: 1, lootMod: 1, recipeId: "prayer_book", consumable: false,

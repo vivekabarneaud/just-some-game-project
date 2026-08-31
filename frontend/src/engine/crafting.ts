@@ -809,8 +809,6 @@ export const CRAFTING_RECIPES: CraftingRecipe[] = [
     costs: [{ resource: "fiber", amount: 6 }, { resource: "gold", amount: 5 }, { resource: "moonstone", amount: 1 }], produces: { resource: "armor", amount: 1 }, craftTime: 300 },
 
   // ── Woodworker — New Recipes ────────────────────────────────────
-  { id: "arcane_focus", name: "Arcane Focus", icon: "🔮", building: "woodworker", minLevel: 4,
-    costs: [{ resource: "wood", amount: 10 }, { resource: "crude_ruby", amount: 1 }], produces: { resource: "weapons", amount: 1 }, craftTime: 300 },
 
   // ── Kitchen — Food Recipes ──────────────────────────────────────
   // Recipes use specific food types (meat / eggs / milk / fish / fruits / veggies)

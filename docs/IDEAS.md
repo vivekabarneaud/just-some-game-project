@@ -94,11 +94,15 @@ its line — the code becomes the documentation.
 > the marsh chain, and it went with the rest. The chain's unbuilt finale needs a
 > purpose-built Aldith, not that stub.
 >
-> **One repair, not a deletion:** `arcane_focus` (uncommon wizard off-hand) needed
-> `livingflame_bead` from the deleted elementals, which would have left real
-> Act-1 wizard gear uncraftable. Its recipe now takes a `crude_ruby` instead —
-> obtainable, and a rough gem set in a focus reads fine. Change it if you'd
-> rather it cost something else.
+> **`arcane_focus` went too** (2026-08-31). I first repaired its recipe, then it
+> turned out to be a placeholder like the rest: there are **no wizards yet** —
+> Magnus arrives later in Act 1, after the Tier-1 stretch — so a wizard off-hand
+> had nobody to equip it. Worth knowing for whenever he does arrive: **wizards
+> now have no off-hand at all** (the remaining five are shields, a priest's
+> prayer book, an assassin's parrying dagger and an archer's quiver). And
+> `crude_ruby`, the material I briefly repointed it to, is a 10%/8% drop from
+> `goblin_shaman` and `burnt_skeleton` — not obviously early-game, so the repair
+> was shaky anyway. Deleting was the right call.
 
 Act 1's palette is the grounded one: wolves, boars, bears, cave spiders, marsh
 adders, rats, the thinning's dead. The exotics below leapfrogged that tone, so
