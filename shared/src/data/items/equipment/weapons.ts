@@ -314,14 +314,6 @@ export const WEAPONS: ItemDefinition[] = [
     recipeId: "alpha_warbow", consumable: false,
   },
   {
-    id: "dragonfire_staff", rarity: "epic", name: "Dragonfire Staff", icon: "🔥", slot: "mainHand", weaponType: "staff",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/woodworker/dragonfire_staff.png",
-    description: "+5 INT, +2 WIS. The tip smolders permanently. Ink evaporates near it.",
-    classes: ["wizard"],
-    stats: { int: 5, wis: 2 }, durationMod: 0.9, lootMod: 1,
-    recipeId: "dragonfire_staff", consumable: false, twoHanded: true,
-  },
-  {
     id: "stiletto", rarity: "uncommon", name: "Stiletto", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/blacksmith/stiletto.png", icon: "🗡️", slot: "mainHand", weaponType: "dagger",
     description: "+2 DEX, +1 STR. Needle-thin, whisper-quiet. Made for gaps in armor, not fair fights.",
     classes: ["assassin"], stats: { dex: 2, str: 1 }, durationMod: 1, lootMod: 1, recipeId: "stiletto", consumable: false,
@@ -330,11 +322,6 @@ export const WEAPONS: ItemDefinition[] = [
     id: "poisoned_blade", rarity: "rare", name: "Poisoned Blade", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/blacksmith/venom_blade.png", icon: "🗡️", slot: "mainHand", weaponType: "dagger",
     description: "+3 DEX, +2 STR. The groove along the blade holds venom. The nick is worse than the cut.",
     classes: ["assassin"], stats: { dex: 3, str: 2 }, durationMod: 1, lootMod: 1, recipeId: "poisoned_blade", consumable: false,
-  },
-  {
-    id: "shadow_dagger", rarity: "epic", name: "Shadow Dagger", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/blacksmith/void_dagger.png", icon: "🗡️", slot: "mainHand", weaponType: "dagger",
-    description: "+4 DEX, +3 STR. Void-touched steel that drinks the light. The wound hurts before the blade arrives.",
-    classes: ["assassin"], stats: { dex: 4, str: 3 }, durationMod: 1, lootMod: 1, recipeId: "shadow_dagger", consumable: false,
   },
   {
     id: "iron_mace", rarity: "common", name: "Iron Mace", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/blacksmith/war_mace.png", icon: "🔨", slot: "mainHand", weaponType: "mace",

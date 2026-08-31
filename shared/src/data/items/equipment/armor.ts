@@ -205,13 +205,6 @@ export const ARMOR: ItemDefinition[] = [
     recipeId: "shadow_mantle", consumable: false, defense: 22,
   },
   {
-    id: "infernal_mail", rarity: "rare", name: "Infernal Mail", icon: "⛓️", slot: "chest",
-    description: "+2 VIT, +1 STR, 65 DEF. Demon-forged links that radiate heat.",
-    classes: ["warrior"],
-    stats: { vit: 2, str: 1 }, durationMod: 1, lootMod: 1,
-    recipeId: "infernal_mail", consumable: false, defense: 65,
-  },
-  {
     id: "wolfhide_armor", rarity: "uncommon", name: "Wolfhide Armor", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/leatherworking/wolfhide_armor.png", icon: "🐺", slot: "chest",
     description: "+1 VIT, +1 DEX, 32 DEF. Tough and pungent. The frontier's favorite.",
     classes: [], armorType: "leather",
@@ -313,13 +306,6 @@ export const ARMOR: ItemDefinition[] = [
     classes: [], armorType: "cloth",
     stats: { int: 2, wis: 1 }, durationMod: 1, lootMod: 1,
     recipeId: "ghostweave_cloak", consumable: false, defense: 15,
-  },
-  {
-    id: "windweave_robe", rarity: "rare", name: "Windweave Robe", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/tailoring/windweave_robe.png", icon: "💨", slot: "chest",
-    description: "+3 INT, +1 DEX, 20 DEF. Weighs nothing. Dries instantly. 5% faster missions.",
-    classes: ["wizard"], armorType: "cloth",
-    stats: { int: 3, dex: 1 }, durationMod: 0.95, lootMod: 1,
-    recipeId: "windweave_robe", consumable: false, defense: 20,
   },
   {
     id: "iron_helm", rarity: "uncommon", name: "Iron Helm", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/blacksmith/steel_helm.png", icon: "🪖", slot: "head",

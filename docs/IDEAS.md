@@ -71,6 +71,35 @@ its line — the code becomes the documentation.
 
 ## Later acts (pulled out of Act 1, 2026-08-31)
 
+> **The big cleanup.** The codebase now holds only content that Act 1 can
+> actually reach. Removed on `chore/big-cleanup`: **24 enemies** (64 → 40),
+> **27 journeyman + expert missions** (124 → 97), **18 materials** (44 → 26),
+> 6 late-game recipes and the 6 items they made. Nothing referenced any of it.
+> The names below are the index — git holds the definitions.
+>
+> **Deleted enemy roster, for when later acts need a starting point:** ancient_wyrm,
+> arch_necromancer, banshee, demon_scout, goblin_warchief, infernal_knight,
+> seraph_fallen, shadow_lord, stone_golem, storm_elemental, storm_sprite,
+> temple_guardian, tide_serpent, wasteland_wyrm, aether_colossus, aether_wraith,
+> magma_golem, wyrmling, flame_wisp, ember_elemental, frost_elemental,
+> corrupted_treant, fungal_crawler, bog_witch.
+>
+> **Kept deliberately:** `bandit_cutthroat` ("goes for whoever looks softest" —
+> which is now literally the `squishiest` targeting knob) and `bandit_poacher`
+> (the back-row outlaw). Both are authored Tier-1 content waiting for a mission,
+> not placeholders.
+>
+> **Aldith needs a new enemy.** The old `bog_witch` — *"she lives in the marsh and
+> talks to things that shouldn't talk back"* — was the placeholder that inspired
+> the marsh chain, and it went with the rest. The chain's unbuilt finale needs a
+> purpose-built Aldith, not that stub.
+>
+> **One repair, not a deletion:** `arcane_focus` (uncommon wizard off-hand) needed
+> `livingflame_bead` from the deleted elementals, which would have left real
+> Act-1 wizard gear uncraftable. Its recipe now takes a `crude_ruby` instead —
+> obtainable, and a rough gem set in a focus reads fine. Change it if you'd
+> rather it cost something else.
+
 Act 1's palette is the grounded one: wolves, boars, bears, cave spiders, marsh
 adders, rats, the thinning's dead. The exotics below leapfrogged that tone, so
 their **missions were deleted** and their **bestiary entries kept** — an undiscovered

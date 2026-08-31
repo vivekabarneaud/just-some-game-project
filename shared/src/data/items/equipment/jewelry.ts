@@ -54,16 +54,6 @@ export const JEWELRY: ItemDefinition[] = [
     classes: ["priest"], stats: { wis: 2, vit: 1 }, durationMod: 1, lootMod: 1, recipeId: "emerald_loop", consumable: false,
   },
   {
-    id: "moonstone_seal", rarity: "rare", name: "Moonstone Seal", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/jewelcrafting/moonstone_ring.png", icon: "💍", slot: "ring1",
-    description: "+3 WIS, +2 INT, +1 VIT. Divine light trapped in stone. The priests weep when they see it.",
-    classes: ["priest", "wizard"], stats: { wis: 3, int: 2, vit: 1 }, durationMod: 1, lootMod: 1, recipeId: "moonstone_seal", consumable: false,
-  },
-  {
-    id: "void_band", rarity: "rare", name: "Void Band", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/jewelcrafting/void_ring.png", icon: "💍", slot: "ring1",
-    description: "+3 DEX, +2 STR. The shadows seem darker near your hand. You move faster. You don't question why.",
-    classes: ["assassin"], stats: { dex: 3, str: 2 }, durationMod: 1, lootMod: 1, recipeId: "void_band", consumable: false,
-  },
-  {
     // The thrill jackpot: a rare FIND (rarity = scarcity, not power), not craftable.
     // +Luck lifts the party's loot-drop chance; ~1% off any bandit. uniqueEquip
     // so you can't stack two. Luck value is a starting knob — tune with LUCK_*.

@@ -6,8 +6,6 @@ import type { MissionReward, MissionTemplate, MissionTag, MissionRequirements, A
 import type { Season } from "../../gameState.js";
 import { NOVICE_MISSIONS } from "./noviceMissions.js";
 import { APPRENTICE_MISSIONS } from "./apprenticeMissions.js";
-import { JOURNEYMAN_MISSIONS } from "./journeymanMissions.js";
-import { EXPERT_MISSIONS } from "./expertMissions.js";
 import { STORY_MISSIONS } from "./storyMissions.js";
 import { EXPEDITION_POOL } from "./expeditions.js";
 import { STAGED_MISSIONS } from "./stagedMissions.js";
@@ -19,8 +17,6 @@ import { SIDE_CHAIN_MISSIONS } from "./sideChainMissions.js";
 const ALL_MISSIONS: MissionTemplate[] = [
   ...NOVICE_MISSIONS,
   ...APPRENTICE_MISSIONS,
-  ...JOURNEYMAN_MISSIONS,
-  ...EXPERT_MISSIONS,
   // Side-story chains: rank-neutral (getMissionRank returns undefined), so the
   // board quota treats them like story/expedition content — always eligible
   // when their gates open, balanced by their own difficulty, never tier-filed.
@@ -129,8 +125,6 @@ export type MissionRank = "novice" | "apprentice" | "journeyman" | "veteran" | "
 export function getMissionRank(missionId: string): MissionRank | undefined {
   if (NOVICE_MISSIONS.some((m) => m.id === missionId)) return "novice";
   if (APPRENTICE_MISSIONS.some((m) => m.id === missionId)) return "apprentice";
-  if (JOURNEYMAN_MISSIONS.some((m) => m.id === missionId)) return "journeyman";
-  if (EXPERT_MISSIONS.some((m) => m.id === missionId)) return "veteran";
   if (STORY_MISSIONS.some((m) => m.id === missionId)) return "story";
   if (EXPEDITION_POOL.some((m) => m.id === missionId)) return "expedition";
   return undefined;

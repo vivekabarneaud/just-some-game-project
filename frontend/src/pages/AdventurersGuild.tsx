@@ -667,7 +667,6 @@ export default function AdventurersGuild() {
               })()}
               <Show when={IS_DEV}>
                 <button onClick={() => actions.devSpawnAllNoviceMissions()} class="skip-season-btn" style={{ "font-size": "0.68rem", padding: "3px 10px" }}>Spawn novice</button>
-                <button onClick={() => actions.devSpawnVeteranMissions()} class="skip-season-btn" style={{ "font-size": "0.68rem", padding: "3px 10px" }}>Spawn veteran</button>
                 <button onClick={() => actions.devTriggerRobin()} class="skip-season-btn" style={{ "font-size": "0.68rem", padding: "3px 10px" }}>🐦 Robin</button>
               </Show>
             </div>

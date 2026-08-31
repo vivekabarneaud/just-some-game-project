@@ -583,16 +583,6 @@ export const CRAFTING_RECIPES: CraftingRecipe[] = [
     craftTime: 1200,
   },
   {
-    id: "infernal_mail",
-    name: "Infernal Mail",
-    icon: "⛓️",
-    building: "blacksmith",
-    minLevel: 5,
-    costs: [{ resource: "infernal_link", amount: 4 }, { resource: "iron", amount: 25 }, { resource: "ashblood", amount: 2 }],
-    produces: { resource: "armor", amount: 1 },
-    craftTime: 1200,
-  },
-  {
     id: "fang_necklace",
     name: "Fang Necklace",
     icon: "🦷",
@@ -683,16 +673,6 @@ export const CRAFTING_RECIPES: CraftingRecipe[] = [
     craftTime: 600,
   },
   {
-    id: "windweave_robe",
-    name: "Windweave Robe",
-    icon: "💨",
-    building: "tailoring_shop",
-    minLevel: 4,
-    costs: [{ resource: "windweave_fiber", amount: 4 }, { resource: "fiber", amount: 8 }, { resource: "wool", amount: 5 }],
-    produces: { resource: "armor", amount: 1 },
-    craftTime: 600,
-  },
-  {
     id: "war_banner",
     name: "War Banner",
     icon: "🏴",
@@ -731,16 +711,6 @@ export const CRAFTING_RECIPES: CraftingRecipe[] = [
     costs: [{ resource: "alpha_sinew", amount: 1 }, { resource: "wood", amount: 18 }],
     produces: { resource: "weapons", amount: 1 }, craftTime: 400,
   },
-  {
-    id: "dragonfire_staff",
-    name: "Dragonfire Staff",
-    icon: "🔥",
-    building: "woodworker",
-    minLevel: 5,
-    costs: [{ resource: "dragonfire_ash", amount: 4 }, { resource: "wood", amount: 20 }, { resource: "livingflame_bead", amount: 2 }],
-    produces: { resource: "weapons", amount: 1 },
-    craftTime: 1200,
-  },
 
   // ── New Recipes — Content Expansion ────────────────────────────
 
@@ -759,10 +729,6 @@ export const CRAFTING_RECIPES: CraftingRecipe[] = [
     costs: [{ resource: "storm_topaz", amount: 1 }, { resource: "gold", amount: 5 }], produces: { resource: "armor", amount: 1 }, craftTime: 300 },
   { id: "emerald_loop", name: "Emerald Loop", icon: "💍", building: "jewelcrafter", minLevel: 3,
     costs: [{ resource: "emerald_shard", amount: 1 }, { resource: "gold", amount: 5 }], produces: { resource: "armor", amount: 1 }, craftTime: 300 },
-  { id: "moonstone_seal", name: "Moonstone Seal", icon: "💍", building: "jewelcrafter", minLevel: 5,
-    costs: [{ resource: "moonstone", amount: 1 }, { resource: "godspark", amount: 1 }, { resource: "gold", amount: 10 }], produces: { resource: "armor", amount: 1 }, craftTime: 900 },
-  { id: "void_band", name: "Void Band", icon: "💍", building: "jewelcrafter", minLevel: 5,
-    costs: [{ resource: "void_topaz", amount: 1 }, { resource: "shadow_fragment", amount: 1 }, { resource: "gold", amount: 10 }], produces: { resource: "armor", amount: 1 }, craftTime: 900 },
   { id: "dragonfire_ring", name: "Dragonfire Ring", icon: "💍", building: "jewelcrafter", minLevel: 6,
     costs: [{ resource: "fire_ruby", amount: 1 }, { resource: "dragon_blood", amount: 1 }, { resource: "gold", amount: 10 }], produces: { resource: "armor", amount: 1 }, craftTime: 1200 },
   // Jewelcrafter — Amulets
@@ -793,8 +759,6 @@ export const CRAFTING_RECIPES: CraftingRecipe[] = [
     costs: [{ resource: "iron", amount: 10 }, { resource: "leather", amount: 3 }], produces: { resource: "weapons", amount: 1 }, craftTime: 60 },
   { id: "poisoned_blade", name: "Poisoned Blade", icon: "🗡️", building: "blacksmith", minLevel: 4,
     costs: [{ resource: "iron", amount: 15 }, { resource: "snake_oil", amount: 2 }, { resource: "spinners_bile", amount: 1 }], produces: { resource: "weapons", amount: 1 }, craftTime: 600 },
-  { id: "shadow_dagger", name: "Shadow Dagger", icon: "🗡️", building: "blacksmith", minLevel: 5,
-    costs: [{ resource: "shadow_fragment", amount: 1 }, { resource: "iron", amount: 20 }, { resource: "void_topaz", amount: 1 }], produces: { resource: "weapons", amount: 1 }, craftTime: 1200 },
   { id: "iron_mace", name: "Iron Mace", icon: "🔨", building: "blacksmith", minLevel: 2,
     costs: [{ resource: "iron", amount: 12 }, { resource: "wood", amount: 5 }], produces: { resource: "weapons", amount: 1 }, craftTime: 60 },
   { id: "blessed_mace", name: "Blessed Mace", icon: "🔨", building: "blacksmith", minLevel: 4,
@@ -846,7 +810,7 @@ export const CRAFTING_RECIPES: CraftingRecipe[] = [
 
   // ── Woodworker — New Recipes ────────────────────────────────────
   { id: "arcane_focus", name: "Arcane Focus", icon: "🔮", building: "woodworker", minLevel: 4,
-    costs: [{ resource: "wood", amount: 10 }, { resource: "livingflame_bead", amount: 1 }], produces: { resource: "weapons", amount: 1 }, craftTime: 300 },
+    costs: [{ resource: "wood", amount: 10 }, { resource: "crude_ruby", amount: 1 }], produces: { resource: "weapons", amount: 1 }, craftTime: 300 },
 
   // ── Kitchen — Food Recipes ──────────────────────────────────────
   // Recipes use specific food types (meat / eggs / milk / fish / fruits / veggies)
