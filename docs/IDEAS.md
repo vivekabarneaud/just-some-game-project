@@ -192,3 +192,12 @@ So the east is closed until something earns it. What it wants is a genuine
 is a mission type Act 1 doesn't have yet and probably should. When it exists,
 put its id in the region's trigger.
 
+## Novice tier — gaps found in the audit (2026-08-31)
+
+The 22 surviving novice missions are healthy. Four things the audit turned up:
+
+- ⭐ **Winter has no gather.** Season gates across the tier run spring ×3, autumn ×3, summer ×1, **winter ×0**. Winter is the season the whole game is about surviving, and it's the only one where the player has nothing to *choose* — they only get the forced `deer_yard` once the larder is already failing. The single most useful mission you could add: ice fishing, a cellar dig, snared hares, sloes after the first frost.
+- **Summer is thin** — one mission (`berry_thickets`) against three each for spring and autumn.
+- **`merchant_escort_first` gates on a marketplace *and* a tavern**, which is deep for novice tier, and it's Cobb's *return* — while the merchant design says his first arrival is what prompts building the marketplace. Worth checking that ordering can't deadlock.
+- **`hunter_keepsake` deleted** — a placeholder that never got the `staged` flag. One adventurer, difficulty 1, against a mandatory forest bear encounter. Compare `bear_den`: same bear, two slots, and no encounter at all because the point is walking away. `DESIGN_BALANCE_PASS` had flagged this exact shape under "Tracks at the Treeline"; the problem had simply moved house. Old Bram's pocketwatch is a fine premise if it ever comes back — just not as a one-star solo bear fight.
+

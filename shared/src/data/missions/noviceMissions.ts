@@ -327,22 +327,6 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
   // place. Revisit when there's a generic-citizen / townsfolk layer to hang this
   // on. Re-enable by uncommenting. (Relates to the mission-character-ties pass.)
   /*
-  {
-    id: "hunter_keepsake",
-    name: "The Hunter's Keepsake",
-    description: "Old Bram dropped his father's pocketwatch somewhere near the bear trails while running for his life. It's all he has left of the old man. He can't pay much, but he's asking.",
-    icon: "⌚",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/hunter_keepsake.png",
-    slots: [{ class: "any" }],
-    duration: 600,
-    rewards: [{ resource: "gold", amount: 20 }, { resource: "meat", amount: 30 }],
-    deployCost: 3,
-    difficulty: 1,
-    minGuildLevel: 1,
-    tags: ["outdoor", "exploration"],
-    encounters: [{ enemyId: "forest_bear", count: 1 }],
-    unique: true,
-  },
   */
   {
     id: "night_howling",
