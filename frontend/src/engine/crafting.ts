@@ -553,36 +553,6 @@ export const CRAFTING_RECIPES: CraftingRecipe[] = [
 
   // ── Material-based recipes — Blacksmith ───────────────────────
   {
-    id: "orc_cleaver",
-    name: "Orc Cleaver",
-    icon: "🪓",
-    building: "blacksmith",
-    minLevel: 3,
-    costs: [{ resource: "orc_steel", amount: 3 }, { resource: "iron", amount: 10 }, { resource: "wood", amount: 5 }],
-    produces: { resource: "weapons", amount: 1 },
-    craftTime: 300,
-  },
-  {
-    id: "cursed_blade",
-    name: "Cursed Blade",
-    icon: "⚔️",
-    building: "blacksmith",
-    minLevel: 4,
-    costs: [{ resource: "cursed_iron", amount: 4 }, { resource: "iron", amount: 15 }, { resource: "bonewalk_shard", amount: 2 }],
-    produces: { resource: "weapons", amount: 1 },
-    craftTime: 600,
-  },
-  {
-    id: "dragonbone_sword",
-    name: "Dragonbone Sword",
-    icon: "🗡️",
-    building: "blacksmith",
-    minLevel: 5,
-    costs: [{ resource: "dragon_fang", amount: 2 }, { resource: "wyrmshell_plate", amount: 3 }, { resource: "iron", amount: 20 }],
-    produces: { resource: "weapons", amount: 1 },
-    craftTime: 1200,
-  },
-  {
     id: "fang_necklace",
     name: "Fang Necklace",
     icon: "🦷",
@@ -640,26 +610,6 @@ export const CRAFTING_RECIPES: CraftingRecipe[] = [
     produces: { resource: "armor", amount: 1 },
     craftTime: 300,
   },
-  {
-    id: "trollhide_cloak",
-    name: "Trollhide Cloak",
-    icon: "🧌",
-    building: "leatherworking",
-    minLevel: 4,
-    costs: [{ resource: "trollhide", amount: 3 }, { resource: "leather", amount: 10 }, { resource: "fiber", amount: 5 }],
-    produces: { resource: "armor", amount: 1 },
-    craftTime: 600,
-  },
-  {
-    id: "wyrmscale_armor",
-    name: "Wyrmscale Armor",
-    icon: "🐉",
-    building: "leatherworking",
-    minLevel: 5,
-    costs: [{ resource: "wyrmshell_plate", amount: 5 }, { resource: "leather", amount: 15 }, { resource: "sinew_cord", amount: 4 }],
-    produces: { resource: "armor", amount: 1 },
-    craftTime: 1200,
-  },
 
   // ── Material-based recipes — Tailoring ────────────────────────
   {
@@ -671,16 +621,6 @@ export const CRAFTING_RECIPES: CraftingRecipe[] = [
     costs: [{ resource: "ghostweave", amount: 4 }, { resource: "fiber", amount: 10 }],
     produces: { resource: "armor", amount: 1 },
     craftTime: 600,
-  },
-  {
-    id: "war_banner",
-    name: "War Banner",
-    icon: "🏴",
-    building: "tailoring_shop",
-    minLevel: 3,
-    costs: [{ resource: "torn_banner", amount: 3 }, { resource: "fiber", amount: 6 }, { resource: "gold", amount: 10 }],
-    produces: { resource: "armor", amount: 1 },
-    craftTime: 300,
   },
 
   // ── Material-based recipes — Woodworker ───────────────────────
@@ -729,8 +669,6 @@ export const CRAFTING_RECIPES: CraftingRecipe[] = [
     costs: [{ resource: "storm_topaz", amount: 1 }, { resource: "gold", amount: 5 }], produces: { resource: "armor", amount: 1 }, craftTime: 300 },
   { id: "emerald_loop", name: "Emerald Loop", icon: "💍", building: "jewelcrafter", minLevel: 3,
     costs: [{ resource: "emerald_shard", amount: 1 }, { resource: "gold", amount: 5 }], produces: { resource: "armor", amount: 1 }, craftTime: 300 },
-  { id: "dragonfire_ring", name: "Dragonfire Ring", icon: "💍", building: "jewelcrafter", minLevel: 6,
-    costs: [{ resource: "fire_ruby", amount: 1 }, { resource: "dragon_blood", amount: 1 }, { resource: "gold", amount: 10 }], produces: { resource: "armor", amount: 1 }, craftTime: 1200 },
   // Jewelcrafter — Amulets
   { id: "holy_pendant", name: "Holy Pendant", icon: "✝️", building: "jewelcrafter", minLevel: 3,
     costs: [{ resource: "moonstone", amount: 1 }, { resource: "gold", amount: 8 }], produces: { resource: "armor", amount: 1 }, craftTime: 300 },
@@ -738,8 +676,6 @@ export const CRAFTING_RECIPES: CraftingRecipe[] = [
     costs: [{ resource: "emerald_shard", amount: 1 }, { resource: "amber_resin", amount: 2 }], produces: { resource: "armor", amount: 1 }, craftTime: 300 },
   { id: "predator_tooth", name: "Predator's Tooth", icon: "🦷", building: "jewelcrafter", minLevel: 2,
     costs: [{ resource: "alpha_fang", amount: 1 }, { resource: "sinew_cord", amount: 2 }], produces: { resource: "armor", amount: 1 }, craftTime: 120 },
-  { id: "warlord_chain", name: "Warlord's Chain", icon: "⛓️", building: "jewelcrafter", minLevel: 4,
-    costs: [{ resource: "orc_steel", amount: 2 }, { resource: "fire_ruby", amount: 1 }, { resource: "gold", amount: 10 }], produces: { resource: "armor", amount: 1 }, craftTime: 600 },
   { id: "ghostveil_locket", name: "Ghostveil Locket", icon: "👻", building: "jewelcrafter", minLevel: 5,
     costs: [{ resource: "ghostweave", amount: 2 }, { resource: "soul_shard", amount: 1 }, { resource: "moonstone", amount: 1 }], produces: { resource: "armor", amount: 1 }, craftTime: 900 },
   // Jewelcrafter — Priest's Circlet
@@ -773,8 +709,6 @@ export const CRAFTING_RECIPES: CraftingRecipe[] = [
     costs: [{ resource: "bear_claw", amount: 2 }, { resource: "thick_pelt", amount: 3 }, { resource: "leather", amount: 5 }], produces: { resource: "armor", amount: 1 }, craftTime: 300 },
   { id: "ranger_trousers", name: "Ranger's Trousers", icon: "👖", building: "leatherworking", minLevel: 3,
     costs: [{ resource: "leather", amount: 14 }, { resource: "fiber", amount: 4 }], produces: { resource: "armor", amount: 1 }, craftTime: 120 },
-  { id: "wyrmscale_greaves", name: "Wyrmscale Greaves", icon: "🐉", building: "leatherworking", minLevel: 5,
-    costs: [{ resource: "wyrmshell_plate", amount: 3 }, { resource: "leather", amount: 10 }, { resource: "sinew_cord", amount: 2 }], produces: { resource: "armor", amount: 1 }, craftTime: 1200 },
   { id: "scout_boots", name: "Scout's Boots", icon: "🥾", building: "leatherworking", minLevel: 3,
     costs: [{ resource: "leather", amount: 10 }, { resource: "fiber", amount: 3 }], produces: { resource: "armor", amount: 1 }, craftTime: 120 },
   // ── Leather boot uncommons ──
@@ -784,8 +718,6 @@ export const CRAFTING_RECIPES: CraftingRecipe[] = [
     costs: [{ resource: "leather", amount: 9 }, { resource: "iron", amount: 4 }], produces: { resource: "armor", amount: 1 }, craftTime: 100 },
   { id: "trailblazer_boots", name: "Trailblazer's Boots", icon: "🥾", building: "leatherworking", minLevel: 2,
     costs: [{ resource: "leather", amount: 11 }, { resource: "fiber", amount: 3 }], produces: { resource: "armor", amount: 1 }, craftTime: 100 },
-  { id: "trollhide_boots", name: "Trollhide Boots", icon: "🥾", building: "leatherworking", minLevel: 4,
-    costs: [{ resource: "trollhide", amount: 2 }, { resource: "leather", amount: 6 }], produces: { resource: "armor", amount: 1 }, craftTime: 300 },
   { id: "quiver_precision", name: "Quiver of Precision", icon: "🏹", building: "leatherworking", minLevel: 3,
     costs: [{ resource: "leather", amount: 8 }, { resource: "sinew_cord", amount: 3 }], produces: { resource: "armor", amount: 1 }, craftTime: 120 },
 

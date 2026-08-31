@@ -201,3 +201,30 @@ The 22 surviving novice missions are healthy. Four things the audit turned up:
 - **`merchant_escort_first` gates on a marketplace *and* a tavern**, which is deep for novice tier, and it's Cobb's *return* — while the merchant design says his first arrival is what prompts building the marketplace. Worth checking that ordering can't deadlock.
 - **`hunter_keepsake` deleted** — a placeholder that never got the `staged` flag. One adventurer, difficulty 1, against a mandatory forest bear encounter. Compare `bear_den`: same bear, two slots, and no encounter at all because the point is walking away. `DESIGN_BALANCE_PASS` had flagged this exact shape under "Tracks at the Treeline"; the problem had simply moved house. Old Bram's pocketwatch is a fine premise if it ever comes back — just not as a one-star solo bear fight.
 
+## The apprentice tier — deleted whole (2026-08-31)
+
+All 22 apprentice missions gone, plus their enemies, materials and crafts. No
+premises kept: it was pre-rewrite filler, and a clean slate is worth more than
+salvage.
+
+Why it went, in its own words: `corsair_smugglers` needed a coast the frontier
+doesn't have (the same mistake that got `smuggler_deal` parked); `khorvani_caravan`,
+`zahkari_expedition` and `tianzhou_scholar` staged expeditions from three distant
+cultures across a frontier the setting doc calls isolated with thin, dangerous
+trade; `corrupt_official`, `intercept_courier` and `rival_settlement` ran political
+intrigue past a settlement of six people in a clearing; and `monster_hunt`,
+`deep_forest` and `bandit_camp` could have belonged to any fantasy game. **Zero of
+the 22 had a map pin**, which is most of what made the "Close to home" dock feel
+load-bearing.
+
+**Gone with them:** dire_bear, gharkal_raider, ghoul, giant_rat, goblin_scout,
+necromancer_acolyte, skeleton_archer, swamp_revenant · 11 materials · 10 recipes
+and the gear they made (dragonbone sword, wyrmscale armour and greaves, trollhide
+boots and cloak, cursed blade, dragonfire ring, orc cleaver, warlord chain, war
+banner).
+
+**Consequence:** guild level 2 has no tier of its own now. Level-2 players draw
+the same novice and side-chain pool as level 1 (the board filters on
+`minGuildLevel <= guildLevel`, so nothing breaks — the tier is simply empty until
+it's rewritten).
+

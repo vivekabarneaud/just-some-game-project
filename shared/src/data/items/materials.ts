@@ -29,16 +29,6 @@ export const MATERIALS: MaterialDefinition[] = [
     description: "Peeled from a cave spider's back. Light as wood, hard as iron.",
     category: "hide", tier: 2,
   },
-  {
-    id: "trollhide", name: "Trollhide", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/materials/trollhide.png", icon: "🧌",
-    description: "Still warm hours after skinning. The regeneration lingers in the leather.",
-    category: "hide", tier: 3,
-  },
-  {
-    id: "wyrmshell_plate", name: "Wyrmshell Plate", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/materials/wyrmshell_plate.png", icon: "🐉",
-    description: "A dragon scale the size of a dinner plate. Forge-resistant, you'll need dragonfire to shape it.",
-    category: "hide", tier: 3,
-  },
 
   // ── Bone & Sinew ─────────────────────────────────────────────
   {
@@ -60,11 +50,6 @@ export const MATERIALS: MaterialDefinition[] = [
     id: "fang", name: "Fang", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/materials/fang.png", icon: "🦷",
     description: "Long, curved, and still sharp. The Zah'kari string them on necklaces for courage.",
     category: "bone", tier: 1,
-  },
-  {
-    id: "dragon_fang", name: "Dragon Fang", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/materials/dragon_fang.png", icon: "🦷",
-    description: "Hot to the touch even weeks after extraction. A Blacksmith's dream, and nightmare.",
-    category: "bone", tier: 4,
   },
 
   // ── Metal & Salvage ──────────────────────────────────────────
@@ -88,23 +73,8 @@ export const MATERIALS: MaterialDefinition[] = [
     description: "Rusty, chipped, but serviceable. Melt it down and the iron remembers its shape.",
     category: "metal", tier: 1,
   },
-  {
-    id: "cursed_iron", name: "Cursed Iron", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/materials/cursed_iron.png", icon: "⛓️",
-    description: "Taken from an undead archer's quiver. Cold to the touch, always. The Blacksmith says it holds an edge forever.",
-    category: "metal", tier: 2,
-  },
-  {
-    id: "orc_steel", name: "Orc Steel", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/materials/orc_steel.png", icon: "⚔️",
-    description: "Crude but brutally effective. Heavier than Dominion steel, with an ugly green tint.",
-    category: "metal", tier: 2,
-  },
 
   // ── Cloth & Thread ───────────────────────────────────────────
-  {
-    id: "torn_banner", name: "Torn Banner", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/materials/torn_banner.png", icon: "🏴",
-    description: "Ripped from an orc warlord's standard. The dye is surprisingly fine, the Tailors can work with this.",
-    category: "cloth", tier: 2,
-  },
   {
     id: "ghostweave", name: "Ghostweave", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/materials/ghostweave.png", icon: "🕸️",
     description: "Thread spun from spectral residue. Nearly invisible, cold as moonlight, and impossibly strong.",
@@ -122,21 +92,6 @@ export const MATERIALS: MaterialDefinition[] = [
     description: "Grey dust from where the dead walked. Alchemists say it stabilizes volatile mixtures. Nobody asks why.",
     category: "alchemy", tier: 2,
   },
-  {
-    id: "war_paint", name: "War Paint", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/materials/war_paint.png", icon: "🎨",
-    description: "Scraped from an orc's face. The pigment is mixed with something alchemical, it numbs the skin and dulls pain.",
-    category: "alchemy", tier: 2,
-  },
-  {
-    id: "dragon_blood", name: "Dragon Blood", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/materials/dragon_blood.png", icon: "🩸",
-    description: "Thick, hot, and luminous. A single vial can fuel a dozen potions. Handle with gloves.",
-    category: "alchemy", tier: 4,
-  },
-  {
-    id: "dragonfire_ash", name: "Dragonfire Ash", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/materials/dragonfire_ash.png", icon: "🔥",
-    description: "What's left after dragonfire burns the air itself. Smells like a forge and a thunderstorm had a child.",
-    category: "alchemy", tier: 2,
-  },
 
   // ── Enchanting Essences ──────────────────────────────────────
   {
@@ -149,20 +104,10 @@ export const MATERIALS: MaterialDefinition[] = [
     description: "A splinter of crystallized life-force. It pulses faintly. The Thornveil say it's not a thing, it's a person.",
     category: "enchanting", tier: 2,
   },
-  {
-    id: "shimmer", name: "Shimmer", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/materials/shimmer.png", icon: "✨",
-    description: "Pure Aether dust. Weightless, warm, and faintly luminous. The base ingredient for any serious enchantment.",
-    category: "enchanting", tier: 4,
-  },
 
   // ── Gems & Divine ────────────────────────────────────────────
 
   // ── Dragon-specific ──────────────────────────────────────────
-  {
-    id: "lichglass", name: "Lichglass", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/materials/lichglass.png", icon: "🔮",
-    description: "A fragment of a lich's phylactery. Looks like glass, feels like ice, and whispers equations when the moon is full.",
-    category: "enchanting", tier: 4,
-  },
 
   // ── New Materials — Content Expansion ──────────────────────────
 

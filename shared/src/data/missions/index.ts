@@ -30,19 +30,16 @@ export type { MissionPhase } from "./types.js";
 
 // ─── Mission pools ─────────────────────────────────────────────
 import { NOVICE_MISSIONS } from "./noviceMissions.js";
-import { APPRENTICE_MISSIONS } from "./apprenticeMissions.js";
 import { SIDE_CHAIN_MISSIONS } from "./sideChainMissions.js";
 import type { MissionTemplate } from "./types.js";
 
 export { NOVICE_MISSIONS } from "./noviceMissions.js";
-export { APPRENTICE_MISSIONS } from "./apprenticeMissions.js";
 export { EXPEDITION_POOL } from "./expeditions.js";
 export { SIDE_CHAIN_MISSIONS } from "./sideChainMissions.js";
 
 /** All regular (non-story) missions. */
 export const MISSION_POOL: MissionTemplate[] = [
   ...NOVICE_MISSIONS,
-  ...APPRENTICE_MISSIONS,
   ...SIDE_CHAIN_MISSIONS,
 ];
 

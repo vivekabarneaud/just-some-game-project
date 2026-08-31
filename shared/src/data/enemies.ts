@@ -210,19 +210,6 @@ export const ENEMIES: EnemyDefinition[] = [
   // ── Tier 1 — Common threats ───────────────────────────────────
   // Challenging for level 1-3 with no gear. Beatable with basic gear.
   {
-    id: "goblin_scout",
-    name: "Frontier Goblin",
-    icon: "👺",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/goblin_scout.png",
-    description: "Small, sneaky, and cowardly alone, but they never come alone. The frontier breeds them like flies.",
-    tier: 1,
-    stats: { str: 4, dex: 6, int: 2, vit: 6, wis: 2 },
-    tags: ["humanoid"],
-    loot: [
-      { type: "resource", resource: "gold", chance: 0.4, min: 2, max: 8 },
-    ],
-  },
-  {
     id: "bandit_thug",
     name: "Displaced Brigand",
     icon: "🗡️",
@@ -373,21 +360,6 @@ export const ENEMIES: EnemyDefinition[] = [
     aiTier: "feral"
   },
   {
-    id: "giant_rat",
-    name: "Ruin Rat",
-    icon: "🐀",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/giant_rat.png",
-    description: "Bloated and disease-ridden. They breed in every ruin the Sundering left behind.",
-    tier: 1,
-    stats: { str: 4, dex: 6, int: 1, vit: 5, wis: 1 },
-    tags: ["beast"],
-    loot: [
-      { type: "resource", resource: "meat", chance: 0.2, min: 1, max: 3 },
-      { type: "resource", resource: "gnawed_marrow", chance: 0.2, min: 1, max: 1 },
-    ],
-    aiTier: "feral"
-  },
-  {
     id: "skeleton",
     name: "Barrowfield Walker",
     icon: "💀",
@@ -500,41 +472,6 @@ export const ENEMIES: EnemyDefinition[] = [
 
   // ── Tier 2 — Organized threats ────────────────────────────────
   // Require level 4-6 WITH basic gear. Dangerous without.
-  {
-    id: "gharkal_raider",
-    name: "Ghar'kal Raider",
-    icon: "👹",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/orc_warrior.png",
-    description: "Broad-shouldered and battle-scarred. Driven north by the spreading Wastes, they fight for what land is left: kill or be displaced.",
-    tier: 2,
-    stats: { str: 18, dex: 7, int: 2, vit: 20, wis: 3 },
-    tags: ["humanoid"],
-    abilities: [
-      { id: "orc_warcry", name: "War Cry", icon: "📯", cooldown: 4, trigger: "always",
-        effect: { type: "buff_allies", stat: "str", pct: 20, rounds: 2 } },
-    ],
-    loot: [
-      { type: "resource", resource: "gold", chance: 0.5, min: 5, max: 15 },
-      { type: "resource", resource: "orc_steel", chance: 0.2, min: 1, max: 1 },
-      { type: "resource", resource: "war_paint", chance: 0.1, min: 1, max: 1 },
-    ],
-  },
-  {
-    id: "skeleton_archer",
-    name: "Barrowfield Archer",
-    icon: "🏹",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/skeleton_archer.png",
-    description: "Dead eyes, steady aim. Barrowfield archers who kept their skill past death. They never miss twice.",
-    tier: 2,
-    stats: { str: 6, dex: 16, int: 3, vit: 12, wis: 2 },
-    tags: ["undead"],
-    combatRole: "back",
-    loot: [
-      { type: "resource", resource: "cursed_iron", chance: 0.2, min: 1, max: 1 },
-      { type: "resource", resource: "bonewalk_shard", chance: 0.3, min: 1, max: 2 },
-    ],
-    aiTier: "feral"
-  },
   {
     id: "bandit_captain",
     name: "Dominion Deserter",
@@ -796,22 +733,6 @@ export const ENEMIES: EnemyDefinition[] = [
 
   // ── Tier 2 — New Organized Threats ──────────────────────────────
   {
-    id: "ghoul",
-    name: "Ghoul",
-    icon: "🧟",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/ghoul.png",
-    description: "Not quite undead, not quite alive. Something that ate the wrong corpse near the Wastes and became this. It remembers being human. It doesn't care.",
-    tier: 2,
-    stats: { str: 14, dex: 10, int: 4, vit: 16, wis: 3 },
-    tags: ["undead"],
-    abilities: [{ id: "paralyzing_touch", name: "Paralyzing Touch", icon: "🥶", cooldown: 3, trigger: "always", effect: { type: "debuff_target", stat: "dex", pct: 50, rounds: 1 } }],
-    loot: [
-      { type: "resource", resource: "ghoul_marrow", chance: 0.3, min: 1, max: 2 },
-      { type: "resource", resource: "grave_dust", chance: 0.2, min: 1, max: 2 },
-    ],
-    aiTier: "feral"
-  },
-  {
     id: "alpha_wolf",
     name: "Greyfang",
     icon: "🐺",
@@ -865,74 +786,6 @@ export const ENEMIES: EnemyDefinition[] = [
   },
 
   // ── Tier 3 — New Dangerous Foes ─────────────────────────────────
-  {
-    id: "necromancer_acolyte",
-    name: "Necromancer Acolyte",
-    icon: "💀",
-    description: "A student of the forbidden arts, too clever for their own good. They raise the dead not out of malice but curiosity. That's worse.",
-    tier: 3,
-    stats: { str: 8, dex: 10, int: 22, vit: 16, wis: 16 },
-    tags: ["humanoid", "undead", "magical"],
-    combatRole: "back",
-    boss: true,
-    abilities: [
-      { id: "raise_dead_acolyte", name: "Raise Dead", icon: "💀", cooldown: 5, trigger: "always", effect: { type: "summon", enemyId: "skeleton", count: 2 } },
-      { id: "dark_bolt_acolyte", name: "Dark Bolt", icon: "⚡", cooldown: 1, trigger: "always", effect: { type: "damage_mult", mult: 1.5, targets: 1 } },
-    ],
-    loot: [
-      { type: "resource", resource: "soul_shard", chance: 0.3, min: 1, max: 1 },
-      { type: "resource", resource: "grave_dust", chance: 0.4, min: 1, max: 3 },
-      { type: "resource", resource: "lichglass", chance: 0.1, min: 1, max: 1 },
-      { type: "resource", resource: "gold", chance: 0.6, min: 10, max: 30 },
-      { type: "resource", resource: "nettle", chance: 0.25, min: 1, max: 2 },
-      { type: "resource", resource: "nightbloom", chance: 0.1, min: 1, max: 1 },
-    ],
-    aiTier: "cunning"
-  },
-  {
-    id: "dire_bear",
-    name: "Dire Bear",
-    icon: "🐻",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/dire_bear.png",
-    description: "The old hunters call them 'mountain kings.' Twice the size of a forest bear, scarred from a lifetime of fighting everything, including other dire bears. This one has claimed your territory.",
-    tier: 3,
-    stats: { str: 24, dex: 8, int: 4, vit: 30, wis: 6 },
-    tags: ["beast"],
-    boss: true,
-    abilities: [
-      { id: "savage_maul", name: "Savage Maul", icon: "🐾", cooldown: 2, trigger: "always", effect: { type: "damage_mult", mult: 2.0, targets: 1 } },
-      { id: "roar", name: "Roar", icon: "🗣️", cooldown: 4, trigger: "round_start", effect: { type: "debuff_target", stat: "dex", pct: 30, rounds: 2 } },
-    ],
-    loot: [
-      { type: "resource", resource: "thick_pelt", chance: 0.8, min: 2, max: 4 },
-      { type: "resource", resource: "bear_claw", chance: 0.6, min: 1, max: 3 },
-      { type: "resource", resource: "beast_heart", chance: 0.15, min: 1, max: 1 },
-      { type: "resource", resource: "meat", chance: 0.9, min: 8, max: 20 },
-      { type: "item", itemId: "beast_heart_charm", chance: 0.08 },
-    ],
-    aiTier: "feral"
-  },
-  {
-    id: "swamp_revenant",
-    name: "Swamp Revenant",
-    icon: "👻",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/swamp_revenant.png",
-    description: "Something drowned in the bog and didn't stay down. It rises from the black water trailing weeds and old rage. The locals say it's a Dominion soldier who deserted and was executed by his own unit.",
-    tier: 3,
-    stats: { str: 14, dex: 8, int: 14, vit: 20, wis: 10 },
-    tags: ["undead", "ghost"],
-    abilities: [
-      { id: "drain_life", name: "Drain Life", icon: "💜", cooldown: 2, trigger: "always", effect: { type: "damage_mult", mult: 1.3, targets: 1 } },
-    ],
-    loot: [
-      { type: "resource", resource: "ghostweave", chance: 0.15, min: 1, max: 1 },
-      { type: "resource", resource: "grave_dust", chance: 0.3, min: 1, max: 2 },
-      { type: "resource", resource: "snake_oil", chance: 0.2, min: 1, max: 1 },
-      { type: "resource", resource: "mugwort", chance: 0.2, min: 1, max: 1 },
-      { type: "resource", resource: "nettle", chance: 0.15, min: 1, max: 1 },
-    ],
-    aiTier: "feral"
-  },
 
   // ── Tier 4 — New Elite Threats ──────────────────────────────────
 ];

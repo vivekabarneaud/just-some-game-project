@@ -5,7 +5,6 @@ import { getHerb } from "../herbs.js";
 import type { MissionReward, MissionTemplate, MissionTag, MissionRequirements, AdventurerMissionSupplies } from "./types.js";
 import type { Season } from "../../gameState.js";
 import { NOVICE_MISSIONS } from "./noviceMissions.js";
-import { APPRENTICE_MISSIONS } from "./apprenticeMissions.js";
 import { STORY_MISSIONS } from "./storyMissions.js";
 import { EXPEDITION_POOL } from "./expeditions.js";
 import { SIDE_CHAIN_MISSIONS } from "./sideChainMissions.js";
@@ -15,7 +14,6 @@ import { SIDE_CHAIN_MISSIONS } from "./sideChainMissions.js";
  *  this back into a ROTATION_POOL (rotation only) + ALL_MISSIONS (lookup). */
 const ALL_MISSIONS: MissionTemplate[] = [
   ...NOVICE_MISSIONS,
-  ...APPRENTICE_MISSIONS,
   // Side-story chains: rank-neutral (getMissionRank returns undefined), so the
   // board quota treats them like story/expedition content — always eligible
   // when their gates open, balanced by their own difficulty, never tier-filed.
@@ -120,7 +118,6 @@ export type MissionRank = "novice" | "apprentice" | "journeyman" | "veteran" | "
  */
 export function getMissionRank(missionId: string): MissionRank | undefined {
   if (NOVICE_MISSIONS.some((m) => m.id === missionId)) return "novice";
-  if (APPRENTICE_MISSIONS.some((m) => m.id === missionId)) return "apprentice";
   if (STORY_MISSIONS.some((m) => m.id === missionId)) return "story";
   if (EXPEDITION_POOL.some((m) => m.id === missionId)) return "expedition";
   return undefined;
