@@ -49,7 +49,7 @@
 
 ## Tier 3 — Dead weight (deletion)
 
-*Swept 2026-08-31 on `chore/big-cleanup`: 3.2 / 3.3 / 3.4 / 3.6 / 3.8 closed. 51
+*Swept 2026-08-31 on `chore/big-cleanup`: 3.1 / 3.2 / 3.3 / 3.4 / 3.5 / 3.6 / 3.8 closed, 3.9 partly. 51
 dead symbols and 4 dead files removed (~640 lines), compiler-verified at every
 step. Method note: a "zero references" scan flags two very different things —
 truly dead code, and code that is merely over-exported (used inside its own
@@ -59,11 +59,11 @@ unused **declaration**: this sweep's first attempt removed
 call was the whole point. Unused **imports** are safe to automate; unused
 declarations are not.*
 
-- [ ] **3.1 Unreachable migration code** in the server-load path (~3376-3585): chapter-pointer bumps, orchard shape migration, multi-hive collapse, legacy fruit split, 3→11-slot equipment migration, chapel→shrine rename — all behind the `saveVersion === SAVE_VERSION` guard whose own comment says no backfills are needed. Plus the adventurer-only dup-id re-fix (~3574) that `migrateSaveState` already does. *M (mostly deletion).*
+- [x] **3.1 Unreachable migration code** in the server-load path (~3376-3585): chapter-pointer bumps, orchard shape migration, multi-hive collapse, legacy fruit split, 3→11-slot equipment migration, chapel→shrine rename — all behind the `saveVersion === SAVE_VERSION` guard whose own comment says no backfills are needed. Plus the adventurer-only dup-id re-fix (~3574) that `migrateSaveState` already does. *M (mostly deletion).*
 - [x] **3.2 Leftover migration helpers, zero call sites:** `data/citizens.ts:141 migrateLegacyPopulation`, `data/foods.ts:254 migrateFoodsFromLegacy`, `data/defenses.ts:174 distributeLegacyGarrison`. *S.*
 - [x] **3.3 `pages/chronicle/ChronicleLore.tsx`** — 99 lines, never imported/routed. *S.*
 - [x] **3.4 Dead random-recruitment subsystem** in `shared/src/data/adventurers.ts:846-1003` (`generateCandidate`, `getCandidateCount`, `getRecruitCost`, `getMaxRecruitRank`, `RECRUIT_REFRESH_HOURS`, `MISSION_REFRESH_HOURS`) — superseded by the premade roster. *S.*
-- [ ] **3.5 Write-only/unused GameState fields** (persisted for nothing): `ironMinedTotal`, `missionRefreshIn`, `lastDroughtKillYear`, `startingSuppliesGiven`, `foragedTotal`, `lastTradeAt`. Remove with a SAVE_VERSION bump. *S.*
+- [x] **3.5 Write-only/unused GameState fields** (persisted for nothing): `ironMinedTotal`, `missionRefreshIn`, `lastDroughtKillYear`, `startingSuppliesGiven`, `foragedTotal`, `lastTradeAt`. Remove with a SAVE_VERSION bump. *S.*
 - [x] **3.6 ~20 dead exports in `frontend/src/data/`** (quests query helpers, constants, orchards/gardens cost fns, climate, raids, seasons, animalFeed, founding_characters, chronicle_entries, sounds — full list in the sweep). Verify `getSaplingCost`/`getSeedCost` were folded inline before deleting. *S.*
 - [ ] **3.7 ~171 dead CSS classes (~1,650 lines, ~24% of global.css)** — dead subsystems include the login deed/notice-board art (`.lg-*` ~5683-5935), `.trade-*`, `.gear-inv-card-*`, `.team-adv-*`, `.raid-report-*`, `.mission-slot-*`, `.supply-slot-*`, `.crop-option-*`, `.field-card-*`, `.building-detail-*`, `.cost-grid`, `.shrine-deity-card`, `.parchment-card`, `.quest-rewards`. Grep each name before cutting (no dynamic class construction found except `weather-${}`). *L but mechanical.*
 - [x] **3.8 Dead shared exports** (`MAX_PENS`, pen cost consts, `WOOL_SEASON_MOD`, `CULL_YIELD`, `ANIMAL_BUY_COST`, `getExotic`, `isExoticId`, `getAbility`, NPC consts `NIAMH`/`CORIN`/`TRUFFLE`, etc. — full list in sweep). *S.*
@@ -77,7 +77,7 @@ declarations are not.*
 - [ ] **4.4 Nothing typechecks `shared`; no CI.** `shared/package.json` has no scripts; zero tests in the package (tests of shared logic live in frontend); frontend `build` is bare `vite build` (no type errors surface); only backend runs `tsc --noEmit`; no `.github/workflows`. **Cheapest high-leverage fix on this list** — none of Tier 1 would have survived a CI that typechecked all three packages. *S.*
 - [ ] **4.5 `FoodItemType` can't reach shared.** Defined in `frontend/src/data/foods.ts`, so shared degrades to `string` (`CULL_MEAT: Record<AnimalId, string>`) and consumers re-cast. Move the type + item meta into shared (careful: name collision with shared's existing mission-consumable `FOOD_ITEMS`). Fixes 1.7/1.8's category and half of 4.3. *M.*
 - [ ] **4.6 Backend tick is a 4th production-rate implementation** (`backend/src/services/tick.ts:118-140`, self-described "simplified approximation") that the client overwrites anyway. Either hoist real rate math into shared or delete the approximation. *M.*
-- [ ] **4.7 tsconfig drift.** shared lacks `skipLibCheck`/`esModuleInterop`/`isolatedModules` (frontend enforces the latter — relevant for 4.2's re-exports: use `export type`); vestigial `outDir`/`declaration`; one extensionless import (`livestock.ts:1`). No shared base config. *S.*
+- [x] **4.7 tsconfig drift.** shared lacks `skipLibCheck`/`esModuleInterop`/`isolatedModules` (frontend enforces the latter — relevant for 4.2's re-exports: use `export type`); vestigial `outDir`/`declaration`; one extensionless import (`livestock.ts:1`). No shared base config. *S.*
 - [ ] **4.8 Big-file watch list (pain-driven only, per project rule):** `applyTicks` ~1,950 ln — the mission-resolution cluster (~4949-5613) is the painful part; `MissionAssemblyPanel.tsx` 1,744 ln (slot card written 2×, coop/solo interleaved); `Farming.tsx` 1,952 ln (4 near-identical cards → `FarmCardShell` + `useBuildable`); `Overview.tsx` 961 ln (zero extracted components); `AdventurersGuild.tsx` / `BuildingModal.tsx` (~900 each, clean seams noted in sweep). Split only when next working in them.
 
 ## CSS appendix (beyond 1.9 / 2.4 / 3.7)

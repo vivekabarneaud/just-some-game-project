@@ -374,7 +374,6 @@ export interface GameState {
    *  when their seed/cutting is acquired). */
   fruitsUnlocked: FruitId[];
   /** Last world-year a drought plant-kill was applied — so it fires once/year. */
-  lastDroughtKillYear?: number;
   /** Cumulative garden plants killed by environmental stress (heat/drown/thirst),
    *  and the most recent cause; the away digest diffs the count. */
   plantsWiltedEnv?: number;
@@ -412,7 +411,6 @@ export interface GameState {
   activeMissions: ActiveMission[];
   completedMissions: CompletedMission[];
   missionBoard: MissionTemplate[];
-  missionRefreshIn: number;
   // Harvest tracking
   yearHarvest: Record<string, number>;
   // Materials & Crafting
@@ -428,7 +426,6 @@ export interface GameState {
   armor: number;
   potions: number;
   gems: number;
-  ironMinedTotal: number;
   herbs: Record<string, number>;
   foragedTotal: number;
   discoveredRecipes: string[];

@@ -766,7 +766,6 @@ export interface GameState {
    *  when their seed/cutting is acquired). */
   fruitsUnlocked: FruitId[];
   /** Last world-year a drought plant-kill was applied — so it fires once/year. */
-  lastDroughtKillYear?: number;
   /** Cumulative garden plants killed by environmental stress (heat / drowning /
    *  thirst). The away digest diffs this to report how many wilted offline. */
   plantsWiltedEnv?: number;
@@ -837,7 +836,6 @@ export interface GameState {
    *  reroll). See SCARCITY_ONCE_PER_BOARD. */
   scarcityDoneThisBoard?: string[];
   missionBoard: MissionTemplate[];
-  missionRefreshIn: number; // game-hours until next mission board refresh
   // Harvest tracking
   yearHarvest: Record<string, number>; // { "wheat": 120, "flax": 60 }
   // Materials & Crafting
@@ -854,7 +852,6 @@ export interface GameState {
   armor: number;
   potions: number;
   gems: number;
-  ironMinedTotal: number; // tracks total iron for gem proc
   // Herbs
   herbs: Record<string, number>; // { chamomile: 5, mugwort: 3, ... }
   foragedTotal: number; // tracks total food foraged for herb procs
@@ -878,7 +875,6 @@ export interface GameState {
   inventory: InventoryItem[];
   /** One-time flag so the starting medical supplies (bandages) are granted once
    *  — to new games and, via migration, to saves that predate them. */
-  startingSuppliesGiven?: boolean;
   craftingQueue: ActiveCraft[];
   /** Passive "keep cooking" assignments: buildingId → recipeId. While set, the
    *  building auto-re-crafts that recipe whenever it's idle and has ingredients
@@ -1515,7 +1511,6 @@ export function createInitialState(): GameState {
     armor: 0,
     potions: 0,
     gems: 0,
-    ironMinedTotal: 0,
     herbs: {},
     foragedTotal: 0,
     exotics: {},
@@ -1525,7 +1520,6 @@ export function createInitialState(): GameState {
     lastTradeAt: 0,
     // The crew arrived with basic medical supplies — bandages to take on missions.
     inventory: [{ itemId: "bandage", quantity: 5 }],
-    startingSuppliesGiven: true,
     craftingQueue: [],
     autoCook: {},
     buildingTools: {},
@@ -1547,7 +1541,6 @@ export function createInitialState(): GameState {
     missionCompletions: {},
     scarcityDoneThisBoard: [],
     missionBoard: [],
-    missionRefreshIn: 0,
     incomingRaids: [],
     hoursSinceLastRaid: 48, // start with 48h of calm
     raidsResolvedCount: 0,
