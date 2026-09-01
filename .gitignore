@@ -7,9 +7,11 @@ dist/
 .env.*
 frontend/public/images/
 
-# Source map sketch (heavy); web version lives in frontend/public/images/map/
-/IMG_0142.png
-/IMG_0143.png
+# Original art: heavy source sketches, deliberately never tracked.
+# Consolidated into art-sources/ on 2026-09-01 (was loose IMG_*.png in the repo
+# root and in public/images/frames). See art-sources/README.md — git has never
+# held these, so deleting them is permanent.
+art-sources/
 
 # Source map art (working files); processed web assets live in frontend/public/images/map/
 /IMG_01*.png
