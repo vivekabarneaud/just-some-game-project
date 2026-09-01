@@ -34,6 +34,46 @@ its line — the code becomes the documentation.
 - **Per-dish gold value** — a sell hook for cooked dishes (Kitchen phase C2c).
 - **Rarity frames on dish cards** — quality tint + ornament frame, matching the item cards.
 
+### Kitchen: the implementation batch (parked 2026-09-01)
+
+Everything designed on 2026-08-31 is parked as ideas on purpose, to be built in
+one pass rather than piecemeal. In dependency order:
+
+**Needs nothing. Buildable the moment someone wants to:**
+
+- [ ] `Fried Mushrooms` — one entry, `FOOD_GROUPS.mushroom` already exists, so it
+      covers field mushroom, morel, chanterelle and cepe at once.
+- [ ] `Roast Bolete Caps` — single ingredient, deliberately.
+- [ ] `Bolete Caps and Barley` — bolete roasted + barley boiled. Uncovered today
+      because Mushroom Pottage is boiled on both sides.
+
+**Engine work the rest leans on** (each pays off across every future dish, so
+worth doing before authoring in bulk):
+
+- [ ] **Modifiers as a class** — generalise the existing spice mechanic (required
+      slot = identity, extra = harmless garnish) from "spices" to fat, dairy,
+      flour and spices. This is what makes adding milk to a dish harmless.
+- [ ] **Garnish tolerance for one extra body** — without it a one-slot dish can
+      never match a two-body pot, which is why coverage is 2% at two ingredients
+      and 0% at three. Worth more than any number of new dishes.
+- [ ] **Fat as its own role**, so one slot accepts butter, lard or oil.
+- [ ] **Plain-tier names that name their own ingredient** — "Fried Chanterelles"
+      when the pot holds only chanterelles, "Fried Mushrooms" when it's a mix.
+      One entry, concrete names.
+- [ ] **The rename pass** on the occupational names (list in the naming rule
+      section below).
+
+**Waits on the flour wave** (The Works, on `feat/foraging-minigame`):
+
+- [ ] `Bolete Caps on Toast`, `Stuffed Bolete Caps`, `Breaded Parasol Caps`
+- [ ] and the parasol needs a foraging entry before any of it
+
+**Art:** no dish has a painting; all 67 use emoji, which are placeholder. They
+cluster into ~7 forms (pot 14, board 9, pie 6, fry 5, roast 3, skewer 3), so
+form-keyed art gives every dish — authored and plain-tier alike — a real image
+from a handful of paintings. TOTK does the same, roughly 15 models across
+hundreds of recipes. Special dishes can override with their own later.
+
 ### The flour wave (waiting on The Works)
 
 `The Works` is designed on `feat/foraging-minigame` (commit d6d6715) and unmerged:
