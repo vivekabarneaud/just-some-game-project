@@ -242,6 +242,42 @@ than any number of new dishes.
 
 ## Combat
 
+### Rescued from the assassin talent diagrams (deleted 2026-09-01)
+
+`docs/talents/` held five mermaid renders of a *class* talent tree, made 9 May
+and superseded by the per-character direction (only Godric is drawn). The
+diagrams are in git; these are the ideas worth keeping.
+
+**Two subclass directions off one entry node (Stealth Initiate):** *Venomancer*
+down the tricks-and-stealth branch, *Shadowblade* down the flurry-and-hunter
+branch.
+
+| talent | what it did |
+|---|---|
+| Ambush · Vanish | the spine, both active |
+| Exploit Weakness | ignores armour |
+| Pocket Sand · Smoke Bomb | actives, the tricks branch |
+| Slip the Eye | threat reduction |
+| The Flurry | combo attacks |
+| Opportunist | backstab passive |
+| Hunter's Eye (Shadow Instinct) | — |
+| Throat Crush | active |
+| No Honor (Dirty Fighting) | endgame capstone |
+
+Cross-links the diagram drew between branches, which is the part a flat list
+loses: Vanish feeds Slip the Eye (a stealth chain), Exploit Weakness feeds The
+Flurry (stun synergy), and Smoke Bomb feeds Opportunist (blind → backstab).
+
+**Two of these already exist elsewhere in the game**, which is why they're worth
+recording rather than forgetting:
+
+- **Opportunist** is already a targeting mode in the combat engine (isolation +
+  wounded weighting), so the passive has a mechanism waiting for it.
+- **Smoke Bomb** is the parked puffball idea by another name: a throwable that
+  turns any brew into an area effect. The talent and the item are the same
+  design arriving from two directions.
+
+
 - **Enchanted team scrolls** — five recipes, fully specced with exact ingredients and effects, in `design/combat/ENCHANTED_SCROLLS.md`. Parked because every one is gated behind Mage Tower 2+ and Act 1 has no reachable magic. Unpark when magic becomes player-facing.
 
 ## Later acts (pulled out of Act 1, 2026-08-31)
