@@ -8,8 +8,10 @@ import { getClimate, climateOverrideBand, type ClimateBand } from "./climate";
 //
 // Two-layer model (see docs/IDEAS.md (Weather)):
 //   Layer 1 — Ambient mood weather (THIS FILE, cosmetic only for now).
-//   Layer 2 — Natural events (drought / storm / blizzard) with mechanics. TODO.
-//   Layer 3 — Unnatural (aether) storms as a story tell. TODO, scripted + emergent.
+//   Layer 2 — Natural events with mechanics: heat waves + downpours ship here
+//     (crop kill / thirst / drowning), and the per-year climate band lives in
+//     climate.ts. Storm and blizzard mechanics are still unbuilt.
+//   Layer 3 — Unnatural (aether) storms as a story tell. Not built; scripted + emergent.
 //
 // Ambient weather is DERIVED from (season, progress, year) rather than stored,
 // so it costs nothing in the save file and needs no migration. It drifts on its

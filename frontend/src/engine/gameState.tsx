@@ -6364,7 +6364,6 @@ export function GameProvider(props: ParentProps) {
       return true;
     },
 
-    // Keep a guard dog with a pen (one-off gold cost) — stops wolf predation there.
 
     // Deliberate cull — the player's choice to slaughter for meat + leather.
     // Never automatic (the flock only shrinks otherwise via hunger/predation).
