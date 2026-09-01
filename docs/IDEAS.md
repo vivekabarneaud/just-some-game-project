@@ -242,6 +242,40 @@ than any number of new dishes.
 
 ## Combat
 
+### Lean Times pays out even when the boars get away (found in play 2026-09-01)
+
+`wild_boar_hunt` (display name **Lean Times**) grants a flat
+`{ resource: "boar", amount: 20 }` on success, and `wild_boar` has
+`routsAt: 0.3` — "a wild animal, breaks and flees when the fight turns against
+it". So the boars can escape and the larder still fills. The reward never looks
+at what happened in the fight.
+
+**Don't remove the rout.** A hunt where the quarry gets away is a real hunting
+outcome and a good story beat; the boar's own comment ("one devastating charge,
+then it fights or flees") is doing its job. What's wrong is the payout.
+
+**The distinction that matters, checked across all 11 food-reward missions whose
+enemies can rout:** ten of them are FINE, because the fleeing creature is an
+*obstacle*, not the food. The bear leaving the bee-tree, the wolves driven off
+the deer yard, the wolf scared away from the fold — in every one of those,
+fleeing IS the win. Only Lean Times has an animal that *is* the meat. So this is
+a one-mission fix, not a sweep, and the rule to remember is: **a food reward
+only conflicts with routing when the fleeing creature is the food itself.**
+
+Options, roughly in order of preference:
+
+1. **Meat per boar killed.** Both die → the full 20, one dies → 10, both escape
+   → nothing, and you learn to send a better team. Keeps the mission's job (it
+   exists to answer a famine *now*, so it can't become a coin flip) while making
+   the outcome honest.
+2. **Let the loot table do it.** The boar already drops meat (50%, 2-4). But two
+   boars yield roughly 0-8 against a flat 20, so this quietly turns the famine
+   answer into a gamble. Would need the drops rebalanced.
+3. **Boars don't rout on this mission.** A cornered boar charging is true to
+   life, and there's already a per-mission `noRetreat` idea banked for lethal
+   story beats. But it costs the nicest thing about the encounter.
+
+
 ### Rescued from the assassin talent diagrams (deleted 2026-09-01)
 
 `docs/talents/` held five mermaid renders of a *class* talent tree, made 9 May
