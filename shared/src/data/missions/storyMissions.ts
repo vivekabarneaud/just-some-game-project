@@ -39,14 +39,14 @@ export const STORY_MISSIONS: StoryMission[] = [
   // spine so they read as the main questline. `unique: true` is PRESERVED on all
   // three because every dependency keys off completedUniqueMissionIds, not this
   // array: the Hester director chain (awaitMissionDone), the Woodworker unlock,
-  // the spine quest-panel beats, and the Reeds side-chain (reeds_bargain requires
-  // marsh_clearing). Gating is translated to prerequisite / prerequisiteQuest.
+  // the spine quest-panel beats, and the Reeds side-chain (the_reeds_price requires
+  // clear_the_marshes). Gating is translated to prerequisite / prerequisiteQuest.
   {
     // Beat 2 — "Run Down" (Hester, beat 1 of the quiet Woodcutter arc). Gated on
     // the Baptism quest (which fires ch1_the_wall_held) so the watchtower Gareth
     // spots her from already stands. She is NOT recruited here — she flees; the
     // "the_woodcutter" director chain handles her return + the Woodworker unlock.
-    id: "hester_rescue",
+    id: "run_down",
     map: { x: 0.475, y: 0.541 },
     storyOrder: 2,
     prerequisite: "story_1_scouting",
@@ -71,10 +71,10 @@ export const STORY_MISSIONS: StoryMission[] = [
     // Beat 3 — "No One Followed". A low-threat patrol of our own approaches after
     // the rescue; completing it fires the ghost-puzzle chronicle and starts
     // Hester's timed return (handled by the_woodcutter director chain).
-    id: "quiet_the_woods",
+    id: "no_one_followed",
     map: { x: 0.48, y: 0.538 },
     storyOrder: 3,
-    prerequisite: "hester_rescue",
+    prerequisite: "run_down",
     chapter: "Chapter 1: Ashes and Dust",
     name: "No One Followed",
     description: "The chase left us uneasy. We put those men on their knees and let them walk, but they were armed and in our woods, and the woman we pulled out of it went into the trees without a word, a price on her we cannot guess and one word hanging off her we cannot unhear. Nobody says it plainly. Nobody sleeps easy either. Walk the approaches. Make sure that crew kept moving, that nothing and no one followed us home, and come back able to tell the camp the woods are quiet. That is all we want to hear.",
@@ -94,12 +94,12 @@ export const STORY_MISSIONS: StoryMission[] = [
   {
     // Beat 4 — "Clear the Marshes", the first fenbalm gathering. A quiet survival
     // errand that innocuously opens the slow-burn Reeds/bog-witch side-chain
-    // (reeds_bargain gates on this via completedUniqueMissionIds). Gated behind
+    // (the_reeds_price gates on this via completedUniqueMissionIds). Gated behind
     // No One Followed so it lands in sequence, not early.
-    id: "marsh_clearing",
+    id: "clear_the_marshes",
     map: { x: 0.424, y: 0.604 },
     storyOrder: 4,
-    prerequisite: "quiet_the_woods",
+    prerequisite: "no_one_followed",
     chapter: "Chapter 1: Ashes and Dust",
     name: "Clear the Marshes",
     description: "Edda needs fenbalm before the winter fevers come, and it grows nowhere but the wet ground past the reeds. The trouble is the adders, long as a man and quick to strike, that have made the fen their own. She is too old for the fen herself, and we will not put a marsh to the sword for being a marsh. Go in along the firm ground, cut what she needs, turn back the snakes that come at you, and leave the fen to its keepers.",
@@ -125,7 +125,7 @@ export const STORY_MISSIONS: StoryMission[] = [
     id: "bad_blood",
     map: { x: 0.49, y: 0.561 },
     storyOrder: 4.5,
-    prerequisite: "marsh_clearing",
+    prerequisite: "clear_the_marshes",
     prerequisiteQuest: "slow_venom",
     chapter: "Chapter 1: Ashes and Dust",
     name: "Bad Blood",

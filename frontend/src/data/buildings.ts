@@ -56,7 +56,7 @@ type BuildingUnlockGate =
     }
   | { requiresBuildings: string[] }
   | { requiresQuestTriggered: string }
-  | { requiresMissionDone: string }  // a unique/side-chain mission completed (e.g. Hester's "hester_rescue" → unlocks the Woodworker)
+  | { requiresMissionDone: string }  // a unique/side-chain mission completed (e.g. Hester's "run_down" → unlocks the Woodworker)
   | { requiresPremade: string };  // a premade adventurer is on the roster (e.g. char_019 Hester joins → unlocks the Woodworker)
 
 export interface BuildingDefinition {
@@ -494,7 +494,7 @@ export const BUILDINGS: BuildingDefinition[] = [
     // her rescue (Beat 1) → uneasy patrol "No One Followed" (Beat 2a) → she
     // returns and is recruited (Beat 2b, char_019). The Woodworker opens the
     // moment she joins — Jory moves to the bench, Hester takes the Lumber Mill.
-    // (Was gated on quiet_the_woods / Beat 2a, which opened it before she was
+    // (Was gated on no_one_followed / Beat 2a, which opened it before she was
     // even revealed.) See docs/cast/hester-ironbark.md.
     unlockedAt: { requiresPremade: "char_019" },
   },
@@ -803,7 +803,7 @@ export const BUILDINGS: BuildingDefinition[] = [
     // a venomed, undeployable adventurer with no way to build the lab that makes
     // the cure. Gating on the marsh is also the diegetic read: you cut fenbalm
     // for Edda, so she needs somewhere to brew it.
-    unlockedAt: { requiresMissionDone: "marsh_clearing" },
+    unlockedAt: { requiresMissionDone: "clear_the_marshes" },
   },
   {
     id: "enchanting_shop",

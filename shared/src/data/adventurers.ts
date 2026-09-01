@@ -299,7 +299,7 @@ export interface ArrivalContext {
   guildBuilt: boolean;
   completedStoryMissions: readonly string[];
   completedQuests: readonly string[];
-  /** Unique/side-chain missions completed (e.g. Hester's "hester_rescue"). */
+  /** Unique/side-chain missions completed (e.g. Hester's "run_down"). */
   completedUniqueMissionIds: readonly string[];
   builtBuildingIds: ReadonlySet<string>;
   /** premadeId -> highest loyalty among recruited instances of that character */

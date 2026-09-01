@@ -8,8 +8,8 @@ const byId = (id: string) => MISSION_POOL.find((m) => m.id === id);
 
 describe("Quarry-spider gate missions", () => {
   it("clear_diggings_2/3 exist, are XP-only, and escalate in difficulty + venom", () => {
-    const l2 = byId("clear_diggings_2")!;
-    const l3 = byId("clear_diggings_3")!;
+    const l2 = byId("clear_the_diggings")!;
+    const l3 = byId("the_deeper_cut")!;
     expect(l2).toBeTruthy();
     expect(l3).toBeTruthy();
     expect(l2.rewards).toEqual([]); // XP only — the reward is the unlocked yield
@@ -30,16 +30,16 @@ describe("Quarry-spider gate missions", () => {
       buildings: [{ buildingId: "quarry", level: 3, damaged: false }],
     };
     const boardIds = new Set(generateMissionBoard(ctx).map((m) => m.id));
-    expect(boardIds.has("clear_diggings_2")).toBe(false);
-    expect(boardIds.has("clear_diggings_3")).toBe(false);
-    expect((byId("clear_diggings_2") as any).urgent).toBe(true);
-    expect((byId("clear_diggings_3") as any).urgent).toBe(true);
+    expect(boardIds.has("clear_the_diggings")).toBe(false);
+    expect(boardIds.has("the_deeper_cut")).toBe(false);
+    expect((byId("clear_the_diggings") as any).urgent).toBe(true);
+    expect((byId("the_deeper_cut") as any).urgent).toBe(true);
   });
 });
 
 describe("Wild Boar Hunt (food-scarcity mission)", () => {
   it("rewards boar, is urgent, and is forced-only (off the random board)", () => {
-    const hunt = byId("wild_boar_hunt")!;
+    const hunt = byId("lean_times")!;
     expect(hunt).toBeTruthy();
     expect(hunt.rewards?.some((r) => r.resource === "boar")).toBe(true);
     expect((hunt as any).urgent).toBe(true);
@@ -48,17 +48,17 @@ describe("Wild Boar Hunt (food-scarcity mission)", () => {
       guildLevel: 5, seed: 999, completedStoryMissions: [], completedUniqueMissionIds: [],
       buildings: [{ buildingId: "adventurers_guild", level: 3, damaged: false }],
     };
-    expect(new Set(generateMissionBoard(ctx).map((m) => m.id)).has("wild_boar_hunt")).toBe(false);
+    expect(new Set(generateMissionBoard(ctx).map((m) => m.id)).has("lean_times")).toBe(false);
   });
 
   it("the Deer Yard is the winter alternate: meat, urgent, forced-only, vs wolves", () => {
-    const d = byId("deer_yard")!;
+    const d = byId("the_deer_yard")!;
     expect(d).toBeTruthy();
     expect(d.rewards?.some((r) => r.resource === "meat")).toBe(true);
     expect((d as any).urgent).toBe(true);
     expect(d.encounters?.some((e) => e.enemyId === "gaunt_wolf" || e.enemyId === "starving_wolf")).toBe(true);
     const ctx: any = { guildLevel: 5, seed: 7, completedStoryMissions: [], completedUniqueMissionIds: [], buildings: [] };
-    expect(new Set(generateMissionBoard(ctx).map((m) => m.id)).has("deer_yard")).toBe(false);
+    expect(new Set(generateMissionBoard(ctx).map((m) => m.id)).has("the_deer_yard")).toBe(false);
   });
 
   it("every once-per-board id names a real, repeatable mission", () => {

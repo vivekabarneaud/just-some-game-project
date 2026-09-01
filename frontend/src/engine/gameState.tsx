@@ -1303,7 +1303,8 @@ const STORAGE_KEY = "medieval-realm-save";
 /** Bump this on ANY save-schema change. A loaded save whose version doesn't match
  *  is DISCARDED (fresh start) rather than migrated — "reset over migrations", so we
  *  don't carry backward-compat backfill code. Solo/alpha: disposable saves. */
-export const SAVE_VERSION = 2;  // 2: enemy + mission ids renamed to match display names (2026-08-31)
+export const SAVE_VERSION = 3;  // 3: 26 more mission ids renamed to match display names (2026-09-01)
+// 2: enemy + mission ids renamed to match display names (2026-08-31)
 /** Dev-only manual snapshot slot — a copy of the save blob the player can stash
  *  and roll back to while testing. Separate from the live save key. */
 const SNAPSHOT_KEY = "medieval-realm-dev-snapshot";
@@ -3061,10 +3062,10 @@ const WATER_FETCH_HOURS = 8;
  *  they're the soft-lock recovery valve (no mill/marketplace and nothing
  *  left), and they only fire while the player is genuinely broke. */
 export const SCARCITY_ONCE_PER_BOARD = new Set([
-  "wild_boar_hunt",
-  "deer_yard",
-  "north_stream",
-  "fill_barrels",
+  "lean_times",
+  "the_deer_yard",
+  "the_north_stream",
+  "fill_the_barrels",
 ]);
 /** Hours of continuous starvation for the work penalty to reach its floor, and
  *  the floor itself (10% = a 90% cut to wood/stone/gold production). */
@@ -5342,7 +5343,7 @@ export function GameProvider(props: ParentProps) {
               // own — it needs a brewed Herbal Antidote (recipe unlocked here so the
               // cure is reachable). The Slow Venom quest keys off the venom condition
               // existing; the beat text names whoever's bitten.
-              if (success && am.missionId === "marsh_clearing") {
+              if (success && am.missionId === "clear_the_marshes") {
                 const bitten = am.adventurerIds
                   .map((id) => s.adventurers.find((a) => a.id === id))
                   .filter((a): a is Adventurer => !!a && a.alive && !a.conditions?.some((c) => c.type === "venom"))
@@ -5624,8 +5625,8 @@ export function GameProvider(props: ParentProps) {
               const hoursLeft = net < 0 ? getTotalFood(s.foods) / -net : Infinity;
               if (hoursLeft < WILD_BOAR_HUNT_FOOD_HOURS) {
                 const HUNTS: { id: string; season: string | null }[] = [
-                  { id: "wild_boar_hunt", season: null },
-                  { id: "deer_yard", season: "winter" },
+                  { id: "lean_times", season: null },
+                  { id: "the_deer_yard", season: "winter" },
                 ];
                 const anyUp = HUNTS.some((h) => onBoard.has(h.id) || active.has(h.id));
                 const eligible = HUNTS.filter(
@@ -5646,10 +5647,10 @@ export function GameProvider(props: ParentProps) {
             {
               const net = s.netWaterPerHour ?? 0;
               const hoursLeft = net < 0 ? (s.resources.water ?? 0) / -net : Infinity;
-              const anyUp = onBoard.has("north_stream") || active.has("north_stream")
-                || onBoard.has("fill_barrels") || active.has("fill_barrels");
+              const anyUp = onBoard.has("the_north_stream") || active.has("the_north_stream")
+                || onBoard.has("fill_the_barrels") || active.has("fill_the_barrels");
               if (hoursLeft < WATER_FETCH_HOURS && !anyUp) {
-                forceMission(s.season === "summer" ? "north_stream" : "fill_barrels");
+                forceMission(s.season === "summer" ? "the_north_stream" : "fill_the_barrels");
               }
             }
           }

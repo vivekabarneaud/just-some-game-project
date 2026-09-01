@@ -19,7 +19,7 @@ export interface MapRegion {
 
 export const MAP_REGIONS: MapRegion[] = [
   { id: "near_fold",    mask: "/images/map/region_1.png", revealedBy: { missionDone: "story_1_scouting" } },  // near south / the fold
-  { id: "west_marsh",   mask: "/images/map/region_2.png", revealedBy: { missionDone: "marsh_clearing" } },    // west / the fen
+  { id: "west_marsh",   mask: "/images/map/region_2.png", revealedBy: { missionDone: "clear_the_marshes" } },    // west / the fen
   { id: "lammast_road", mask: "/images/map/region_3.png", revealedBy: { chronicleFired: "ch1_lammast_arrival" } }, // north-east / Lammast
   { id: "old_watch",    mask: "/images/map/region_4.png", revealedBy: { missionDone: "story_1_scouting" } },  // south / the Old Watch
   // The east reach stays FOGGED on purpose. Its old trigger (first_patrol) was

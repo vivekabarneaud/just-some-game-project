@@ -823,7 +823,7 @@ export const QUEST_DEFINITIONS: QuestDefinition[] = [
   {
     // Main-story beat 4: the payoff for holding the wall points Gareth's eyes
     // outward, and the first thing the watch turns up is a woman being run down.
-    // Breadcrumb into the Hester side-chain's opening mission (hester_rescue),
+    // Breadcrumb into the Hester side-chain's opening mission (run_down),
     // which is now gated on the wall-held chronicle so it lands right here.
     id: "spine_run_down",
     storyline: "story",
@@ -835,8 +835,8 @@ export const QUEST_DEFINITIONS: QuestDefinition[] = [
     objective: "Send a team to drive off the men",
     icon: "🪓",
     triggers: [{ type: "quest_completed", questId: "baptism_of_fire" }],
-    condition: (s) => (s.completedUniqueMissionIds ?? []).includes("hester_rescue"),
-    completedByMission: "hester_rescue",
+    condition: (s) => (s.completedUniqueMissionIds ?? []).includes("run_down"),
+    completedByMission: "run_down",
     rewards: [],
     targetPage: "/guild",
   },
@@ -855,8 +855,8 @@ export const QUEST_DEFINITIONS: QuestDefinition[] = [
     objective: "Walk the approaches and quiet the woods",
     icon: "🌲",
     triggers: [{ type: "quest_completed", questId: "spine_run_down" }],
-    condition: (s) => (s.completedUniqueMissionIds ?? []).includes("quiet_the_woods"),
-    completedByMission: "quiet_the_woods",
+    condition: (s) => (s.completedUniqueMissionIds ?? []).includes("no_one_followed"),
+    completedByMission: "no_one_followed",
     rewards: [],
     targetPage: "/guild",
   },
@@ -874,15 +874,15 @@ export const QUEST_DEFINITIONS: QuestDefinition[] = [
     objective: "Cut fenbalm from the marsh",
     icon: "🐍",
     triggers: [{ type: "quest_completed", questId: "spine_no_one_followed" }],
-    condition: (s) => (s.completedUniqueMissionIds ?? []).includes("marsh_clearing"),
-    completedByMission: "marsh_clearing",
+    condition: (s) => (s.completedUniqueMissionIds ?? []).includes("clear_the_marshes"),
+    completedByMission: "clear_the_marshes",
     rewards: [],
     targetPage: "/guild",
   },
   {
     // Ch1 BREATHER beat between the marsh (Aldith) and the next arrival. Whoever
     // took the worst adder-bite on Clear the Marshes comes home with a lingering
-    // venom that won't fade (applied by the marsh_clearing success script in
+    // venom that won't fade (applied by the clear_the_marshes success script in
     // gameState, which also unlocks the Herbal Antidote recipe). Cure them by
     // brewing + applying the antidote. narrativeFn names the venomed hero live
     // (pronoun-free; no gender field exists on the cast).

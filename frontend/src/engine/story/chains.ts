@@ -234,8 +234,8 @@ export const STORY_CHAINS: StoryChain[] = [
   {
     id: "the_woodcutter",
     run: (api) => {
-      api.awaitMissionDone("hester_rescue");     // Beat 1 (mission fires its chronicle)
-      api.awaitMissionDone("quiet_the_woods");   // Beat 2a (mission fires its chronicle)
+      api.awaitMissionDone("run_down");     // Beat 1 (mission fires its chronicle)
+      api.awaitMissionDone("no_one_followed");   // Beat 2a (mission fires its chronicle)
       api.awaitNextMorning("hesterReturn");   // she returns the next morning
       api.recruit("char_019");                   // she "returns" — Beat 2b
       api.fireChronicle("ch1_woodcutter");       // the reveal
@@ -249,7 +249,7 @@ export const STORY_CHAINS: StoryChain[] = [
   {
     id: "the_returning_trader",
     run: (api) => {
-      api.awaitMissionDone("merchant_escort_first");
+      api.awaitMissionDone("the_first_merchant");
       api.fireChronicleModal("ch1_cobb_returns");
     },
   },
@@ -286,28 +286,28 @@ export const STORY_CHAINS: StoryChain[] = [
     },
   },
   // ── The bog witch — opening drip (mystery only; the dark descent is deferred).
-  // marsh_clearing (an ordinary herb-errand) → a voice in the reeds offers a
-  // bargain; the barter (reeds_bargain) → the offering drifts + she mines the
+  // clear_the_marshes (an ordinary herb-errand) → a voice in the reeds offers a
+  // bargain; the barter (the_reeds_price) → the offering drifts + she mines the
   // gatherers for the settlement's secrets. Folk voice, two-track; the horror
   // (the Cabin, the letters, the child) comes later. See cast/aldith-the-bog-witch.md.
   {
     id: "the_bog_witch",
     run: (api) => {
-      api.awaitMissionDone("marsh_clearing");
+      api.awaitMissionDone("clear_the_marshes");
       api.fireChronicleModal("ch1_reeds_voice");
-      api.awaitMissionDone("reeds_bargain");
+      api.awaitMissionDone("the_reeds_price");
       api.fireChronicleModal("ch1_reeds_price");
-      // The barter becomes routine (fen_barter ×3) → the tea beat (she learns of
+      // The barter becomes routine (tea_at_aldiths ×3) → the tea beat (she learns of
       // Nell, cozy on the surface). Then the asking drifts into a recipe: a
       // symbolic count of parts, shrinking in number and worsening in kind —
       // three tusks, two hooves, one skull. Each is a light card; the pattern is
       // the horror. At the skull the Lord draws a line (grain only), and the
       // decision beat fires. The dark descent stays deferred.
-      api.awaitMissionCount("fen_barter", 3);
+      api.awaitMissionCount("tea_at_aldiths", 3);
       api.fireChronicleModal("ch1_reeds_tea");
-      api.awaitMissionDone("reeds_tusks");
-      api.awaitMissionDone("reeds_hooves");
-      api.awaitMissionDone("reeds_skull");
+      api.awaitMissionDone("three_tusks");
+      api.awaitMissionDone("two_hooves");
+      api.awaitMissionDone("one_skull");
       api.fireChronicleModal("ch1_reeds_doubt");
     },
   },
@@ -357,14 +357,14 @@ export const STORY_CHAINS: StoryChain[] = [
   {
     id: "lammast",
     run: (api) => {
-      // Its OWN beat, one morning after "No One Followed" (quiet_the_woods).
+      // Its OWN beat, one morning after "No One Followed" (no_one_followed).
       // Previously this shared the Baptism of Fire claim with the quest-attached
       // "The wall held" chronicle, and the two raced — Lammast stepped on the wall
       // beat. Landing it a couple of beats later (wolves long past, the Hester
       // scare settled) gives the wall its own raid AND lets Lammast breathe as the
       // warmer "the neighbours have noticed us" moment. The wall/tower + hearth-
       // smoke that make us visible are well up by now, so the flavour still holds.
-      api.awaitMissionDone("quiet_the_woods");
+      api.awaitMissionDone("no_one_followed");
       api.awaitNextMorning("lammastArrival");
       api.fireChronicleModal("ch1_lammast_arrival");
     },
@@ -394,20 +394,20 @@ export const STORY_CHAINS: StoryChain[] = [
 
   // ── The Fold: Truffle takes his post → the pack learns → Greyfang mauls him → the hunt ──
   // He self-takes the fold when the kennel quest is claimed (he won't stay where
-  // you post him). The drive-offs (fold_vigil, repeatable) pile up; Nell keeps
+  // you post him). The drive-offs (a_wolf_at_the_fold, repeatable) pile up; Nell keeps
   // seeing the pale one at dusk and names him; the hunters confirm (night_howling,
-  // gated on 2 fold_vigils); the diversion maul (lost_flock) leaves Truffle
+  // gated on 2 fold_vigils); the diversion maul (wolves_at_the_wall) leaves Truffle
   // savaged — off his post, so the fold bleeds sheep until he mends. The hunt
-  // (alpha_wolf_hunt) fires its own aftermath chronicle on claim.
+  // (run_to_ground) fires its own aftermath chronicle on claim.
   {
     id: "the_fold",
     run: (api) => {
       api.awaitQuestClaimed("a_dog_without_a_home");
       api.assignDogToFold("Truffle");                  // he takes the fold himself
       api.fireChronicleModal("ch1_truffle_takes_fold");
-      api.awaitMissionCount("fold_vigil", 2);           // the drive-offs pile up
+      api.awaitMissionCount("a_wolf_at_the_fold", 2);           // the drive-offs pile up
       api.fireChronicleModal("ch1_greyfang");           // Nell's sightings, the name
-      api.awaitMissionDone("lost_flock");               // the maul (fires ch1_truffle_mauled)
+      api.awaitMissionDone("wolves_at_the_wall");               // the maul (fires ch1_truffle_mauled)
       api.woundDog("Truffle", "savaged", 48);           // savaged → off the fold → predation
     },
   },

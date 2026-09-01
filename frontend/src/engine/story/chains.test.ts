@@ -228,12 +228,12 @@ describe("real chains", () => {
     expect(s.chronicleEntriesFired).toEqual([]);
 
     // Rescue done — still awaiting the patrol.
-    s.completedUniqueMissionIds = ["hester_rescue"];
+    s.completedUniqueMissionIds = ["run_down"];
     runStoryChains(s, [chain], makeDeps(s, now0, log));
     expect(log).toEqual([]);
 
     // Patrol done — the "next morning" deadline is stamped (a future 3AM), no return yet.
-    s.completedUniqueMissionIds = ["hester_rescue", "quiet_the_woods"];
+    s.completedUniqueMissionIds = ["run_down", "no_one_followed"];
     runStoryChains(s, [chain], makeDeps(s, now0, log));
     const deadline = s.storyTimers!["the_woodcutter:hesterReturn"];
     expect(deadline).toBeGreaterThan(now0);
@@ -266,7 +266,7 @@ describe("real chains", () => {
     expect(s.pendingChronicleBeats).toEqual([]);
 
     // Escort completed — the "road opens" beat fires as a modal.
-    s.completedUniqueMissionIds = ["merchant_escort_first"];
+    s.completedUniqueMissionIds = ["the_first_merchant"];
     runStoryChains(s, [chain], makeDeps(s, 0, []));
     expect(s.chronicleEntriesFired).toEqual(["ch1_cobb_returns"]);
     expect(s.pendingChronicleBeats).toEqual(["ch1_cobb_returns"]);
@@ -309,34 +309,34 @@ describe("real chains", () => {
     expect(s.chronicleEntriesFired).toEqual([]);
 
     // Cleared the adders + got fenbalm — the bargaining voice beat lands.
-    s.completedUniqueMissionIds = ["marsh_clearing"];
+    s.completedUniqueMissionIds = ["clear_the_marshes"];
     runStoryChains(s, [chain], makeDeps(s, 0, []));
     expect(s.chronicleEntriesFired).toEqual(["ch1_reeds_voice"]);
 
     // Paid the offering (the barter) — the "what it cost" beat lands.
-    s.completedUniqueMissionIds = ["marsh_clearing", "reeds_bargain"];
+    s.completedUniqueMissionIds = ["clear_the_marshes", "the_reeds_price"];
     runStoryChains(s, [chain], makeDeps(s, 0, []));
     expect(s.chronicleEntriesFired).toEqual(["ch1_reeds_voice", "ch1_reeds_price"]);
 
     // Two routine barters — not yet three, so the drift beat holds.
-    s.missionCompletions = { fen_barter: 2 };
+    s.missionCompletions = { tea_at_aldiths: 2 };
     runStoryChains(s, [chain], makeDeps(s, 0, []));
     expect(s.chronicleEntriesFired).toEqual(["ch1_reeds_voice", "ch1_reeds_price"]);
 
     // Third routine barter — the tea beat lands (she learns of Nell); the drift
     // asks (tusks → hooves → skull) hold until each is delivered in turn.
-    s.missionCompletions = { fen_barter: 3 };
+    s.missionCompletions = { tea_at_aldiths: 3 };
     runStoryChains(s, [chain], makeDeps(s, 0, []));
     expect(s.chronicleEntriesFired).toContain("ch1_reeds_tea");
     expect(s.chronicleEntriesFired).not.toContain("ch1_reeds_doubt");
 
     // Fangs then hooves delivered — still no decision beat until the skull.
-    s.completedUniqueMissionIds = ["marsh_clearing", "reeds_bargain", "reeds_tusks", "reeds_hooves"];
+    s.completedUniqueMissionIds = ["clear_the_marshes", "the_reeds_price", "three_tusks", "two_hooves"];
     runStoryChains(s, [chain], makeDeps(s, 0, []));
     expect(s.chronicleEntriesFired).not.toContain("ch1_reeds_doubt");
 
     // Skull delivered — the line-drawing beat lands.
-    s.completedUniqueMissionIds = ["marsh_clearing", "reeds_bargain", "reeds_tusks", "reeds_hooves", "reeds_skull"];
+    s.completedUniqueMissionIds = ["clear_the_marshes", "the_reeds_price", "three_tusks", "two_hooves", "one_skull"];
     runStoryChains(s, [chain], makeDeps(s, 0, []));
     expect(s.chronicleEntriesFired).toEqual([
       "ch1_reeds_voice", "ch1_reeds_price", "ch1_reeds_tea", "ch1_reeds_doubt",

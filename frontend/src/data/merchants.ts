@@ -71,7 +71,7 @@ export const TRAVELING_MERCHANTS: TravelingMerchant[] = [
     // grown into a real village, "worth the wagon", not just a settled camp.
     requires: { thLevel: 3 },
     // His recurring stall begins once you've escorted his first real caravan in.
-    returnUnlock: { missionDone: "merchant_escort_first" },
+    returnUnlock: { missionDone: "the_first_merchant" },
   },
   {
     // The Lammast wagon: a mother-and-daughter carter pair from the farming
@@ -93,7 +93,7 @@ export const TRAVELING_MERCHANTS: TravelingMerchant[] = [
       { id: "grain_for_timber", label: "Grain bartered for our timber", give: "wood", giveAmount: 30, receive: "food", receiveAmount: 60 },
       { id: "lammast_buys_timber", label: "They'll take cut timber for Lammast's barns", give: "wood", giveAmount: 40, receive: "gold", receiveAmount: 30 },
     ],
-    returnUnlock: { missionDone: "boundary_stone" },
+    returnUnlock: { missionDone: "the_boundary_stone" },
   },
 ];
 

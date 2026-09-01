@@ -23,7 +23,7 @@ describe("The Bee-Tree (Old Honeypaw) — two-state arc", () => {
   });
 
   it("B is the recurring peaceful routine, gated on A + spring", () => {
-    const b = byId("bee_tree")!;
+    const b = byId("the_bee_tree")!;
     expect(b.unique).toBeFalsy(); // recurring
     expect(b.guaranteed).toBe(true); // peaceful, no fight
     expect(b.encounters ?? []).toHaveLength(0);
@@ -39,7 +39,7 @@ describe("The Bee-Tree (Old Honeypaw) — two-state arc", () => {
 
 describe("The Fish Run — simple recurring spring gather (no arc)", () => {
   it("is a peaceful spring-gated recurring gather rewarding fish", () => {
-    const f = byId("fish_run")!;
+    const f = byId("the_fish_run")!;
     expect(f.unique).toBeFalsy(); // recurring, no discovery arc
     expect(f.guaranteed).toBe(true);
     expect(f.encounters ?? []).toHaveLength(0);
@@ -51,7 +51,7 @@ describe("The Fish Run — simple recurring spring gather (no arc)", () => {
 
 describe("The Berry Thickets — simple recurring summer gather (no arc)", () => {
   it("is a peaceful summer-gated recurring gather rewarding berries", () => {
-    const b = byId("berry_thickets")!;
+    const b = byId("the_berry_thickets")!;
     expect(b.unique).toBeFalsy();
     expect(b.guaranteed).toBe(true);
     expect(b.encounters ?? []).toHaveLength(0);
@@ -73,7 +73,7 @@ describe("The Old Apple Tree — autumn gather, discovery → routine", () => {
   });
 
   it("B is the recurring autumn return, gated on A", () => {
-    const b = byId("apple_tree")!;
+    const b = byId("the_old_apple_tree")!;
     expect(b.unique).toBeFalsy();
     expect(b.guaranteed).toBe(true);
     expect(meetsRequirements(b.requires, ctx({ season: "autumn", completedUniqueMissionIds: [] }))).toBe(false);

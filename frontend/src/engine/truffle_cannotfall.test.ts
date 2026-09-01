@@ -13,7 +13,7 @@ describe("Truffle — the good boy cannot fall in the fold escorts", () => {
     buildRecruitFromPremadeId("b", "char_021", 3)!, // Godric, warrior
   ];
 
-  for (const missionId of ["fold_vigil", "night_howling"]) {
+  for (const missionId of ["a_wolf_at_the_fold", "night_howling"]) {
     it(`${missionId}: Truffle never goes down`, () => {
       const mission = NOVICE_MISSIONS.find((m) => m.id === missionId)!;
       let runs = 0, wins = 0, downed = 0, minHp = Infinity;

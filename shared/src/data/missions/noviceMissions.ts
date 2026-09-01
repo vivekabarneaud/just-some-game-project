@@ -42,7 +42,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
     requires: { season: "spring" },
   },
   {
-    id: "bee_tree",
+    id: "the_bee_tree",
     map: { x: 0.466, y: 0.595 }, // same bear mark (routine version)
     name: "The Bee-Tree",
     description: "Spring again, and the south hollow's bee-tree is heavy with comb. The bear is there too, the big one the gatherers drove off last year, watching from the far bank. He has learned, and so have we. Nell took to calling him Old Honeypaw, and the name stuck. Smoke the hive, cut what the settlement needs, and leave the rest on the stump for him. No trouble, so long as everyone keeps to the arrangement.",
@@ -82,7 +82,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
     requires: { season: "autumn" },
   },
   {
-    id: "apple_tree",
+    id: "the_old_apple_tree",
     map: { x: 0.486, y: 0.601 }, // same apple mark (routine version)
     name: "The Old Apple Tree",
     description: "Autumn again, and the old tree in the south hollow will be heavy with fruit as it always is. It has carried us through more than one lean winter now, and the folk speak of it almost fondly, the way you would an old neighbour who never asks for anything. Send the baskets down and bring the harvest home before the frost takes it.",
@@ -101,7 +101,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
   // ── The Fish Run (spring seasonal gather) — a simple recurring gather, no
   //    attachment arc. The spring spawning run: a bit of relief in the hungry gap. ──
   {
-    id: "fish_run",
+    id: "the_fish_run",
     map: { x: 0.496, y: 0.489 },
     name: "The Fish Run",
     description: "The winter stores are down to scrapings and the fields are still bare mud, but the stream past the north bend has come alive. The spring run is on, the water thick and silver with fish shouldering upstream to spawn, and it will not hold more than a few days. Send hands down with baskets and spears while it lasts. We take what we can carry and salt the rest against the lean weeks still to come.",
@@ -120,7 +120,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
   // ── The Berry Thickets (summer seasonal gather) — a simple recurring gather,
   //    no arc. High-summer plenty: easy pickings before they spoil. ──
   {
-    id: "berry_thickets",
+    id: "the_berry_thickets",
     map: { x: 0.499, y: 0.58 },
     name: "The Berry Thickets",
     description: "High summer, and the bramble thickets along the east ridge are hanging heavy: blackberries, bilberries, whatever the birds have not already stripped. It is easy work and good eating, but the fruit does not keep and the birds are quicker than we are, so it wants doing now, all hands and every basket we own. Send a party up to pick the ridge clean before the season turns.",
@@ -142,7 +142,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
   //    Frame it as competition, not slaughter (a bear only drops a hide if the
   //    team actually kills one; routed bears leave nothing). ──
   {
-    id: "salmon_run",
+    id: "the_salmon_run",
     map: { x: 0.532, y: 0.44 },
     name: "The Salmon Run",
     description: "The river is boiling with salmon driving upstream to spawn, a bounty that comes once and is gone in days. But we are not the only ones who know it. The bears have come down to the falls to fatten before the snow, and they do not care to share the water. Send a team to work the run and carry back all they can, and be ready to hold their ground at the falls.",
@@ -228,7 +228,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
     requires: { missionDone: "foraging_run_first" },
   },
 {
-    id: "merchant_escort_first",
+    id: "the_first_merchant",
     map: { x: 0.55, y: 0.46 }, // the boundary marker up the Lammast road
     name: "The First Merchant",
     description: "Cobb kept his word. He is coming back up the road, and not with two mules this time: a wagon, a real load, the first merchant to judge the way to us worth the risk. Meet him at the boundary marker and bring him in whole. The cargo matters less than what it means. We are on someone's map now.",
@@ -263,7 +263,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
     minGuildLevel: 1,
     tags: ["outdoor", "combat"],
     encounters: [{ enemyId: "displaced_brigand", count: 2 }],
-    requires: { missionDone: "merchant_escort_first" },
+    requires: { missionDone: "the_first_merchant" },
   },
 {
     id: "herb_gathering",
@@ -283,7 +283,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/herb_gathering.png",
   },
 {
-    id: "wide_berth",
+    id: "a_wide_berth",
     map: { x: 0.462, y: 0.583 },
     name: "A Wide Berth",
     description: "Word came back from the southern stand, white-faced, of a forest bear that has denned by the timber road, and there is talk of having it killed. As neighbours go, the bear has declared no war, levied no tax, and laid claim to nothing but the few trees it sleeps under, which is more courtesy than we get from most lords. We will not march on it for that. Mark the bounds of its little realm so no one wanders into its court uninvited, then steer our timber-cutting to a fresh stand well clear of it. There is no shortage of trees.",
@@ -300,7 +300,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
     unique: true,
   },
 {
-    id: "alpha_wolf_hunt",
+    id: "run_to_ground",
     map: { x: 0.53, y: 0.44 }, // Greyfang's den, up past the north gullies
     name: "Run to Ground",
     description: "Truffle will keep no watch for weeks, and the pale one is counting on it. He blinded us on purpose and drew off to wait, and when he comes again there will be no dog at the gate and no cry to wake the camp. We are not going to sit and wait for that. The scouts have marked his den up past the north gullies. Take the team and go to him before he comes to us. Cornered, he will not slink off as he has before; a wolf run to ground fights to the last, so go ready for a hard fight. Put an end to the pale one, and to the danger to the fold, so our people and our flock can sleep again. Bring everyone home.",
@@ -316,7 +316,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
     encounters: [{ enemyId: "greyfang", count: 1 }, { enemyId: "grey_wolf", count: 4 }],
     // Beat 4 — the hunt. Greyfang (alpha_wolf) fights to the death (no routsAt).
     sideChain: { id: "greyfang", name: "The Fold" },
-    requires: { pen: "sheep", missionDone: "lost_flock" },
+    requires: { pen: "sheep", missionDone: "wolves_at_the_wall" },
     unique: true, // one-time: the pack leader dies once, dropping ONE of fang/sinew
     chronicleEntryId: "ch1_greyfang_ended",
   },
@@ -348,12 +348,12 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
     sideChain: { id: "greyfang", name: "The Fold" },
     excludeCharacters: [{ premadeId: "char_005", reason: "At the watchtower, sounding the alarm" }],
     unique: true,
-    requires: { pen: "sheep", missionCount: { id: "fold_vigil", count: 2 } },
+    requires: { pen: "sheep", missionCount: { id: "a_wolf_at_the_fold", count: 2 } },
   },
 
   // ── Pre-scouting missions gated behind livestock pens ─────────
   {
-    id: "lost_flock",
+    id: "wolves_at_the_wall",
     map: { x: 0.505, y: 0.522 }, // the north wall of the settlement
     name: "Wolves at the Wall",
     description: "Gareth's horn is going: wolves at the north wall, a whole knot of them rushing the palisade bold as you please. It is not like them, they have been all patience and shadows until now, but there is no time to wonder at it with the pack at the gate. Rouse the team and get to the wall. Drive them back into the dark and let the camp get its breath.",
@@ -377,7 +377,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
     chronicleEntryId: "ch1_truffle_mauled",
   },
   {
-    id: "fold_vigil",
+    id: "a_wolf_at_the_fold",
     map: { x: 0.475, y: 0.55 }, // the fold, at the settlement
     name: "A Wolf at the Fold",
     description: "Truffle has made the fold his own, and it is well he did. There have been wolves at the pens these last nights, coming together and coming back, the same hour and the same wind each time, testing the fences and slinking off the moment he throws up his racket. He has held them alone so far, one dog facing the tree line, but that is a wager we will not leave him to make twice. Walk out with him after dark and put the pack back into the trees, while it still costs us nothing but sleep.",
