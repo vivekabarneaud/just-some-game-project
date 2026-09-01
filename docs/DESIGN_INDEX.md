@@ -20,6 +20,7 @@ docs/
   cast/       per-character canon, recruitable cast + NPCs
   art/        PROMPTS.md (what Act 1 needs) · CULTURES.md (later acts)
   story/      PLAYER_SCRIPT.md — Stories 2–13, dormant behind CH2_GATE
+  (talents/   retired 2026-09-01 — class trees superseded by per-character)
 ```
 
 The `DESIGN_` prefix is gone: it existed only because there was no folder to say

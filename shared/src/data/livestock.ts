@@ -1,3 +1,4 @@
+import type { FoodItemType } from "./pantry.js";
 import { growth } from "./farmingMath";
 
 export type AnimalId = "chickens" | "pigs" | "goats" | "sheep";
@@ -149,8 +150,8 @@ export function getCullYield(animal: AnimalId): CullYield {
 }
 
 /** Which specific meat an animal butchers into (post meat-split). String, not the
- *  frontend FoodItemType, since shared can't import it — callers cast/look it up. */
-export const CULL_MEAT: Record<AnimalId, string> = {
+ *  FoodItemType, now that it lives in shared (TECH_DEBT 4.5 closed). */
+export const CULL_MEAT: Record<AnimalId, FoodItemType> = {
   chickens: "chicken",
   goats: "goat",
   pigs: "pork",

@@ -234,26 +234,8 @@ export interface InventoryItem {
 
 // ─── Missions ───────────────────────────────────────────────────
 
-export type RewardType = "gold" | "wood" | "stone" | "water" | "food" | "astralShards"
-  // Typed foods (post-food-refactor missions use these directly)
-  | "wheat" | "barley"
-  | "cabbages" | "turnips" | "peas" | "squash" | "fava"
-  | "apples" | "pears" | "cherries"
-  | "meat" | "venison" | "boar" | "wisent" | "pork" | "mutton" | "goat" | "chicken" | "wild_fowl" | "rabbit"
-  | "eggs" | "milk"
-  | "fish" | "trout" | "pike" | "eel" | "salmon"
-  | "berries" | "mushrooms" | "nuts" | "honey"
-  // Herbs
-  | "chamomile" | "mugwort" | "nettle" | "nightbloom" | "moonpetal" | "greymantle" | "fenbalm"
-  // Exotic goods (caravan/escort drops only, non-growable)
-  | "pepper" | "cinnamon" | "tea" | "chili" | "saffron"
-  // Crafting materials (also drop via combat loot; can be guaranteed mission rewards too)
-  | "wolfhide_strip" | "fang" | "sinew_cord"
-  | "thick_pelt" | "bear_claw"
-  | "bristlehide" | "tusk_shard" | "boar_tusk" | "cloven_hoof" | "boar_skull"
-  | "chitin_plate" | "spinners_bile"
-  | "serpent_fang" | "snake_oil"
-  | "gnawed_marrow" | "bonewalk_shard";
+export type { RewardType } from "./data/rewards.js";
+import type { RewardType } from "./data/rewards.js";
 
 export interface MissionReward {
   resource: RewardType;

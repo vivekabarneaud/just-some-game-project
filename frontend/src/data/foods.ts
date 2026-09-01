@@ -2,17 +2,8 @@
 // Tracks individual food stockpiles. The pantry caps the TOTAL across all types.
 // Consumption is proportional — citizens eat from all types in proportion to stock.
 
-export type FoodItemType =
-  | "wheat" | "barley"
-  | "cabbages" | "turnips" | "peas" | "squash" | "fava"
-  | "apples" | "pears" | "cherries" | "strawberries"
-  | "venison" | "boar" | "wisent" | "pork" | "mutton" | "goat" | "chicken" | "wild_fowl" | "rabbit"
-  | "eggs" | "milk"
-  | "trout" | "pike" | "eel" | "salmon"
-  | "blackberry" | "blueberry" | "raspberry" | "nuts"
-  | "dandelion" | "sorrel" | "ramsons" | "wild_carrot"
-  | "field_mushroom" | "morel" | "chanterelle" | "cepe"
-  | "porridge" | "hearth_stew" | "river_stew" | "bone_broth";
+export type { FoodItemType } from "@medieval-realm/shared/data/pantry";
+import type { FoodItemType } from "@medieval-realm/shared/data/pantry";
 
 export type FoodCategoryId = "grain" | "veggie" | "fruit" | "animal" | "wild" | "cooked";
 

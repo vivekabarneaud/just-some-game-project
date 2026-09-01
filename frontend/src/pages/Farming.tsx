@@ -111,7 +111,7 @@ function MeatYield(props: { animal: AnimalId }) {
     <>
       <div style={{ "font-size": "0.9rem", color: "var(--text-secondary)" }}>🥩 raised for meat</div>
       <div style={{ "font-weight": 400, "font-size": "0.72rem", "margin-top": "3px", "line-height": 1.4 }}>
-        cull → +{cy().meat} {getFoodMeta(CULL_MEAT[props.animal] as FoodItemType).label.toLowerCase()}{extras() ? ` · ${extras()}` : ""}
+        cull → +{cy().meat} {getFoodMeta(CULL_MEAT[props.animal]).label.toLowerCase()}{extras() ? ` · ${extras()}` : ""}
       </div>
     </>
   );

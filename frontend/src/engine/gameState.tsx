@@ -6380,7 +6380,7 @@ export function GameProvider(props: ParentProps) {
         const caps = calcStorageCaps(s.buildings);
         if (!s.foods) s.foods = emptyFoods();
         // Each animal butchers to its own meat (pigs → pork, sheep → mutton, …).
-        const cullMeat = CULL_MEAT[pen.animal] as FoodItemType;
+        const cullMeat = CULL_MEAT[pen.animal];
         if (y.meat > 0) addFood(s.foods, cullMeat, y.meat * n, caps.food);
         if (y.leather > 0) s.leather = Math.min(craftingMaterialCap(s.buildings), s.leather + y.leather * n);
         if (y.bone > 0) s.bone = Math.min(craftingMaterialCap(s.buildings), s.bone + y.bone * n);
