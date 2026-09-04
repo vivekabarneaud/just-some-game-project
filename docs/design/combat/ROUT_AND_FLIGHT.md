@@ -1,7 +1,12 @@
 # Rout and flight
 
-- **Status:** designed 2026-09-04, unbuilt. Came out of playtesting Lean Times,
-  where the boars routed and the larder filled anyway.
+- **Status:** v1 BUILT 2026-09-04 (`feat/rout-and-flight`) — the fear styles,
+  flight as movement, threats-first targeting, the round-cap escape hatch, and
+  Lean Times paying in carcasses. `aiTier` is deleted. Still open: the
+  transformation/modifier bundle, `preferredAbilities` wiring, Nessa's tree, HP
+  regen — see "Deliberately NOT in v1".
+  Came out of playtesting Lean Times, where the boars routed and the larder
+  filled anyway.
 - **Cross-refs:** `shared/src/data/combat/ai/profile.ts` (the knobs),
   `ai/types.ts` (the state machine, built and unused), `retreat.ts` (morale +
   the hero-side flee), `round/actions.ts:98` (the beast rout check),
