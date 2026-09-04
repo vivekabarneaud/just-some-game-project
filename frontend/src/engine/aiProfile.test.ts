@@ -122,13 +122,29 @@ describe("the new targeting modes", () => {
   });
 
   it("opportunist takes the straggler — the one cut off from their line", () => {
-    const attacker = unit("wolf", { isEnemy: true, kind: "enemy", x: 0, combatRole: "back", threatTable: {}, ai: { targeting: "opportunist", tauntable: "obeys", fear: "withdraws" } });
-    // Two holding formation, one drifted far off on their own.
-    const tank = unit("tank", { x: 2, gearDefense: 400 });
-    const archer = unit("archer", { x: 5 });
-    const straggler = unit("straggler", { x: 60, gearDefense: 400 }); // armoured: softness must NOT decide this
+    // Positions are the REAL battlefield (POS: ally line ~18-32, enemy front 68),
+    // not a synthetic 0-vs-60 spread. That matters now: the reach factor
+    // discounts distance, where the old opportunist ignored it entirely, so a
+    // straggler on the far side of the field would rightly lose to the body in
+    // front of you. A straggler is someone who broke from THEIR line — which in
+    // practice means drifted toward the enemy, so isolation and proximity agree.
+    const attacker = unit("wolf", { isEnemy: true, kind: "enemy", x: 68, threatTable: {}, ai: { targeting: "opportunist", tauntable: "obeys", fear: "withdraws" } });
+    const tank = unit("tank", { x: 30, gearDefense: 400 });
+    const archer = unit("archer", { x: 24 });
+    const straggler = unit("straggler", { x: 52, gearDefense: 400 }); // armoured: softness must NOT decide this
     setCombatSeed(1);
     expect(pickTarget(attacker, [tank, archer, straggler])?.id).toBe("straggler");
+  });
+
+  it("...but a SLOW opportunist takes what is in front of it instead", () => {
+    // The reach factor is normalised by the attacker's own mobility, so the same
+    // weights produce different behaviour for different legs. This is the design
+    // property, asserted: a shambling thing cannot afford the straggler.
+    const slow = unit("shambler", { isEnemy: true, kind: "enemy", x: 68, dex: 1, threatTable: {}, ai: { targeting: "opportunist", tauntable: "obeys", fear: "fearless" } });
+    const tank = unit("tank", { x: 66, gearDefense: 400 });   // right on top of it
+    const straggler = unit("straggler", { x: 20 });            // isolated, but a long walk
+    setCombatSeed(1);
+    expect(pickTarget(slow, [tank, straggler])?.id).toBe("tank");
   });
 
   it("opportunist finishes the wounded when nobody is isolated", () => {
