@@ -65,7 +65,8 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
   //    each time the food runs low. Rewards meat (a hunt legitimately does), plus
   //    the wild boar's own loot. See docs/docs/design/combat/NOVICE_ITEMS.md §Boar missions. ──
   {
-    id: "lean_times", // rewards boar specifically (its only source)
+    id: "lean_times", // the boar meat comes from the boars (loot, not rewards):
+    // a fled boar feeds nobody. XP-only rewards, like the quarry-gate missions.
     map: { x: 0.458, y: 0.55 },
     name: "Lean Times",
     description: "The larder is down to scrapings and nothing is coming in. But Gareth came down off the watchtower swearing he had glassed a sounder of wild boar rooting the thornbrake past the old field: meat on four legs, enough to carry us a while yet. Send a team to bring some down before they move on. It is a fair hunt, not a cull. Take what the larder needs and let the rest run.",
@@ -73,7 +74,7 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/boar_hunt.png",
     slots: [{ class: "any" }, { class: "any" }],
     duration: 300, // a hunt out past the old field — quick, the larder can't wait
-    rewards: [{ resource: "boar", amount: 20 }],
+    rewards: [], // XP only — the meat is whatever the team brings down
     deployCost: 5,
     difficulty: 2,
     minGuildLevel: 1,

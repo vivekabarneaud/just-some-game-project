@@ -16,7 +16,7 @@ function reachable(attacker: CombatUnit, alive: CombatUnit[]): CombatUnit[] {
 
 /**
  * Enemy targeting — driven by the resolved `targeting` knob (see ai/profile.ts;
- * the legacy aiTier maps onto it exactly, so nothing shipped changes):
+ * every enemy authors it via the ai block, so nothing shipped changes):
  *   random      : any reachable target, erratically
  *   nearest     : the closest reachable target — what `feral` maps to
  *   threat      : scored pick (defense × wounded × threat) — the old `tactical`
@@ -158,8 +158,14 @@ function bestBy(pool: CombatUnit[], score: (u: CombatUnit) => number): CombatUni
 export function pickTargetForAdventurer(attacker: CombatUnit, targets: CombatUnit[]): CombatUnit | null {
   const alive = targets.filter((u) => u.hp > 0 && !u.fled);
   if (alive.length === 0) return null;
-  if (alive.length === 1) return alive[0];
-  return scoredPick(attacker, reachable(attacker, alive), 20, 0.15, 0);
+  // Threats first, runners after (ROUT_AND_FLIGHT): a fleeing enemy is ignored
+  // while anything is still fighting — nobody shoots the running boar while its
+  // mate is goring the line. Once only runners remain, the chase is the fight.
+  // (Nessa's future Pursuit talent = lifting this exclusion for her.)
+  const standing = alive.filter((u) => !u.fleeing);
+  const pool = standing.length > 0 ? standing : alive;
+  if (pool.length === 1) return pool[0];
+  return scoredPick(attacker, reachable(attacker, pool), 20, 0.15, 0);
 }
 
 /**

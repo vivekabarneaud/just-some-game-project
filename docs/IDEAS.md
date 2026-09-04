@@ -242,7 +242,7 @@ than any number of new dishes.
 
 ## Combat
 
-### Lean Times pays out even when the boars get away (found in play 2026-09-01)
+### ~~Lean Times pays out even when the boars get away~~ — RESOLVED 2026-09-04 (found in play 2026-09-01; fixed on `feat/rout-and-flight` — the mission is XP-only and the meat rides the boar's own guaranteed drop, so a fled boar feeds nobody. Rout itself became movement: `docs/design/combat/ROUT_AND_FLIGHT.md`)
 
 `wild_boar_hunt` (display name **Lean Times**) grants a flat
 `{ resource: "boar", amount: 20 }` on success, and `wild_boar` has

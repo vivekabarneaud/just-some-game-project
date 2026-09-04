@@ -99,8 +99,6 @@ export interface EnemyAbility {
 
 /** See combat/types.ts for the canonical definition. Re-declared here as a type
  *  alias to avoid a cross-package import (this file is leaf-level data). */
-export type EnemyAITier = "feral" | "tactical" | "cunning";
-export type EnemyTauntImmunity = "none" | "normal" | "all";
 
 export interface EnemyDefinition {
   id: string;
@@ -133,8 +131,8 @@ export interface EnemyDefinition {
   boss?: boolean;
   /** Combat-stage row: "back" for ranged/casters (they set up behind the line),
    *  "front" (default) for melee. Purely presentational — where the card sits in
-   *  the formation. Distinct from aiTier (targeting), which "cunning" enemies use
-   *  to hunt the player's own backline. */
+   *  the formation. Distinct from `ai.targeting`, which backline-hunters use to
+   *  chase the player's own support line. */
   combatRole?: "front" | "back";
   /** The settlement already knows this foe by reputation before ever fighting it
    *  (named in the journal, described by scouts, etc.). Its PORTRAIT + name show
@@ -142,15 +140,11 @@ export interface EnemyDefinition {
    *  hints) stays hidden until actually fought. Contrast the default: unknown
    *  creatures stay a "???" card until first encountered. */
   revealPortrait?: boolean;
-  /** Targeting style. Default "tactical" (threat-aware scored pick). Orthogonal to boss. */
-  /** Composable AI knobs (DESIGN_TIER1_ENEMIES §1). Author only the knobs that
-   *  make this creature distinct; anything omitted falls back to `aiTier` below
-   *  and then to the defaults. Preferred over `aiTier` for new enemies. */
+  /** Composable AI knobs (TIER1_ENEMIES §1 + ROUT_AND_FLIGHT). Author only the
+   *  knobs that make this creature distinct; anything omitted falls back to the
+   *  defaults (targeting "threat", tauntable "obeys", and fear inferred from
+   *  routsAt: no threshold = fearless, a threshold with no style = withdraws). */
   ai?: Partial<import("./combat/types.js").AIProfile>;
-  /** LEGACY single-tier targeting. Maps onto `ai.targeting` exactly. */
-  aiTier?: EnemyAITier;
-  /** Resistance to forced-target taunt effects. Default "none". */
-  tauntImmunity?: EnemyTauntImmunity;
   abilities?: EnemyAbility[];
   /** Pack tag (Combat Foundation, Flanker archetype): creatures sharing a `pack`
    *  string get **Pack Tactics** — a damage bonus when a packmate is also engaged
@@ -237,6 +231,7 @@ export const ENEMIES: EnemyDefinition[] = [
       { type: "item", itemId: "brigands_jerkin", chance: 0.08 }, // or a supple leather jerkin
       { type: "item", itemId: "stranger_signet", chance: 0.01 }, // the thrill jackpot: a dead traveller's luck-charm
     ],
+    ai: { fear: "yields" },
   },
   {
     id: "tollman",
@@ -262,6 +257,7 @@ export const ENEMIES: EnemyDefinition[] = [
       // Lucky (~12%): a fine leather coat, stashed in the camp, not on his back. Leather's rare.
       { type: "item", itemId: "reavers_leathers", chance: 0.12, keepOnRout: true },
     ],
+    ai: { fear: "yields" },
   },
   {
     // Weaker than a brigand — a hired tough, not a fighter. Comes in numbers
@@ -286,6 +282,7 @@ export const ENEMIES: EnemyDefinition[] = [
     loot: [
       { type: "resource", resource: "gold", chance: 0.35, min: 2, max: 6 },
     ],
+    ai: { fear: "yields" },
   },
   {
     id: "poacher",
@@ -307,6 +304,7 @@ export const ENEMIES: EnemyDefinition[] = [
       { type: "item", itemId: "poachers_bow", chance: 0.12 },
       { type: "item", itemId: "stranger_signet", chance: 0.01 }, // the thrill jackpot
     ],
+    ai: { fear: "yields" },
   },
   {
     id: "cutthroat",
@@ -316,7 +314,6 @@ export const ENEMIES: EnemyDefinition[] = [
     tier: 1,
     stats: { str: 6, dex: 7, int: 2, vit: 5, wis: 2 },
     tags: ["humanoid"],
-    aiTier: "cunning", // hunts the softest target it can reach
     abilities: [
       // Garrote: a strangling wire — a hit that leaves the victim choking, stunned.
       { id: "garrote", name: "Garrote", icon: "🪢", cooldown: 4, trigger: "always", effect: { type: "stun", rounds: 1 } },
@@ -328,6 +325,7 @@ export const ENEMIES: EnemyDefinition[] = [
       { type: "item", itemId: "fighting_knife", chance: 0.12 },
       { type: "item", itemId: "stranger_signet", chance: 0.01 }, // the thrill jackpot
     ],
+    ai: { targeting: "backline", fear: "yields" },
   },
   {
     id: "grey_wolf",
@@ -357,7 +355,7 @@ export const ENEMIES: EnemyDefinition[] = [
     raw: { mobility: 27, dodge: 5 }, // pack hunter — fast (~36 paces/turn, closes the field in ~1.5 rounds)
     elusiveAtRange: 25, // weaves through the arrows while it closes; commits at contact
     routsAt: 0.3, // a pack wolf breaks when the fight turns against it
-    aiTier: "feral"
+    ai: { targeting: "nearest", fear: "withdraws" },
   },
 
   // ── Tier 0 — True novice fodder ───────────────────────────────
@@ -389,7 +387,7 @@ export const ENEMIES: EnemyDefinition[] = [
     raw: { mobility: 20, dodge: 3 }, // lean yearling — quick and jumpy (~28 paces/turn)
     elusiveAtRange: 25, // jumpy and hard to pin while it closes
     routsAt: 0.35, // a nervous, starving yearling, breaks and runs easily
-    aiTier: "feral"
+    ai: { targeting: "nearest", fear: "withdraws" },
   },
   {
     // The runt of the pack — half-starved, barely more than skin and ribs. Weak
@@ -416,7 +414,7 @@ export const ENEMIES: EnemyDefinition[] = [
     raw: { mobility: 8 }, // spent and slow for a wolf, but still quicker than a boar (~16 paces/turn)
     elusiveAtRange: 15, // still weaves, but half-starved and easier to catch
     routsAt: 0.45, // barely holding together; breaks the moment it's hurt
-    aiTier: "feral"
+    ai: { targeting: "nearest", fear: "withdraws" },
   },
   {
     id: "wild_boar",
@@ -427,15 +425,20 @@ export const ENEMIES: EnemyDefinition[] = [
     stats: { str: 5, dex: 3, int: 1, vit: 6, wis: 1 }, // out-muscles + out-tanks a lone wolf
     tags: ["beast"],
     loot: [
-      // The clean, healthy boar: good meat + its full materials (hide, tusk-shards).
-      { type: "resource", resource: "meat", chance: 0.5, min: 2, max: 4 },
+      // The clean, healthy boar: the MEAT IS THE REWARD (ROUT_AND_FLIGHT). Lean
+      // Times pays nothing flat — a slain boar dresses out guaranteed, a fled
+      // one keeps its meat (no keepOnRout), so what reaches the larder is
+      // exactly what the hunters brought down. Two slain ≈ the old flat 20.
+      // Typed "boar", not generic "meat" (which grantReward deposits as
+      // venison) — hunting a boar should fill the boar shelf.
+      { type: "resource", resource: "boar", chance: 1, min: 8, max: 12 },
       { type: "resource", resource: "bristlehide", chance: 0.35, min: 1, max: 2 },
       { type: "resource", resource: "tusk_shard", chance: 0.8, min: 1, max: 2 },
       { type: "resource", resource: "boar_tusk", chance: 0.08, min: 1, max: 1 }, // rare: a tusk out clean
     ],
     charge: { range: 40, cooldown: 99 }, // one devastating charge, then it fights or flees
     routsAt: 0.3, // a wild animal — breaks and flees when the fight turns against it
-    aiTier: "feral"
+    ai: { targeting: "nearest", fear: "bolts" },
   },
   {
     id: "goblin_runt",
@@ -448,7 +451,7 @@ export const ENEMIES: EnemyDefinition[] = [
     loot: [
       { type: "resource", resource: "gold", chance: 0.3, min: 1, max: 4 },
     ],
-    aiTier: "feral"
+    ai: { targeting: "nearest" },
   },
 
   // ── Tier 2 — Organized threats ────────────────────────────────
@@ -493,7 +496,7 @@ export const ENEMIES: EnemyDefinition[] = [
       { type: "resource", resource: "spinners_bile", chance: 0.25, min: 1, max: 1 },
       { type: "resource", resource: "chitin_plate", chance: 0.15, min: 1, max: 1 },
     ],
-    aiTier: "feral"
+    ai: { targeting: "nearest" },
   },
   {
     id: "rock_skitter",
@@ -509,7 +512,7 @@ export const ENEMIES: EnemyDefinition[] = [
     loot: [
       { type: "resource", resource: "chitin_plate", chance: 0.1, min: 1, max: 1 },
     ],
-    aiTier: "feral"
+    ai: { targeting: "nearest" },
   },
   {
     id: "grief_bound_spirit",
@@ -547,8 +550,6 @@ export const ENEMIES: EnemyDefinition[] = [
     // fights whoever presses him (threat-aware) and CAN be goaded by a warrior's
     // taunt, rather than coldly hunting the backline. Makes the first real fight
     // winnable by peeling him onto the tank.
-    aiTier: "tactical",
-    tauntImmunity: "none",
     abilities: [
       { id: "spectral_lash", name: "Spectral Lash", icon: "💢", cooldown: 2, trigger: "always",
         effect: { type: "damage_mult", mult: 1.75, targets: 1 } },
@@ -560,6 +561,7 @@ export const ENEMIES: EnemyDefinition[] = [
       { type: "resource", resource: "ghostweave", chance: 0.4, min: 1, max: 2 },
       { type: "resource", resource: "soul_shard", chance: 0.25, min: 1, max: 1 },
     ],
+    ai: { targeting: "threat" },
   },
 
   // ── Tier 3 — Elemental threats ──────────────────────────────
@@ -609,7 +611,7 @@ export const ENEMIES: EnemyDefinition[] = [
       { type: "resource", resource: "bear_claw", chance: 0.2, min: 1, max: 2, keepOnRout: true },
     ],
     routsAt: 0.3, // a hurt bear disengages (mostly moot, bears are "wide berth" now)
-    aiTier: "feral"
+    ai: { targeting: "nearest", fear: "withdraws" },
   },
   {
     id: "marsh_adder",
@@ -625,7 +627,7 @@ export const ENEMIES: EnemyDefinition[] = [
       { type: "resource", resource: "serpent_fang", chance: 0.25, min: 1, max: 1 },
       { type: "resource", resource: "snake_oil", chance: 0.15, min: 1, max: 1 },
     ],
-    aiTier: "feral"
+    ai: { targeting: "nearest" },
   },
   {
     id: "rabid_boar",
@@ -650,7 +652,7 @@ export const ENEMIES: EnemyDefinition[] = [
       { type: "resource", resource: "cloven_hoof", chance: 0.6, min: 1, max: 2 },
       { type: "resource", resource: "boar_skull", chance: 0.15, min: 1, max: 1 },
     ],
-    aiTier: "feral"
+    ai: { targeting: "nearest" },
   },
   {
     id: "tainted_boar",
@@ -669,7 +671,7 @@ export const ENEMIES: EnemyDefinition[] = [
       { type: "resource", resource: "cloven_hoof", chance: 0.8, min: 1, max: 2 },
       { type: "resource", resource: "boar_skull", chance: 0.4, min: 1, max: 1 },
     ],
-    aiTier: "feral"
+    ai: { targeting: "nearest" },
   },
   {
     id: "tainted_patriarch",
@@ -689,7 +691,7 @@ export const ENEMIES: EnemyDefinition[] = [
       { type: "resource", resource: "cloven_hoof", chance: 1, min: 2, max: 3 },
       { type: "resource", resource: "boar_skull", chance: 1, min: 1, max: 1 },
     ],
-    aiTier: "feral"
+    ai: { targeting: "nearest" },
   },
 
   // ── Tier 2 — New Organized Threats ──────────────────────────────

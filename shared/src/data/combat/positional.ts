@@ -20,6 +20,17 @@ export const POS = {
   holdPer: 2,          // attackers ONE frontliner pins; the rest overflow to the backline
 };
 
+/** Flight tuning (ROUT_AND_FLIGHT). How a broken enemy leaves the field:
+ *  `bolts` runs flat out at double pace and weaves (a temporary elusion peak, so
+ *  ranged shots get worse as the gap opens — one good shot as it turns, then
+ *  chancy ones); `withdraws` backs off at a wary walk, normally hittable, and
+ *  still bites in reach. Balance-pass knobs, all three. */
+export const FLIGHT = {
+  boltMult: 2,      // bolting: flat-out run, double mobility per turn
+  withdrawMult: 1,  // withdrawing: a backstep at normal pace
+  boltElusion: 35,  // peak bonus dodge % vs ranged while bolting (the zigzag)
+};
+
 /** Charge tuning (Charger archetype). A charge covers ground in the Move phase;
  *  the gore's bonus + knockback scale with the distance actually charged. Small,
  *  capped knockback keeps it loop-safe (no charge->shove->charge spiral). */
@@ -86,9 +97,15 @@ export function placeUnits(ctx: CombatContext): void {
 }
 
 /** Which advancing melee are HELD by the opposing front this round (capacity =
- *  holders × holdPer, frontmost held first; overflow + bypass slip past). */
+ *  holders × holdPer, frontmost held first; overflow + bypass slip past).
+ *
+ *  A unit in flight holds nothing (ROUT_AND_FLIGHT). `living` already drops
+ *  units that finished fleeing (`fled`), but one still mid-run is on the field —
+ *  and without this it would keep contributing hold capacity, so a boar running
+ *  for the treeline could pin the very people chasing it. Nothing with its back
+ *  turned holds a line. */
 export function computeHolds(ctx: CombatContext): Set<string> {
-  const units = living(ctx);
+  const units = living(ctx).filter((u) => !u.fleeing);
   const held = new Set<string>();
   for (const enemySide of [true, false]) {
     const attackers = units.filter((u) => u.isEnemy === enemySide && !isRanged(u) && !canBypass(u));

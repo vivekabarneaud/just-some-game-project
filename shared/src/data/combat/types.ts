@@ -9,14 +9,14 @@ import type { CombatPotionEffect } from "../items/index.js";
  *   cunning  : prioritize backline (priest > wizard) over threat (smart casters, elites)
  * Boss flag is orthogonal — a feral dragon is fine. AI tier shapes targeting only.
  */
-export type AITier = "feral" | "tactical" | "cunning";
 
 /**
  * Composable AI knobs (DESIGN_TIER1_ENEMIES §1 "Composable AI"). A unit's brain
  * is a few ORTHOGONAL knobs rather than one tier string: defaults plus opt-in
  * exceptions, the same philosophy as the stat schema. Deliberately small and
  * flat — knobs, not a behavior-tree engine.
- * The legacy `aiTier` still works and maps onto `targeting` unchanged, so no
+ * Authored per enemy via the `ai` block (the old `aiTier` was deleted
+ * 2026-09-04 — every enemy sets `targeting` explicitly now), so no
  * existing enemy changes behaviour (see ai/profile.ts).
  * The doc's fourth knob, **movement** (charger/kiter/holder/flanker), is NOT
  * here yet: that one is a rewrite of the positional layer's role-derived
@@ -50,13 +50,23 @@ export type AITargeting =
   /** Hunt the support line first (priest, then wizard). `cunning`. */
   | "backline";
 
-/** How a unit answers a forced-target effect. Mirrors TauntImmunity's three
- *  cases under names that say what the unit DOES rather than what it resists. */
+/** How a unit answers a forced-target effect, named for what the unit DOES
+ *  rather than what it resists. */
 export type AITauntable = "obeys" | "ignores-generic" | "ignores";
 
-/** Whether a unit can break and run at all. `routs` uses the unit's `routsAt`
- *  threshold and morale; `fearless` holds no matter what (undead, the maddened). */
-export type AIFear = "routs" | "fearless";
+/** The SHAPE OF THE EXIT when a unit's nerve breaks (`routsAt` threshold for
+ *  beasts, morale for humans — those decide WHEN; this decides WHAT it looks
+ *  like). Movement only, on purpose: tactics while retreating (a mage's frost
+ *  nova) belong to per-enemy behaviours, or the set explodes. See
+ *  docs/design/combat/ROUT_AND_FLIGHT.md.
+ *    fearless  : never breaks (undead, constructs, the maddened)
+ *    bolts     : turns and runs flat out — fast, and hard to shoot (elusive
+ *                while running); only something quick catches it. Prey.
+ *    withdraws : backs off still facing you — slower, normally hittable, and
+ *                still bites in reach. Wolves, the bear.
+ *    yields    : does not run at all. A person who breaks throws down their
+ *                weapon and stays. Out of the fight where they stand. */
+export type AIFear = "fearless" | "bolts" | "withdraws" | "yields";
 
 export interface AIProfile {
   targeting: AITargeting;
@@ -70,7 +80,7 @@ export interface AIProfile {
  *   normal : ignores generic taunts; only "elite" taunts work (e.g. thorns wall)
  *   all    : nothing forces targeting on this unit (final-boss tier)
  */
-export type TauntImmunity = "none" | "normal" | "all";
+
 
 /**
  * Combatant role. Finer-grained than `isEnemy` — splits the player's side into
@@ -226,12 +236,7 @@ export interface CombatUnit {
    *  `ai` block (falling back to the legacy fields below). Consumers read THIS,
    *  not the legacy fields, so there's one source of truth per fight. */
   ai?: AIProfile;
-  /** LEGACY targeting tier. Still honoured — it resolves into `ai.targeting`
-   *  unchanged — but new enemies should author `ai` instead. */
-  aiTier?: AITier;
-  /** LEGACY forced-target resistance; resolves into `ai.tauntable`. */
-  tauntImmunity?: TauntImmunity;
-  // ── Threat (WoW-style per-target threat table) ──
+    // ── Threat (WoW-style per-target threat table) ──
   /** For enemies: maps allyId → accumulated threat against that ally. Highest entry
    *  is the preferred target (subject to AI tier rules). Allies leave this empty. */
   threatTable?: Record<string, number>;
@@ -274,10 +279,15 @@ export interface CombatUnit {
   /** Positional movement intent, committed once: true = pushed past the front to
    *  hunt the backline; false = holds the front line. Undefined until decided. */
   breakthrough?: boolean;
-  /** Enemy rout threshold (0-1 of maxHp). When an enemy at/below this breaks and
-   *  flees on its turn — set `fled` (survives, off the field) instead of fighting
-   *  on. Carried from EnemyDefinition.routsAt. Undefined = fights to the end. */
+  /** Enemy rout threshold (0-1 of maxHp). At/below this the unit's nerve breaks;
+   *  its `ai.fear` style decides what that looks like (ROUT_AND_FLIGHT): yields =
+   *  out where they stand; bolts/withdraws = actual movement toward its own field
+   *  edge. Carried from EnemyDefinition.routsAt. Undefined = fights to the end. */
   routsAt?: number;
+  /** Mid-flight: nerve broken, moving toward its own field edge each turn instead
+   *  of fighting. Still on the field, still hittable — reaching the edge sets
+   *  `fled`. Transient combat state, never persisted. */
+  fleeing?: boolean;
   /** This unit's presence upgrades the team's retreat judgment (Morgause). Set at
    *  unit-build time. Command is lost if they fall/flee/break. */
   isCommander?: boolean;
@@ -362,7 +372,7 @@ export interface CombatLogEntry {
   /** Retreat/recovery narrative beat (Model C). Interim flat-schema marker until
    *  the combat-log discriminated-union refactor lands; the renderer can special-
    *  case these as highlighted lines. */
-  beat?: "broken" | "flee_success" | "flee_fail" | "order_hold" | "order_fallback" | "abandoned" | "move" | "stunned";
+  beat?: "broken" | "turns_tail" | "yields" | "flee_success" | "flee_fail" | "order_hold" | "order_fallback" | "abandoned" | "move" | "stunned";
   /** Human-readable narrative line for a `beat` entry. */
   note?: string;
   /** Battlefield position updates applied WHEN this entry plays (id → new pace on

@@ -3,47 +3,61 @@ import { buildEnemyUnits, setCombatSeed, pickTarget, type CombatUnit } from "@me
 import { resolveAI, DEFAULT_AI, acceptsTaunt, canBreak } from "@medieval-realm/shared/data/combat/ai/profile";
 import { ENEMIES } from "@medieval-realm/shared/data/enemies";
 
-// Composable AI knobs (DESIGN_TIER1_ENEMIES §1). The load-bearing property is
-// BEHAVIOUR PRESERVATION: every enemy authored the old way (aiTier /
-// tauntImmunity / routsAt) must resolve to the knobs that reproduce exactly what
-// it shipped with. The new modes are additive and opt-in.
+// Composable AI knobs (TIER1_ENEMIES §1 + ROUT_AND_FLIGHT). Every enemy authors
+// its `ai` block directly; fear is the shape of the exit, inferred from routsAt
+// when unset. The suite pins the resolution rules and the roster's exit styles.
 
-describe("legacy fields resolve without changing behaviour", () => {
-  it("maps the three shipped tiers onto their existing targeting", () => {
-    // feral was RE-POINTED 2026-08-19: random → nearest. Random predates
-    // positions; an animal bites what's in front of it.
-    expect(resolveAI({ aiTier: "feral" }).targeting).toBe("nearest");
-    expect(resolveAI({ aiTier: "tactical" }).targeting).toBe("threat");
-    expect(resolveAI({ aiTier: "cunning" }).targeting).toBe("backline");
-  });
-
-  it("maps taunt immunity onto the tauntable knob", () => {
-    expect(resolveAI({ tauntImmunity: "none" }).tauntable).toBe("obeys");
-    expect(resolveAI({ tauntImmunity: "normal" }).tauntable).toBe("ignores-generic");
-    expect(resolveAI({ tauntImmunity: "all" }).tauntable).toBe("ignores");
-  });
-
-  it("derives fear from routsAt — no threshold has always meant fights-to-the-end", () => {
-    expect(resolveAI({ routsAt: 0.3 }).fear).toBe("routs");
-    expect(resolveAI({}).fear).toBe("fearless");
-  });
+describe("resolution: authored knobs, the routsAt inference, the defaults", () => {
+  // The legacy aiTier / tauntImmunity fields were DELETED 2026-09-04
+  // (ROUT_AND_FLIGHT): every enemy authors `ai` directly now, so resolution is
+  // just: authored knob → default (with fear inferred from routsAt).
 
   it("an un-authored unit gets the documented defaults", () => {
-    expect(resolveAI({ aiTier: "tactical", tauntImmunity: "none", routsAt: 0.2 })).toEqual(DEFAULT_AI);
+    expect(resolveAI({ routsAt: 0.2 })).toEqual(DEFAULT_AI);
+  });
+
+  it("fear infers from routsAt: no threshold has always meant fights-to-the-end", () => {
+    expect(resolveAI({}).fear).toBe("fearless");
+    // A threshold with no authored style gets the plain beast exit.
+    expect(resolveAI({ routsAt: 0.3 }).fear).toBe("withdraws");
+    // The authored style wins over the inference, both ways.
+    expect(resolveAI({ routsAt: 0.3, ai: { fear: "bolts" } }).fear).toBe("bolts");
+    expect(resolveAI({ ai: { fear: "fearless" }, routsAt: 0.3 }).fear).toBe("fearless");
   });
 
   it("every enemy in the catalog resolves to a legal profile", () => {
     const targetings = new Set(["random", "nearest", "threat", "squishiest", "opportunist", "gang-up", "backline"]);
+    const fears = new Set(["fearless", "bolts", "withdraws", "yields"]);
     for (const def of ENEMIES) {
-      const p = resolveAI({ ai: def.ai, aiTier: def.aiTier ?? "tactical", tauntImmunity: def.tauntImmunity, routsAt: def.routsAt });
+      const p = resolveAI({ ai: def.ai, routsAt: def.routsAt });
       expect(targetings.has(p.targeting), `${def.id}: ${p.targeting}`).toBe(true);
-      // A routing creature must carry a threshold, or it can never actually break.
-      if (p.fear === "routs") expect(def.routsAt, `${def.id} routs with no routsAt`).toBeTypeOf("number");
+      expect(fears.has(p.fear), `${def.id}: ${p.fear}`).toBe(true);
+      // A creature with an exit style must carry a threshold or morale, or it
+      // can never actually break; and the reverse — a threshold with no
+      // non-fearless style — cannot happen since the inference fills withdraws.
+      if (p.fear !== "fearless") {
+        expect(def.routsAt != null || def.morale != null, `${def.id} can break but has no trigger`).toBe(true);
+      }
     }
+  });
+
+  it("the roster carries the intended exit styles (ROUT_AND_FLIGHT)", () => {
+    const fearOf = (id: string) => {
+      const def = ENEMIES.find((e) => e.id === id)!;
+      return resolveAI({ ai: def.ai, routsAt: def.routsAt }).fear;
+    };
+    expect(fearOf("wild_boar")).toBe("bolts");                 // prey: turns and runs flat out
+    for (const w of ["grey_wolf", "gaunt_wolf", "starving_wolf", "forest_bear"]) {
+      expect(fearOf(w), w).toBe("withdraws");                  // backs off facing you
+    }
+    for (const h of ["displaced_brigand", "tollman", "dominion_tough", "poacher", "cutthroat"]) {
+      expect(fearOf(h), h).toBe("yields");                     // throws down the weapon, stays
+    }
+    expect(fearOf("greyfang")).toBe("fearless");               // the pack leader stands
   });
 });
 
-describe("authored knobs override the legacy mapping", () => {
+describe("authored knobs behave in combat", () => {
   it("fear: fearless keeps a beast on the field despite its routsAt", () => {
     const wolf = buildEnemyUnits([{ enemyId: "grey_wolf", count: 1 }])[0];
     expect(wolf.routsAt).toBeTypeOf("number");
@@ -86,7 +100,7 @@ describe("the new targeting modes", () => {
    *  harder target on both axes, armour and avoidance, which is exactly the
    *  discrimination `opportunist` exists to make. */
   function field() {
-    const attacker = unit("wolf", { isEnemy: true, kind: "enemy", x: 0, threatTable: {}, ai: { targeting: "threat", tauntable: "obeys", fear: "routs" } });
+    const attacker = unit("wolf", { isEnemy: true, kind: "enemy", x: 0, threatTable: {}, ai: { targeting: "threat", tauntable: "obeys", fear: "withdraws" } });
     const tank = unit("tank", { x: 2, gearDefense: 400, str: 30, class: "warrior" });
     const archer = unit("archer", { x: 5, gearDefense: 0, str: 2, dex: 2, class: "archer" });
     return { attacker, allies: [tank, archer] };
@@ -108,7 +122,7 @@ describe("the new targeting modes", () => {
   });
 
   it("opportunist takes the straggler — the one cut off from their line", () => {
-    const attacker = unit("wolf", { isEnemy: true, kind: "enemy", x: 0, combatRole: "back", threatTable: {}, ai: { targeting: "opportunist", tauntable: "obeys", fear: "routs" } });
+    const attacker = unit("wolf", { isEnemy: true, kind: "enemy", x: 0, combatRole: "back", threatTable: {}, ai: { targeting: "opportunist", tauntable: "obeys", fear: "withdraws" } });
     // Two holding formation, one drifted far off on their own.
     const tank = unit("tank", { x: 2, gearDefense: 400 });
     const archer = unit("archer", { x: 5 });
@@ -118,7 +132,7 @@ describe("the new targeting modes", () => {
   });
 
   it("opportunist finishes the wounded when nobody is isolated", () => {
-    const attacker = unit("wolf", { isEnemy: true, kind: "enemy", x: 0, combatRole: "back", threatTable: {}, ai: { targeting: "opportunist", tauntable: "obeys", fear: "routs" } });
+    const attacker = unit("wolf", { isEnemy: true, kind: "enemy", x: 0, combatRole: "back", threatTable: {}, ai: { targeting: "opportunist", tauntable: "obeys", fear: "withdraws" } });
     const tank = unit("tank", { x: 2 });
     const archer = unit("archer", { x: 5 });
     const bleeding = unit("bleeding", { x: 8, hp: 12 }); // same formation, nearly down
@@ -127,7 +141,7 @@ describe("the new targeting modes", () => {
   });
 
   it("gang-up piles onto whatever packmates already committed to", () => {
-    const attacker = unit("wolf3", { isEnemy: true, kind: "enemy", x: 0, threatTable: {}, ai: { targeting: "gang-up", tauntable: "obeys", fear: "routs" } });
+    const attacker = unit("wolf3", { isEnemy: true, kind: "enemy", x: 0, threatTable: {}, ai: { targeting: "gang-up", tauntable: "obeys", fear: "withdraws" } });
     const tank = unit("tank", { x: 2 });      // nearer
     const archer = unit("archer", { x: 5 });  // but the pack is already on this one
     const mate1 = unit("wolf1", { isEnemy: true, kind: "enemy", x: 1, lastTargetId: "archer" });
@@ -137,7 +151,7 @@ describe("the new targeting modes", () => {
   });
 
   it("gang-up falls back to nearest when the pack has not committed yet", () => {
-    const attacker = unit("wolf1", { isEnemy: true, kind: "enemy", x: 0, threatTable: {}, ai: { targeting: "gang-up", tauntable: "obeys", fear: "routs" } });
+    const attacker = unit("wolf1", { isEnemy: true, kind: "enemy", x: 0, threatTable: {}, ai: { targeting: "gang-up", tauntable: "obeys", fear: "withdraws" } });
     const tank = unit("tank", { x: 2 });
     const archer = unit("archer", { x: 5 });
     setCombatSeed(1);

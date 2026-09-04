@@ -188,14 +188,8 @@ export function buildEnemyUnits(encounters: MissionEncounter[]): CombatUnit[] {
         routsAt: def.routsAt,
         enemyAbilities: def.abilities,
         canAct: true, canBeHealed: true, isTauntable: true,
-        // Tactical = follow threat, scored pick. Designers explicitly tag
-        // exceptions: feral for mindless beasts (random targeting, ignores
-        // threat), cunning for smart casters/elites that hunt the backline.
-        // WIS stays a pure mechanical stat (magic resist + initiative).
-        aiTier: def.aiTier ?? "tactical",
-        tauntImmunity: def.tauntImmunity ?? "none",
         // Resolved once here so every consumer reads one profile per fight.
-        ai: resolveAI({ ai: def.ai, aiTier: def.aiTier ?? "tactical", tauntImmunity: def.tauntImmunity ?? "none", routsAt: def.routsAt }),
+        ai: resolveAI({ ai: def.ai, routsAt: def.routsAt }),
         threatTable: {},
         cooldowns: {}, slowed: 0, poisonTicks: [], statDebuffs: [],
       });

@@ -2,6 +2,7 @@
 // (importing gameState.tsx pulls in the Solid GameProvider template, which needs a DOM)
 import { describe, it, expect } from "vitest";
 import { MISSION_POOL, generateMissionBoard } from "@medieval-realm/shared/data/missions";
+import { getEnemy } from "@medieval-realm/shared/data/enemies";
 import { SCARCITY_ONCE_PER_BOARD } from "./gameState";
 
 const byId = (id: string) => MISSION_POOL.find((m) => m.id === id);
@@ -37,11 +38,18 @@ describe("Quarry-spider gate missions", () => {
   });
 });
 
-describe("Wild Boar Hunt (food-scarcity mission)", () => {
-  it("rewards boar, is urgent, and is forced-only (off the random board)", () => {
+describe("Lean Times (food-scarcity mission)", () => {
+  it("pays in carcasses: XP-only rewards, the meat comes from the boars' drops", () => {
     const hunt = byId("lean_times")!;
     expect(hunt).toBeTruthy();
-    expect(hunt.rewards?.some((r) => r.resource === "boar")).toBe(true);
+    // ROUT_AND_FLIGHT: no flat reward — a fled boar feeds nobody. The boar's
+    // own loot carries the meat, guaranteed on a kill, no keepOnRout.
+    expect(hunt.rewards).toEqual([]);
+    const boar = getEnemy("wild_boar")!;
+    const meat = boar.loot?.find((l) => "resource" in l && l.resource === "boar");
+    expect(meat, "the wild boar must drop typed boar meat").toBeTruthy();
+    expect((meat as any).chance).toBe(1);          // a slain boar always dresses out
+    expect((meat as any).keepOnRout).toBeUndefined(); // a fled one keeps it
     expect((hunt as any).urgent).toBe(true);
     expect(hunt.encounters?.some((e) => e.enemyId === "wild_boar")).toBe(true);
     const ctx: any = {
