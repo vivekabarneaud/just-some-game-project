@@ -106,9 +106,19 @@ number of living packmates.
 
 Today `choose()` receives the full target array with exact positions, HP and
 armour. Perfect information. **A smoke bomb cannot work against that** — and
-three things already in the backlog need it: the assassin's **Smoke Bomb**
-(rescued into IDEAS), the **puffball** as an area-effect carrier (parked), and
-**Blind** in the snake/marsh design.
+FOUR things already in the backlog need it: the assassin's **Smoke Bomb** and
+**Vanish** (both in the rescued assassin talents), the **puffball** as an
+area-effect carrier (parked), and **Blind** in the snake/marsh design.
+
+**Two sources, one contract.** Smoke is *area-based* (a place nobody sees into
+or out of); invisibility is *unit-based* (a unit nobody sees, who sees everyone
+— asymmetric on purpose). Both feed the same function:
+
+```
+perceivable(attacker, target) =
+  inContact(attacker, target)                    // you FEEL what's on top of you
+  || (!target.invisible && !smokeBetween(attacker, target))
+```
 
 So the pipeline gains one stage at the front. It already has stages of this
 shape — `reachable()` filters, taunt and pack-howl short-circuit:
@@ -128,6 +138,28 @@ nor the author can tell what happened or why.
 Blind and smoke then become the same thing: `perceive` returns only what is in
 contact ("you can feel what is on top of you"), and a creature with nothing
 perceivable flails at what it is touching, or holds.
+
+**Rules that keep invisibility from breaking the fight** (added on review,
+2026-09-04 — each is one line of design that would otherwise be improvised):
+
+- **Attacking breaks invisibility.** The stall-breaker, and it costs the
+  assassin nothing they want: Vanish is for repositioning, Ambush is the payoff.
+  A fully passive invisible unit can stall a fight — enemies with an empty
+  perceived pool simply hold — and the round cap already bounds that.
+- **Threat is memory, not sight.** The threat table persists through
+  invisibility: the wolf cannot SEE the assassin, but it remembers who bit it,
+  and the moment they reappear they are the same old grudge. Perception filters
+  candidates; it never erases state.
+- **Forced overrides apply only within the perceived pool.** Today taunt and
+  pack-howl short-circuit against the RAW pool, before any filter — an invisible
+  or smoked taunter would still yank enemies onto themselves. The overrides move
+  after perceive(): you cannot be taunted by someone you cannot see.
+- **Imperceivable units hold nothing.** Same principle as ROUT_AND_FLIGHT's
+  "a runner holds nothing": `computeHolds` counts only perceivable units, or an
+  invisible assassin body-blocks the front line while unseen.
+- **Hunter's Eye is the counter slot.** Nessa's rescued talent (Shadow Instinct)
+  is the natural perception-piercer — a hero whose perceive() ignores
+  concealment. The counter existing keeps concealment from being absolute.
 
 **Two decisions taken:**
 
