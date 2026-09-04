@@ -425,8 +425,13 @@ export const ENEMIES: EnemyDefinition[] = [
     stats: { str: 5, dex: 3, int: 1, vit: 6, wis: 1 }, // out-muscles + out-tanks a lone wolf
     tags: ["beast"],
     loot: [
-      // The clean, healthy boar: good meat + its full materials (hide, tusk-shards).
-      { type: "resource", resource: "meat", chance: 0.5, min: 2, max: 4 },
+      // The clean, healthy boar: the MEAT IS THE REWARD (ROUT_AND_FLIGHT). Lean
+      // Times pays nothing flat — a slain boar dresses out guaranteed, a fled
+      // one keeps its meat (no keepOnRout), so what reaches the larder is
+      // exactly what the hunters brought down. Two slain ≈ the old flat 20.
+      // Typed "boar", not generic "meat" (which grantReward deposits as
+      // venison) — hunting a boar should fill the boar shelf.
+      { type: "resource", resource: "boar", chance: 1, min: 8, max: 12 },
       { type: "resource", resource: "bristlehide", chance: 0.35, min: 1, max: 2 },
       { type: "resource", resource: "tusk_shard", chance: 0.8, min: 1, max: 2 },
       { type: "resource", resource: "boar_tusk", chance: 0.08, min: 1, max: 1 }, // rare: a tusk out clean
