@@ -430,7 +430,15 @@ export const ENEMIES: EnemyDefinition[] = [
     icon: "🐗",
     description: "All muscle and bad temper, and quick for its size. Those tusks are not for show.",
     tier: 1,
-    stats: { str: 5, dex: 3, int: 1, vit: 6, wis: 1 }, // out-muscles + out-tanks a lone wolf
+    // BURST, NOT ATTRITION (BALANCE_PASS, tuned 2026-09-04). It was 60 hp
+    // poking for 2-4 — a piñata with tusks that needed 21 hits to drop a
+    // level-2 warrior while she killed it in 10, i.e. a twenty-round slap
+    // fight. A boar does not grind you down, it opens you up: 30 hp and an
+    // authored 7-11 gore. Measured: drops her in 7 hits, she kills it in 5,
+    // and a full-run charge lands ~20, nearly a third of her health.
+    stats: { str: 5, dex: 3, int: 1, vit: 3, wis: 1 }, // vit 3 = 30 hp (hp is vit x 10)
+    dmgMin: 7,
+    dmgMax: 11,
     tags: ["beast"],
     loot: [
       // The clean, healthy boar: the MEAT IS THE REWARD (ROUT_AND_FLIGHT). Lean
@@ -444,7 +452,14 @@ export const ENEMIES: EnemyDefinition[] = [
       { type: "resource", resource: "tusk_shard", chance: 0.8, min: 1, max: 2 },
       { type: "resource", resource: "boar_tusk", chance: 0.08, min: 1, max: 1 }, // rare: a tusk out clean
     ],
-    charge: { range: 40, cooldown: 99 }, // one devastating charge, then it fights or flees
+    // It WHEELS AND COMES AGAIN. cooldown was 99 — one charge per fight, then it
+    // walked. A real boar charges, passes, turns and charges again, which is
+    // what the speed below is for.
+    charge: { range: 40, cooldown: 3 },
+    // Faster than a woman in mail (11) and slower than a coursing wolf (36). It
+    // was 8 — the boar was outrun by the armoured warrior chasing it, which for
+    // an animal that sprints at ~40km/h was simply wrong.
+    raw: { mobility: 12 }, // -> ~20 effective
     routsAt: 0.3, // a wild animal — breaks and flees when the fight turns against it
     // all muscle and bad temper: whatever is in front of it. An EMPTY vector
     // (not an omitted one — that would take the threat-reading default) means

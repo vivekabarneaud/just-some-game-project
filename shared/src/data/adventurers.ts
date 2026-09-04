@@ -872,17 +872,19 @@ function starterEquipment(premade: PremadeCharacter): Adventurer["equipment"] {
 }
 
 /** Build an Adventurer from a premade character definition */
-function buildAdventurerFromPremade(id: string, premade: PremadeCharacter, maxRank: AdventurerRank): Adventurer {
+function buildAdventurerFromPremade(id: string, premade: PremadeCharacter, atLevel: number): Adventurer {
   const quirk = PERSONALITY_QUIRKS[Math.floor(Math.random() * PERSONALITY_QUIRKS.length)];
   const trait = premade.trait ?? pickTrait().id;
 
-  let rank: AdventurerRank = 1;
-  const roll = Math.random();
-  if (maxRank >= 5 && roll > 0.97) rank = 5;
-  else if (maxRank >= 4 && roll > 0.90) rank = 4;
-  else if (maxRank >= 3 && roll > 0.75) rank = 3;
-  else if (maxRank >= 2 && roll > 0.50) rank = 2;
-  const level = Math.max(1, RANK_LEVEL_THRESHOLDS[rank] - 1);
+  // Built AT a level; the rank follows from it. This used to take a `maxRank`
+  // and ROLL Math.random() against it — a leftover of the random-recruitment
+  // subsystem deleted 2026-08-31 (generateCandidate, getMaxRecruitRank et al).
+  // Nothing in the game ever used it: every production caller passes 1, and the
+  // dev page's own control is called `level()`. What it did do was make the
+  // builder non-deterministic AND unseedable — it used Math.random(), not
+  // combatRandom() — so every combat test silently built a team of random
+  // strength (a "rank 3" hero came out level 1, 3 or 7).
+  const level = Math.max(1, Math.floor(atLevel));
   const actualRank = getRankForLevel(level);
 
   const adv: Adventurer = {
@@ -914,9 +916,11 @@ function buildAdventurerFromPremade(id: string, premade: PremadeCharacter, maxRa
 
 
 /** Build a specific premade as a roster-ready adventurer (for quest-unlock recruits). */
-export function buildRecruitFromPremadeId(advId: string, premadeId: string, rank: AdventurerRank = 1): Adventurer | null {
+/** Build a named premade as a roster-ready adventurer AT a given level (rank is
+ *  derived). Arrivals are scripted now, so every production caller passes 1. */
+export function buildRecruitFromPremadeId(advId: string, premadeId: string, atLevel = 1): Adventurer | null {
   const premade = PREMADE_CHARACTERS.find((c) => c.id === premadeId);
-  return premade ? buildAdventurerFromPremade(advId, premade, rank) : null;
+  return premade ? buildAdventurerFromPremade(advId, premade, atLevel) : null;
 }
 
 

@@ -1,6 +1,6 @@
 import { createSignal, For, Show } from "solid-js";
 import { simulateCombat, type CombatResult } from "@medieval-realm/shared/data/combat";
-import { buildRecruitFromPremadeId, type AdventurerRank } from "@medieval-realm/shared/data/adventurers";
+import { buildRecruitFromPremadeId } from "@medieval-realm/shared/data/adventurers";
 import { NOVICE_MISSIONS } from "@medieval-realm/shared/data/missions";
 import CombatPlayback from "~/components/CombatPlayback";
 
@@ -49,9 +49,11 @@ export default function BattlePreview() {
 
   const watch = (encounters: Enc[]) => {
     if (!encounters.length) return;
-    const rank = Math.max(1, Math.min(5, level())) as AdventurerRank;
+    // The control was always called `level()` — it now IS one (it used to be
+    // cast to a maxRank and rolled against).
+    const lvl = Math.max(1, Math.min(20, level()));
     const team = TRIO
-      .map((t) => buildRecruitFromPremadeId(t.instance, t.premade, rank))
+      .map((t) => buildRecruitFromPremadeId(t.instance, t.premade, lvl))
       .filter((a): a is NonNullable<typeof a> => !!a);
     if (!team.length) { setNote("Could not build the party."); return; }
     const res = simulateCombat(NOVICE_MISSIONS[0], team, undefined, seed(), { encounters });
@@ -72,7 +74,7 @@ export default function BattlePreview() {
         <label>Seed <input type="number" value={seed()} onInput={(e) => setSeed(+e.currentTarget.value)}
           style={{ width: "70px", "margin-left": "6px" }} /></label>
         <button onClick={() => setSeed(seed() + 1)} style={btn}>seed +1</button>
-        <label>Party rank (1-5) <input type="number" min="1" max="5" value={level()} onInput={(e) => setLevel(+e.currentTarget.value)}
+        <label>Party level (1-20) <input type="number" min="1" max="20" value={level()} onInput={(e) => setLevel(+e.currentTarget.value)}
           style={{ width: "55px", "margin-left": "6px" }} /></label>
       </div>
 
