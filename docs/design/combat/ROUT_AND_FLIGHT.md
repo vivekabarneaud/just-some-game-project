@@ -167,3 +167,99 @@ for POWER on the same object, which forces a disambiguating comment at
 - **A kill-everything win condition for hunts.** The most dramatic and the
   harshest: Lean Times exists to answer a famine *now*, so a mission that can
   outright fail turns the food supply into a coin flip.
+
+## Implementation plan (reviewed 2026-09-04, for branch `feat/rout-and-flight`)
+
+Verified against the code before writing; three findings sharpened the design:
+
+- **The counters already exist, three ways.** A bolting boar (~8 base mobility,
+  ×2 in flight ≈ 16/round) outruns a warrior (12) but not an assassin (22) — and
+  an **archer's bow reaches the whole field** (band 6–100), so ranged damage
+  chases for free. Nessa counters the boar with her bow, not her legs. No new
+  counter code is needed; flight-as-movement activates counters the engine
+  already has.
+- **Fled-vs-slain is currently invisible.** `result.ts` computes `enemiesKilled =
+  total − surviving` where surviving excludes fled — so a fled enemy counts as
+  "killed" in the performance ratio. Reward scaling needs a true
+  `enemiesSlain` (hp ≤ 0) added to `CombatResult`.
+- **Rewards are stamped at resolution, not claim.** `gameState.tsx` ~5227
+  computes `rewards` with `combatResult` in scope, then stamps them onto the
+  completed mission; the claim path pays what was stamped. Scaling inserts
+  there — the claim path and LootModal need nothing.
+
+### Phase 1 — the `fear` knob (data only, no behaviour change)
+
+- `AIFear` becomes `"fearless" | "bolts" | "withdraws" | "yields"` — the old
+  `"routs"` value is **deleted**, and the legacy inference in `resolveAI`
+  becomes: `routsAt == null → fearless`, else `withdraws` (the default beast
+  exit).
+- The 10 routing enemies get explicit `ai: { fear }`: boar `bolts`; the three
+  wolves + bear `withdraws`; the five humans `yields`.
+- `aiProfile.test.ts` legacy expectations updated.
+- Green after this phase: yes — nothing consumes the new values yet.
+
+### Phase 2 — delete `aiTier` (mechanical, compiler-led)
+
+- 14 enemies: `aiTier: "feral"` → `ai: { targeting: "nearest" }` etc., merged
+  into the phase-1 `ai` blocks. The one `tauntImmunity` migrates to
+  `ai: { tauntable }` in the same pass.
+- Remove the field from `EnemyDefinition` + `CombatUnit`, the legacy params and
+  `TIER_TARGETING` / `IMMUNITY_TAUNTABLE` tables from `resolveAI`, the stamps in
+  `units.ts` and `abilities/enemy.ts` (summons).
+- The prototype sandbox (`frontend/src/prototype/`) keeps its own `AiTier` — it
+  is a separate type and stays untouched.
+- No SAVE_VERSION bump: enemy definitions are code, not save state.
+
+### Phase 3 — flight as movement (the real work)
+
+- `CombatUnit.fleeing?: boolean` (transient; combat units never persist).
+- The rout site (`actions.ts:68`) becomes a switch on `resolveAI(unit).fear`:
+  - `yields` → out immediately, exactly like today's `routEnemy`, with a
+    "throws down their weapon" line. No movement, still `fled = true` for the
+    victory/loot semantics (keepOnRout = the bandit hands over his gold).
+  - `bolts` / `withdraws` → `fleeing = true`, log "turns tail".
+- A fleeing unit's turn: move toward **its own field edge** (`fieldMax`) at
+  `mobility × FLIGHT.boltMult (2)` or `× FLIGHT.withdrawMult (1)`; bolting units
+  never act; withdrawing units may basic-attack a foe in reach (they back away
+  facing you). On reaching the edge → `fled = true`, "escapes into the wilds".
+- **Targeting: fleeing enemies are excluded from candidates while any
+  non-fleeing enemy remains.** The team deals with threats first, then turns on
+  the runners. (Nessa's later Pursuit talent = lifting this exclusion for her.)
+- Chase is free: `moveUnit` already advances melee toward the nearest foe, and
+  when only the fleeer remains it IS the nearest foe.
+- At `MAX_ROUNDS` (20), any still-fleeing unit counts as escaped before the
+  result is computed, so the cap cannot strand one on the field.
+- New log beats (`turns_tail`, `yield`) join the beat union; playback renders
+  notes generically, so no UI change.
+- Tuning constants in one place (`FLIGHT`), flagged for the balance pass.
+- Tests: a bolting boar exits within N rounds, counts defeated, sheds only
+  keepOnRout loot; slain mid-flight drops the full table; a yielded human counts
+  defeated and keeps his gold line; fleeing units are not targeted while a
+  fighter remains; the fight ends despite a fleeer at the round cap.
+
+### Phase 4 — the reward follows the kills
+
+- `CombatResult.enemiesSlain` (hp ≤ 0 count; `performanceRatio` semantics
+  unchanged so XP is untouched).
+- `MissionTemplate.rewardsScaleWithKills?: boolean`; at the stamp site,
+  `amount × enemiesSlain / totalEnemies`, rounded.
+- `lean_times` gets the flag: both boars die → 20, one → 10, both escape → a
+  successful hunt that brought home nothing (the IDEAS decision, restated:
+  success means nobody died; the larder teaches you to send a better team).
+- Tests: the scaling math; the flag on lean_times.
+
+### Phase 5 — close the loop
+
+- This doc's status flips to built-v1; the Lean Times entry in IDEAS gets
+  marked resolved; the "Deliberately NOT in v1" list stands as the follow-up
+  backlog (transformations, `preferredAbilities`, Nessa's tree, HP regen,
+  returning-to-the-fight all stay out).
+
+### Decisions taken in this plan (flag at review if wrong)
+
+1. **Flee direction is the enemy's own edge** (`fieldMax`) — "runs back into
+   the woods", never through the party.
+2. **Withdrawing units can still bite in reach; bolting units never act.**
+   That is the mechanical meaning of "backs off facing you" vs "turns and runs".
+3. **`"routs"` is deleted, not kept as an alias** — every routing enemy gets an
+   explicit style, and unauthored `routsAt` holders default to `withdraws`.
