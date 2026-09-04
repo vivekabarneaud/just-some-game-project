@@ -45,3 +45,35 @@
 
 ## Cross-refs
 - [cast/thornwood-family.md](cast/thornwood-family.md); `premade-characters.ts` char_000.
+
+## Talent tree — the shape (designed 2026-09-04, unbuilt)
+
+Her spine is **not** "archer damage". It comes straight out of her own lore:
+
+> "a missed crow was lost grain was a hungry sibling, so she got so she never
+> misses, because *missing had a cost*"
+> "her jaw tightens when she sees food wasted"
+
+So the tree is **nothing gets away, nothing is wasted.** A creature that escapes
+wounded is a meal lost, and that is the thing she has organised her whole life
+around. It also makes her the answer to the rout problem
+(`docs/design/combat/ROUT_AND_FLIGHT.md`) without gating anything behind her.
+
+| talent | what it does | engine hook |
+|---|---|---|
+| **Clean Kill** ⭐ | bonus damage to a beast already inside its flee window, so she takes it before it turns | mirrors `woundedDamageMult` in `damage.ts`, reads the target's `routsAt` |
+| **Nothing Gets Away** | beasts cannot enter `fleeing` while she is on the field | gate the rout check at `round/actions.ts:98` |
+| **Pursuit** | a free shot at anything running | needs flight-as-movement first |
+| **Nothing Wasted** ⭐ | beasts she kills herself yield their full drop table instead of rolling it | loot, not damage |
+| **The Rationer** | the team eats less on her missions | her mothering; non-combat |
+
+**Build Clean Kill first.** It does not disable a mechanic, it *interacts* with
+one: the boar tries to flee at 30% HP and she kills it at 30% HP. Lean Times
+feels different with her along without needing her.
+
+**Nothing Wasted is the most her**, and it fits the mild-effects rule — it
+touches the larder rather than combat maths. Good capstone candidate.
+
+Talents already reach combat by an established route: `CombatUnit.talents:
+string[]` is carried in, and `damage.ts` reads it directly
+(`talents.includes("last_stand")`). So these are small, not new plumbing.
