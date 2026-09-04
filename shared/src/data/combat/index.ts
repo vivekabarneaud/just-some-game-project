@@ -12,7 +12,7 @@ import { runRound } from "./round/index.js";
 import { buildResult } from "./result.js";
 
 // ─── Public types re-exported for consumers ─────────────────────
-export type { CombatUnit, CombatLogEntry, CombatResult, CombatantSnapshot, LootResult, CombatContext, AITier, TauntImmunity, CombatKind, WeaponProfile } from "./types.js";
+export type { CombatUnit, CombatLogEntry, CombatResult, CombatantSnapshot, LootResult, CombatContext, CombatKind, WeaponProfile } from "./types.js";
 export { setCombatSeed, combatRandom } from "./prng.js";
 export { calcDamageResult, woundedDamageMult } from "./damage.js";
 export { getAttackPower, getMagicPower, getCritChance, getDodgeChance, getAccuracy, getParry, getAvoidance, MAX_AVOIDANCE, getInitiative, getDefenseReduction, getMagicResistReduction, dealsMagicalDamage, ATTACK_STAT_SCALE, UNARMED_RANGE, rarityWeaponRange, derivedDamageRange, weaponBand, MELEE_BAND, RANGED_BAND, CLOSE_IN_FRACTION } from "./stats.js";

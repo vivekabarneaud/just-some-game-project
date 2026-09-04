@@ -16,7 +16,7 @@ function reachable(attacker: CombatUnit, alive: CombatUnit[]): CombatUnit[] {
 
 /**
  * Enemy targeting — driven by the resolved `targeting` knob (see ai/profile.ts;
- * the legacy aiTier maps onto it exactly, so nothing shipped changes):
+ * every enemy authors it via the ai block, so nothing shipped changes):
  *   random      : any reachable target, erratically
  *   nearest     : the closest reachable target — what `feral` maps to
  *   threat      : scored pick (defense × wounded × threat) — the old `tactical`

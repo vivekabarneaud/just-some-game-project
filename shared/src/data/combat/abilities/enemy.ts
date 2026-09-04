@@ -309,9 +309,7 @@ export function tryEnemyAbility(unit: CombatUnit, ctx: CombatContext): boolean {
             enemyTags: summonDef.tags,
             enemyDefId: summonDef.id,
             canAct: true, canBeHealed: true, isTauntable: true,
-            aiTier: summonDef.aiTier ?? "tactical",
-            tauntImmunity: summonDef.tauntImmunity ?? "none",
-            ai: resolveAI({ ai: summonDef.ai, aiTier: summonDef.aiTier ?? "tactical", tauntImmunity: summonDef.tauntImmunity ?? "none", routsAt: summonDef.routsAt }),
+            ai: resolveAI({ ai: summonDef.ai, routsAt: summonDef.routsAt }),
             threatTable: {},
             cooldowns: {}, slowed: 0, poisonTicks: [], statDebuffs: [],
           });

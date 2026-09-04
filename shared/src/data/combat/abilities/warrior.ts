@@ -7,7 +7,7 @@ import type { ClassAbilityHandler } from "./types.js";
 
 /**
  * Taunt — when an ally drops below 30% HP, force all enemies to target self.
- * Skipped per-enemy if tauntImmunity blocks generic taunts. Iron Will enemies
+ * Skipped per-enemy if the tauntable knob blocks generic taunts. Iron Will enemies
  * still resist 10% on top of that.
  */
 export const taunt: ClassAbilityHandler = {
@@ -22,8 +22,7 @@ export const taunt: ClassAbilityHandler = {
       if (enemy.hp <= 0) continue;
       // The tauntable knob decides: "ignores-generic" units shrug off the
       // warrior's taunt (only a future elite pull reaches them), "ignores" units
-      // shrug off everything. Resolved from the authored `ai` block, falling
-      // back to the legacy tauntImmunity field.
+      // shrug off everything. Resolved from the authored `ai` block.
       if (!acceptsTaunt(enemy, "generic")) continue;
       if (enemy.isTauntable === false) continue;
       if (enemy.trait === "iron_will" && combatRandom() < 0.10) continue;
