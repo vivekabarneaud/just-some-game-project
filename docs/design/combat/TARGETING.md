@@ -1,8 +1,8 @@
 # Targeting: what a creature wants, and what it can see
 
-- **Status:** designed 2026-09-04, unbuilt. Replaces the seven single-mode
-  `targeting` knob with a weighted score, and adds a perception stage in front
-  of it. Came out of asking whether the knob should be a ranked list.
+- **Status:** BUILT 2026-09-04 (`feat/enemy-danger-pass`). The weighted score,
+  the perception stage, and all 22 enemies authored. Came out of asking whether
+  the knob should be a ranked list.
 - **Cross-refs:** `shared/src/data/combat/targeting.ts` (the modes + the
   existing `scoredPick`), `ai/profile.ts` (the knobs), `positional.ts`
   (`mobilityOf`, `paceGap`), `ROUT_AND_FLIGHT.md` (the outside-combat test).
@@ -170,20 +170,61 @@ perceivable flails at what it is touching, or holds.
 2. **Perception is symmetric.** `pickTargetForAdventurer` gets the same stage,
    or the player's heroes have godlike sight while enemies grope in the dark.
 
-## Migration (behaviour-preserving)
+## What building it taught (2026-09-04)
 
-Each existing mode becomes a canned weight vector, so all 18 enemies keep
-working unchanged and the diff is data, not behaviour:
+Four things the design got wrong or left unsaid, all found by implementing:
 
-| today | becomes |
-|---|---|
-| `nearest` | reach gate does it: all weights ~0, or a small softness term |
-| `threat` | `{ threat: 1, softness: 1, condition: 0.2 }` (today's scoredPick) |
-| `squishiest` | `{ softness: 1 }` |
-| `opportunist` | `{ isolation: 1, condition: 0.5 }` |
-| `backline` | `{ role: 1 }` with healer > caster in the role table |
-| `gang-up` | needs a `ganged` term (packmate commitment), then `{ ganged: 1 }` |
-| `random` | keep as a flag — erratic is not a weight |
+**`reachable()` defeated the whole point, and had done for a long time.** The
+pool was pre-filtered to what a unit could strike THIS turn, so with anything in
+contact a distant priest was never even a candidate — no role weight could
+express "I walk past the wall for the healer". **This predates the refactor:**
+the old `backline` mode filtered from the same pre-filtered pool, so
+backline-hunting never worked once a tank engaged. The reach FACTOR is the
+designed replacement for the reach FILTER, so the pool is now everything
+perceivable. Measured: fights stayed at ~4.4 rounds, so units choosing distant
+targets do not waste turns.
+
+**`BASE = 1` made the dimensions decorative.** The taste range is
+`(BASE + Σw)/BASE`, so a weight of 1 bought only 2:1 while reachFactor spans up
+to 7:1. BASE is 0.25 (a weight of 1 buys 5:1) with a REACH_FALLOFF of 0.5.
+
+**`ai: {}` means "use the defaults", not "no weights".** Four mindless creatures
+were authored as `ai: {}` and silently inherited the threat-reading default —
+the exact opposite of intent. They author `targeting: {}` explicitly now.
+
+**Anything with a MIND must weigh threat, or Presence quietly dies.** The first
+authoring pass gave most creatures no threat term, which disabled the whole
+aggro system: the warrior's `threatMultiplier: 1.5` and the assassin's `0.25`
+mean nothing if nothing reads threat. "No tactics" means no clever backline
+hunting; it does not mean ignoring who is stabbing you. Pinned by a test.
+
+## The authored roster
+
+Each vector comes from the creature's OWN description, quoted in a comment
+beside it. A few authored themselves: the cutthroat's card already said "goes
+for whoever looks softest", and the rabid boar's said "they charge ANYTHING that
+moves" — the first real user of `erratic`.
+
+| creature | vector | why |
+|---|---|---|
+| grey_wolf | `{ ganged: 0.8, condition: 0.4, threat: 0.3 }` | the pack commits together and finishes the hurt |
+| gaunt_wolf | `{ isolation: 0.6, condition: 0.6, threat: 0.3 }` | "kicked out of the pack too early" — a loner, so NOT ganged |
+| dominion_tough · rock_skitter | `{ ganged: 1, … }` | "brave in a pack, useless out of one"; "never alone" |
+| cutthroat | `{ softness: 1, roles: {…}, threat: 0.3 }` | its own card: "whoever looks softest" |
+| rabid_boar | `{ erratic: true }` | "they charge ANYTHING that moves" |
+| forest_bear | `{ threat: 0.8, sticky: 0.6 }` | territorial: answers who provoked it and stays there |
+| greyfang | `{ roles: { healer: 1, caster: 0.8 }, condition: 0.3 }` | "cleverer than a beast has any right to be" — the showcase |
+| wild_boar · tainted_* · grief_bound | `{}` | mindless: reach alone decides |
+
+⚠ **Content oddity found while authoring:** Greyfang's `raw.mobility` is **10**
+against his own pack's 27 — the alpha is the slowest wolf in it. His authored
+taste still functions (effective 21 is enough to reach the backline), but "half
+again the size of the pack he leads" being outrun by a starving yearling is
+worth a decision in the danger pass.
+
+⚠ **Authoring wart:** `mobilityOf` gives a classless creature a base of 10 with
+a floor of 4, so `raw.mobility` must go NEGATIVE to author anything genuinely
+shambling. Fine, but it reads oddly.
 
 ## Risks, and the guards
 

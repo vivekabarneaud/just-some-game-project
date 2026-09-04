@@ -9,7 +9,14 @@
 
 import type { AIFear, AIProfile, CombatUnit } from "../types.js";
 
-export const DEFAULT_AI: AIProfile = { targeting: "threat", tauntable: "obeys", fear: "withdraws" };
+/** What a creature with nothing authored does. The targeting vector is the old
+ *  `threat` mode — a scored pick reading threat, softness and a little wounded
+ *  — which is what most enemies were on before the modes were replaced. */
+export const DEFAULT_AI: AIProfile = {
+  targeting: { threat: 1, softness: 1, condition: 0.2, sticky: 0.2 },
+  tauntable: "obeys",
+  fear: "withdraws",
+};
 // (fear here is nominal: resolution always reaches the routsAt inference below
 // before this default, so a unit with no threshold resolves fearless.)
 

@@ -66,15 +66,22 @@ function choose(attacker: CombatUnit, targets: CombatUnit[], allies?: CombatUnit
 
   if (alive.length === 1) return alive[0];
 
-  // The reachable subset is still the pool: an enemy commits to something it can
-  // actually fight this turn, falling back to everyone while still closing. The
-  // reach factor inside the score then discriminates WITHIN that pool.
-  const pool = reachable(attacker, alive);
+  // The pool is everything perceivable — NOT the reach-filtered subset. The
+  // reach FACTOR inside the score is the designed replacement for the old reach
+  // FILTER: pre-filtering to what is strikable this turn meant that with
+  // anything in contact, a distant priest was never even a candidate, so no
+  // amount of role weight could express "I will walk past the wall for the
+  // healer". (That limitation predates this refactor — the old `backline` mode
+  // filtered from the same pre-filtered pool, so backline-hunting never
+  // actually worked once a tank engaged.) A unit that picks something it cannot
+  // reach yet advances toward it instead of swinging, which is exactly what
+  // walking past a shield wall looks like.
+  const pool = alive;
   const w = weightsFor(attacker);
 
-  // Erratic is not a weight: a panicked or confused thing does not weigh
-  // anything, so `random` stays a flag rather than a vector.
-  if (w === "random") return pool[Math.floor(combatRandom() * pool.length)];
+  // Erratic weighs nothing: a maddened thing HAS no preference, so it lunges at
+  // whatever is there rather than scoring anyone.
+  if (w.erratic) return pool[Math.floor(combatRandom() * pool.length)];
 
   const scoreCtx = { line: alive, allies, pool };
   const best = bestBy(pool, (t) => scoreTarget(attacker, t, w, scoreCtx));
@@ -91,34 +98,12 @@ function choose(attacker: CombatUnit, targets: CombatUnit[], allies?: CombatUnit
  *  the old scoredPick's threat path (0.15). */
 const TARGET_MISS_CHANCE = 0.15;
 
-/**
- * The seven legacy mode names as canned weight vectors (TARGETING.md).
- *
- * This preserves each mode's INTENT, not bit-exact picks: the reach factor now
- * discriminates inside the pool where `squishiest`/`opportunist` previously
- * ignored distance entirely, and threat/softness are on one 0..1 scale where
- * they used to be 0..100 against 0..20. Both are the point of the refactor.
- *
- * `nearest` maps to NO weights on purpose: with an empty vector the score is
- * BASE × reachFactor, so the closest reachable target wins — the behaviour
- * falls out of the creature's legs rather than being named.
- */
-const MODE_WEIGHTS: Record<string, TargetWeights | "random"> = {
-  random: "random",
-  nearest: {},
-  threat: { threat: 1, softness: 1, condition: 0.2, sticky: 0.2 },
-  squishiest: { softness: 1 },
-  opportunist: { isolation: 1, condition: 0.5 },
-  backline: { roles: { healer: 1, caster: 0.8 }, threat: 0.2 },
-  "gang-up": { ganged: 1 },
-};
-
-/** A creature's authored weights, or the canned vector for its legacy mode
- *  name. Default matches the old `threat` path, which most enemies were on. */
-function weightsFor(attacker: CombatUnit): TargetWeights | "random" {
-  const { targeting } = resolveAI(attacker);
-  return MODE_WEIGHTS[targeting] ?? MODE_WEIGHTS.threat;
+/** A creature's authored taste, resolved through the same knob chain as the
+ *  rest of its AI (authored `ai` → DEFAULT_AI). */
+function weightsFor(attacker: CombatUnit): TargetWeights {
+  return resolveAI(attacker).targeting;
 }
+
 
 /** The candidate scoring highest on `score`. Ties keep the earlier candidate,
  *  so ordering stays deterministic for a given roster. */

@@ -56,6 +56,11 @@ export interface TargetWeights {
    *  The engine already learned this lesson in moveUnit, which commits its
    *  breakthrough intent ONCE to stop exactly this jitter. */
   sticky?: number;
+  /** Weighs nothing and lunges at whatever is there. Erratic is not a weight —
+   *  a panicked, maddened or confused thing HAS no preference — so it is a flag
+   *  that short-circuits the score entirely. `rabid_boar` charges anything that
+   *  moves; that is this. */
+  erratic?: boolean;
 }
 
 /** Present in every score, so the reach multiplier always differentiates. With

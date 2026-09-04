@@ -231,7 +231,8 @@ export const ENEMIES: EnemyDefinition[] = [
       { type: "item", itemId: "brigands_jerkin", chance: 0.08 }, // or a supple leather jerkin
       { type: "item", itemId: "stranger_signet", chance: 0.01 }, // the thrill jackpot: a dead traveller's luck-charm
     ],
-    ai: { fear: "yields" },
+    // a farmer with a rusty blade: no cleverness, but he answers whoever is hurting him and keeps swinging there
+    ai: { targeting: { threat: 1, sticky: 0.3 }, fear: "yields" },
   },
   {
     id: "tollman",
@@ -257,7 +258,8 @@ export const ENEMIES: EnemyDefinition[] = [
       // Lucky (~12%): a fine leather coat, stashed in the camp, not on his back. Leather's rare.
       { type: "item", itemId: "reavers_leathers", chance: 0.12, keepOnRout: true },
     ],
-    ai: { fear: "yields" },
+    // he turned a rabble into a company: reads the fight and answers whoever is hurting it
+    ai: { targeting: { threat: 1, softness: 0.5 }, fear: "yields" },
   },
   {
     // Weaker than a brigand — a hired tough, not a fighter. Comes in numbers
@@ -282,7 +284,8 @@ export const ENEMIES: EnemyDefinition[] = [
     loot: [
       { type: "resource", resource: "gold", chance: 0.35, min: 2, max: 6 },
     ],
-    ai: { fear: "yields" },
+    // "brave in a pack, useless out of one" — piles onto his mates' target, but still notices who hit him
+    ai: { targeting: { ganged: 1, threat: 0.5 }, fear: "yields" },
   },
   {
     id: "poacher",
@@ -304,7 +307,8 @@ export const ENEMIES: EnemyDefinition[] = [
       { type: "item", itemId: "poachers_bow", chance: 0.12 },
       { type: "item", itemId: "stranger_signet", chance: 0.01 }, // the thrill jackpot
     ],
-    ai: { fear: "yields" },
+    // "hangs back and picks" — a shooter choosing the soft and the separated
+    ai: { targeting: { softness: 0.8, isolation: 0.5, threat: 0.3 }, fear: "yields" },
   },
   {
     id: "cutthroat",
@@ -325,7 +329,8 @@ export const ENEMIES: EnemyDefinition[] = [
       { type: "item", itemId: "fighting_knife", chance: 0.12 },
       { type: "item", itemId: "stranger_signet", chance: 0.01 }, // the thrill jackpot
     ],
-    ai: { targeting: "backline", fear: "yields" },
+    // "goes for whoever looks softest" — his own words; the backline is a secondary pull
+    ai: { targeting: { softness: 1, roles: { healer: 0.4, caster: 0.4 }, threat: 0.3 }, fear: "yields" },
   },
   {
     id: "grey_wolf",
@@ -355,7 +360,8 @@ export const ENEMIES: EnemyDefinition[] = [
     raw: { mobility: 27, dodge: 5 }, // pack hunter — fast (~36 paces/turn, closes the field in ~1.5 rounds)
     elusiveAtRange: 25, // weaves through the arrows while it closes; commits at contact
     routsAt: 0.3, // a pack wolf breaks when the fight turns against it
-    ai: { targeting: "nearest", fear: "withdraws" },
+    // the pack instinct: commit together, finish the hurt one, and remember what bit you
+    ai: { targeting: { ganged: 0.8, condition: 0.4, threat: 0.3 }, fear: "withdraws" },
   },
 
   // ── Tier 0 — True novice fodder ───────────────────────────────
@@ -387,7 +393,8 @@ export const ENEMIES: EnemyDefinition[] = [
     raw: { mobility: 20, dodge: 3 }, // lean yearling — quick and jumpy (~28 paces/turn)
     elusiveAtRange: 25, // jumpy and hard to pin while it closes
     routsAt: 0.35, // a nervous, starving yearling, breaks and runs easily
-    ai: { targeting: "nearest", fear: "withdraws" },
+    // "kicked out of the pack too early, hungry and nervous" — a loner, so NOT ganged: it takes the safe target
+    ai: { targeting: { isolation: 0.6, condition: 0.6, threat: 0.3 }, fear: "withdraws" },
   },
   {
     // The runt of the pack — half-starved, barely more than skin and ribs. Weak
@@ -414,7 +421,8 @@ export const ENEMIES: EnemyDefinition[] = [
     raw: { mobility: 8 }, // spent and slow for a wolf, but still quicker than a boar (~16 paces/turn)
     elusiveAtRange: 15, // still weaves, but half-starved and easier to catch
     routsAt: 0.45, // barely holding together; breaks the moment it's hurt
-    ai: { targeting: "nearest", fear: "withdraws" },
+    // "little fight left in it" — desperation goes for whatever is already failing
+    ai: { targeting: { condition: 1, softness: 0.5, threat: 0.2 }, fear: "withdraws" },
   },
   {
     id: "wild_boar",
@@ -438,7 +446,10 @@ export const ENEMIES: EnemyDefinition[] = [
     ],
     charge: { range: 40, cooldown: 99 }, // one devastating charge, then it fights or flees
     routsAt: 0.3, // a wild animal — breaks and flees when the fight turns against it
-    ai: { targeting: "nearest", fear: "bolts" },
+    // all muscle and bad temper: whatever is in front of it. An EMPTY vector
+    // (not an omitted one — that would take the threat-reading default) means
+    // the reach factor alone decides, which IS this behaviour.
+    ai: { targeting: {}, fear: "bolts" },
   },
   {
     id: "goblin_runt",
@@ -451,7 +462,8 @@ export const ENEMIES: EnemyDefinition[] = [
     loot: [
       { type: "resource", resource: "gold", chance: 0.3, min: 1, max: 4 },
     ],
-    ai: { targeting: "nearest" },
+    // a scout sent to spring the traps — it picks off rather than brawls
+    ai: { targeting: { condition: 0.3, isolation: 0.4, threat: 0.3 } },
   },
 
   // ── Tier 2 — Organized threats ────────────────────────────────
@@ -478,6 +490,8 @@ export const ENEMIES: EnemyDefinition[] = [
       { type: "item", itemId: "iron_sword", chance: 0.10 },
       { type: "item", itemId: "stranger_signet", chance: 0.01 }, // the thrill jackpot
     ],
+    // "still fights like one": trained discipline reads the threat
+    ai: { targeting: { threat: 1, softness: 0.4 } },
   },
   {
     id: "cave_spinner",
@@ -496,7 +510,8 @@ export const ENEMIES: EnemyDefinition[] = [
       { type: "resource", resource: "spinners_bile", chance: 0.25, min: 1, max: 1 },
       { type: "resource", resource: "chitin_plate", chance: 0.15, min: 1, max: 1 },
     ],
-    ai: { targeting: "nearest" },
+    // silent and venomous — an ambusher, for the soft and the strayed
+    ai: { targeting: { softness: 0.8, isolation: 0.4 } },
   },
   {
     id: "rock_skitter",
@@ -512,7 +527,8 @@ export const ENEMIES: EnemyDefinition[] = [
     loot: [
       { type: "resource", resource: "chitin_plate", chance: 0.1, min: 1, max: 1 },
     ],
-    ai: { targeting: "nearest" },
+    // "never alone, boil up out of the dark" — a swarm is nothing BUT ganging up
+    ai: { targeting: { ganged: 1 } },
   },
   {
     id: "grief_bound_spirit",
@@ -527,6 +543,10 @@ export const ENEMIES: EnemyDefinition[] = [
       { type: "resource", resource: "veilmist", chance: 0.20, min: 1, max: 1 },
       { type: "resource", resource: "soul_shard", chance: 0.08, min: 1, max: 1 },
     ],
+    // bound by old grief, not tactics: it wails at whatever is nearest. An
+    // EMPTY vector, not an omitted one — omitting it takes the threat-reading
+    // default, and a thing made of sorrow holds no grudge against anyone.
+    ai: { targeting: {} },
   },
 
   // ── Tier 3 — Dangerous foes ───────────────────────────────────
@@ -561,7 +581,8 @@ export const ENEMIES: EnemyDefinition[] = [
       { type: "resource", resource: "ghostweave", chance: 0.4, min: 1, max: 2 },
       { type: "resource", resource: "soul_shard", chance: 0.25, min: 1, max: 1 },
     ],
-    ai: { targeting: "threat" },
+    // forty-seven days holding a post: a soldier still reading the line
+    ai: { targeting: { threat: 1, softness: 0.3 } },
   },
 
   // ── Tier 3 — Elemental threats ──────────────────────────────
@@ -582,6 +603,8 @@ export const ENEMIES: EnemyDefinition[] = [
       { type: "resource", resource: "veilmist", chance: 0.25, min: 1, max: 1 },
       { type: "resource", resource: "ghostweave", chance: 0.10, min: 1, max: 1 },
     ],
+    // "remembers how it died" — vengeance answers whoever is hurting it now
+    ai: { targeting: { threat: 0.8, condition: 0.3 } },
   },
 
   // ── Dragon threats (spread across tiers) ───────────────────────
@@ -611,7 +634,8 @@ export const ENEMIES: EnemyDefinition[] = [
       { type: "resource", resource: "bear_claw", chance: 0.2, min: 1, max: 2, keepOnRout: true },
     ],
     routsAt: 0.3, // a hurt bear disengages (mostly moot, bears are "wide berth" now)
-    ai: { targeting: "nearest", fear: "withdraws" },
+    // "they do not hunt people, but get between it and" — territorial: it answers whoever provoked it and stays on them
+    ai: { targeting: { threat: 0.8, sticky: 0.6 }, fear: "withdraws" },
   },
   {
     id: "marsh_adder",
@@ -627,7 +651,8 @@ export const ENEMIES: EnemyDefinition[] = [
       { type: "resource", resource: "serpent_fang", chance: 0.25, min: 1, max: 1 },
       { type: "resource", resource: "snake_oil", chance: 0.15, min: 1, max: 1 },
     ],
-    ai: { targeting: "nearest" },
+    // an ambush striker: it bites what it can actually put venom into
+    ai: { targeting: { softness: 0.5, threat: 0.3 } },
   },
   {
     id: "rabid_boar",
@@ -652,7 +677,8 @@ export const ENEMIES: EnemyDefinition[] = [
       { type: "resource", resource: "cloven_hoof", chance: 0.6, min: 1, max: 2 },
       { type: "resource", resource: "boar_skull", chance: 0.15, min: 1, max: 1 },
     ],
-    ai: { targeting: "nearest" },
+    // "they charge ANYTHING that moves" — the maddened have no preference at all
+    ai: { targeting: { erratic: true } },
   },
   {
     id: "tainted_boar",
@@ -671,7 +697,9 @@ export const ENEMIES: EnemyDefinition[] = [
       { type: "resource", resource: "cloven_hoof", chance: 0.8, min: 1, max: 2 },
       { type: "resource", resource: "boar_skull", chance: 0.4, min: 1, max: 1 },
     ],
-    ai: { targeting: "nearest" },
+    // "a spear through the heart barely" — relentless and mindless, straight
+    // ahead. Empty vector, not an omitted one: no grudges.
+    ai: { targeting: {} },
   },
   {
     id: "tainted_patriarch",
@@ -691,7 +719,8 @@ export const ENEMIES: EnemyDefinition[] = [
       { type: "resource", resource: "cloven_hoof", chance: 1, min: 2, max: 3 },
       { type: "resource", resource: "boar_skull", chance: 1, min: 1, max: 1 },
     ],
-    ai: { targeting: "nearest" },
+    // grown vast on the taint and past all fear — it goes straight through you
+    ai: { targeting: {} },
   },
 
   // ── Tier 2 — New Organized Threats ──────────────────────────────
@@ -725,6 +754,8 @@ export const ENEMIES: EnemyDefinition[] = [
     ],
     // No routsAt: the pack leader stands and fights to the death — it's the
     // deliberate reckoning the mission sends you for, not a beast to shoo off.
+    // "cleverer than a beast has any right to be" — and at mobility 36 he can ACT on it: the design showcase, where the same weights on slow legs would take the body in front instead
+    ai: { targeting: { roles: { healer: 1, caster: 0.8 }, condition: 0.3 } },
   },
   /* STASHED 2026-06-28 — Bog Witch enemy retired alongside the stale `bog_witch_lair`
      mission. Preserved for a future remake per the tragic Aldith/Ada design in

@@ -23,32 +23,13 @@ import type { CombatPotionEffect } from "../items/index.js";
  * `isRanged`/`canBypass`, so it stays on the existing `charge`/`combatRole`
  * fields until that work lands. Three knobs wired beats four half-wired.
  */
-export type AITargeting =
-  /** Any reachable target, at random. Erratic — a panicked or confused thing.
-   *  This is what `feral` USED to mean, before positions existed. */
-  | "random"
-  /** The closest reachable target. What an animal does: bite what's in front of
-   *  you. The `feral` default. */
-  | "nearest"
-  /** Scored: soft targets, wounded targets, and its own threat table. `tactical`. */
-  | "threat"
-  /** The SOFTEST target — weighs armor/resist AND the target's dodge and parry,
-   *  i.e. who this unit can actually land damage on. Walks past the plated,
-   *  parrying tank toward the cloth-wearer behind it. Counterplay is defensive:
-   *  armour, and a body-block so the soft one isn't reachable. */
-  | "squishiest"
-  /** The most EXPOSED target — whoever is cut off from their line, and whoever
-   *  is nearly down. Nothing to do with how soft they are: this is the flanker
-   *  that punishes a straggler and finishes the wounded. Counterplay is
-   *  positional: keep formation, don't let anyone drift. */
-  | "opportunist"
-  /** Whatever this unit's allies are already on. The pack instinct — it piles
-   *  onto a target its packmates have committed to, which is what turns a group
-   *  of wolves into a wolf pack. Falls back to `nearest` when nobody has
-   *  committed yet. */
-  | "gang-up"
-  /** Hunt the support line first (priest, then wizard). `cunning`. */
-  | "backline";
+/** What a creature WANTS in a target — a weighted score, not a label. See
+ *  targetScore.ts and docs/design/combat/TARGETING.md. The seven single-mode
+ *  names it replaced (nearest/threat/squishiest/opportunist/gang-up/backline/
+ *  random) were deleted 2026-09-04: two of them were already internally ranked
+ *  cascades, and every new taste needed a whole new mode. */
+export type { TargetWeights as AITargeting } from "./targetScore.js";
+import type { TargetWeights } from "./targetScore.js";
 
 /** How a unit answers a forced-target effect, named for what the unit DOES
  *  rather than what it resists. */
@@ -69,7 +50,7 @@ export type AITauntable = "obeys" | "ignores-generic" | "ignores";
 export type AIFear = "fearless" | "bolts" | "withdraws" | "yields";
 
 export interface AIProfile {
-  targeting: AITargeting;
+  targeting: TargetWeights;
   tauntable: AITauntable;
   fear: AIFear;
 }
