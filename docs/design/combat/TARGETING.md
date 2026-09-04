@@ -58,7 +58,13 @@ forgiving — the healer scores highest, everyone else still scores something.
 **Reach is the exception and is a multiplier**, because it is a *capability*
 gate rather than a taste. And it is normalised by the attacker's OWN mobility —
 "how many turns until I can get there" — which is the best property in this
-design:
+design.
+
+⚠ **Band-aware, not contact-aware** (review 2026-09-04): "get there" means *into
+my weapon band*, not into melee contact. The poacher is a back-row shooter whose
+bow covers the whole field — for it, everyone is zero turns away and the gate
+divides by ~1. Compute reach from `weaponAt`/band fit, or a ranged enemy's
+scorer thinks every target is distant when none are:
 
 > Greyfang wants Aldwin and at mobility 36 is one turn away, so the caster wins.
 > A slow skeleton wants Aldwin just as much, but he is five turns off, so the
@@ -78,7 +84,8 @@ more.
 | isolation | scored | drifted from their own line |
 | softness | scored | armour/resist × how hittable |
 | threat | scored | what they have done to me |
-| **reach** | **gate (multiplier)** | turns-to-arrive, given MY mobility |
+| ganged | scored | how many packmates already committed to them |
+| **reach** | **gate (multiplier)** | turns until they are inside MY weapon band |
 
 Note that "position" splits in two: **isolation** is a scored term, **distance**
 is the gate. Same word, two jobs.
@@ -88,6 +95,12 @@ is the gate. Same word, two jobs.
 Every dimension returns **0–1**. All magnitude lives in the weight. This is not
 cosmetic — it is the fix for the 100-vs-20 bug above, and without it one
 dimension silently owns the decision.
+
+Two dimensions need a definition to reach 0–1, decided here so the
+implementation doesn't improvise: **threat** is unbounded (it accumulates and
+decays ×0.9/round), so it normalises *relative to the attacker's
+highest-threat candidate* (their max = 1); **ganged** likewise divides by the
+number of living packmates.
 
 ## Perception: a creature scores what it can SEE
 
@@ -158,6 +171,37 @@ averages 4.5 rounds, about 27 target picks. Five dimensions might take it to
 chance is stat-based; `prerolledCombat` is a single sim at deploy). If it ever
 mattered, memoise the per-round dimensions (isolation, softness) — but that is
 premature.
+
+## Open edges (review 2026-09-04)
+
+Found by re-reading the doc against the code; each is small, but unstated they
+would be improvised at implementation time.
+
+- **Target stickiness.** Re-scoring every turn invites flip-flop: isolation and
+  wounded values shift each round, so a wolf could switch targets every turn and
+  never finish anything. The codebase has already learned this lesson once —
+  `moveUnit` commits its breakthrough intent ONCE, with a comment about exactly
+  this jitter. Give the current target a small commitment bonus (a `sticky`
+  weight, default ~0.2) rather than a hard lock, so a genuinely better target
+  can still peel the attacker off.
+- **The rout exclusion stays a hard filter.** "Threats first, runners after"
+  (ROUT_AND_FLIGHT) must NOT become a weight — a weighted version would let
+  heroes plink a fleeing boar while its mate gores the line whenever the
+  numbers said so. It remains a pool filter ahead of the scorer, and Nessa's
+  Pursuit talent lifts the filter, not a weight.
+- **Hero-side scoring stays fixed in v1.** Perception is symmetric (decided
+  above), but the *weights* are not: `pickTargetForAdventurer` keeps its current
+  scoredPick behaviour. Authorable hero weights arrive with talents (Pursuit,
+  and any "hunter" style) — not before, or every adventurer needs numbers on
+  day one.
+- **Perception gates FOE-targeting only, v1.** Heals and buffs (priest
+  `canBeHealed` path) keep full sight of allies. Whether a priest can heal into
+  smoke is a real question — deferred, not decided, and cheap to add later since
+  perceive() is one function.
+- **AoE respects the pool it was given.** Cleave/Multi-Shot pick secondary
+  targets from the same perceived pool, so smoke isn't defeated by an area
+  swing. (NB those two abilities are already in the inbox for logging 0 damage —
+  verify that first, or the AoE rule is being built on a possibly-broken floor.)
 
 ## Held to the outside-combat test
 

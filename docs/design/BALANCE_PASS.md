@@ -166,3 +166,22 @@ missions — defined but never fielded. Either give them a home or cut them.
 **Sequencing note:** do this pass AFTER `TARGETING.md`, because tuning each
 enemy's damage and its targeting weights in one audit is better than tuning
 damage now and re-opening every enemy later.
+
+**Knock-ons the danger pass must carry (review 2026-09-04):**
+
+- **Raids move with it.** `raidCombat.ts` imports `buildEnemyUnits` — the raid
+  sim is fed by the SAME enemy definitions. Buffing tier-1 damage makes every
+  wolf/boar raid harder against the same walls; re-check garrison/wall numbers
+  in the same pass, or defense difficulty drifts silently.
+- **Recovery and the healing economy.** More damage taken means longer wounded
+  time at home and more salve/potion demand. That is the intended pressure (it
+  finally gives the apothecary a customer), but it should be *watched*, not
+  discovered.
+- **Mission previews.** The card's success % is stat-based (thr = diff×8) and
+  does not read combat sims — after the pass, spot-check that a mission's stars
+  still roughly match how dangerous it actually is.
+- **The 20-round cap is an OPEN QUESTION.** Asked 2026-09-04, not yet answered:
+  is the cap itself part of why nothing feels dangerous? With the target of
+  5–8-round fights the cap stops binding either way, so decide it AFTER the
+  pass, on post-pass data.
+
