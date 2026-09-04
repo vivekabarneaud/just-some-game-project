@@ -74,31 +74,73 @@ reads it**; only `onTurn` is consumed by the round pipeline. Wiring it is small
 and already designed, but it is not there. Not needed for v1 -- boars and wolves
 want no abilities while fleeing.
 
-## Three layers, each optional
+## Two things, and they do not mix
 
-1. **preset** (today's `aiTier`) -- a named bundle: `feral` = nearest + bolts,
-   `tactical` = threat + withdraws, `cunning` = backline + withdraws
-2. **knobs** (`ai: {}`) -- override the preset knob-by-knob. `resolveAI` already
-   resolves `u.ai?.fear ?? preset ?? default`, so **a cunning enemy that bolts is
-   just `aiTier: "cunning", ai: { fear: "bolts" }`**
-3. **behaviour** (`aiBehavior`) -- authored states for the handful that deserve one
+The knobs describe the creature's **mind** and are static. A transformation
+describes what is true of it **right now**, and stamps modifiers. Keeping these
+apart is the whole design; an earlier draft had transformation states
+re-authoring the knobs, which was wrong (see below).
 
-Most enemies need only layer 1. Nothing needs layer 3 yet.
+| | what it is | authored as | example |
+|---|---|---|---|
+| **AI knobs** | intrinsic, never changes during a fight | `ai: {}` on the enemy | `{ targeting: "backline", tauntable: "ignores-generic", fear: "withdraws" }` |
+| **Transformation** | temporary, a state that stamps modifiers | an `aiBehavior` state | `+30% str`, `tauntImmune`, `-mobility`, `+regen`, preferred spells |
 
-### Rename `aiTier` (decision pending)
+`resolveAI` keeps its existing two-layer `??` chain (authored `ai` → defaults)
+and gains **nothing**. A transformation never touches it.
 
-The field is documented as legacy in four files ("Preferred over `aiTier` for new
-enemies"), yet **14 enemies use it and zero use `ai: {}`** -- so the legacy field
-is currently the only field. And `EnemyDefinition` already has `tier: 1|2|3|4|5`
+### Why modifiers and not state-scoped knobs
+
+Because the codebase already does exactly this, twice, and a third mechanism for
+the same job would be waste. `modifiers.ts` says it outright: *"State is stamped
+onto units; damage.ts and other consumers read the flags rather than the
+modifiers list directly"* — re-evaluated each round so gates can flip mid-fight.
+And `round/status.ts` already ticks per-unit temporary state: `slowed` counting
+down, stat debuffs, poison DoTs, `focusRounds`, `tauntedBy` cleared each round.
+
+A transformation is therefore a **modifier bundle on a timer/threshold**, which
+also means the same bundle can be granted by a spell, a potion or a talent. That
+composability is free; state-scoped knobs would not have had it.
+
+### `tauntable` and `tauntImmune` are NOT the same thing
+
+An earlier draft conflated them. They are different in kind:
+
+- **`tauntable`** (knob, intrinsic): wolves ignore a warrior's generic taunt
+  because that is what wolves are. Three values, so an elite pull can land where
+  a generic one does not.
+- **`tauntImmune`** (flag, temporary): *currently* too far gone to be pulled.
+  Granted by a berserk, and equally grantable by anything else.
+
+### Worked examples
+
+**Greyfang, cornered** — `enraged`: str ×1.3, `tauntImmune`, mobility up. Fires
+at the same threshold his `routsAt` would, so **the enrage races the rout**: the
+pack leader snaps where the boar bolts, and which one a creature does becomes its
+character rather than a flag. `routsAt` stays in the data and simply never fires.
+
+**Treant, rooting** — `rooted`: mobility → 0, HP regen per round,
+`preferredAbilities: [...]`. A transformation that *costs* something is the more
+interesting kind, and it shows the bundle is not merely "buff".
+
+The only genuinely new piece in either is **HP regen** — poison DoT already
+ticks in `tickStatusEffects`, so regen is its mirror.
+
+## Delete `aiTier` — do not rename it
+
+An earlier draft proposed renaming it to `instinct` and keeping it as a preset.
+**That was wrong, and the roster disproves it:** the justification was that a
+preset would bundle targeting *and* flight, but the wolves and the boar are all
+`aiTier: "feral"` while the wolves withdraw and the boar bolts. One preset cannot
+determine flight. Reduced to setting `targeting` alone, `instinct` is a pure
+alias — just write `targeting: "nearest"`.
+
+So: delete the field, migrate the 14 enemies to explicit `targeting` (12 feral →
+`nearest`, 1 tactical → `threat`, 1 cunning → `backline`), and set `fear` per
+creature. The knobs are the system. This is also what the code already wanted —
+it is called legacy in four files, and `EnemyDefinition` carries `tier: 1|2|3|4|5`
 for POWER on the same object, which forces a disambiguating comment at
-`enemies.ts:136`. "Tier" also implies a ladder, and a feral wolf is not a weaker
-cunning goblin.
-
-Keep the preset (it now bundles two knobs, which is design intent, not
-shorthand), rename the field. Candidates: **`instinct`** (evocative, fits a
-bestiary; slight friction that "tactical" is not an instinct) or
-**`disposition`** (handles all three values cleanly, less flavourful). Migration
-is 14 one-line changes: 12 `feral`, 1 `tactical`, 1 `cunning`.
+`enemies.ts:136`.
 
 ## Build order
 
@@ -107,7 +149,9 @@ is 14 one-line changes: 12 `feral`, 1 `tactical`, 1 `cunning`.
 2. Fleeing units are catchable -- this is what makes Nessa's talents and assassin
    mobility matter, and it is the whole point per the test above.
 3. Lean Times' reward follows the kills.
-4. `preferredAbilities` wired, when the first cunning retreat is authored.
+4. Delete `aiTier`; the 14 enemies get explicit `targeting`.
+5. `AIState` gains a declarative modifier bundle + `preferredAbilities` wired,
+   when the first transformation or cunning retreat is authored.
 
 ## Deliberately NOT in v1
 
