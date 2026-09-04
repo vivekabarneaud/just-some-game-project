@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import {
-  perceivable, perceive, applySmoke, anyConcealment, pickTarget,
+  perceivable, perceive, applySmoke, pickTarget,
   pickTargetForAdventurer, setCombatSeed, type CombatUnit,
 } from "@medieval-realm/shared/data/combat";
 import { computeHolds } from "@medieval-realm/shared/data/combat/positional";
@@ -81,12 +81,6 @@ describe("smoke stamps both flags, and cleans up after itself", () => {
     expect(vanished.blinded).toBe(false);
   });
 
-  it("anyConcealment is the cheap skip for the overwhelmingly common case", () => {
-    const clear = ctxWith(undefined, [u("a"), foe()]);
-    expect(anyConcealment(clear)).toBe(false);
-    const murky = ctxWith(undefined, [u("a", { concealed: true }), foe()]);
-    expect(anyConcealment(murky)).toBe(true);
-  });
 });
 
 describe("perception runs AHEAD of the forced overrides", () => {

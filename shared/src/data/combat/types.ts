@@ -3,14 +3,6 @@ import type { EnemyTag, EnemyAbility } from "../enemies.js";
 import type { CombatPotionEffect } from "../items/index.js";
 
 /**
- * Per-enemy targeting intelligence — drives how the threat system affects them.
- *   feral    : random target, ignores threat (mindless beasts, low-tier mobs)
- *   tactical : threat-aware scored pick (default — most enemies)
- *   cunning  : prioritize backline (priest > wizard) over threat (smart casters, elites)
- * Boss flag is orthogonal — a feral dragon is fine. AI tier shapes targeting only.
- */
-
-/**
  * Composable AI knobs (DESIGN_TIER1_ENEMIES §1 "Composable AI"). A unit's brain
  * is a few ORTHOGONAL knobs rather than one tier string: defaults plus opt-in
  * exceptions, the same philosophy as the stat schema. Deliberately small and
@@ -23,12 +15,6 @@ import type { CombatPotionEffect } from "../items/index.js";
  * `isRanged`/`canBypass`, so it stays on the existing `charge`/`combatRole`
  * fields until that work lands. Three knobs wired beats four half-wired.
  */
-/** What a creature WANTS in a target — a weighted score, not a label. See
- *  targetScore.ts and docs/design/combat/TARGETING.md. The seven single-mode
- *  names it replaced (nearest/threat/squishiest/opportunist/gang-up/backline/
- *  random) were deleted 2026-09-04: two of them were already internally ranked
- *  cascades, and every new taste needed a whole new mode. */
-export type { TargetWeights as AITargeting } from "./targetScore.js";
 import type { TargetWeights } from "./targetScore.js";
 
 /** How a unit answers a forced-target effect, named for what the unit DOES
@@ -50,6 +36,10 @@ export type AITauntable = "obeys" | "ignores-generic" | "ignores";
 export type AIFear = "fearless" | "bolts" | "withdraws" | "yields";
 
 export interface AIProfile {
+  /** What this creature WANTS in a target — a weighted score, not a label. See
+   *  targetScore.ts + docs/design/combat/TARGETING.md. (The seven single-mode
+   *  names this replaced were deleted 2026-09-04: two were already internally
+   *  ranked cascades, and every new taste needed a whole new mode.) */
   targeting: TargetWeights;
   tauntable: AITauntable;
   fear: AIFear;
@@ -217,9 +207,9 @@ export interface CombatUnit {
    *  `ai` block (falling back to the legacy fields below). Consumers read THIS,
    *  not the legacy fields, so there's one source of truth per fight. */
   ai?: AIProfile;
-    // ── Threat (WoW-style per-target threat table) ──
-  /** For enemies: maps allyId → accumulated threat against that ally. Highest entry
-   *  is the preferred target (subject to AI tier rules). Allies leave this empty. */
+  // ── Threat (WoW-style per-target threat table) ──
+  /** For enemies: maps allyId → accumulated threat against that ally. Read by the
+   *  scorer's `threat` dimension, weighted per creature. Allies leave this empty. */
   threatTable?: Record<string, number>;
   /** For allies: how much threat they generate per point of damage/heal. Default 1.0.
    *  Mission-side (npcAlly.threatMultiplier) overrides per encounter. */

@@ -1,7 +1,6 @@
 import type { CombatUnit } from "./types.js";
 import { combatRandom } from "./prng.js";
-import { getDefenseReduction, getMagicResistReduction, dealsMagicalDamage, getAvoidance } from "./stats.js";
-import { getThreat } from "./threat.js";
+import { getDefenseReduction, getMagicResistReduction, dealsMagicalDamage } from "./stats.js";
 import { inReach } from "./positional.js";
 import { resolveAI } from "./ai/profile.js";
 import { scoreTarget, type TargetWeights } from "./targetScore.js";
@@ -94,8 +93,8 @@ function choose(attacker: CombatUnit, targets: CombatUnit[], allies?: CombatUnit
   return best;
 }
 
-/** How often a scored pick takes its second choice instead of its best. From
- *  the old scoredPick's threat path (0.15). */
+/** How often a pick takes its second choice instead of its best — deliberate
+ *  imperfection so combat doesn't read as robotic. Shared by both sides. */
 const TARGET_MISS_CHANCE = 0.15;
 
 /** A creature's authored taste, resolved through the same knob chain as the
@@ -135,32 +134,25 @@ export function pickTargetForAdventurer(attacker: CombatUnit, targets: CombatUni
   const standing = alive.filter((u) => !u.fleeing);
   const pool = standing.length > 0 ? standing : alive;
   if (pool.length === 1) return pool[0];
-  return scoredPick(attacker, reachable(attacker, pool), 20, 0.15, 0);
+  return heroScoredPick(attacker, reachable(attacker, pool));
 }
 
 /**
- * Scores alive targets by attack efficiency + threat (when attacker is an enemy
- * reading its own threat table). missChance picks the second-best instead of
- * the best with that probability — adds occasional "wrong" choices so combat
- * doesn't feel robotic.
+ * Hero-side pick: attack efficiency (how much lands through armour/resist) plus
+ * a nudge toward the wounded. Enemies stopped using this when their targeting
+ * became authored weights (targetScore.ts) — this survives ONLY for
+ * adventurers, whose behaviour deliberately stays as shipped in v1 (their
+ * authorable weights arrive with talents). That is also why the 100-vs-20 scale
+ * mix below is kept as-is: fixing it here would change hero picks.
  */
-function scoredPick(
-  attacker: CombatUnit,
-  alive: CombatUnit[],
-  woundedWeight: number,
-  missChance: number,
-  threatWeight: number,
-): CombatUnit {
+function heroScoredPick(attacker: CombatUnit, alive: CombatUnit[]): CombatUnit {
   const magical = dealsMagicalDamage(attacker);
-  const useThreat = threatWeight > 0 && attacker.isEnemy && attacker.threatTable;
   const scored = alive.map((t) => {
     const reduction = magical ? getMagicResistReduction(t) : getDefenseReduction(t);
-    const baseScore = (1 - reduction) * 100 + (1 - t.hp / t.maxHp) * woundedWeight;
-    const threatScore = useThreat ? getThreat(attacker, t.id) * 0.5 * threatWeight : 0;
-    return { target: t, score: baseScore + threatScore };
+    return { target: t, score: (1 - reduction) * 100 + (1 - t.hp / t.maxHp) * 20 };
   });
   scored.sort((a, b) => b.score - a.score);
-  if (missChance > 0 && scored.length > 1 && combatRandom() < missChance) return scored[1].target;
+  if (scored.length > 1 && combatRandom() < TARGET_MISS_CHANCE) return scored[1].target;
   return scored[0].target;
 }
 

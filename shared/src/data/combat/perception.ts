@@ -11,8 +11,7 @@
 // neither the player nor the author could tell what happened or why.
 
 import type { CombatContext, CombatUnit } from "./types.js";
-import { inReach, paceGap } from "./positional.js";
-import { POS } from "./positional.js";
+import { paceGap, POS } from "./positional.js";
 
 /** Contact reveals: you can hear, smell and feel what is on top of you, whether
  *  or not you can see it. This is what stops concealment being absolute, and
@@ -52,14 +51,7 @@ export function perceive(attacker: CombatUnit, candidates: CombatUnit[]): Combat
   return candidates.filter((t) => perceivable(attacker, t));
 }
 
-/** Anyone at all hidden right now? Lets callers skip the filter entirely in the
- *  overwhelmingly common case where nothing is concealed or blinded. */
-export function anyConcealment(ctx: CombatContext): boolean {
-  for (const u of [...ctx.adventurers, ...ctx.enemies]) {
-    if (u.concealed || u.blinded) return true;
-  }
-  return false;
-}
+
 
 // ── Sources ────────────────────────────────────────────────────────────────
 //
