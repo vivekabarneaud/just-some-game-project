@@ -18,6 +18,7 @@ export { calcDamageResult, woundedDamageMult } from "./damage.js";
 export { getAttackPower, getMagicPower, getCritChance, getDodgeChance, getAccuracy, getParry, getAvoidance, MAX_AVOIDANCE, getInitiative, getDefenseReduction, getMagicResistReduction, dealsMagicalDamage, ATTACK_STAT_SCALE, UNARMED_RANGE, rarityWeaponRange, derivedDamageRange, weaponBand, MELEE_BAND, RANGED_BAND, CLOSE_IN_FRACTION } from "./stats.js";
 export { weaponAt, inReach, reachOf } from "./positional.js";
 export { pickTarget, pickTargetForAdventurer } from "./targeting.js";
+export { perceivable, perceive, applySmoke, anyConcealment, type SmokeCloud } from "./perception.js";
 export { buildAdventurerUnit, buildEnemyUnits, buildNpcAllyUnit, calcFamilyBonuses } from "./units.js";
 export type { AIBehavior, AIState, AITransition } from "./ai/index.js";
 export { DEFAULT_BEHAVIOR } from "./ai/index.js";

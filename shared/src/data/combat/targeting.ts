@@ -5,6 +5,7 @@ import { getThreat } from "./threat.js";
 import { inReach } from "./positional.js";
 import { resolveAI } from "./ai/profile.js";
 import { scoreTarget, type TargetWeights } from "./targetScore.js";
+import { perceive } from "./perception.js";
 
 /** Prefer targets the attacker can actually reach this turn; if none are in
  *  reach (still closing), fall back to all so a movement intent still resolves
@@ -38,7 +39,15 @@ export function pickTarget(attacker: CombatUnit, targets: CombatUnit[], allies?:
 }
 
 function choose(attacker: CombatUnit, targets: CombatUnit[], allies?: CombatUnit[]): CombatUnit | null {
-  const alive = targets.filter((u) => u.hp > 0 && !u.fled);
+  const standing = targets.filter((u) => u.hp > 0 && !u.fled);
+  if (standing.length === 0) return null;
+
+  // PERCEPTION FIRST (TARGETING.md): a creature can only consider what it can
+  // assess. This runs ahead of the forced overrides on purpose — otherwise an
+  // invisible or smoked taunter would still yank enemies onto itself, which
+  // would defeat the whole point of concealment. Perceiving nobody means
+  // holding: choose() returns null and basicAttack simply does not swing.
+  const alive = perceive(attacker, standing);
   if (alive.length === 0) return null;
 
   // Pack Howl focus: locked on the alpha's marked prey, IGNORING taunts (the pack
@@ -129,7 +138,10 @@ function bestBy(pool: CombatUnit[], score: (u: CombatUnit) => number): CombatUni
  * Threat doesn't apply on this side — adventurers/allies pick their own targets.
  */
 export function pickTargetForAdventurer(attacker: CombatUnit, targets: CombatUnit[]): CombatUnit | null {
-  const alive = targets.filter((u) => u.hp > 0 && !u.fled);
+  // Perception is SYMMETRIC (TARGETING.md): without this the player's heroes
+  // would have godlike sight while enemies groped in the dark. Their scoring
+  // weights stay fixed in v1 — only what they can SEE changes.
+  const alive = perceive(attacker, targets.filter((u) => u.hp > 0 && !u.fled));
   if (alive.length === 0) return null;
   // Threats first, runners after (ROUT_AND_FLIGHT): a fleeing enemy is ignored
   // while anything is still fighting — nobody shoots the running boar while its

@@ -4,6 +4,7 @@ import { drinkCombatPotions } from "./potions.js";
 import { runActions } from "./actions.js";
 import { applyMissionModifiers } from "../modifiers.js";
 import { applySurvivalReflex, evaluateRetreat, playerGone, enemiesGone } from "../retreat.js";
+import { applySmoke } from "../perception.js";
 
 /**
  * One combat round. Returns true if combat should continue, false to break.
@@ -26,6 +27,17 @@ export function runRound(ctx: CombatContext): boolean {
   // last round (e.g. Niamh died), this is what removes the physical-pierce flag
   // from ghosts and restores their immunity for the rest of the fight.
   applyMissionModifiers(ctx);
+
+  // Concealment before anyone looks at anyone: smoke clouds tick down and stamp
+  // concealed/blinded on whoever is standing in them (perception.ts). Same
+  // "stamp flags, consumers read them" shape as the modifiers above, and it must
+  // run BEFORE the action phase so this round's target picks see this round's
+  // smoke. Skipped entirely when no fight has any.
+  if (ctx.smoke?.length) {
+    for (const c of ctx.smoke) c.rounds--;
+    ctx.smoke = ctx.smoke.filter((c) => c.rounds > 0);
+  }
+  applySmoke(ctx);
 
   tickStatusEffects(ctx);
   // Survival reflex (Model C): a non-overkill DoT/tick death leaves the hero

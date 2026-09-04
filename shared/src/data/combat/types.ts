@@ -288,6 +288,18 @@ export interface CombatUnit {
    *  of fighting. Still on the field, still hittable — reaching the edge sets
    *  `fled`. Transient combat state, never persisted. */
   fleeing?: boolean;
+  /** Perception (TARGETING.md). Two flags because the asymmetry is the point:
+   *  `concealed` = nobody sees THEM (invisibility, or standing in smoke);
+   *  `blinded` = THEY see nothing (a blinding effect, or standing in smoke).
+   *  Contact always reveals, so neither is ever absolute. All transient. */
+  concealed?: boolean;
+  blinded?: boolean;
+  /** Invisibility from an effect (Vanish, a spell) as opposed to from smoke —
+   *  kept separate so stepping out of a cloud does not strip it. */
+  invisible?: boolean;
+  /** Currently standing in a smoke cloud; owned by applySmoke, which clears
+   *  only what it set. */
+  smoked?: boolean;
   /** This unit's presence upgrades the team's retreat judgment (Morgause). Set at
    *  unit-build time. Command is lost if they fall/flee/break. */
   isCommander?: boolean;
@@ -460,6 +472,9 @@ export interface CombatResult {
 
 /** Context passed to ability handlers and AI state methods. */
 export interface CombatContext {
+  /** Active smoke clouds — x-ranges of the field nobody sees into or out of.
+   *  See perception.ts. Optional: almost every fight has none. */
+  smoke?: { from: number; to: number; rounds: number }[];
   round: number;
   /** All adventurer units (including fallen). Filter by hp > 0 for alive. */
   adventurers: CombatUnit[];
