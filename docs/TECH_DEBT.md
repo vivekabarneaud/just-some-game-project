@@ -12,8 +12,18 @@ Dump one-liners here while playtesting. No format, no tier, no triage: getting i
 out of your head is the whole job. Anything that survives gets sorted into the
 tiers below.
 
-- [ ] **Modal close (X) button scrolls away.** It should stay put, sticky to the
-  top of the modal, instead of moving with the content. (2026-09-01)
+- [x] **Modal close (X) button scrolls away.** ~~It should stay put, sticky to the
+  top of the modal, instead of moving with the content.~~ (2026-09-01) **Fixed
+  2026-09-04.** The cause in both cases: the ✕ was `position: absolute` inside
+  the element that carries `overflow: auto`, so it scrolled with the content
+  rather than with the modal. Anchored it to a non-scrolling shell instead.
+  `FramedModal` (which fixes it for BuildingModal, AlchemyDesk, KitchenDesk,
+  PenManageModal, GarrisonDetailModal and TravelingMerchantModal at once) and
+  `MemoryPreviewModal`, which needed a wrapper adding because the card *was* the
+  scroller. Checked the other modals: `ChronicleEntryModal` was already fine (its
+  button anchors to a fixed-size page, not the scroller) and `CombatPlayback`
+  has no ✕ at all.
+
 
 ## Tier 1 — Live bugs
 
