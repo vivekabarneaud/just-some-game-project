@@ -231,22 +231,40 @@ Verified against the code before writing; three findings sharpened the design:
   result is computed, so the cap cannot strand one on the field.
 - New log beats (`turns_tail`, `yield`) join the beat union; playback renders
   notes generically, so no UI change.
+- **A bolting unit is hard to shoot** (user concern: a whole-field bow would
+  make runners free kills). Reuses `elusiveAtRange` — the existing
+  distance-scaled dodge bonus that already peaks at 45+ paces — as a temporary
+  bonus while bolting. So the farther the runner gets, the worse the shot: an
+  archer gets one good shot as it turns, then chancy ones. The assassin stays
+  the reliable catcher; `withdraws` (backing off, facing you) is hit normally,
+  which makes the two flight styles a real trade-off.
+- **Shrinking `RANGED_BAND` itself is out of scope, with a hard reason:** ranged
+  units never advance (`moveUnit`'s ranged branch only kites) — cap the bow at
+  60 paces and an archer whose target sits at 70 stands doing nothing forever.
+  Revisiting the band means adding ranged-advance movement first; that is its
+  own pass, recorded here so the "archers reach everything" question isn't lost.
 - Tuning constants in one place (`FLIGHT`), flagged for the balance pass.
 - Tests: a bolting boar exits within N rounds, counts defeated, sheds only
   keepOnRout loot; slain mid-flight drops the full table; a yielded human counts
   defeated and keeps his gold line; fleeing units are not targeted while a
   fighter remains; the fight ends despite a fleeer at the round cap.
 
-### Phase 4 — the reward follows the kills
+### Phase 4 — the meat IS the boar (no new mechanism)
 
-- `CombatResult.enemiesSlain` (hp ≤ 0 count; `performanceRatio` semantics
-  unchanged so XP is untouched).
-- `MissionTemplate.rewardsScaleWithKills?: boolean`; at the stamp site,
-  `amount × enemiesSlain / totalEnemies`, rounded.
-- `lean_times` gets the flag: both boars die → 20, one → 10, both escape → a
-  successful hunt that brought home nothing (the IDEAS decision, restated:
-  success means nobody died; the larder teaches you to send a better team).
-- Tests: the scaling math; the flag on lean_times.
+An earlier draft added `rewardsScaleWithKills` + a `CombatResult.enemiesSlain`
+field. **Cut entirely (user call):** the loot system already does the whole job
+— `keepOnRout` skips a fled enemy's drops, a slain one rolls its full table.
+So:
+
+- `lean_times.rewards` → `[]` — XP only. Precedent already in the pool: the
+  quarry-spider missions are XP-only ("the reward is the unlocked yield").
+- The boar's meat drop becomes worth hunting: `chance: 1`, amounts raised so two
+  slain boars land near the old flat 20 (a boar IS a lot of meat).
+- **This changes every boar encounter, deliberately** — killing a boar feeds you
+  wherever you kill it, which is more coherent, not less. `a_bad_season_for_boars`
+  et al. get richer; flag for the balance pass.
+- Mission-card copy: with `rewards: []` the card shows no reward line, so the
+  description carries it — the meat is whatever you bring down.
 
 ### Phase 5 — close the loop
 
