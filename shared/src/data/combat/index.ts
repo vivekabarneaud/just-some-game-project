@@ -108,6 +108,22 @@ export function simulateCombat(
     if (!cont) break;
   }
 
+  // Round-cap escape hatch (ROUT_AND_FLIGHT): anything still mid-flight when
+  // the cap lands got away — the fight is over and nobody chases forever. Marks
+  // them fled so the result counts them defeated-with-sheddable-loot, exactly
+  // as if they had made the edge, and so a runner can never strand a fight.
+  for (const e of enemies) {
+    if (e.fleeing && !e.fled && e.hp > 0) {
+      e.fled = true;
+      ctx.log.push({
+        round: ctx.round, attackerName: e.name, attackerIcon: "🏃",
+        targetName: e.name, damage: 0, dodged: false, crit: false, killed: false,
+        targetHp: Math.max(0, e.hp), targetMaxHp: e.maxHp, isEnemy: true,
+        beat: "flee_success", note: `${e.name} is gone into the wilds`,
+      });
+    }
+  }
+
   stampLogIds(ctx.log, roster);
   const result = buildResult(adventurers, enemies, totalEnemies, ctx.log, ctx.round);
   result.roster = roster;

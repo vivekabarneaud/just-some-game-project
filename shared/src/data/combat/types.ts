@@ -279,10 +279,15 @@ export interface CombatUnit {
   /** Positional movement intent, committed once: true = pushed past the front to
    *  hunt the backline; false = holds the front line. Undefined until decided. */
   breakthrough?: boolean;
-  /** Enemy rout threshold (0-1 of maxHp). When an enemy at/below this breaks and
-   *  flees on its turn — set `fled` (survives, off the field) instead of fighting
-   *  on. Carried from EnemyDefinition.routsAt. Undefined = fights to the end. */
+  /** Enemy rout threshold (0-1 of maxHp). At/below this the unit's nerve breaks;
+   *  its `ai.fear` style decides what that looks like (ROUT_AND_FLIGHT): yields =
+   *  out where they stand; bolts/withdraws = actual movement toward its own field
+   *  edge. Carried from EnemyDefinition.routsAt. Undefined = fights to the end. */
   routsAt?: number;
+  /** Mid-flight: nerve broken, moving toward its own field edge each turn instead
+   *  of fighting. Still on the field, still hittable — reaching the edge sets
+   *  `fled`. Transient combat state, never persisted. */
+  fleeing?: boolean;
   /** This unit's presence upgrades the team's retreat judgment (Morgause). Set at
    *  unit-build time. Command is lost if they fall/flee/break. */
   isCommander?: boolean;
@@ -367,7 +372,7 @@ export interface CombatLogEntry {
   /** Retreat/recovery narrative beat (Model C). Interim flat-schema marker until
    *  the combat-log discriminated-union refactor lands; the renderer can special-
    *  case these as highlighted lines. */
-  beat?: "broken" | "flee_success" | "flee_fail" | "order_hold" | "order_fallback" | "abandoned" | "move" | "stunned";
+  beat?: "broken" | "turns_tail" | "yields" | "flee_success" | "flee_fail" | "order_hold" | "order_fallback" | "abandoned" | "move" | "stunned";
   /** Human-readable narrative line for a `beat` entry. */
   note?: string;
   /** Battlefield position updates applied WHEN this entry plays (id → new pace on

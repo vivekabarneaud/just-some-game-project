@@ -20,6 +20,17 @@ export const POS = {
   holdPer: 2,          // attackers ONE frontliner pins; the rest overflow to the backline
 };
 
+/** Flight tuning (ROUT_AND_FLIGHT). How a broken enemy leaves the field:
+ *  `bolts` runs flat out at double pace and weaves (a temporary elusion peak, so
+ *  ranged shots get worse as the gap opens — one good shot as it turns, then
+ *  chancy ones); `withdraws` backs off at a wary walk, normally hittable, and
+ *  still bites in reach. Balance-pass knobs, all three. */
+export const FLIGHT = {
+  boltMult: 2,      // bolting: flat-out run, double mobility per turn
+  withdrawMult: 1,  // withdrawing: a backstep at normal pace
+  boltElusion: 35,  // peak bonus dodge % vs ranged while bolting (the zigzag)
+};
+
 /** Charge tuning (Charger archetype). A charge covers ground in the Move phase;
  *  the gore's bonus + knockback scale with the distance actually charged. Small,
  *  capped knockback keeps it loop-safe (no charge->shove->charge spiral). */
