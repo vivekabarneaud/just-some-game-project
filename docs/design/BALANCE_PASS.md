@@ -185,3 +185,38 @@ damage now and re-opening every enemy later.
   5–8-round fights the cap stops binding either way, so decide it AFTER the
   pass, on post-pass data.
 
+## Done 2026-09-04: the boar, and the level curve
+
+**The boar** is burst instead of attrition: 30 hp (was 60) with an authored
+7-11 gore (was a derived 2-4), mobility ~20 (was 8 — it was outrun by the
+armoured warrior chasing it), and `charge.cooldown` 3 (was 99: one charge per
+fight, then it walked). Against a level-1 warrior: drops her in 7 hits (was
+21), she kills it in 5 (was 10), full charge ~31% of her health (was 10%).
+
+**`CLASS_STAT_GROWTH` halved**, ~15 points a level to ~7 (+2 to the pair that
+defines the class, +1 to the rest). The argument was not feel, it was that
+`STAT_POINTS_PER_LEVEL`'s own comment says "gear is the main customization"
+while the best tier-1 weapon carried +6 points against a level's +15 — gear was
+noise. A steel sword is now worth two levels instead of two-thirds of one, and
+warrior HP grows 64 -> 368 over twenty levels rather than 64 -> 824.
+
+Effect on pacing, measured: tier 1 is now meaningful from L1 to L3 (boar needs
+7 -> 10 hits, charge 31% -> 21%) where before it was finished by L2 (7 -> 15
+hits). **No growth rate keeps a 30 hp boar relevant at L8** — fights average
+4.5 rounds, so an enemy must land roughly a quarter of a hero's health per hit
+to threaten at all. That is what enemy `tier` is for; this buys pacing, not
+permanence.
+
+⚠ **Accepted gap:** thinning stat growth thins what a level gives, and the other
+two things it should give are unbuilt — see TECH_DEBT 1.16 (155 talent nodes,
+zero combat reach, plus two dead hooks) and 1.17 (`statReq` authored by nothing).
+
+### Corrections to the section above
+
+The "hits to drop a warrior L2" table earlier in this doc was measured through
+`buildRecruitFromPremadeId(..., 2)`, which rolled `Math.random()` for the
+character's rank (TECH_DEBT 1.15) — so those figures are averages over teams of
+**random** strength, not a level-2 warrior. Read them as level-1-ish and
+directional. Everything under this heading is measured against a deterministic
+hero built at an exact level.
+

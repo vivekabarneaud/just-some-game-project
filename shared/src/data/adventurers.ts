@@ -686,12 +686,34 @@ export const CLASS_BASE_STATS: Record<AdventurerClass, AdventurerStats> = {
   assassin:{ str: 8, int: 4, dex: 9, vit: 5, wis: 2 },
 };
 
+/**
+ * Per-level stat growth. **+2 to the pair that defines the class, +1 to the
+ * rest** — about 7 points a level, down from ~15 (2026-09-04).
+ *
+ * WHY IT WAS CUT IN HALF. `STAT_POINTS_PER_LEVEL` below says "gear is the main
+ * customization", but the numbers said otherwise: the best tier-1 weapon in the
+ * game (`enchanted_staff`) carries +6 stat points, a steel sword +4, while ONE
+ * LEVEL carried +15. Levelling was worth two-and-a-half of your best weapons,
+ * so gear could never be the interesting choice. A steel sword is now worth two
+ * levels instead of two-thirds of one.
+ *
+ * It also fixes pacing: warrior HP grew 64 -> 824 over twenty levels (13x), so
+ * you outgrew a whole enemy tier in about two levels. Now 64 -> 368 (5.75x),
+ * which is four or five levels per tier.
+ *
+ * ⚠ KNOWN GAP, accepted deliberately (user call): this thins what a level GIVES
+ * you, and the other two things it is supposed to give are not built yet — 155
+ * talent nodes exist and the combat engine reads NONE of them, and `statReq` on
+ * items is declared but authored by zero items. So for now a level is mostly
+ * talent points that do nothing. Filed in TECH_DEBT; the gap is the motivation
+ * to build the trees.
+ */
 export const CLASS_STAT_GROWTH: Record<AdventurerClass, AdventurerStats> = {
-  warrior: { str: 6, int: 1, dex: 2, vit: 5, wis: 1 },
-  wizard:  { str: 1, int: 7, dex: 1, vit: 2, wis: 4 },
-  priest:  { str: 1, int: 5, dex: 1, vit: 4, wis: 4 },
-  archer:  { str: 2, int: 2, dex: 6, vit: 3, wis: 1 },
-  assassin:{ str: 4, int: 2, dex: 6, vit: 2, wis: 1 },
+  warrior: { str: 2, int: 1, dex: 1, vit: 2, wis: 1 }, // the wall: hits and holds
+  wizard:  { str: 1, int: 2, dex: 1, vit: 1, wis: 2 }, // the mind: power and resistance
+  priest:  { str: 1, int: 2, dex: 1, vit: 2, wis: 1 }, // heals (INT) and endures
+  archer:  { str: 1, int: 1, dex: 2, vit: 1, wis: 1 }, // precision above all
+  assassin:{ str: 2, int: 1, dex: 2, vit: 1, wis: 1 }, // precision AND a real edge
 };
 
 /** Stat points gained per level that player can allocate */
