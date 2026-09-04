@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { simulateCombat, pickTargetForAdventurer, type CombatUnit } from "@medieval-realm/shared/data/combat";
-import { FLIGHT, POS, mobilityOf } from "@medieval-realm/shared/data/combat/positional";
+import { simulateCombat, pickTargetForAdventurer, type CombatUnit, type CombatContext } from "@medieval-realm/shared/data/combat";
+import { FLIGHT, POS, mobilityOf, computeHolds } from "@medieval-realm/shared/data/combat/positional";
 import { buildRecruitFromPremadeId } from "@medieval-realm/shared/data/adventurers";
 import { NOVICE_MISSIONS } from "@medieval-realm/shared/data/missions";
 
@@ -80,6 +80,30 @@ describe("flight tuning invariants", () => {
     const perRound = Math.max(4, Math.round(mobilityOf(boar) * FLIGHT.boltMult));
     const worstDistance = POS.fieldMax - POS.allyFront;
     expect(Math.ceil(worstDistance / perRound)).toBeLessThanOrEqual(6);
+  });
+});
+
+describe("a runner holds nothing", () => {
+  // computeHolds counts non-ranged units as holders of the opposing front. It
+  // filters `fled` via living(), but a unit MID-flight is still on the field —
+  // so without excluding `fleeing` a boar running for the treeline would keep
+  // contributing hold capacity and pin the very people chasing it.
+  const mk = (id: string, over: Partial<CombatUnit>): CombatUnit =>
+    ({ id, name: id, hp: 20, maxHp: 20, x: 60, kind: "enemy", isEnemy: true,
+       str: 5, dex: 5, int: 1, vit: 5, wis: 1, cooldowns: {}, slowed: 0,
+       poisonTicks: [], statDebuffs: [], threatTable: {}, ...over }) as CombatUnit;
+
+  it("a fleeing enemy stops holding the line, so pursuers are free to advance", () => {
+    const warrior = mk("w", { kind: "adventurer", isEnemy: false, class: "warrior", x: 30 });
+    const boar = mk("boar", { x: 60 });
+    const ctx = { adventurers: [warrior], enemies: [boar] } as unknown as CombatContext;
+
+    // Standing: the boar is the front line, so it holds the advancing warrior.
+    expect(computeHolds(ctx).has("w")).toBe(true);
+
+    // Turned tail: nothing with its back turned holds anyone.
+    boar.fleeing = true;
+    expect(computeHolds(ctx).has("w")).toBe(false);
   });
 });
 

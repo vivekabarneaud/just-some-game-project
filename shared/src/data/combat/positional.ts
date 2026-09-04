@@ -97,9 +97,15 @@ export function placeUnits(ctx: CombatContext): void {
 }
 
 /** Which advancing melee are HELD by the opposing front this round (capacity =
- *  holders × holdPer, frontmost held first; overflow + bypass slip past). */
+ *  holders × holdPer, frontmost held first; overflow + bypass slip past).
+ *
+ *  A unit in flight holds nothing (ROUT_AND_FLIGHT). `living` already drops
+ *  units that finished fleeing (`fled`), but one still mid-run is on the field —
+ *  and without this it would keep contributing hold capacity, so a boar running
+ *  for the treeline could pin the very people chasing it. Nothing with its back
+ *  turned holds a line. */
 export function computeHolds(ctx: CombatContext): Set<string> {
-  const units = living(ctx);
+  const units = living(ctx).filter((u) => !u.fleeing);
   const held = new Set<string>();
   for (const enemySide of [true, false]) {
     const attackers = units.filter((u) => u.isEnemy === enemySide && !isRanged(u) && !canBypass(u));

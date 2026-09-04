@@ -25,6 +25,13 @@ tiers below.
   has no ✕ at all.
 
 
+- [ ] **Cleave / Multi-Shot may log 0 damage.** Spotted while tracing a Lean
+  Times fight (2026-09-04): both abilities emit a summary entry with
+  `damage: 0` and an empty `targetName`, and no per-target damage entries
+  appeared to follow. **Unverified** — the AoE may account damage elsewhere, and
+  this was noticed in passing rather than investigated. Worth 10 minutes: if
+  they really do fire for nothing, two class abilities are dead.
+
 ## Tier 1 — Live bugs
 
 - [x] **1.14 Every tooltip hover leaked a computation (reported from console warnings 2026-08-31).** `Tooltip.show()` called `hasContent()` as an early-out, which reads `props.text` / `props.content`. Solid compiles an inline JSX prop into a **getter**, so that read evaluates the caller's expression — and doing it from an event handler creates any resulting computation with **no owner**, so it is never disposed (`computations created outside a createRoot or render will never be disposed`). Each orphan stays subscribed to whatever it read, so it re-runs on every later store update for the rest of the session. There are **71 Tooltip call sites, ~49 passing reactive text/content**, plus `FramedItemCard`'s `tooltip=` forwarding — so hovering around the UI accumulated them steadily and the app got heavier the longer a session ran. Fixed by dropping the early-out: the render's `<Show when={visible() && hasContent()}>` already gates it, from inside the owner. Guarded by `tooltipOwnership.test.ts` (a source-contract test — there is no component-test setup in this package). **NB the same trap exists for any handler that touches a JSX prop**; a sweep found no other real instance. *S.*
