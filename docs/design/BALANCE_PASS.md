@@ -119,3 +119,50 @@ recruitment" (→ roster tab) — reword to match the acquisition model when con
 2. **Gold is too abundant, and from the wrong source.** Quests/missions hand out too much gold. **Design principle the user wants:** gold should come from **outsiders — trade, merchants, the tavern, caravans** — NOT from the settlement's own missions/quests (except ones that explicitly involve outsiders: escorts, deliveries, bounties paid by a named party). Rationale: it makes the *tavern and merchants matter* (right now the player is so rich the tavern's gold is irrelevant), and it fits the fiction (your own folk clearing wolves don't mint coin; a Dominion trader does). Action when verified: strip/shrink flat `gold` rewards on non-outsider missions; lean gold income onto tavern gold/day + merchant trades + escort/delivery missions. Ties to [[project_traveling_merchants]] + [[project_tavern_system]].
 
 **How to apply:** capture now, verify with a fresh-player session before re-tuning numbers. The *gold-source principle* (2) is safe to adopt as a design rule regardless; the *magnitudes* (1 & 2) wait for non-dev signal.
+
+## Tier-1 enemy danger — measured 2026-09-04, unfixed
+
+Every number here is measured, not felt. Against a **level-2 warrior (64 hp,
+~13 effective damage a swing)**:
+
+| enemy | hits to drop her | mobility |
+|---|---|---|
+| dominion_tough · starving_wolf | 26 | 8 · 16 |
+| grey_wolf · goblin_runt · wild_boar · grief_bound_spirit | 22 | 36 · 8 · 8 · 9 |
+| displaced_brigand · poacher · cutthroat | 16 | 8–9 |
+| rock_skitter | 15 | 9 |
+| tollman | 10 | 9 |
+
+**A fight averages 4.5 rounds** (measured over 200 sims) and caps at 20. So
+almost nothing in tier 1 can kill anyone — the fight is over long before they
+get there. That is the "fights feel too easy" complaint, and it is systemic
+rather than per-creature.
+
+**Three structural findings that say HOW to fix it:**
+
+1. **You cannot tune tier 1 by stats.** Enemy damage derives from
+   `derivedDamageRange(max(str, dex))`, which rounds to integers — so at tier-1
+   magnitudes str 6 and str 7 produce the *identical* range (3–5), and the whole
+   tier shares three ranges (2–4, 3–5, 3–6). Doubling a wolf's strength from 4
+   to 8 buys 2.4 → 5.3 effective damage.
+2. **Authored damage is the lever.** Only **2 of 21** tier-1/2 enemies author
+   `dmgMin`/`dmgMax`: `tollman` and `dominion_deserter`. The tollman is also the
+   only tier-1 enemy that is actually threatening. That is not a coincidence.
+3. **The boar is mis-shaped, not just weak.** 60 hp, pokes for 2–4, mobility 8
+   (slower than the warrior's 11, and 4.5× slower than a grey wolf), and
+   `charge: { cooldown: 99 }` — one charge per fight, then it walks. A 31-pace
+   charge was measured goring for **4 damage**, 6% of her health. Agreed
+   direction: ~32 hp, 7–11 damage, mobility ~20, charge cooldown 3. A real boar
+   is burst, not attrition — and a *wounded* boar commits rather than flees,
+   which wants the transformation system (ROUT_AND_FLIGHT's open remainder).
+
+**Targets to design against:** an enemy should drop a warrior in **6–10 hits**
+(so a pack of three is genuinely lethal), a warrior should kill one in **3–5**,
+and a tier-1 fight should run **5–8 rounds with real damage taken**.
+
+**Also found:** `cutthroat`, `goblin_runt` and `poacher` appear in **zero**
+missions — defined but never fielded. Either give them a home or cut them.
+
+**Sequencing note:** do this pass AFTER `TARGETING.md`, because tuning each
+enemy's damage and its targeting weights in one audit is better than tuning
+damage now and re-opening every enemy later.
