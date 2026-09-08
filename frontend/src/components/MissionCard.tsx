@@ -61,8 +61,9 @@ export default function MissionCard(props: MissionCardProps) {
   const fresh = () => getMission(mission().id) ?? mission();
   const isStory = () => !!props.storyChapter;
   const isExped = () => isExpedition(fresh());
-  const isUrgent = () => !isStory() && !isExped() && !!(fresh() as any).urgent;
-  const isSideChain = () => !isStory() && !isExped() && !isUrgent() && !!fresh().sideChain;
+  const isForaging = () => !!(fresh() as any).foraging;
+  const isUrgent = () => !isStory() && !isExped() && !isForaging() && !!(fresh() as any).urgent;
+  const isSideChain = () => !isStory() && !isExped() && !isUrgent() && !isForaging() && !!fresh().sideChain;
   const sideChainName = () => fresh().sideChain?.name;
   const guildLevel = () => actions.getGuildLevel();
   const isLocked = () => isExped() && guildLevel() < fresh().minGuildLevel;
@@ -82,6 +83,8 @@ export default function MissionCard(props: MissionCardProps) {
         ...(isExped() && !isStory() ? { border: "2px solid #a78bfa" } : {}),
         ...(isUrgent() ? { border: "2px solid #fb923c" } : {}),
         ...(isSideChain() ? { border: "2px solid #2dd4bf" } : {}),
+        // A trip you take yourself, not a team you send: green, and a basket.
+        ...(isForaging() ? { border: "2px solid #8cc063" } : {}),
       }}
     >
       {/* Locked overlay */}
@@ -129,6 +132,11 @@ export default function MissionCard(props: MissionCardProps) {
             <Show when={isExped() && !isStory()}>
               <div style={{ "font-size": "0.6rem", color: "#a78bfa", "margin-bottom": "2px", "text-transform": "uppercase", "letter-spacing": "0.5px", opacity: "0.9" }}>
                 ⚔️ Expedition{(fresh() as any).biome ? ` · ${(fresh() as any).biome}` : ""}
+              </div>
+            </Show>
+            <Show when={isForaging()}>
+              <div style={{ "font-size": "0.6rem", color: "#8cc063", "margin-bottom": "2px", "text-transform": "uppercase", "letter-spacing": "0.06em" }}>
+                🧺 A walk you take yourself
               </div>
             </Show>
             <Show when={isUrgent()}>

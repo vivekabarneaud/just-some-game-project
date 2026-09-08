@@ -159,6 +159,7 @@ const BattlePreview = lazy(() => import("./pages/BattlePreview")); // TEMP dev-o
 const AlchemyLabDev = lazy(() => import("./pages/AlchemyLabDev")); // TEMP dev-only — free-form alchemy sandbox
 const KitchenDev = lazy(() => import("./pages/KitchenDev")); // TEMP dev-only — free-form cooking sandbox
 const ForagingDev = lazy(() => import("./pages/ForagingDev")); // TEMP dev-only — foraging minigame sandbox
+const Foraging = lazy(() => import("./pages/Foraging")); // a real foraging trip, entered from a board card
 const Login = lazy(() => import("./pages/Login"));
 
 function AuthGuard(props: ParentProps) {
@@ -184,6 +185,8 @@ render(
         <Route path="/buildings" component={Buildings} />
         <Route path="/farming" component={Farming} />
         <Route path="/guild" component={AdventurersGuild} />
+        {/* A foraging trip. Inside the guard: it stores the basket. */}
+        <Route path="/forage/:missionId" component={Foraging} />
         <Route path="/guild/:id" component={AdventurerDetail} />
         <Route path="/inventory" component={Inventory} />
         <Route path="/tailoring" component={Tailoring} />

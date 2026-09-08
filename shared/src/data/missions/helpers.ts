@@ -8,12 +8,17 @@ import { NOVICE_MISSIONS } from "./noviceMissions.js";
 import { STORY_MISSIONS } from "./storyMissions.js";
 import { EXPEDITION_POOL } from "./expeditions.js";
 import { SIDE_CHAIN_MISSIONS } from "./sideChainMissions.js";
+import { FORAGING_MISSIONS } from "./foragingMissions.js";
 
 /** Pool used for the natural mission-board rotation AND for getMission lookup.
  *  When engine-test stubs need to live alongside real missions again, split
  *  this back into a ROTATION_POOL (rotation only) + ALL_MISSIONS (lookup). */
 const ALL_MISSIONS: MissionTemplate[] = [
   ...NOVICE_MISSIONS,
+  // Foraging trips (FORAGING_MINIGAME §3d). They must be in the LOOKUP list or
+  // getMission() cannot resolve a trip the player is standing in, and the board
+  // cannot see them at all.
+  ...FORAGING_MISSIONS,
   // Side-story chains: rank-neutral (getMissionRank returns undefined), so the
   // board quota treats them like story/expedition content — always eligible
   // when their gates open, balanced by their own difficulty, never tier-filed.
@@ -538,6 +543,8 @@ export function generateMissionBoard(ctx: MissionBoardContext): MissionTemplate[
   const completedUnique = new Set(ctx.completedUniqueMissionIds ?? []);
   const available = ALL_MISSIONS.filter((m) =>
     !m.staged &&
+    !m.foraging && // foraging rides along additively below, never as filler
+
     m.minGuildLevel <= guildLevel &&
     m.difficulty <= maxDifficulty &&
     !(m.unique && completedUnique.has(m.id)) &&
@@ -638,7 +645,17 @@ export function generateMissionBoard(ctx: MissionBoardContext): MissionTemplate[
   const shuffledExpeditions = [...availableExpeditions].sort(() => rand() - 0.5);
   const expeditions = shuffledExpeditions.slice(0, Math.min(expeditionSlots, availableExpeditions.length));
 
-  return [...regular, ...expeditions];
+  // Foraging trips ride along like expeditions: ADDITIVE, outside the `count`
+  // budget, and never shuffled away. A trip that cost a mission slot would make
+  // a for-fun walk compete with real work, and one that only sometimes appeared
+  // would read as a bug — the fiction is simply that the wood is there.
+  const foraging = FORAGING_MISSIONS.filter((m) =>
+    !m.staged &&
+    m.minGuildLevel <= guildLevel &&
+    meetsRequirements(m.requires, ctx),
+  );
+
+  return [...regular, ...expeditions, ...foraging];
 }
 
 /** Number of missions shown on board per refresh */

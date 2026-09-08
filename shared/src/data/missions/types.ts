@@ -88,6 +88,19 @@ export interface MissionTemplate {
    *  (The separate STAGED_MISSIONS holding pen was removed 2026-08-31; parked
    *  missions now just carry this flag inside their own tier file.) */
   staged?: boolean;
+  /** A FORAGING trip, not a deployment (FORAGING_MINIGAME §3d, 2026-09-08).
+   *  The card is only the door: clicking it drops the player straight into the
+   *  forest screen — no deploy panel, no adventurer occupied, no duration, no
+   *  failure state. `region` names which forest they walk into, which the story's
+   *  map unlocks widen over time.
+   *
+   *  This is what makes the board double as the trip economy: it refreshes daily
+   *  at 3am (the free trip a day) and `rerollMissions()` already prices extra
+   *  rolls at 10*2^n shards. No bespoke ticket system needed.
+   *
+   *  A mission with this flag carries no slots, no encounters and no rewards —
+   *  the basket the player carries home IS the reward. */
+  foraging?: { region: string };
   /** Urgent settlement-side response (a spider infestation in the quarry, a
    *  food crisis) — usually forced onto the board from game state. Drives the
    *  card's distinct orange outline + "⚠ At the settlement" banner so the player

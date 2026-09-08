@@ -70,6 +70,9 @@ function pinKind(m: MissionTemplate): { color: string; label: string } {
   if ((m as any).storyOrder != null || (m as any).chapter) return { color: "var(--accent-gold)", label: "Story" };
   if (m.urgent) return { color: "#e0803c", label: "At the settlement" };
   if (m.sideChain) return { color: "#3fb0a3", label: "Side story" };
+  // A foraging trip is not a deployment, so it must not look like one: green,
+  // and labelled as somewhere you GO rather than somewhere you send people.
+  if ((m as any).foraging) return { color: "#6f9e4a", label: "Forage" };
   return { color: "#b9a06a", label: "" };
 }
 

@@ -156,6 +156,7 @@ import { type FoodItemType,
   BERRY_TYPES,
   type DishKind,
 } from "~/data/foods";
+import { getForagePlant } from "@medieval-realm/shared/data/foraging/plants";
 import { ANIMAL_FEED,
   isGrazer,
   consumeFromCategories,
@@ -837,6 +838,11 @@ export interface GameState {
    *  board cycle — not re-forced until the board refreshes (3AM or shard
    *  reroll). See SCARCITY_ONCE_PER_BOARD. */
   scarcityDoneThisBoard?: string[];
+  /** Foraging trips already walked this board cycle (FORAGING_MINIGAME §3d).
+   *  Same lifetime as scarcityDoneThisBoard: cleared at the 3AM refresh and by a
+   *  shard reroll, which is what makes "one free trip a day, more for shards"
+   *  fall out of the board instead of needing its own ticket system. */
+  foragingDoneThisBoard?: string[];
   missionBoard: MissionTemplate[];
   // Harvest tracking
   yearHarvest: Record<string, number>; // { "wheat": 120, "flax": 60 }
@@ -1259,6 +1265,11 @@ interface GameActions {
   countUnseenJournalEntries: () => number;
   countUnseenMemories: () => number;
   rerollMissions: () => boolean;
+  completeForagingTrip: (missionId: string, basket: string[]) => {
+    stored: Record<string, number>;
+    spoiled: Record<string, number>;
+    noHome: Record<string, number>;
+  };
   /** Dev-only: replace the mission board with every novice mission, ignoring prerequisites. */
   devSpawnAllNoviceMissions: () => void;
   /** Dev-only: replace the board with the veteran (expert-pool) missions — for previewing high-rank frames. */
@@ -1549,6 +1560,7 @@ export function createInitialState(): GameState {
     completedMissions: [],
     missionCompletions: {},
     scarcityDoneThisBoard: [],
+    foragingDoneThisBoard: [],
     missionBoard: [],
     incomingRaids: [],
     hoursSinceLastRaid: 48, // start with 48h of calm
@@ -5659,6 +5671,7 @@ export function GameProvider(props: ParentProps) {
             s.missionBoard = generateMissionBoard(buildMissionBoardContext(s, guildLvl, now + s.year * 777));
             s.lastMissionRefresh = now;
             s.scarcityDoneThisBoard = []; // fresh board, fresh forced-scarcity allowance
+            s.foragingDoneThisBoard = []; // and a fresh foraging trip
           }
           // Newly-arrived curated characters join the roster automatically.
           syncArrivals(s);
@@ -8202,6 +8215,43 @@ export function GameProvider(props: ParentProps) {
       scheduleSave();
       return true;
     },
+    /** Walk home from a foraging trip (FORAGING_MINIGAME §3d). `basket` is the
+     *  plant ids the player chose to carry; each maps to its `yields`.
+     *
+     *  Only a yield with a pantry home can be stored, and the larder cap still
+     *  applies, so this reports back what actually made it in rather than
+     *  pretending everything did:
+     *    - `stored`   what went into the larder, by food id
+     *    - `spoiled`  picked, but the larder was full (honest, not silent)
+     *    - `noHome`   picked, but the ingredient has no pantry entry yet
+     *                 (judas ear, velvet shank, parasol, rosehip — see IDEAS)
+     *
+     *  The trip is marked done for this board cycle, so the card leaves the
+     *  board until the 3AM refresh or a shard reroll. */
+    completeForagingTrip(missionId: string, basket: string[]) {
+      const stored: Record<string, number> = {};
+      const spoiled: Record<string, number> = {};
+      const noHome: Record<string, number> = {};
+      setState(produce((s) => {
+        const cap = calcStorageCaps(s.buildings).food;
+        for (const plantId of basket) {
+          const yieldId = getForagePlant(plantId)?.yields;
+          if (!yieldId) continue; // a decoy, or a plant that yields nothing
+          if (!isFoodItemType(yieldId)) {
+            noHome[yieldId] = (noHome[yieldId] ?? 0) + 1;
+            continue;
+          }
+          const got = addFood(s.foods, yieldId, 1, cap);
+          if (got > 0) stored[yieldId] = (stored[yieldId] ?? 0) + got;
+          else spoiled[yieldId] = (spoiled[yieldId] ?? 0) + 1;
+        }
+        s.foragingDoneThisBoard = s.foragingDoneThisBoard ?? [];
+        if (!s.foragingDoneThisBoard.includes(missionId)) s.foragingDoneThisBoard.push(missionId);
+        s.missionBoard = s.missionBoard.filter((m) => m.id !== missionId);
+      }));
+      scheduleSave();
+      return { stored, spoiled, noHome };
+    },
     rerollMissions() {
       const rerollCount = typeof state.missionRerollToday === "number" ? state.missionRerollToday : 0;
       const cost = 10 * Math.pow(2, rerollCount);
@@ -8213,6 +8263,7 @@ export function GameProvider(props: ParentProps) {
         s.missionRerollToday = rerollCount + 1;
         s.missionBoard = generateMissionBoard(buildMissionBoardContext(s, guildLvl, Date.now()));
         s.scarcityDoneThisBoard = []; // shard reroll refreshes the forced-scarcity allowance too
+        s.foragingDoneThisBoard = []; // and buys another foraging trip (the TRIP, never the wood)
       }));
       scheduleSave();
       return true;

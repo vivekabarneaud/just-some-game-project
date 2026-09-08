@@ -1,6 +1,7 @@
 import { createSignal, createMemo, createResource, createEffect, For, Show, onCleanup, onMount } from "solid-js";
 import { A, useSearchParams } from "@solidjs/router";
 import { Portal } from "solid-js/web";
+import { useNavigate } from "@solidjs/router";
 import { useGame } from "~/engine/gameState";
 import { IS_DEV } from "~/data/seasons";
 import { ADVENTURER_CLASSES,
@@ -20,6 +21,7 @@ import { type MissionTemplate,
   getMission,
   getCurrentStoryMission,
   getMissionPhase,
+  isForagingMission,
 } from "@medieval-realm/shared/data/missions";
 import type { CinematicSlide } from "~/components/CinematicOverlay";
 import CinematicOverlay from "~/components/CinematicOverlay";
@@ -84,6 +86,7 @@ export default function AdventurersGuild() {
   // Adventurers that were "new" when the Roster was opened — drives the blue
   // outline this visit (captured before they're marked seen, or it'd vanish instantly).
   const [newlyArrivedIds, setNewlyArrivedIds] = createSignal<string[]>([]);
+  const navigate = useNavigate();
   const [selectedMission, setSelectedMission] = createSignal<MissionTemplate | null>(null);
   const [selectedTeam, setSelectedTeam] = createSignal<string[]>([]);
   const [selectedSupplies, setSelectedSupplies] = createSignal<string[]>([]);
@@ -115,6 +118,10 @@ export default function AdventurersGuild() {
     setSelectedSupplies([]);
   };
   const toggleMissionSelect = (mission: MissionTemplate) => {
+    // A foraging card is a DOOR, not a deployment (FORAGING_MINIGAME §3d):
+    // clicking it walks the player into the wood instead of opening the assembly
+    // panel. No team to pick, so there is nothing to select.
+    if (isForagingMission(mission)) { navigate(`/forage/${mission.id}`); return; }
     if (selectedMission()?.id === mission.id) clearSelection();
     else { setSelectedMission(mission); setSelectedTeam([]); setSelectedSupplies([]); }
   };

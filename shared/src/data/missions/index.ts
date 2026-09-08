@@ -31,6 +31,7 @@ export type { MissionPhase } from "./types.js";
 // ─── Mission pools ─────────────────────────────────────────────
 import { NOVICE_MISSIONS } from "./noviceMissions.js";
 import { SIDE_CHAIN_MISSIONS } from "./sideChainMissions.js";
+import { FORAGING_MISSIONS } from "./foragingMissions.js";
 import type { MissionTemplate } from "./types.js";
 
 export { NOVICE_MISSIONS } from "./noviceMissions.js";
@@ -41,7 +42,13 @@ export { SIDE_CHAIN_MISSIONS } from "./sideChainMissions.js";
 export const MISSION_POOL: MissionTemplate[] = [
   ...NOVICE_MISSIONS,
   ...SIDE_CHAIN_MISSIONS,
+  ...FORAGING_MISSIONS,
 ];
+
+export { FORAGING_MISSIONS } from "./foragingMissions.js";
+/** Is this card a foraging trip (a door) rather than a deployment? */
+export const isForagingMission = (m: { foraging?: unknown } | undefined | null): boolean =>
+  !!m && !!(m as { foraging?: unknown }).foraging;
 
 // ─── Story missions ────────────────────────────────────────────
 export { STORY_MISSIONS, getCurrentStoryMission } from "./storyMissions.js";
