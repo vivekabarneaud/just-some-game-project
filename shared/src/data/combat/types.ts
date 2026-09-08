@@ -76,7 +76,7 @@ export interface RawSubStats {
   parry?: number;      // + Parry %
   mobility?: number;   // + paces/turn
   initiative?: number; // + turn order
-  armor?: number;      // + physical mitigation — INERT: getDefenseReduction reads only gearDefense; no item sets this yet
+  armor?: number;      // + physical mitigation. A creature's natural hide lives here (2026-09-04)
   presence?: number;   // + aggro drawn (signed; tanks stack it, dps go negative)
   luck?: number;       // + loot-drop chance (party-summed); also live on the unit for combat use (Edmund)
 }

@@ -276,6 +276,29 @@ Options, roughly in order of preference:
    story beats. But it costs the nicest thing about the encounter.
 
 
+### Per-spawn variance instead of enemy levels (2026-09-04)
+
+Idea as raised: spawn enemies in a level range, so a grey wolf might be level 2
+or 3 with slightly different stats, rather than every grey wolf being identical.
+
+Parked in favour of a narrower version, for one measured reason: levels compound.
+A level-up moves HP *and* damage *and* accuracy together, and the vit sweep run
+on 2026-09-04 showed how sharp those cliffs are — three grey wolves at 30 hp is
+an 82% win, at 40 hp it is 13%. A random level per spawn would swing the
+encounter across that cliff, and the board's difficulty stars would be lying.
+
+The version worth building, if the texture is wanted: a per-spawn jitter of about
+±15% on hp and damage only, applied at `buildEnemyUnits`. Same mean, so the
+difficulty rating stays honest, but a pack stops being three identical units —
+one is a big old male, one is a yearling. Authoring `hp` directly (2026-09-04)
+is what makes this a single multiply at spawn.
+
+Note that the wolf family already IS the level-range idea, hand-authored: grey /
+gaunt / starving are three points on one ladder, each with its own AI knobs,
+loot and rout threshold. Hand-authored variants stay learnable in a way a
+procedural level roll would not — the player can recognise a Gaunt Wolf and know
+what it does.
+
 ### Rescued from the assassin talent diagrams (deleted 2026-09-01)
 
 `docs/talents/` held five mermaid renders of a *class* talent tree, made 9 May

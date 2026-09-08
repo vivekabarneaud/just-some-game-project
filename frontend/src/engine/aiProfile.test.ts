@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { buildEnemyUnits, setCombatSeed, pickTarget, type CombatUnit } from "@medieval-realm/shared/data/combat";
+import { buildEnemyUnits, setCombatSeed, pickTarget, getDefenseReduction, type CombatUnit } from "@medieval-realm/shared/data/combat";
 import { resolveAI, DEFAULT_AI, acceptsTaunt, canBreak } from "@medieval-realm/shared/data/combat/ai/profile";
 import { ENEMIES } from "@medieval-realm/shared/data/enemies";
 
@@ -276,5 +276,38 @@ describe("the new targeting modes", () => {
     attacker.tauntedBy = "tank";
     setCombatSeed(1);
     expect(pickTarget(attacker, allies)?.id).toBe("tank");
+  });
+});
+
+// ─── Authored survivability (2026-09-04) ────────────────────────────────────
+// A creature has no gear and no stat growth, so it does not need VIT: its two
+// survivability numbers are written down instead of derived from one stat that
+// was doing both jobs. These are structural invariants, not balance — they check
+// that every creature HAS the numbers, never what they are.
+describe("creatures author hp and armour outright", () => {
+  it("every enemy has a positive hp and no VIT anywhere in its stat block", () => {
+    for (const e of ENEMIES) {
+      expect(e.hp, `${e.id} must author hp`).toBeGreaterThan(0);
+      expect(Number.isFinite(e.hp), `${e.id} hp must be a real number`).toBe(true);
+      expect((e.stats as Record<string, unknown>).vit, `${e.id} must not carry vit`).toBeUndefined();
+    }
+  });
+
+  it("hp reaches the built unit unchanged — no multiplier left in the path", () => {
+    for (const e of ENEMIES) {
+      const [u] = buildEnemyUnits([{ enemyId: e.id, count: 1 }]);
+      expect(u.maxHp, `${e.id}`).toBe(e.hp);
+      expect(u.hp, `${e.id}`).toBe(e.hp);
+    }
+  });
+
+  it("natural hide drives mitigation through raw.armor, not gearDefense", () => {
+    for (const e of ENEMIES) {
+      const [u] = buildEnemyUnits([{ enemyId: e.id, count: 1 }]);
+      expect(u.gearDefense, `${e.id} carries no gear`).toBe(0);
+      expect(u.raw?.armor, `${e.id} must author raw.armor`).toBeGreaterThan(0);
+      // the mitigation curve reads exactly what was authored
+      expect(getDefenseReduction(u)).toBeCloseTo(u.raw!.armor! / (u.raw!.armor! + 150), 10);
+    }
   });
 });

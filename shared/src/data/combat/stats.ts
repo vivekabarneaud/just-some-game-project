@@ -78,9 +78,11 @@ export function getMagicPower(unit: CombatUnit): number {
 
 /** Fraction of incoming physical damage absorbed by defense. Diminishing returns curve. */
 export function getDefenseReduction(unit: CombatUnit): number {
-  // Physical mitigation pool: base (enemy VIT×3 / adventurer gearDefense) + any
-  // raw.armor from gear/talents. def/(def+150) → % reduction.
-  let def = (unit.isEnemy ? unit.vit * 3 : unit.gearDefense) + (unit.raw?.armor ?? 0);
+  // Physical mitigation pool: an adventurer's gearDefense, a creature's authored
+  // raw.armor, plus raw.armor from gear/talents either way. One branchless sum —
+  // creatures carry gearDefense 0, adventurers carry no natural armour.
+  // def/(def+150) → % reduction.
+  let def = unit.gearDefense + (unit.raw?.armor ?? 0);
   if (unit.defenseBoost) def = Math.floor(def * (1 + unit.defenseBoost.pct / 100));
   return def / (def + 150);
 }

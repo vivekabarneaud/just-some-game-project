@@ -32,7 +32,7 @@ const TAG_LABELS: Record<string, string> = {
 // ─── Tooltip content ────────────────────────────────────────────
 
 function EnemyTooltipContent(props: { enemy: EnemyDefinition }) {
-  const hp = () => props.enemy.stats.vit * 10;
+  const hp = () => props.enemy.hp;
   const hints = () => enemyHints(props.enemy);
   const tags = () => props.enemy.tags.map((t) => TAG_LABELS[t]).filter(Boolean);
   return (

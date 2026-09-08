@@ -185,6 +185,200 @@ damage now and re-opening every enemy later.
   5–8-round fights the cap stops binding either way, so decide it AFTER the
   pass, on post-pass data.
 
+## Done 2026-09-05: VIT decoupled, the wolf family, and the real difficulty dial
+
+### VIT is gone from creatures
+
+A creature has no gear and no stat growth, so it does not need VIT. It used to
+supply BOTH hp (`vit * 10`) and natural armour (`vit * 3`) — one stat doing two
+jobs, which welded toughness to hide and made hp tunable only in steps of ten.
+Measured cost of that coarseness: three grey wolves at 30 hp was an 82% win and
+at 40 hp a 13% win. **The tuning target sat in a gap that could not be reached.**
+
+Now `hp` and `raw.armor` are authored outright on all 22 enemies and `vit` is
+gone from `EnemyDef` entirely. Mitigation collapsed to one branchless line:
+
+```ts
+let def = unit.gearDefense + (unit.raw?.armor ?? 0);
+```
+
+Converted as a provable no-op first (`hp = vit*10`, `armor = vit*3`) so the whole
+pre-existing suite confirmed nothing moved, then tuned on top. Adventurers keep
+`vit * 8` — for them VIT is still purely hp, and the gear double-dip it creates
+is filed as debt, not fixed here.
+
+Two stale comments died with it: `types.ts` called `raw.armor` INERT (it is read),
+and the `enemies.ts` header called natural armour `VIT / 3` (it was `* 3`).
+
+### The tuning baseline: common gear (decided 2026-09-05)
+
+Tier-1 creatures are measured against **a real weapon plus a chest piece and
+boots, all common rarity** — `iron_sword` / `short_bow`, `chainmail_shirt` /
+`leather_vest`. Not the starter kit. Two settlers in patched leather losing to a
+wolf pack is the correct and realistic outcome, and early missions reach for the
+weaker family members instead of being propped up by weak creatures.
+
+This was forced by measurement: at grey wolf hp 32, adding *only* a real weapon
+took the fight from 63% to 100%, and adding *only* armour took it from 63% to
+99%. Either half alone flips it. The starter kit is the outlier — `plain_sword`
+(3-5) and `iron_sword` (4-7) are both labelled **common** yet differ by 37%.
+
+### The wolf family
+
+| | hp | dmg | armor | shape |
+|---|---|---|---|---|
+| grey_wolf | 30 | 6–9 | 6 | pack adult; survives by evasion (dodge 5, elusive 25), not bulk |
+| gaunt_wolf | 22 | 4–6 | 4 | lean yearling, lighter and less sure of its bite |
+| starving_wolf | 14 | 3–5 | 2 | the runt; one solid blow ends it |
+
+Three greys against the baseline: **91% win, 5.0 rounds, 52% hp lost, 8 deaths
+per 200.** You win, you are bloodied, and occasionally someone does not come
+back. The bite sits deliberately under the boar's 7–11 gore — 40 kg of jaw is
+not 100 kg of tusk — and the wolf's real lethality is its existing kit: Rending
+Bite bleeds and Throat Tear ignores armour, which is how a wolf beats a man in
+mail. It goes under it rather than through it.
+
+### ⚠ The finding that outranks all of the above: bodies per slot
+
+**Party size sets tier-1 difficulty, not enemy stats.** The same encounter, same
+common gear, varying only the number of slots:
+
+| encounter | 2 slots | 3 slots | 4 slots |
+|---|---|---|---|
+| 5x grey_wolf | **0%** win | 33% | **100%**, 17% hp |
+| 3x rabid_boar | 0% | 72% | 100% |
+| 5x rock_skitter | 11% | 94% | 100% |
+
+Five bodies overwhelm two adventurers no matter *which* creatures they are — a
+knot of six deliberately weak wolves (1 grey + 3 gaunt + 2 starving) still only
+reached 71%. Action economy swamps every per-creature number.
+
+**So per-creature stats should set HOW a thing fights (burst vs attrition, fast
+vs slow, armoured vs evasive) and the encounter-to-slot ratio should set how
+hard the mission is.** Tune shape per creature; tune difficulty per encounter.
+
+Applied twice already: `story_1_scouting` (the first fight in the game, taken in
+the starter kit) went from 3 greys — a 9% win and near-certain death at the
+tuned numbers — to 3 gaunt yearlings, which is also the better opening animal
+narratively. And `wolves_at_the_wall` went from 5 greys at 2 slots (0% win, 186
+deaths per 200) to a realistic mixed pack of 2 greys + 3 gaunt at 3 slots: 79%
+win, 46% hp lost.
+
+### Landscape after the pass — what is still wrong
+
+Measured at each mission's own slot count, common gear, 120 seeds.
+
+**Too hard:**
+
+| mission | slots | encounter | common gear |
+|---|---|---|---|
+| `a_bad_season_for_boars` | 2 | 3x rabid_boar | **0% win** — unwinnable |
+| `clear_the_diggings` | 2 | 5x rock_skitter | 11% — and it is a FORCED urgent mission |
+| `the_salmon_run` | 2 | 2x forest_bear | 31% |
+
+**Too easy** — `dominion_tough` is the worst offender in the tier; five of them
+cost a 3-slot party 2% of its health:
+
+| mission | encounter | hp lost |
+|---|---|---|
+| `grain_for_the_north` | 2x dominion_tough | **0%** |
+| `run_down` | 5x dominion_tough (3 slots) | 2% |
+| `a_mothers_errand` | 3x dominion_tough | 4% |
+| `foraging_run`, `no_one_followed` | 1x grey_wolf | 9% |
+| `the_deer_yard` | 2x gaunt + 2x starving | 15% |
+| `bee_tree_first` | 1x forest_bear | 19% |
+
+**Families still untuned:** dominion_tough, rock_skitter, forest_bear,
+marsh_adder, displaced_brigand, tollman, rabid/tainted boars, grief_bound_spirit,
+plus goblin_runt / poacher / cutthroat which are still fielded nowhere.
+
+## Done 2026-09-06: tier 1 is fully authored
+
+Every one of the 15 tier-1 creatures now authors its `hp`, `dmgMin`/`dmgMax` and
+`raw.armor`. **Nothing in tier 1 derives its damage any more** — the flat 2-4 /
+3-5 / 3-6 cluster that made the whole tier feel identical is gone.
+
+| creature | hp | armor | roll | real dmg | routs |
+|---|---|---|---|---|---|
+| starving_wolf | 14 | 2 | 3–5 | 4–6 | 0.45 |
+| rock_skitter | 18 | 10 | 3–5 | 5–9 | none |
+| goblin_runt | 20 | 6 | 5–8 | 7–11 | none |
+| gaunt_wolf | 22 | 4 | 4–6 | 6–8 | 0.35 |
+| marsh_adder | 28 | 4 | 4–6 | 7–11 | none |
+| grey_wolf | 30 | 6 | 6–9 | 9–14 | 0.3 |
+| cutthroat | 32 | 6 | 8–11 | 14–19 | 0.35 |
+| poacher | 34 | 6 | 6–9 | 10–14 | 0.4 |
+| wild_boar | 34 | 18 | 7–11 | 10–16 | 0.3 |
+| rabid_boar | 36 | 18 | 7–11 | 12–19 | none |
+| grief_bound_spirit | 40 | 12 | 6–9 | 9–14 | none |
+| displaced_brigand | 40 | 6 | 5–8 | 8–13 | 0.3 |
+| dominion_tough | 44 | 14 | 7–10 | 9–13 | 0.35 |
+| forest_bear | 70 | 27 | 8–12 | 14–22 | 0.3 |
+| tollman | 110 | 30 | 8–13 | 15–25 | 0.3 |
+
+**"Real dmg" is the number that matters.** The authored roll is multiplied by
+`(1 + max(str, dex) * 0.1)` before mitigation, so a 7–11 roll on a str-7 creature
+lands as 12–19. Author against the *real* column, not the roll.
+
+### The rule the numbers follow
+
+Each creature's shape comes from what it IS, and the description was usually the
+brief already:
+
+- **A creature's armour is its hide or what it wears.** A boar's shoulder shield
+  (18) is why hunters carried heavy spears; a wolf's coat is 6. `displaced_brigand`
+  is "a desperate man with a rusty blade, probably a farmer" — he had 21 armour and
+  70 hp, i.e. better protected than a boar. Now 6 and 40.
+- **Madness is behavioural, not statistical.** `rabid_boar` was 80 hp poking for
+  3–5. It is the SAME ANIMAL as a wild boar — identical tusks, identical hide. It
+  is dangerous because it never routs and charges every second round, so it now
+  carries the wild boar's exact 7–11 and a comparable 36 hp.
+- **Size is hp, not armour.** `rock_skitter` is described as "hand-sized" and had
+  50 hp with armour 15. It is 18/10 now — chitin is its only defence.
+- **The glass cannon is allowed to be glass.** `cutthroat` ("a length of wire and a
+  fast knife, goes for whoever looks softest") is 32 hp hitting for 14–19.
+
+The behaviour layer needed no work — `packNerve` + courage 16 on the tough,
+`softness: 1` on the cutthroat, `erratic` + no-rout on the rabid boar were all
+already authored by the AI-knobs pass. Only the numbers were wrong.
+
+### Landscape now (27 tier-1 missions, common gear, own slot counts)
+
+Healthy: `hold_the_road` 84% -> 94%, `a_mothers_errand` 4% -> 24% hp lost,
+`clear_the_marshes` 25% hp, `lean_times` 39% hp, `bee_tree_first` 34% hp (one
+bear is now a real fight), `wolves_at_the_wall` 79% / 46% hp.
+
+**Fixed by family tuning:** `clear_the_diggings` went from **10% to 100%** — it is
+a FORCED urgent mission the player cannot decline, and it was very nearly
+impossible because a tide of hand-sized bugs had 50 hp each.
+
+**Still broken, and both for the same reason:**
+
+| mission | slots | encounter | common |
+|---|---|---|---|
+| `a_bad_season_for_boars` | 2 | 3x rabid_boar | 0% |
+| `the_salmon_run` | 2 | 2x forest_bear | 0% |
+
+Neither is a stats problem. Three never-routing boars, or two bears, against two
+adventurers is the action-economy wall — and *realistically it should be*. Both
+want a third slot; measured at 3 slots, 3x rabid_boar is 72%. Left for
+playtesting per the dev's call (2026-09-06): tune creatures globally, tune
+individual missions when they are actually played.
+
+**Still trivial** (all 1x encounters or swarms of the deliberately weak):
+`grain_for_the_north` 3% hp, `foraging_run` / `no_one_followed` 9%,
+`quarry_expedition` 10%, `run_down` 12%, `the_deer_yard` 15%,
+`clear_the_diggings` 16%.
+
+### Next: tier 2+ is untouched and much worse
+
+The parked CH2_GATE story missions measure at **0% win with 340-440 deaths per
+150 seeds** (`story_3_dark_treeline`, `story_4_captains_rest`, `story_6`, `9`,
+`11`, `13`) — all `wastes_phantom` / `captain_hale_stub` encounters at tier 2-3,
+still sponges with derived damage. `tainted_boar` (130 hp, derived 3-6) and
+`tainted_patriarch` (180) need the same shape correction the tier-1 boars got.
+Tier 2 also needs its own gear baseline decided before its numbers mean anything.
+
 ## Done 2026-09-04: the boar, and the level curve
 
 **The boar** is burst instead of attrition: 30 hp (was 60) with an authored
