@@ -1,6 +1,6 @@
 # Foraging Minigame — Design + Plant Register
 
-- **Status:** DESIGNING (2026-08-07). Concept agreed in discussion; nothing built.
+- **Status (2026-08-14):** IN PROGRESS on `feat/foraging-minigame` — the data + sandbox layer is BUILT (`shared/src/data/foraging/`: stocking/decay/seasonal handover/rain flush, ~23 plants with decoys; terrain mask + scene anchors; the `/dev-foraging` page; 900+ lines of tests). NOT built: the trip economy (one-a-day + Orison Shard renewal), the herbier, yield→larder wiring, home-page placement, most art.
 - **Purpose:** the "nothing left to do" valve for idle downtime, and the home for plant *variety* that a passive building can't carry.
 - **Cross-refs:** [[project_foraging_minigame]], `docs/IDEAS.md` (Alchemy), the retired Farming Expansion doc (in git), the retired seasonal-gathers doc (in git), the retired Tavern doc (in git).
 
@@ -46,6 +46,8 @@ A forager's hut auto-producing 15 plant types is noise: a wall of small numbers 
 
 **Rejected: daily resets and charge/ticket counters.** Anything that expires creates guilt ("I forgot to forage today"), which is the exact opposite of a cozy downtime valve. Anything with a visible counter turns a walk in the woods into an errand.
 
+> ⚠ **The CAPS below are superseded by §3c (2026-08-13).** Stock is no longer a ceiling per plant; the wood holds slots filled by a weighted lottery, so a full autumn no longer holds the same four cepes every time. Everything else here — stock not patches, the season needing no migration, rain bumping the stock — still stands.
+
 **Instead, the limit lives in the world.** The woods hold a **stock per plant**, and picking depletes it:
 
 ```
@@ -58,14 +60,149 @@ woodsStock: Record<plantId, number>   // { blackberry: 12, chanterelle: 3, ramso
 
 **This replaces the ticket system entirely.** You may walk into the woods as often as you like; the limit is simply that you already picked everything and it has not grown back. No counter in the UI, no expiry, no guilt, and stripping a patch teaches the forager's ethic through the world instead of through a number.
 
-### Why store stock, not patches
-Persisting individual patches (position + species + picked-at + per-patch respawn timer) is the complicated design, and it is the same class of stateful bug already biting the farm (fields still holding live crops in winter, see `TODOs`). A plain stock record avoids all of it, and every worry answers itself for free:
+> ⚠ **OVERTURNED 2026-08-12 — see §3b.** The no-tickets rule was decided while thinking only about *pacing*, and it is right about pacing. What it did not know is that **identification needs a scarce trip**: if entering is free, a player takes everything and sorts it in the larder, and the game's central mechanic never fires. Stock depletion still stands and still does its job, which is capping the economy. It simply is not the whole limit.
 
-| Worry | Answer |
+---
+
+## 3b. One trip a day, and the wood remembers *(2026-08-12, after a long argument)*
+
+### The hole in §3a
+
+Stock depletion caps the **economy**. It does nothing for the **game**.
+
+If entering is free, a player picks everything in sight, walks home, walks back, and repeats — **and never once identifies anything.** The sorting happens in the larder instead of in the wood. It's the same failure as un-pickable scenery: the thing the design is *about* stops being required.
+
+And the deciding argument, which took a long time to reach:
+
+> **A false morel left in the wood is a false morel in the wood. Picking it or leaving it is the same thing, unless the trip was scarce.**
+
+Everything downstream of a free entry is just accounting. Only a scarce trip makes a basket slot valuable, and only a valuable slot makes anyone look closely. **Identification cannot be produced by any rule that doesn't make the trip cost something.**
+
+### The model
+
+- **One trip a day.** Not a charge that accumulates, not a meter. A fact about the man: the Lord goes to the woods in the afternoon.
+- **One basket, fixed slots, always the same basket.** It never grows or shrinks. The basket is the choosing.
+- **Renewable with Orison Shards, on an exponential curve**, exactly like the adventurer mission board refresh. Reuses a pattern the player already knows, so it needs no explaining.
+- **The stock model of §3a stays exactly as it is.** It still caps the economy and still teaches the forager's ethic.
+
+Nobody is ever told *no*. They're told what it costs. The exponential curve makes a second trip an indulgence and a sixth absurd, without any number ever declaring a maximum.
+
+### Why the shard price is not pay-to-win
+
+Two reasons, and the second is a design constraint rather than an opinion:
+
+**It buys optional fun, not power.** The same category as a cosmetic. Nobody needs to forage, and nothing behind the trip is required to progress.
+
+**⚠ And the wood is already picked over, which is the real guard.** A second trip on the same day walks into a wood you just emptied, so the marginal yield of a paid trip falls off hard. That is what keeps the purchase honest, and it means:
+
+> **The shard buys THE TRIP. It must never refresh the wood.**
+
+If a paid trip ever reset the stock, this would become paying for resources on the spot. The temptation will be real, because a paid trip into a bare wood *feels* bad. Resist it. Feeling thin is the mechanism, not a bug.
+
+### The stacking lives in the wood, not in a counter
+
+He goes once a day, but **the wood remembers**. Skip three days and you walk into a wood grown back thick.
+
+So a day you didn't play made your next trip *better* rather than costing you a trip. That kills the guilt problem §3a was right to worry about, with **no stack counter, no accumulated charges, no expiry and nothing in the UI**. A missed day is a gift.
+
+It's also self-capping: `seasonCap` already bounds how thick the wood can get, so a fortnight away gives a **full** wood rather than an ever-growing one.
+
+### Show capacity, never time
+
+Entirely a presentation question, and it decides whether the feature works.
+
+**Time scarcity makes people hurry. Capacity scarcity makes them selective.** Nobody panics because a bag is filling up; they get pickier about what goes in it. Same limit, opposite behaviour.
+
+So the gauge is **the basket**, which already exists and already has slots. A player who can see three slots left thinks *those had better be good* — the exact behaviour the design wants, produced by the interface rather than by willpower. Nothing anywhere says *hurry*.
+
+> ❌ **Rejected: escalating wolf howls as a countdown.** It was the first idea and it is actively harmful. A signal that says *your time is running out* makes players grab everything in reach, which is precisely what the feature exists to prevent. A meter that induces panic-clicking in an identification game is worse than no meter at all.
+
+### The wolves are the door closing, not a countdown
+
+They keep their place, at the end, **after** the decision is already made. The basket fills, the Lord notices the light has gone amber, something moves in the trees, and he decides he is a schoolmaster two miles from home and that this is enough for today.
+
+**He is not driven out. He is finished, and then notices he'd rather not be here after dark.** If it ever reads as *you have been cut off*, it's wrong.
+
+### Open
+
+- Does a day he *couldn't* go (illness, a raid) give the trip back?
+- Threshold for the second ending: if the wood is picked over, he should be able to come home early with *"there's nothing here worth the walk"*, which is its own quiet lesson about what you did last time.
+
+### Rejected, with reasons worth keeping
+
+| Approach | Why it failed |
 | --- | --- |
-| Different plants regrow at different speeds | One regrow rate per plant. Berries return in days; a King Bolete takes far longer. One number each. |
-| The season changes overnight | The scene is generated fresh from the **current** season every visit. Nothing is remembered, so nothing can go stale. Winter simply drops most caps near zero and the wood is bare. **This design cannot get the fields-in-winter bug.** |
-| It rained, should mushrooms appear? | Bump the mushroom stock. **The mechanism already exists** — `rainMushrooms` / `rainCepe` in `gatheredFoodRate()`. Same idea, new home. |
+| **Gate on the settlement being idle** (open the woods when the sidebar sparks go dark) | Elegant and nearly free, and wrong: it refuses a player who is *excited* to go. It also solves nothing, since a gated player who can take everything still never identifies. |
+| **Seasonal budget** — stock set once per season, no regrowth within it | Makes a wrong pick permanently costly, which is right, but it turns the wood into a depleting bar and kills the fast respawn that makes the place feel alive. **Abundance was never the problem.** |
+| **A daily budget of PICKS, tied to the wood's standing stock** | Very nearly worked, and stacking fell out of it for free. Died on the false-morel argument above: without a scarce trip, spending "budget" on rubbish is an abstraction the player never feels. Also made the basket's slot count vary day to day, which is incoherent — a basket is a basket. |
+| **A deadly pick spoils the whole basket** (Edda burns it) | The best fiction anyone proposed, and it punishes carelessness in exact proportion to it. Rejected on feel: it turns a cozy walk into something that can be *lost*, and each plant already carries plenty of outcomes. **Kept on file** in case one trip a day proves too gentle. |
+| **Identify on use rather than on pick** | Makes identification unavoidable, but a basket of question marks is a second puzzle nobody asked for, on top of an already-large roster. |
+| **"He gets lost and can't return to a map"** | Doesn't limit anything, since a new map is a new wood. **But keep the fiction:** the Lord is no forager, he wanders, he comes out somewhere he didn't plan. That's a better explanation for the re-rolled scene layout than the layout deserves, and it costs nothing. |
+
+---
+
+## 3c. Slots and a lottery *(2026-08-13 — replaces the caps in §3a)*
+
+### What was wrong with caps
+
+Per-plant caps meant **a full autumn had exactly four cepes. Every time. Forever.** No bad years, no lucky mornings, and no reason for two full woods to differ. The cap *was* the answer, so the wood had no opinion.
+
+### The model
+
+**The wood holds SLOTS. Every free slot is filled by a weighted draw.**
+
+| | |
+| --- | --- |
+| `SEASON_CAPACITY` | How many things the wood holds when full. **One number per season** (`spring 60, summer 75, autumn 85, winter 8`) instead of a cap for every plant. |
+| `weight` | A plant's share of the draw, per season. Not a quantity, a **likelihood**. Relative, normalised, `0` = not growing. |
+| `decay` | Per plant, per hour. Its job is **churn**, not scarcity. |
+| `FILL_HOURS` | How long an empty wood takes to fill: 60, so a few days away really does give you a full wood. |
+| `OFF_SEASON_FADE` | 0.15/h. Out-of-season stock fades and frees its slots. |
+
+**A draw places a CLUMP, not a single plant**, using the `clump` value that already existed. Which is how a wood works: you find a patch of chanterelles, not a chanterelle. It's also what makes two full woods genuinely different rather than merely shuffled.
+
+### What this buys
+
+**Bad years.** Sampled over 200 autumns at these weights:
+
+```
+blackberry        15.9      bitter_bolete      3.8
+chanterelle       14.7      wild_carrot        3.2
+field_mushroom    12.2      cepe               2.1
+false_chanterelle  7.9      hemlock            2.0
+
+cepe: NONE in 26% of autumns, best ever 9
+```
+
+A quarter of autumns have no cepes. Most have one to three. Once in a long while, nine. **There is a test that fails if anyone reintroduces a cap**, because this is the whole reason the model changed.
+
+**Stripping something has a consequence beyond absence.** Take every chanterelle and those slots come back as whatever wins the next draws, which may well be false chanterelles. The wood does not owe you what you removed.
+
+**The season handover comes free.** Ramsons fading frees slots; summer draws fill them. Spring doesn't end so much as get replaced, plant by plant.
+
+**Winter is fixed structurally**, by one number, rather than by authoring twenty small caps that all say "almost nothing".
+
+**Rain is trivial**: extra draws weighted by `weight × rainFlush`, allowed past capacity to `RAIN_CEILING`. So a wet autumn is a *mushroom* autumn, not merely a fuller one.
+
+### A daub marks a PLACE, not an answer
+
+The yellow `wood_fungus` daub is shared by every fungus that grows on standing wood: oyster mushroom, judas ear, velvet shank and the funeral bell all sit on it, and which one a marked trunk bears is drawn from what the wood currently holds.
+
+**This is not a convenience, it is the pair working at all.** If the artist had to mark velvet shank and Galerina separately, a given scene would show the same species in the same place every time, and its tell would be worth learning exactly once. **The same trunk has to be able to bear supper one winter and poison the next.** Two tests hold that line.
+
+Any future family that shares a habitat should share a daub for the same reason. `anchorKind` on a plant says which one it uses; it defaults to the plant's own id, which is why blackberries still take violet daubs of their own.
+
+### The rule that keeps it honest
+
+> **Left alone, the wood must fill up.** Filling outpaces fading by design, so a few days away gives a full wood back. Scarcity comes from a plant's **weight**, never from a ceiling and never from an equilibrium below capacity.
+
+An earlier tuning pass got this exactly backwards, holding the cepe at 2 forever by balancing its regrowth against its decay. That made the prize scarce and quietly broke the promise the entire no-tickets design rests on. **Scarcity is a likelihood, not a limit.**
+
+### Two traps, both hit once already
+
+**Never step the decay maths linearly.** `dS/dt = regrow − decay·S` integrated with one big step inverts on long spans: a 300-hour offline catch-up subtracts more than the stock ever held and lands on zero, so a player returning after a week would find a **dead wood instead of a full one**. Solve it, or advance in bounded chunks. There's a test.
+
+**Never let out-of-season stock snap to zero.** It fades, and the safety property survives because it only ever decreases, so it still converges and cannot go stale. The hard reset looks like a simplification and is a regression.
 
 ## 4. Identification, not eyesight (the key mechanic)
 
@@ -137,7 +274,7 @@ Applying §2 to what already exists:
 | Item | Today | Proposal |
 | --- | --- | --- |
 | **`nightshade`** | Alchemy toxin with **zero sources**. Unobtainable. | **→ minigame.** Perfect fit: a dangerous plant you pick deliberately. Fixes an orphan. |
-| **`witchs_cap`** | Alchemy wildcard (rare, `boil`) with **zero sources**. Unobtainable. | **→ minigame.** A rare/uncanny mushroom found only by looking. Fixes an orphan. |
+| **`fly_agaric`** *(was `witchs_cap`, renamed 2026-08-12)* | Alchemy wildcard (rare, `boil`) with **zero sources**. Unobtainable. | **→ minigame.** It was always the fly agaric under an invented name; the real one gives it a source. Fixes an orphan. |
 | **`rosehip`** (.012) | Rare passive trickle + the wild-tree find | **→ minigame-weighted.** A rare drip into the larder is the classic clutter pattern; picking it deliberately is better. Keep the wild-tree find. |
 | **`nightbloom`** (.01) | Rare passive trickle | **→ minigame-weighted.** "Only blooms under moonlight" deserves to be *found*, not trickled. |
 | **`morel`, `cepe`** | Hut-produced | Keep in the hut, but make them **prize picks** in the scene. Both are seasonal treasures; `cepe` already has the rain-flush event. |

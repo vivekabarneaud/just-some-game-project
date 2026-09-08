@@ -1,0 +1,299 @@
+# Foraging Art — Midjourney Prompt Sheet
+
+- **Status:** working sheet. Tick things off as they land; this is several days of work, not a sprint.
+- **Companion to:** `DESIGN_FORAGING_MINIGAME.md` (why any of this exists).
+- **Sandbox:** `/dev-foraging` (dev only). Everything below works the moment the file appears — no code changes needed except bumping a count.
+
+---
+
+## Where files go
+
+```
+frontend/public/images/foraging/
+  scenes/   spring1.png   spring1_mask.png    ← backgrounds + optional terrain masks
+            autumn1.png   autumn1_mask.png
+  plants/   chanterelle1.png  chanterelle2.png  ← sprites, numbered from 1
+```
+
+After adding art, two small edits:
+- a new **scene** → bump `SCENE_COUNT` in `ForagingDev.tsx`
+- a new **sprite variant** → bump `artVariants` for that plant in `shared/src/data/foraging/plants.ts`
+
+## The two rules that constrain everything
+
+1. **A pair must be painted together, or not at all.** A painted chanterelle beside an emoji false chanterelle gives the answer away instantly. There is a test enforcing this.
+2. **The tell must be visible on a plant standing in the ground.** Anything you can only see by turning the mushroom over is useless for the default sprite. (Tipped variants are how you get at those — see below.)
+
+## House style (append to any prompt)
+
+> painterly oil study, soft even light, plain dark background, no text
+
+and always `--style raw`. Sprites want `--ar 1:1` or `3:2` for a pair; scenes want `--ar 1:1`.
+
+**Cut out, then feather the edges** the way you did the camp painting. A soft edge blends into any ground; a hard cutout reads as collage.
+
+---
+
+# PART 1 — Sprites
+
+Ordered by value. Each **pair** is one identification test, and a pair is worth more than several safe plants.
+
+## ✅ Done
+- **Chanterelle / False Chanterelle** — 3 shapes each
+- **King Bolete / Bitter Bolete** — 3 shapes each *(art named `king_bolete*`; the plant's id is `cepe` for economy reasons, handled by `artId`)*
+- **Ramsons / Lily of the Valley** — 3 shapes each
+
+## ~~1. King Bolete + Bitter Bolete~~ ✅ *(autumn's second test — done)*
+
+The tell is the **stalk net**, since pores can't be seen on a standing mushroom.
+
+> two similar brown boletus mushrooms standing side by side on dark forest litter, painterly oil study, the left one a king bolete with a thick pale bulbous stalk and a fine white net only near its top, the right one a bitter bolete with a slimmer stalk covered in a coarse dark brown net running all the way down, both with rounded brown caps, soft even light, plain dark background, no text --ar 3:2 --style raw
+
+Load-bearing words: **"fine white net only near its top"** vs **"coarse dark brown net running all the way down"**. If MJ blurs them together, generate separately but feed the first back with `--iw 0.5` to lock the lighting.
+
+## 2. Parasol + Deadly Dapperling  *(size is the tell)*
+
+The one pair where the two are deliberately **very different sizes**, exactly as in life — this is how people actually avoid being poisoned. The code already draws the parasol at 1.9× and the dapperling at 0.7×, so let the art match that.
+
+> a tall parasol mushroom standing in rough grass, painterly oil study, a wide shaggy scaly cap like an open umbrella on a long slender stalk patterned like snakeskin, a loose ring around the stalk, soft even light, plain dark background, no text --ar 1:1 --style raw
+
+> a small squat dapperling mushroom in rough grass, painterly oil study, a low scaly brownish cap on a short thick stalk, a tight fixed ring, altogether small and stunted, soft even light, plain dark background, no text --ar 1:1 --style raw
+
+## ~~3. Ramsons + Lily of the Valley~~ ✅ *(spring's test — done, 3 shapes each)*
+
+Both are broad green leaves rising from the litter, which is exactly why people die of this one. The tell is **one leaf per stalk (ramsons) vs paired leaves (lily)**.
+
+> a clump of wild garlic ramsons growing from woodland leaf litter, painterly oil study, broad pointed green leaves each rising on its own separate stalk from the ground, soft even light, plain dark background, no text --ar 1:1 --style raw
+
+> a clump of lily of the valley growing from woodland leaf litter, painterly oil study, broad green leaves in close pairs sharing a single stem, soft even light, plain dark background, no text --ar 1:1 --style raw
+
+## 4. Blackberry: ripe + spoiled  *(the self-decoy)*
+
+Not two species. **The same cluster, two seasons**, hanging at a violet anchor on a painted bramble. See `FORAGING_PLANTS.md` → *The Shepherd's share*.
+
+This pair breaks the usual rule on purpose: the two halves are **never on screen together**, because the season decides which one grows. So the tell has to survive being remembered rather than compared, which means pushing the difference further than looks natural side by side. Glossy vs dull is the whole thing.
+
+> a cluster of ripe blackberries hanging on a thorny cane, painterly oil study, deep glossy black-purple drupelets plump and tight-packed catching a highlight, a few red unripe ones alongside, soft even light, plain dark background, no text --ar 1:1 --style raw
+
+> a cluster of spoiled blackberries on a thorny cane in late autumn, painterly oil study, dull grey-brown shrivelled drupelets with no shine at all, collapsed and sunken, a haze of grey mould, dry withered leaves, cold damp light, plain dark background, no text --ar 1:1 --style raw
+
+Load-bearing: **"glossy… catching a highlight"** against **"dull… no shine at all."** If the spoiled one still reads as edible, add `--no glossy, shine, wet, ripe`.
+
+Two or three shapes each, as with the mushrooms. Same anchor colour for both, so **the mask needs no changes**.
+
+## 5. Velvet Shank + Galerina  *(winter's test, and the only one it has)*
+
+Winter is the season with no identification test in it at all, so this pair is worth more than its two sprites. Both grow in **tight clusters on dead standing wood**, so they belong at the yellow `#FFE800` anchor rather than on litter.
+
+Two tells, and both survive being drawn standing: **the ring** (Galerina has one, velvet shank never does) and **the black velvet stem base** (velvet shank only).
+
+> a cluster of velvet shank mushrooms growing on dead hardwood in winter, painterly oil study, small glossy tawny-orange caps in a tight tuft, on slender stems that darken to near-black and look velvety toward the base, no ring on the stem, frost on the bark, soft cold light, plain dark background, no text --ar 1:1 --style raw
+
+> a cluster of galerina mushrooms growing on a rotting log, painterly oil study, small dull brown-ochre caps in a loose tuft, on thin pale dry stems each wearing a delicate ring near the top, no velvet, damp winter light, plain dark background, no text --ar 1:1 --style raw
+
+Load-bearing: **"no ring on the stem"** and **"velvety toward the base"** against **"a delicate ring near the top"** and **"pale dry stems"**. If MJ keeps giving the Galerina a dark base, add `--no velvet, black stem`.
+
+This is the most paintable pair on the sheet: orange caps against black wood and snow. Worth doing early for that reason alone.
+
+## 5b. Oyster Mushroom + Judas Ear  *(winter's safe half — no decoy, easy wins)*
+
+The other two that fruit in the cold. **Both safe**, so they need no pair and no tell, which makes them the cheapest useful art on this sheet. They're what stops winter being four rosehips.
+
+> a cluster of oyster mushrooms growing from dead wood, painterly oil study, overlapping grey-brown fan-shaped shelves like a staircase, pale cream gills running down onto the short off-centre stems, soft cold light, plain dark background, no text --ar 1:1 --style raw
+
+> a group of judas ear fungus on a dead elder branch, painterly oil study, thin translucent red-brown cups folded and veined exactly like ears, soft and gelatinous looking, wet winter light, plain dark background, no text --ar 1:1 --style raw
+
+### These four attach to WOOD, which changes how to cut them out
+
+All of §5 and §5b sit on the yellow `#FFE800` daub, which goes on a **stump, a fallen log or a trunk base** in the painting. So unlike the ground plants:
+
+- **Draw them side-on**, growing sideways out of vertical wood, not viewed from above. A shelf projects; it doesn't sit.
+- **Include no bark of their own.** A sprite carrying its own piece of trunk will look wrong on every trunk but the one it was painted for.
+- **Feather the attachment edge hard.** Where the fungus meets wood should fade to nothing, so it merges into whatever it lands on. That edge does the same job a contact shadow does for a mushroom on litter.
+- **One daub per trunk face**, and you never decide what grows there. Four species share these marks and the wood picks, so the same log bears oysters one winter and the funeral bell the next.
+
+## 6. Morel + False Morel
+
+> a morel mushroom standing on forest floor, painterly oil study, a tall cap deeply pitted like a honeycomb on a pale hollow stalk, soft even light, plain dark background, no text --ar 1:1 --style raw
+
+> a false morel mushroom on forest floor, painterly oil study, an irregular reddish-brown cap lobed and folded like a brain rather than pitted, on a short stout stalk, soft even light, plain dark background, no text --ar 1:1 --style raw
+
+## 7. Wild Carrot + Hemlock  *(the poison you actually want)*
+
+Hemlock **yields** — it's an alchemy ingredient, not a decoy. Same height as wild carrot on purpose: the **stem** is the tell.
+
+> a wild carrot plant in a grassy clearing, painterly oil study, a flat white umbrella of tiny flowers with a single dark floret at its centre, on a slender hairy green stem, soft even light, plain dark background, no text --ar 1:1 --style raw
+
+> a hemlock plant in a grassy clearing, painterly oil study, a flat white umbrella of tiny flowers on a smooth hairless stem blotched with purple, soft even light, plain dark background, no text --ar 1:1 --style raw
+
+## 8. The safe plants  *(no pair, lower priority — do these when you want a break)*
+
+| Plant | Prompt core |
+| --- | --- |
+| `field_mushroom` | a common field mushroom, white domed cap, short stout stalk, on grass |
+| `dandelion` | a dandelion plant, jagged toothed leaves in a low rosette, one yellow flower |
+| `sorrel` | a sorrel plant, arrow-shaped bright green leaves in a low clump |
+| `blueberry` | a low bilberry sprig with small round blue berries and neat oval leaves |
+| `raspberry` | a raspberry sprig with soft red berries and pale undersides to the leaves |
+| `rosehip` | a wild rose stem with scarlet rosehips and a few thorns, leaves turning |
+
+---
+
+# PART 1b — The green floor  *(cheap, and it makes tier 1 a real place)*
+
+Ground cover for the near wood. **Mostly worthless on purpose:** if only the useful things can be picked, un-pickable scenery becomes a tell and the identification game collapses. See `FORAGING_PLANTS.md` → *The green floor*.
+
+**These want ONE variant each, not three.** Nobody memorises a fern for advantage, so variety buys nothing here. Save the multi-shape work for the pairs. They can also be drawn a little loose, since nothing depends on reading them closely.
+
+⭐ = the starting five (two carpets, one useful, one nasty, one joke).
+
+### ⭐ Dog's mercury
+> a low carpet of dog's mercury on a shaded woodland floor, painterly oil study, plain oval toothed leaves in opposite pairs up unbranched upright stems, dull matte green, no showy flowers, soft even light, plain dark background, no text --ar 1:1 --style raw
+
+### ⭐ Wood anemone
+> a small clump of wood anemone growing from woodland leaf litter, painterly oil study, nodding white six-petalled flowers on thread-thin stalks above finely divided green leaves, delicate and low, soft spring light, plain dark background, no text --ar 1:1 --style raw
+
+### ⭐ Ground ivy (alehoof)
+> a low sprawling mat of ground ivy on a woodland floor, painterly oil study, small round scalloped leaves along creeping square stems, tiny violet-blue hooded flowers, soft even light, plain dark background, no text --ar 1:1 --style raw
+
+### ⭐ Cuckoo pint — TWO sprites, one per season
+The only green-floor plant needing two, because it genuinely looks like two different plants across the year. Worth it: a player who learns the leaf gets ambushed by the berries.
+
+> a cuckoo pint plant on a damp woodland floor, painterly oil study, glossy dark green arrow-shaped leaves rising straight from the litter, some blotched with purple-black, soft even light, plain dark background, no text --ar 1:1 --style raw
+
+> a spike of cuckoo pint berries on a woodland floor in autumn, painterly oil study, a single bare pale stalk topped with a dense cluster of glossy scarlet-orange berries, no leaves at all, soft even light, plain dark background, no text --ar 1:1 --style raw
+
+### ⭐ Enchanter's nightshade
+> a slender enchanter's nightshade plant in deep woodland shade, painterly oil study, a thin wiry stem carrying a sparse spike of tiny white two-lobed flowers above paired pointed leaves, unremarkable and delicate, soft dim light, plain dark background, no text --ar 1:1 --style raw
+
+### Wood sorrel
+> a small clump of wood sorrel on a mossy woodland floor, painterly oil study, delicate clover-like leaves of three folded heart-shaped leaflets in pale green, one small white flower veined with lilac, soft even light, plain dark background, no text --ar 1:1 --style raw
+
+### Woodruff
+> a clump of sweet woodruff on a woodland floor, painterly oil study, narrow pointed leaves arranged in neat star-shaped whorls up a slender square stem, a few tiny white four-petalled flowers at the top, soft even light, plain dark background, no text --ar 1:1 --style raw
+
+### Bracken
+> a stand of bracken fern on a woodland floor, painterly oil study, large coarse triangular fronds arching outward on tall wiry stalks, soft even light, plain dark background, no text --ar 1:1 --style raw
+
+**If MJ keeps adding flowers to the plain ones** (it wants everything to be pretty), append `--no flowers, blossoms, mushrooms, berries`. Dog's mercury and bracken especially should look like nothing much.
+
+---
+
+# PART 2 — Tipped variants  *(the payoff variant)*
+
+Once a plant has its standing sprite, a **second variant lying on its side** buys three things: the patch stops looking stamped, the underside tell becomes available *some* of the time, and a player who learned both tells gets rewarded for spotting whichever the scene happens to offer.
+
+> a single brown bolete mushroom lying tipped on its side on forest litter, its underside showing, painterly oil study, pale cream pores beneath the cap, soft even light, plain dark background, no text --ar 1:1 --style raw
+
+Same again with **"pores flushed dull pink"** for the bitter bolete.
+
+---
+
+# PART 3 — Scenes
+
+Ground-level only. Bushes and trees are parked: one bush is one plant, which breaks the "choose what to take" mechanic (see the design doc).
+
+## ✅ Done
+- `spring1` (+ mask) — deep wood, litter and fallen timber. *No grass, so no dandelion or sorrel here, which is authentic for a shady wood.*
+- `autumn1` — currently a **duplicate of spring1**, standing in until a real one exists.
+
+## Wanted
+
+**Autumn (the mushroom flush) — the priority, since that's where the painted pairs live:**
+> a close view of the forest floor at your feet in late autumn, steep downward angle, the ground filling the whole frame, thick fallen leaves in ochre and rust over damp dark earth, moss on a rotting log, low misty light, open patches between the leaf drifts, painterly oil study --ar 1:1 --style raw --no sky, horizon, treeline, distant trees, background, mushrooms, berries, flowers, people, text
+
+**A grassy clearing — needed, because greens have nowhere to grow right now:**
+> a close view of a woodland clearing floor at your feet, steep downward angle, the ground filling the whole frame, low tangled grass and weeds over damp earth, open patches of bare soil showing through between the growth, a mossy stone, soft spring light, painterly oil study --ar 1:1 --style raw --no sky, horizon, treeline, distant trees, background, flowers, mushrooms, berries, people, text
+
+**Summer:**
+> a close view of a sunlit woodland floor at your feet in high summer, steep downward angle, the ground filling the whole frame, dry earth and dappled light, scattered dry leaves and a fallen branch, open uncluttered ground, painterly oil study --ar 1:1 --style raw --no sky, horizon, treeline, distant trees, background, mushrooms, berries, flowers, people, text
+
+**Winter (stark on purpose — but it needs WOOD, see below):**
+> a close view of a bare winter woodland floor at your feet, steep downward angle, the ground filling the whole frame, frozen dark earth with a dusting of snow, black wet twigs and dead bracken, cold blue light, painterly oil study --ar 1:1 --style raw --no sky, horizon, treeline, distant trees, background, people, text
+
+### Winter needs dead wood, and rocks cost you ground
+
+Two things learned from the first winter round *(2026-08-13)*:
+
+**Rocks are expensive.** Stone is **blocked** in the mask, so nothing grows on it. The first batch put stone across roughly a third of the ground, which is a third of the scene that can hold nothing. Put `boulders, large rocks` in the negatives; a few small stones survive anyway and those are fine.
+
+**Winter's four best plants all grow on wood.** Oyster mushroom, judas ear, velvet shank and the funeral bell only appear on a yellow `#FFE800` daub, so **a winter scene with no stump or log in it can hold almost nothing.** Trading rocks for wood is a straight upgrade: wood is plantable ground *and* the only place the cold fungi can be.
+
+**Stumps beat logs.** A broad stump face plus its sides takes four to six daubs comfortably, and it reads as dead hardwood, which is what these species want. A log at a steep downward angle shows mostly its top edge, so ask for bulk or there's no flank to hang a tuft on.
+
+> a close view of a winter woodland floor at your feet, steep downward angle, the ground filling the whole frame, a broad rotting tree stump standing at one side with soft crumbling wood and loose bark, frozen leaf litter and thin snow around it, dead bracken and black twigs, cold blue light, painterly oil study --ar 1:1 --style raw --no sky, horizon, treeline, distant trees, background, boulders, large rocks, mushrooms, berries, people, text
+
+> a close view of a bare winter woodland floor at your feet, steep downward angle, the ground filling the whole frame, a thick fallen log lying across the foreground with its bark split and peeling and one broad flank turned toward the viewer, frozen dark earth and old leaf litter under thin snow, black wet twigs and dead bracken, cold blue light, painterly oil study --ar 1:1 --style raw --no sky, horizon, treeline, distant trees, background, boulders, large rocks, mushrooms, berries, people, text
+
+Load-bearing: **"thick"** and **"one broad flank turned toward the viewer"**.
+
+### The winter rose — and why it isn't a bramble
+
+Rosehips hang all winter and are *better* after frost, so a wild rose is a winter bush that actually bears something. A bramble in winter bears nothing and is pure decoration.
+
+They're also different shapes, and MJ defaults to the wrong one:
+
+- **Bramble sprawls.** Long whippy canes arching over and rooting where the tip lands, making low tangled mounds.
+- **Dog rose is a SHRUB.** Fewer, stouter stems rising from one base, arching but distinctly upright, often taller than a person, scrambling up through other bushes rather than mounding on the ground. Stems stay reddish-brown in winter rather than going black.
+
+> a close view of the ground at the foot of a wild dog rose bush in deep winter, steep downward angle, the ground filling the whole frame, a few stout thorny stems rising from one base and arching upward, distinctly upright and taller than wide, reddish-brown bark, snow caught along the stems, frozen leaf litter and open snow below, cold blue light, painterly oil study --ar 1:1 --style raw --no sky, horizon, treeline, distant trees, background, brambles, tangled mound, berries, rosehips, fruit, flowers, people, text
+
+Load-bearing: **"a few stout stems rising from one base"**, **"distinctly upright and taller than wide"**, and **`brambles, tangled mound`** in the negatives, which is what pulls it toward the sprawl.
+
+`berries, rosehips, fruit` are negated on purpose: the hips are **sprites** at orange daubs now, and painted-in ones would clash with them.
+
+*If a roll comes back as a snowy mound anyway, keep it — that's a good **bramble** scene, and bramble is a real plant here with violet daubs, summer and autumn fruit, and the spoiled-berry beat. A different scene rather than a failed one.*
+
+### Mask daubs, per winter scene
+
+| Scene | Daubs |
+| --- | --- |
+| Stump | 🟡 yellow around the rim and down the sides |
+| Thick log | 🟡 yellow along the flank facing the viewer |
+| Dog rose | 🟠 orange along the stems, one per cluster |
+| Snowy bramble | 🟣 violet along the canes *(fruit in summer/autumn only, so a winter bramble scene shows bare canes — that's correct)* |
+
+### What keeps a scene usable
+- **"at your feet" + "the ground filling the whole frame"** stop it becoming a landscape.
+- **`--no sky, horizon`** is what actually holds the line. Drop it and trees creep back in.
+- **Forbid mushrooms and berries** — anything painted in will clash with the sprites placed on top.
+- **Open patches matter.** Sprites need somewhere to land that isn't busy.
+
+---
+
+# PART 4 — Terrain masks  *(optional, per scene)*
+
+Paint as a layer over the background, export as `{scene}_mask.png`. Three brush colours, classified by **dominant channel**, so soft edges and approximate swatches are fine.
+
+| Colour | Terrain | What grows |
+| --- | --- | --- |
+| 🔴 **red** | `wood` | trunk bases, roots, fallen logs → chanterelles, boletes, morels |
+| 🟢 **green** | `grass` | weedy clearing, ground cover → dandelion, sorrel, wild carrot, hemlock, parasol |
+| 🔵 **blue** | `litter` | leaf litter, open earth → most things |
+| ⚫ **black / transparent** | blocked | rock, water, deep shadow → nothing at all |
+
+### Anchor daubs — where a specific thing grows
+
+Bushes are **painted into the scene**, not cut out as sprites: a bramble stands in the same corner for twenty years, so it belongs to the picture. Only the fruit is a sprite, and it appears where you mark it. Same mask file, one small daub per spot:
+
+| Colour | Marks |
+| --- | --- |
+| 🟣 `#7B00D4` | a blackberry cluster |
+| 🔵 `#00C8FF` | juniper berries |
+| 🟠 `#FF7A00` | rosehips |
+| 🩷 `#FF00C8` | elderberries |
+| 🟡 `#FFE800` | fungus on standing wood (a trunk face, a stump) |
+
+Approximate is fine, nearest colour wins. A daub of any size gives **one** spot, so mark each cluster separately. These are read *before* the terrain colours, so a violet daub won't be mistaken for leaf litter.
+
+**Why this beats cutting bushes out:** no transparency work, and a painted-in bush needs no contact shadow, no light-matching and no depth sorting, because it *is* the painting. Variety comes from more scenes rather than from moving one bush around — which is also the honest model, since a thicket doesn't wander.
+
+The **mask toggle** in the sandbox overlays it at 45% with a legend, so you can see where things are allowed while you paint. Masks are entirely optional: no file simply means the whole frame is fair game.
+
+---
+
+# PART 5 — Entering the woods  *(a nice-to-have)*
+
+The wide atmospheric landscapes from the early rounds are lovely and shouldn't be wasted. They'd work as the **setting-out** image shown when you walk into the woods, before it cuts down to the ground you actually search — immersion from the wide shot, usability from the close-up, instead of choosing.
+
+No code for this yet. Keep the good ones.

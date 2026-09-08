@@ -1,0 +1,487 @@
+import { describe, it, expect } from "vitest";
+import { FORAGE_PLANTS, getForagePlant, isDecoy } from "@medieval-realm/shared/data/foraging/plants";
+import { buildScene, fullStock, pick, rain, advance, seasonWeight, SEASON_CAPACITY, sizeRangesOverlap, DEFAULT_SIZE, DEPTH_MIN, DEPTH_MAX } from "@medieval-realm/shared/data/foraging/scene";
+
+// Stand-in for the anchors an artist paints on a scene mask: six places on the
+// bushes in the painting where blackberries hang.
+const sixAnchors = [
+  { plantId: "blackberry", x: 22, y: 40 }, { plantId: "blackberry", x: 26, y: 46 },
+  { plantId: "blackberry", x: 30, y: 38 }, { plantId: "blackberry", x: 70, y: 62 },
+  { plantId: "blackberry", x: 74, y: 68 }, { plantId: "blackberry", x: 78, y: 58 },
+];
+
+describe("foraging — the woods' stock", () => {
+  const total = (s: Record<string, number>) => Object.values(s).reduce((a, b) => a + b, 0);
+
+  it("a fresh wood fills its slots, and only with things in season", () => {
+    const s = fullStock("autumn", 3);
+    expect(total(s)).toBeCloseTo(SEASON_CAPACITY.autumn, 0);
+    expect(s.blueberry).toBe(0); // a summer thing
+    for (const id of Object.keys(s)) {
+      if (s[id] > 0) expect(seasonWeight(id, "autumn")).toBeGreaterThan(0);
+    }
+  });
+
+  it("picking depletes, and floors at zero", () => {
+    let s = fullStock("summer", 5);
+    const before = s.blueberry;
+    expect(before).toBeGreaterThan(0);
+    s = pick(s, "blueberry");
+    expect(s.blueberry).toBe(before - 1);
+    for (let i = 0; i < 200; i++) s = pick(s, "blueberry");
+    expect(s.blueberry).toBe(0);
+  });
+
+  // THE reason the model is a lottery rather than a cap. Under caps, a full
+  // autumn had exactly four cepes, every time, forever: no bad years and no
+  // lucky mornings. This is the test that would fail if anyone reintroduces one.
+  it("some autumns simply have no cepes, and some have several", () => {
+    const counts = Array.from({ length: 40 }, (_, i) => fullStock("autumn", i + 1).cepe ?? 0);
+    expect(Math.min(...counts)).toBe(0);
+    expect(Math.max(...counts)).toBeGreaterThan(1);
+    expect(new Set(counts).size).toBeGreaterThan(2); // genuinely varies, not a coin flip
+  });
+
+  it("weight is a likelihood, so the common things outnumber the prize", () => {
+    const woods = Array.from({ length: 30 }, (_, i) => fullStock("autumn", i + 1));
+    const mean = (id: string) => woods.reduce((a, w) => a + (w[id] ?? 0), 0) / woods.length;
+    expect(mean("field_mushroom")).toBeGreaterThan(mean("cepe"));
+    // Most boletes in this wood are the wrong bolete. That is the whole pair.
+    expect(mean("bitter_bolete")).toBeGreaterThan(mean("cepe"));
+  });
+
+  it("a stripped wood comes back full within a few days", () => {
+    const empty = Object.fromEntries(FORAGE_PLANTS.map((p) => [p.id, 0]));
+    expect(total(advance(empty, "autumn", 12, 7))).toBeLessThan(SEASON_CAPACITY.autumn);
+    // Three days away is the promise the whole no-tickets model rests on.
+    // "Full" means practically full: decay leaves fractions that whole clumps
+    // can't fill, so the wood hovers a hair under its ceiling rather than
+    // pinning to it exactly. Asserting equality here would be asserting an
+    // arithmetic accident, not the design.
+    const back = total(advance(empty, "autumn", 72, 7));
+    expect(back).toBeGreaterThan(SEASON_CAPACITY.autumn * 0.97);
+    expect(back).toBeLessThanOrEqual(SEASON_CAPACITY.autumn);
+  });
+
+  it("left alone, the wood stays full but re-rolls what is in it", () => {
+    const a = fullStock("autumn", 11);
+    const b = advance(a, "autumn", 240, 12);
+    expect(total(b)).toBeGreaterThan(SEASON_CAPACITY.autumn * 0.97);
+    expect(b).not.toEqual(a); // full AND different
+  });
+
+  // Seasons hand over rather than snap: out-of-season stock converges to nothing
+  // on its own, and the slots it frees go to whatever is growing now.
+  it("out-of-season stock fades to exactly zero, and its slots are taken", () => {
+    const summer = fullStock("summer", 4);
+    expect(summer.blueberry).toBeGreaterThan(0);
+
+    const day = advance(summer, "autumn", 24, 4);
+    expect(day.blueberry).toBeLessThan(summer.blueberry * 0.05); // the last of them
+
+    const twoDays = advance(summer, "autumn", 48, 4);
+    expect(twoDays.blueberry).toBe(0);                            // gone means 0
+    expect(twoDays.chanterelle).toBeGreaterThan(0);               // autumn moved in
+  });
+
+  it("one long catch-up matches many small ticks closely enough to trust", () => {
+    const empty = Object.fromEntries(FORAGE_PLANTS.map((p) => [p.id, 0]));
+    const oneJump = total(advance(empty, "autumn", 300, 9));
+    let stepped: Record<string, number> = empty;
+    for (let i = 0; i < 300; i++) stepped = advance(stepped, "autumn", 1, 9);
+    expect(oneJump).toBeCloseTo(total(stepped), 0);
+  });
+});
+
+describe("foraging — scene generation", () => {
+  it("is stable for the same seed, so picking one plant can't reshuffle the rest", () => {
+    const s = fullStock("autumn");
+    expect(buildScene(s, "autumn", 42)).toEqual(buildScene(s, "autumn", 42));
+  });
+
+  it("a different seed lays the wood out differently", () => {
+    const s = fullStock("autumn");
+    expect(buildScene(s, "autumn", 1)).not.toEqual(buildScene(s, "autumn", 2));
+  });
+
+  it("an emptied wood shows nothing — that IS the rate limit", () => {
+    const empty = Object.fromEntries(FORAGE_PLANTS.map((p) => [p.id, 0]));
+    expect(buildScene(empty, "autumn", 7)).toHaveLength(0);
+  });
+
+  it("never places a plant that is out of season", () => {
+    for (const placed of buildScene(fullStock("winter"), "winter", 3)) {
+      expect(seasonWeight(placed.plantId, "winter")).toBeGreaterThan(0);
+    }
+  });
+
+  it("sorts ground plants by where they stand", () => {
+    for (const p of buildScene(fullStock("autumn"), "autumn", 8)) {
+      expect(p.sortY).toBe(p.y);
+    }
+  });
+
+  it("keeps sprites inside the frame, and never stacks two on one spot", () => {
+    const scene = buildScene(fullStock("summer"), "summer", 11);
+    for (const p of scene) {
+      expect(p.x).toBeGreaterThan(0); expect(p.x).toBeLessThan(100);
+      expect(p.y).toBeGreaterThan(0); expect(p.y).toBeLessThan(100);
+    }
+    // Clump-mates sit close on purpose, so the floor is the intra-clump gap,
+    // not the between-clump one. Each must still be its own clickable thing.
+    for (let i = 0; i < scene.length; i++) {
+      for (let j = i + 1; j < scene.length; j++) {
+        expect(Math.hypot(scene[i].x - scene[j].x, scene[i].y - scene[j].y)).toBeGreaterThanOrEqual(3);
+      }
+    }
+  });
+
+  it("fruits in company: a plant that clumps places neighbours near its own kind", () => {
+    const scene = buildScene(fullStock("autumn"), "autumn", 21);
+    const chants = scene.filter((p) => p.plantId === "chanterelle");
+    expect(chants.length).toBeGreaterThan(1);
+    // Every chanterelle should have another within a clump's reach.
+    for (const c of chants) {
+      const nearest = Math.min(...chants.filter((o) => o !== c)
+        .map((o) => Math.hypot(o.x - c.x, o.y - c.y)));
+      expect(nearest).toBeLessThan(16);
+    }
+  });
+});
+
+describe("foraging — fungus on standing wood", () => {
+  // Six trunk faces the artist marked with the yellow daub. Note they say
+  // "wood_fungus", not a species: the painter marks a PLACE, not an answer.
+  const trunks = [
+    { plantId: "wood_fungus", x: 20, y: 35 }, { plantId: "wood_fungus", x: 30, y: 55 },
+    { plantId: "wood_fungus", x: 45, y: 30 }, { plantId: "wood_fungus", x: 60, y: 70 },
+    { plantId: "wood_fungus", x: 75, y: 45 }, { plantId: "wood_fungus", x: 85, y: 62 },
+  ];
+  const onWood = (season: "winter" | "autumn", seed: number) =>
+    buildScene(fullStock(season, seed), season, seed, { anchors: trunks })
+      .filter((p) => p.anchor);
+
+  it("a shared daub grows whatever the wood is holding, not a fixed species", () => {
+    const kinds = new Set<string>();
+    for (let seed = 1; seed <= 30; seed++) for (const p of onWood("winter", seed)) kinds.add(p.plantId);
+    // If the artist had to mark each species, every scene would answer itself.
+    expect(kinds.size).toBeGreaterThan(1);
+    for (const k of kinds) expect(getForagePlant(k)!.anchorKind).toBe("wood_fungus");
+  });
+
+  it("the same trunk bears supper one winter and poison the next", () => {
+    // The point of the pair. If a given spot always held the same thing, its
+    // tell would be worth learning exactly once.
+    const atFirstTrunk = new Set<string>();
+    for (let seed = 1; seed <= 40; seed++) {
+      const first = onWood("winter", seed).find((p) => p.x === 20 && p.y === 35);
+      if (first) atFirstTrunk.add(first.plantId);
+    }
+    expect(atFirstTrunk.size).toBeGreaterThan(1);
+    expect(atFirstTrunk.has("velvet_shank") && atFirstTrunk.has("galerina")).toBe(true);
+  });
+
+  it("never puts two things on one trunk", () => {
+    for (let seed = 1; seed <= 20; seed++) {
+      const spots = onWood("winter", seed).map((p) => `${p.x},${p.y}`);
+      expect(new Set(spots).size).toBe(spots.length);
+    }
+  });
+
+  it("winter is thin but no longer empty", () => {
+    const w = fullStock("winter", 2);
+    const kinds = Object.keys(w).filter((k) => w[k] > 0);
+    expect(kinds.length).toBeGreaterThan(2);           // not just rosehips
+    expect(SEASON_CAPACITY.winter).toBeLessThan(SEASON_CAPACITY.autumn / 2); // still the lean season
+  });
+});
+
+describe("foraging — decoys", () => {
+  it("decoys yield nothing and name what they mimic", () => {
+    for (const p of FORAGE_PLANTS.filter((x) => x.yields === null)) {
+      expect(isDecoy(p.id)).toBe(true);
+      expect(p.mimics, `${p.name} must say what it is mistaken for`).toBeTruthy();
+      expect(getForagePlant(p.mimics!), `${p.name} mimics an unknown plant`).toBeTruthy();
+    }
+  });
+
+  it("every decoy shares a season with the plant it mimics, or it can never fool anyone", () => {
+    for (const p of FORAGE_PLANTS.filter((x) => x.yields === null)) {
+      const real = getForagePlant(p.mimics!)!;
+      const shared = (["spring", "summer", "autumn", "winter"] as const)
+        .filter((s) => (p.weight[s] ?? 0) > 0 && (real.weight[s] ?? 0) > 0);
+      expect(shared.length, `${p.name} never grows alongside ${real.name}`).toBeGreaterThan(0);
+    }
+  });
+
+  it("hemlock is a real item, not a decoy — we want it in the basket", () => {
+    expect(isDecoy("hemlock")).toBe(false);
+    expect(getForagePlant("hemlock")!.yields).toBe("hemlock");
+    expect(getForagePlant("hemlock")!.mimics).toBe("wild_carrot");
+  });
+
+  it("every plant has a note, since that is what Edda says over the basket", () => {
+    for (const p of FORAGE_PLANTS) expect(p.note.length).toBeGreaterThan(10);
+  });
+});
+
+describe("foraging — sprite variants", () => {
+  it("picks a variant within the declared range, and only for plants that have art", () => {
+    for (const placed of buildScene(fullStock("autumn"), "autumn", 5)) {
+      const plant = getForagePlant(placed.plantId)!;
+      const n = plant.artVariants ?? 0;
+      expect(placed.variant).toBeGreaterThanOrEqual(1);
+      // No art declared → variant is a harmless 1 and the emoji is drawn instead.
+      if (n > 0) expect(placed.variant).toBeLessThanOrEqual(n);
+      else expect(placed.variant).toBe(1);
+    }
+  });
+
+  it("variant choice is stable for a seed, so a sprite can't swap on re-render", () => {
+    const s = fullStock("autumn");
+    const a = buildScene(s, "autumn", 99).map((p) => p.variant);
+    const b = buildScene(s, "autumn", 99).map((p) => p.variant);
+    expect(a).toEqual(b);
+  });
+
+  // Sorting a pair by silhouette is not identifying it. Sizes must match unless
+  // size is genuinely the real-world tell, in which case the note must say so.
+  it("a decoy shares its twin's size range, unless size is the tell", () => {
+    for (const p of FORAGE_PLANTS.filter((x) => x.mimics)) {
+      const real = getForagePlant(p.mimics!)!;
+      const a = p.size ?? DEFAULT_SIZE, b = real.size ?? DEFAULT_SIZE;
+      if (a[0] === b[0] && a[1] === b[1]) continue;
+      // Sizes differ, so size must BE the tell: the ranges must not overlap at
+      // all, and the note must tell the player to go by it.
+      expect(
+        sizeRangesOverlap(a, b),
+        `${p.name} and ${real.name} differ in size but their ranges overlap — a big impostor could pass for a small real one`,
+      ).toBe(false);
+      expect(
+        p.note.toLowerCase(),
+        `${p.name} differs in size from ${real.name}, so its note must tell the player to go by size`,
+      ).toContain("size");
+    }
+  });
+
+  // Memorising the smaller set is the exploit: if the impostor has three shapes
+  // and the real thing has six, you can learn the three and call everything else
+  // safe, without ever looking at a single ridge.
+  it("a decoy has as many painted shapes as its twin", () => {
+    for (const p of FORAGE_PLANTS.filter((x) => x.mimics)) {
+      const real = getForagePlant(p.mimics!)!;
+      expect(
+        p.artVariants ?? 0,
+        `${p.name} must offer as many shapes as ${real.name}, or its set is the easier one to memorise`,
+      ).toBe(real.artVariants ?? 0);
+    }
+  });
+
+  // The point of per-species ranges. Note we do NOT claim a total ordering:
+  // a small bolete really can be smaller than a big chanterelle, and that is
+  // fine because they are not a pair. Only the parasol's separation matters.
+  it("a parasol out-tops every other mushroom, however small it grows", () => {
+    const of = (id: string) => getForagePlant(id)!.size ?? DEFAULT_SIZE;
+    const smallestParasol = of("parasol")[0];
+    for (const id of ["cepe", "bitter_bolete", "chanterelle", "false_chanterelle",
+                      "morel", "false_morel", "field_mushroom", "deadly_dapperling"]) {
+      expect(smallestParasol, `a small parasol must still out-top the biggest ${id}`)
+        .toBeGreaterThan(of(id)[1]);
+    }
+  });
+
+  it("draws the same plant at visibly different sizes", () => {
+    // Pooled across several woods: a single scene can legitimately draw a few
+    // chanterelles at much the same size, and pinning one RNG draw makes the
+    // test brittle to any change in the sequence.
+    const scales = [1, 2, 3, 4, 5].flatMap((seed) =>
+      buildScene(fullStock("autumn"), "autumn", seed)
+        .filter((p) => p.plantId === "chanterelle").map((p) => p.scale));
+    expect(scales.length).toBeGreaterThan(5);
+    expect(Math.max(...scales) - Math.min(...scales)).toBeGreaterThan(0.15);
+  });
+
+  it("draws plants further up the frame smaller, so they sit back in the picture", () => {
+    const scene = buildScene(fullStock("autumn"), "autumn", 77);
+    // depth tracks y, and the same plant drawn near vs far differs in size.
+    for (const p of scene) expect(p.depth).toBeCloseTo(p.y / 100, 5);
+    const byPlant = new Map<string, typeof scene>();
+    for (const p of scene) byPlant.set(p.plantId, [...(byPlant.get(p.plantId) ?? []), p]);
+    const spread = [...byPlant.values()].find((g) => g.length > 2 &&
+      Math.abs(Math.max(...g.map((p) => p.y)) - Math.min(...g.map((p) => p.y))) > 30);
+    if (spread) {
+      const near = spread.reduce((a, b) => (a.y > b.y ? a : b));
+      const far = spread.reduce((a, b) => (a.y < b.y ? a : b));
+      // Not a strict guarantee (the size roll varies too), but the perspective
+      // factor must at least be pulling in the right direction.
+      expect(DEPTH_MIN).toBeLessThan(DEPTH_MAX);
+      expect(near.depth).toBeGreaterThan(far.depth);
+    }
+  });
+
+  it("keeps everything close to upright, and the big things closest of all", () => {
+    const scene = buildScene(fullStock("autumn"), "autumn", 44, { anchors: sixAnchors });
+    for (const p of scene) {
+      // Things grow up. A hard cap on lean, whatever the plant.
+      expect(Math.abs(p.rotate), `${p.plantId} leans too far`).toBeLessThanOrEqual(6.01);
+    }
+    // A thicket must stand straighter than a mushroom: at bramble size, a tilt
+    // reads as toppling rather than as having grown crooked.
+    for (const b of scene.filter((p) => p.plantId === "bramble")) {
+      expect(Math.abs(b.rotate)).toBeLessThanOrEqual(2.2);
+    }
+  });
+
+  it("mirrors and tones sprites, so painted quirks can't become the tell", () => {
+    const scene = buildScene(fullStock("autumn"), "autumn", 31);
+    expect(scene.length).toBeGreaterThan(4);
+    // Both mirrorings occur, so "which way it leans" carries no information.
+    expect(new Set(scene.map((p) => p.flip)).size).toBe(2);
+    for (const p of scene) {
+      expect(p.brightness).toBeGreaterThan(0.85);
+      expect(p.brightness).toBeLessThan(1.15);
+      expect(p.saturate).toBeGreaterThan(0.85);
+      expect(p.saturate).toBeLessThan(1.2);
+    }
+  });
+
+  // A pair only works if both halves are drawn. One painted and one emoji would
+  // give the answer away instantly, which is worse than no art at all.
+  it("a decoy and the plant it mimics both have art, or neither does", () => {
+    for (const p of FORAGE_PLANTS.filter((x) => x.mimics)) {
+      const real = getForagePlant(p.mimics!)!;
+      expect(
+        (p.artVariants ?? 0) > 0,
+        `${p.name} and ${real.name} must both be painted or both be placeholders`,
+      ).toBe((real.artVariants ?? 0) > 0);
+    }
+  });
+});
+
+describe("foraging — rain", () => {
+  it("pushes the wood past what it normally holds, and puts mushrooms in it", () => {
+    const total = (s: Record<string, number>) => Object.values(s).reduce((a, b) => a + b, 0);
+    const shrooms = (s: Record<string, number>) =>
+      (s.chanterelle ?? 0) + (s.cepe ?? 0) + (s.field_mushroom ?? 0) + (s.false_chanterelle ?? 0);
+
+    // Averaged over seeds: a downpour is a roll like everything else, and the
+    // claim is about what rain DOES, not about one lucky shower.
+    const dry = Array.from({ length: 12 }, (_, i) => fullStock("autumn", i + 1));
+    const wet = dry.map((d, i) => rain(d, "autumn", i + 1));
+    const mean = (arr: Record<string, number>[], f: (s: Record<string, number>) => number) =>
+      arr.reduce((a, s) => a + f(s), 0) / arr.length;
+
+    // Rain is the one event allowed past the wood's usual capacity.
+    expect(mean(wet, total)).toBeGreaterThan(SEASON_CAPACITY.autumn);
+    // And it is weighted by rainFlush, so a wet autumn is a MUSHROOM autumn
+    // rather than simply more of everything.
+    expect(mean(wet, shrooms) - mean(dry, shrooms))
+      .toBeGreaterThan((mean(wet, total) - mean(dry, total)) * 0.5);
+  });
+
+  it("leaves plants that don't answer to weather alone", () => {
+    const dry = fullStock("autumn");
+    expect(rain(dry, "autumn").rosehip).toBe(dry.rosehip); // no rainFlush declared
+  });
+
+  it("does nothing out of season — no chanterelles in a winter downpour", () => {
+    const winter = fullStock("winter");
+    expect(rain(winter, "winter").chanterelle ?? 0).toBe(0);
+  });
+});
+
+describe("foraging — terrain masks", () => {
+  // A synthetic mask: left half is wood, right half grass, and a blocked band
+  // down the middle. Lets us test the rule without a canvas.
+  const split = (x: number) => (x < 45 ? "wood" as const : x > 55 ? "grass" as const : null);
+
+  it("never places anything on blocked ground", () => {
+    for (const p of buildScene(fullStock("autumn"), "autumn", 4, { terrainAt: split })) {
+      expect(split(p.x)).not.toBeNull();
+    }
+  });
+
+  it("places each plant only on ground it will grow on", () => {
+    for (const p of buildScene(fullStock("autumn"), "autumn", 8, { terrainAt: split })) {
+      const wants = getForagePlant(p.plantId)!.grows;
+      if (wants) expect(wants).toContain(split(p.x));
+    }
+  });
+
+  it("a mask that blocks everything yields an empty scene rather than cheating", () => {
+    expect(buildScene(fullStock("autumn"), "autumn", 9, { terrainAt: () => null })).toHaveLength(0);
+  });
+
+  it("without a mask the whole frame is fair game (masks are optional)", () => {
+    expect(buildScene(fullStock("autumn"), "autumn", 4).length).toBeGreaterThan(0);
+  });
+
+  // If a decoy grew somewhere its twin never does, its position would give it
+  // away without the player ever having to look at it.
+  it("a decoy can grow everywhere the plant it mimics can", () => {
+    for (const p of FORAGE_PLANTS.filter((x) => x.mimics)) {
+      const real = getForagePlant(p.mimics!)!;
+      for (const ground of real.grows ?? []) {
+        expect(
+          p.grows ?? [],
+          `${p.name} cannot grow on ${ground}, but ${real.name} can — its position would betray it`,
+        ).toContain(ground);
+      }
+    }
+  });
+});
+
+describe("foraging — fruit on the painted bushes", () => {
+  it("bears no fruit where the artist marked none", () => {
+    const scene = buildScene(fullStock("autumn"), "autumn", 5);
+    expect(scene.some((p) => p.plantId === "blackberry")).toBe(false);
+  });
+
+  it("puts blackberries only on the marked spots, never loose on the ground", () => {
+    const scene = buildScene(fullStock("autumn"), "autumn", 5, { anchors: sixAnchors });
+    const berries = scene.filter((p) => p.plantId === "blackberry");
+    expect(berries.length).toBeGreaterThan(0);
+    for (const b of berries) {
+      expect(b.anchor).toBe(true);
+      expect(sixAnchors.some((a) => a.x === b.x && a.y === b.y),
+        "a berry appeared somewhere unmarked").toBe(true);
+    }
+  });
+
+  it("never hangs two clusters on one spot", () => {
+    const scene = buildScene(fullStock("autumn"), "autumn", 12, { anchors: sixAnchors });
+    const used = scene.filter((p) => p.anchor).map((p) => `${p.x},${p.y}`);
+    expect(new Set(used).size).toBe(used.length);
+  });
+
+  it("bears no more than the bushes are marked for, however lush the season", () => {
+    const heavy = { ...fullStock("autumn"), blackberry: 999 };
+    const scene = buildScene(heavy, "autumn", 3, { anchors: sixAnchors });
+    expect(scene.filter((p) => p.plantId === "blackberry").length).toBeLessThanOrEqual(sixAnchors.length);
+  });
+
+  // The point of anchoring fruit rather than scattering it: a bush picked over
+  // is visibly picked over, in the same corner of the same wood as before.
+  it("thins out as it is picked, and empties when the stock is gone", () => {
+    const half = { ...fullStock("autumn"), blackberry: 3 };
+    expect(buildScene(half, "autumn", 4, { anchors: sixAnchors })
+      .filter((p) => p.plantId === "blackberry").length).toBe(3);
+    const bare = { ...fullStock("autumn"), blackberry: 0 };
+    expect(buildScene(bare, "autumn", 4, { anchors: sixAnchors })
+      .filter((p) => p.plantId === "blackberry").length).toBe(0);
+  });
+
+  it("ignores anchors meant for something else", () => {
+    const other = [{ plantId: "juniper", x: 40, y: 40 }];
+    const scene = buildScene(fullStock("autumn"), "autumn", 5, { anchors: other });
+    expect(scene.some((p) => p.plantId === "blackberry")).toBe(false);
+  });
+
+  it("keeps anchored plants out of the loose scatter entirely", () => {
+    // Anchored things must never be spread over open ground as though they
+    // sprouted there: a blackberry without a bush is nonsense.
+    for (const p of buildScene(fullStock("autumn"), "autumn", 7, { anchors: sixAnchors })) {
+      if (getForagePlant(p.plantId)?.anchored) expect(p.anchor).toBe(true);
+    }
+  });
+});

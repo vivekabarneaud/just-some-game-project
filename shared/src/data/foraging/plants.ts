@@ -1,0 +1,162 @@
+// ─── Foraging — what grows in the woods ─────────────────────────────────────
+// A starter set for the sandbox, drawn from foods/herbs that already exist in
+// the economy plus the decoys the design calls for. Real items yield into the
+// larder; decoys yield nothing and simply teach you what they were.
+// See docs/DESIGN_FORAGING_MINIGAME.md §5-§8.
+
+import type { ForagePlant } from "./types.js";
+
+export const FORAGE_PLANTS: ForagePlant[] = [
+  // ── Mushrooms (never raw, and two of them have dangerous twins) ──
+  { id: "field_mushroom", name: "Field Mushroom", icon: "🍄", yields: "field_mushroom",
+    note: "Common as grass, and still good in the pan.",
+    clump: 3, rainFlush: 5,
+    size: [0.6, 0.95], grows: ["litter", "grass"],
+    weight: { spring: 10, summer: 10, autumn: 14 }, decay: 0.015 },
+  { id: "morel", name: "Morel", icon: "🍄", yields: "morel",
+    note: "Spring's honeycomb prize. Never eaten raw.",
+    clump: 3,
+    size: [0.7, 1.1], grows: ["wood", "litter"],
+    weight: { spring: 6 }, decay: 0.015 },
+  { id: "chanterelle", name: "Chanterelle", icon: "🍄", yields: "chanterelle", artVariants: 3,
+    note: "Golden, and faintly of apricots. The forager's reward.",
+    clump: 5, rainFlush: 8,
+    size: [0.55, 1.0], grows: ["wood", "litter"],
+    weight: { summer: 5, autumn: 11 }, decay: 0.015 },
+  { id: "cepe", name: "King Bolete", icon: "🍄", yields: "cepe", artId: "king_bolete", artVariants: 3,
+    note: "The king of the wood. Thick, nutty, and hoarded. A fat pale stalk with a fine net near the top, and cream pores beneath.",
+    clump: 2, rainFlush: 3,
+    size: [0.9, 1.5], grows: ["wood"],
+    weight: { autumn: 3 }, decay: 0.015 },
+
+  // The parasol pair is the one place where SIZE is the tell, exactly as it is
+  // in the real world: a true coulemelle stands a hand-span and more, while the
+  // deadly dapperlings that kill people every year are small and squat. So
+  // these two are deliberately drawn at very different heights, unlike every
+  // other lookalike pair here.
+  { id: "parasol", name: "Parasol Mushroom", icon: "🍄", yields: "parasol",
+    clump: 3,
+    size: [1.6, 2.6], grows: ["grass", "litter"],
+    note: "A coulemelle, tall as a hand-span, with a shaggy cap and a ring you can slide up and down the stalk. One of the great finds, and it fills a pan on its own.",
+    weight: { summer: 4, autumn: 6 }, decay: 0.015 },
+
+  // ── Wild greens ──
+  { id: "dandelion", name: "Dandelion", icon: "🌼", yields: "dandelion",
+    note: "Bitter leaves from the yard's edge. Better than it sounds, and better than nothing.",
+    clump: 3,
+    size: [0.7, 1.1], grows: ["grass"],
+    weight: { spring: 20, summer: 12, autumn: 6 } },
+  { id: "sorrel", name: "Sorrel", icon: "🌿", yields: "sorrel",
+    note: "Sharp and lemony. It wakes up a dull pot.",
+    clump: 4,
+    size: [0.7, 1.05], grows: ["grass"],
+    weight: { spring: 15, summer: 10 } },
+  { id: "ramsons", name: "Ramsons", icon: "🧄", yields: "ramsons", artVariants: 3,
+    note: "Wild garlic from the spring woods. It lifts whatever it touches.",
+    clump: 6,
+    size: [1.6, 2.4], grows: ["litter", "wood"],
+    weight: { spring: 18 } },
+  { id: "wild_carrot", name: "Wild Carrot", icon: "🥕", yields: "wild_carrot",
+    note: "A thin, pale root. Sweeter than it looks.",
+    clump: 2,
+    size: [1.0, 1.5], grows: ["grass"],
+    weight: { summer: 9, autumn: 5 } },
+
+  // ── Fungi on standing wood. All share the `wood_fungus` daub, so a trunk the
+  //    artist marked bears whichever of them the wood is currently holding —
+  //    supper one winter, poison the next. Marking them separately would freeze
+  //    each scene's answer and kill the pair after one visit.
+  //
+  //    These are also what makes winter a season rather than a blank: they fruit
+  //    in the cold, which almost nothing does, so finding a shelf of them on a
+  //    dead trunk in the frost is a small miracle rather than a filler yield. ──
+  { id: "oyster_mushroom", name: "Oyster Mushroom", icon: "🍄", yields: "oyster_mushroom",
+    anchored: true, anchorKind: "wood_fungus",
+    note: "Grey fans shelved on dead wood, gills running down the stem. It fruits through the cold, which almost nothing does.",
+    clump: 3, rainFlush: 4,
+    size: [0.85, 1.3],
+    weight: { autumn: 6, winter: 30 }, decay: 0.012 },
+  { id: "judas_ear", name: "Judas Ear", icon: "🍄", yields: "judas_ear",
+    anchored: true, anchorKind: "wood_fungus",
+    note: "Brown, soft and unmistakably ear-shaped, growing on elder. Strange enough that nobody forgets it.",
+    clump: 3, rainFlush: 3,
+    size: [0.6, 0.95],
+    weight: { autumn: 4, winter: 22 }, decay: 0.008 },
+  { id: "velvet_shank", name: "Velvet Shank", icon: "🍄", yields: "velvet_shank",
+    anchored: true, anchorKind: "wood_fungus",
+    note: "Tawny caps in a tight tuft on dead wood, on stems that go near-black and velvety at the foot. No ring, ever.",
+    clump: 4, rainFlush: 3,
+    size: [0.55, 0.9],
+    weight: { winter: 26 }, decay: 0.015 },
+  { id: "galerina", name: "Funeral Bell", icon: "🍄", yields: null, mimics: "velvet_shank",
+    anchored: true, anchorKind: "wood_fungus",
+    note: "The same wood, the same frost, the same little brown cap. It wears a RING on the stem and its foot stays pale and dry, and it carries the death cap's poison.",
+    clump: 3, rainFlush: 3,
+    size: [0.55, 0.9],
+    weight: { winter: 18 }, decay: 0.015 },
+
+  // ── Wild berries. The bushes they hang on are painted into the scenes; only
+  //    the fruit is a sprite, appearing at the anchors marked on a scene's mask.
+  //    See DESIGN_FORAGING_MINIGAME. ──
+  { id: "blackberry", name: "Blackberry", icon: "🫐", yields: "blackberry", anchored: true, artVariants: 1,
+    note: "Hedgerow-dark and seedy, paid for in scratched arms.",
+    clump: 4,
+    size: [0.7, 1.05], grows: ["litter", "grass"],
+    weight: { summer: 12, autumn: 14 }, decay: 0.008 },
+  { id: "blueberry", name: "Blueberry", icon: "🫐", yields: "blueberry",
+    note: "Small, sweet, and blue to the fingers.",
+    clump: 4,
+    size: [0.6, 0.9], grows: ["litter"],
+    weight: { summer: 16 }, decay: 0.008 },
+  { id: "raspberry", name: "Raspberry", icon: "🫐", yields: "raspberry",
+    note: "Soft and tart, and gone in a day.",
+    clump: 4,
+    size: [0.7, 1.05], grows: ["litter", "grass"],
+    weight: { summer: 12 }, decay: 0.008 },
+  { id: "rosehip", name: "Rosehip", icon: "🌹", yields: "rosehip", anchored: true,
+    note: "The scarlet hip of the wild rose. Not for eating raw, but it cooks into a warming jam.",
+    clump: 3,
+    size: [0.9, 1.35], grows: ["grass", "litter"],
+    weight: { autumn: 9, winter: 20 } },
+
+  // ── Real, and dangerous. We WANT this one in the basket (it's a poison
+  //    ingredient), so it yields — it just isn't food. ──
+  { id: "hemlock", name: "Hemlock", icon: "☠️", yields: "hemlock", mimics: "wild_carrot",
+    note: "Hemlock, and you carried it home in a basket of supper. Smooth stem, purple blotches. The carrot's is hairy.",
+    clump: 2,
+    size: [1.0, 1.5], grows: ["grass"],
+    weight: { summer: 4, autumn: 3 } },
+
+  // ── Decoys: scene-only. They cost a basket slot and teach you the tell.
+  //    Deliberately NOT items — no id in the larder, no RewardType, nothing. ──
+  { id: "false_chanterelle", name: "False Chanterelle", icon: "🍄", yields: null, mimics: "chanterelle", artVariants: 3,
+    note: "Not a chanterelle. True ones have blunt forked ridges running down the stem; this has proper flat gills.",
+    clump: 4, rainFlush: 6,
+    size: [0.55, 1.0], grows: ["wood", "litter"],
+    weight: { summer: 4, autumn: 7 }, decay: 0.015 },
+  { id: "bitter_bolete", name: "Bitter Bolete", icon: "🍄", yields: null, mimics: "cepe", artVariants: 3,
+    clump: 2, rainFlush: 3,
+    size: [0.9, 1.5], grows: ["wood"],
+    note: "Not a King Bolete. The folk call this one dog-piss, and a single cap will turn a whole pot bitter. Look at the stalk: the king wears a fine pale net near the top, this one a coarse dark net all the way down. Turn it over and its pores blush pink where his stay cream.",
+    weight: { autumn: 6 }, decay: 0.015 },
+  { id: "deadly_dapperling", name: "Deadly Dapperling", icon: "🍄", yields: null, mimics: "parasol",
+    clump: 3,
+    size: [0.4, 0.75], grows: ["grass", "litter"],
+    note: "A dapperling, and it would have killed the lot of us. Go by size before anything else: a true coulemelle stands a hand-span and more, this squats no taller than your thumb. Its ring is fixed to the stalk, too, where the parasol's slides.",
+    weight: { summer: 4, autumn: 6 }, decay: 0.015 },
+  { id: "false_morel", name: "False Morel", icon: "🍄", yields: null, mimics: "morel",
+    note: "Not a morel. A true morel is pitted like a honeycomb and hollow all the way down; this one is lobed, like a brain.",
+    clump: 2,
+    size: [0.7, 1.1], grows: ["wood", "litter"],
+    weight: { spring: 5 }, decay: 0.015 },
+  { id: "lily_of_the_valley", name: "Lily of the Valley", icon: "🌱", yields: null, mimics: "ramsons", artVariants: 3,
+    note: "Lily of the valley, which would have stopped a heart. Ramsons smell of garlic and grow one leaf to a stem; these come in pairs and smell of nothing.",
+    clump: 5,
+    size: [1.6, 2.4], grows: ["litter", "wood"],
+    weight: { spring: 8 } },
+];
+
+const BY_ID = new Map(FORAGE_PLANTS.map((p) => [p.id, p]));
+export const getForagePlant = (id: string): ForagePlant | undefined => BY_ID.get(id);
+/** A decoy yields nothing: it goes in the bin, and into the herbier. */
+export const isDecoy = (id: string): boolean => BY_ID.get(id)?.yields == null;

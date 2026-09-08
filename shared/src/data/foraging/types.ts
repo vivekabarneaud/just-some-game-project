@@ -1,0 +1,170 @@
+// ─── Foraging — types ───────────────────────────────────────────────────────
+// The cozy downtime valve: walk into the woods, search a painting, fill a
+// basket. See docs/DESIGN_FORAGING_MINIGAME.md.
+//
+// Two rules from that design shape everything here:
+//
+//  1. NO LABELS EVER IN THE SCENE. A plant is a picture, nothing else. Any name
+//     on a sprite kills the mechanic outright — the player would simply stop
+//     clicking anything marked. Names exist only in the BASKET (after the fact,
+//     when Edda goes through it) and in the herbier.
+//
+//  2. NO FAIL STATE. Misidentifying costs a basket slot and teaches you what
+//     the thing actually was. It never costs health or resources.
+
+import type { Season } from "../../gameState.js";
+
+/** Where a plant is willing to grow. A scene may carry a painted MASK saying
+ *  which patches of its ground are which, so mushrooms cluster by trunks and
+ *  fallen wood, greens take the open grass, and nothing sprouts out of a rock.
+ *
+ *  Painting convention (see the frontend's mask loader): three pure brush
+ *  colours over the background, classified by dominant channel so a soft brush
+ *  edge still reads correctly.
+ *    RED   → "wood"   (trunk bases, roots, fallen logs, rotting timber)
+ *    GREEN → "grass"  (weedy clearing, low ground cover)
+ *    BLUE  → "litter" (leaf litter, open bare earth)
+ *  Anything left black or transparent is BLOCKED: rock, water, deep shadow.
+ *  No mask at all means the whole frame is fair game. */
+export type TerrainId = "wood" | "grass" | "litter";
+
+/** A thing that can be found in the woods. Decoys are plants too — the whole
+ *  point is that you can't tell from the id, only from looking. */
+export interface ForagePlant {
+  id: string;
+  /** Shown in the basket and the herbier. NEVER rendered in the scene. */
+  name: string;
+  icon: string;
+  /** Sprite filename stem, when it differs from `id`. The King Bolete's id is
+   *  `cepe` for historical reasons in the economy, but its art is sensibly
+   *  named for what the player is told it is. Defaults to `id`. */
+  artId?: string;
+  /** How many numbered sprite variants exist for this plant, at
+   *  `/images/foraging/plants/{artId ?? id}{n}.png` with n starting at 1. Several per
+   *  plant makes a patch look grown rather than stamped, and makes the scene
+   *  harder to skim by shape alone. 0 or absent falls back to the emoji. */
+  artVariants?: number;
+  /** What lands in the larder when picked. `null` = a decoy: it looked like
+   *  something, it wasn't, and it goes in the bin with a line from Edda. */
+  yields: string | null;
+  /** For a decoy (or a dangerous plant), the plant it is mistaken for. Drives
+   *  the herbier's "how to tell them apart" entry. */
+  mimics?: string;
+  /** What Edda says when she finds it in the basket. Player-facing. */
+  note: string;
+  /** How big this plant stands: [smallest, largest] multiplier on the scene's
+   *  base sprite height. A RANGE rather than one number, because every species
+   *  has its own spread — chanterelles vary within chanterelle bounds, and a
+   *  parasol out-tops the biggest bolete however small it grows.
+   *
+   *  For a lookalike pair the ranges must MATCH, or the player could sort them
+   *  by silhouette without ever looking properly. The one exception is the
+   *  parasol and its dapperling, where size genuinely IS the tell — there the
+   *  ranges are deliberately far apart and must never overlap, which is tested.
+   *  Omitted = a modest default. */
+  size?: [number, number];
+  /** Most fungi and many wild plants fruit in company rather than one at a
+   *  time: chanterelles come in troops, ramsons carpets a whole bank. The
+   *  largest group this plant appears in (default 1 = always solitary). */
+  clump?: number;
+  /** Extra units a good rain brings, over and above the usual cap. Rain is what
+   *  turns a quiet wood into a mushroom flush, and it's the one event that can
+   *  push stock past its ceiling. 0 or absent = indifferent to weather. */
+  rainFlush?: number;
+  /** Most it may lean from upright, in degrees. Defaults to a value derived
+   *  from how large the plant draws: a small mushroom on uneven litter really
+   *  does sit at an angle, while a whole bramble thicket stands up straight.
+   *  Set 0 for anything that must never tilt. */
+  tilt?: number;
+  /** Only appears at points the artist painted for it on the scene mask, never
+   *  scattered on open ground: fruit on a bush, fungus on a standing trunk.
+   *
+   *  The bush itself is NOT a sprite. A bramble stands in the same corner for
+   *  twenty years, so it belongs to the painting rather than being generated
+   *  afresh each visit — which also spares the artist cutting one out, and
+   *  spares us faking the lighting, contact shadow and depth that a painted-in
+   *  bush simply has. What remains a sprite is the fruit, which really does
+   *  come and go, and which thins out visibly as the bush is picked over. */
+  anchored?: boolean;
+  /** Which KIND of painted spot this grows on, when it isn't simply its own id.
+   *  Several plants may share one: every wood fungus sits on a `wood_fungus`
+   *  daub, so a trunk the artist marked can bear supper one winter and poison
+   *  the next. Marking species individually would freeze each scene's answer
+   *  and kill its pair after one visit. */
+  anchorKind?: string;
+  /** Ground this plant will grow on. Omitted = anywhere the mask allows.
+   *  A decoy should share its mimic's terrain, or it would give itself away by
+   *  standing somewhere the real thing never does. */
+  grows?: TerrainId[];
+  /** This plant's share of the draw, per season. Absent or 0 means it doesn't
+   *  grow then.
+   *
+   *  The woods hold a number of SLOTS (see `SEASON_CAPACITY`), and every free
+   *  slot is filled by a weighted lottery. So a weight is not a quantity, it is
+   *  a likelihood: how often this is what came up. Values are relative and get
+   *  normalised, so they needn't sum to anything.
+   *
+   *  This is what makes a bad year possible. A cap of 4 means a full wood has
+   *  exactly 4 cepes, always, forever; a weight of 3 means it usually has two
+   *  or three, sometimes four, and sometimes **none at all**. Which is what a
+   *  wood is actually like, and it is the whole reason the model changed. */
+  weight: Partial<Record<Season, number>>;
+  /** Fraction of standing stock lost per hour, while in season. Exponential.
+   *
+   *  This exists for EPHEMERALITY, not for capping anything — `cap` and the
+   *  season already do that. It is what makes an unpicked flush come and go, so
+   *  that passing on a cepe may mean losing it, which is what makes a basket
+   *  slot a real decision.
+   *
+   *  Only things that genuinely vanish WITHIN a season carry one: mushrooms
+   *  (~0.015, mostly gone in 4-5 days) and soft fruit (~0.008, ~a week). A
+   *  standing green or a rosehip is 0 — the SEASON is its decay, handled by
+   *  OFF_SEASON_FADE. A decoy must match what it mimics, or the ratio drifts
+   *  for no reason. Omitted = 0. */
+  decay?: number;
+}
+
+/** One plant placed in a scene. Positions are percentages so the art can be
+ *  swapped or re-cropped without touching anything. */
+export interface PlacedPlant {
+  /** Stable within a scene, so picking one doesn't reshuffle the rest. */
+  key: string;
+  plantId: string;
+  x: number;
+  y: number;
+  /** Which sprite variant to draw (1-based). Stable within a scene. */
+  variant: number;
+  /** Mirrored horizontally. Doubles the apparent set for free, and — more
+   *  usefully — destroys any accidental correlation between a plant's identity
+   *  and which way its painted variants happen to lean. If every chanterelle
+   *  leaned left and every impostor right, the player would learn THAT instead
+   *  of learning the ridges. At sprite size the flipped lighting is invisible. */
+  flip: boolean;
+  /** Slight per-sprite variation so a patch doesn't look stamped. */
+  scale: number;
+  rotate: number;
+  /** How near the viewer this one is: 0 at the top of the frame, 1 at the
+   *  bottom. In a steep downward view, higher up IS further away, so this
+   *  shrinks and hazes distant plants. Without it a sprite at the treeline
+   *  fights the picture's own perspective and reads as pasted on. */
+  depth: number;
+  /** The depth this sprite sorts at. Normally its own `y` — lower in the frame
+   *  is nearer, so it draws in front. Fruit borrows its HOST's value instead, so
+   *  a berry high on a bush still belongs to that bush rather than sorting as
+   *  something far away and vanishing behind the leaves. */
+  sortY: number;
+  /** Set when this plant sits at a painted anchor rather than on open ground. */
+  anchor?: boolean;
+  /** Mild tonal jitter, so two of the same variant read as two individuals.
+   *  Brightness and saturation only — deliberately NOT hue, because colour can
+   *  be part of a tell and shifting it could turn one plant into another. */
+  brightness: number;
+  saturate: number;
+}
+
+/** How much of each plant the woods currently hold. Picking decrements it;
+ *  regrowth ticks it back toward the seasonal cap. Deliberately NOT a list of
+ *  persisted patches: per-patch state with individual respawn timers is the
+ *  same class of bug that already bites the farm (fields holding live crops in
+ *  winter), and a plain record of numbers cannot go stale. */
+export type WoodsStock = Record<string, number>;
