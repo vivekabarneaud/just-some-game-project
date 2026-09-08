@@ -31,7 +31,12 @@ export const STORY_MISSIONS: StoryMission[] = [
     difficulty: 1,
     minGuildLevel: 1,
     tags: ["exploration", "outdoor"],
-    encounters: [{ enemyId: "grey_wolf", count: 3 }],
+    // Gaunt, not grey (2026-09-05). This is the first fight in the game, taken
+    // in the starter kit: three PACK wolves at their tuned numbers is a 9% win
+    // and a near-certain death. Yearling strays are the right opening animal
+    // anyway — nervous loners, so the coordinated pack stays an escalation the
+    // player meets later, with real gear, in The Fold.
+    encounters: [{ enemyId: "gaunt_wolf", count: 3 }],
     chronicleEntryId: "ch1_first_scouts",
   },
   // ─── Chapter 1 spine, beats 2–4 (promoted from side-chains 2026-07-27) ──

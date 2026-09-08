@@ -160,7 +160,7 @@ export function buildEnemyUnits(encounters: MissionEncounter[]): CombatUnit[] {
       }] : []),
     ];
     for (let i = 0; i < enc.count; i++) {
-      const hp = def.stats.vit * 10;
+      const hp = def.hp;
       units.push({
         id: `${def.id}_${i}`,
         name: enc.count > 1 ? `${def.name} ${i + 1}` : def.name,
@@ -169,7 +169,7 @@ export function buildEnemyUnits(encounters: MissionEncounter[]): CombatUnit[] {
         str: def.stats.str,
         dex: def.stats.dex,
         int: def.stats.int,
-        vit: def.stats.vit,
+        vit: 0, // creatures have no VIT: hp is authored, armour is raw.armor
         wis: def.stats.wis ?? 0,
         raw: def.raw,
         class: undefined, isMagical, gearDefense: 0,

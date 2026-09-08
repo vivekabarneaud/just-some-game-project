@@ -105,7 +105,11 @@ export function placeUnits(ctx: CombatContext): void {
  *  for the treeline could pin the very people chasing it. Nothing with its back
  *  turned holds a line. */
 export function computeHolds(ctx: CombatContext): Set<string> {
-  const units = living(ctx).filter((u) => !u.fleeing);
+  // Nothing you cannot perceive holds you, and nothing with its back turned
+  // holds anyone. Same principle twice: an invisible assassin must not
+  // body-block the front line while unseen (TARGETING.md), and a boar running
+  // for the treeline must not pin its own pursuers (ROUT_AND_FLIGHT).
+  const units = living(ctx).filter((u) => !u.fleeing && !u.concealed);
   const held = new Set<string>();
   for (const enemySide of [true, false]) {
     const attackers = units.filter((u) => u.isEnemy === enemySide && !isRanged(u) && !canBypass(u));

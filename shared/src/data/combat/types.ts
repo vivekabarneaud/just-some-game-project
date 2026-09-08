@@ -3,14 +3,6 @@ import type { EnemyTag, EnemyAbility } from "../enemies.js";
 import type { CombatPotionEffect } from "../items/index.js";
 
 /**
- * Per-enemy targeting intelligence — drives how the threat system affects them.
- *   feral    : random target, ignores threat (mindless beasts, low-tier mobs)
- *   tactical : threat-aware scored pick (default — most enemies)
- *   cunning  : prioritize backline (priest > wizard) over threat (smart casters, elites)
- * Boss flag is orthogonal — a feral dragon is fine. AI tier shapes targeting only.
- */
-
-/**
  * Composable AI knobs (DESIGN_TIER1_ENEMIES §1 "Composable AI"). A unit's brain
  * is a few ORTHOGONAL knobs rather than one tier string: defaults plus opt-in
  * exceptions, the same philosophy as the stat schema. Deliberately small and
@@ -23,32 +15,7 @@ import type { CombatPotionEffect } from "../items/index.js";
  * `isRanged`/`canBypass`, so it stays on the existing `charge`/`combatRole`
  * fields until that work lands. Three knobs wired beats four half-wired.
  */
-export type AITargeting =
-  /** Any reachable target, at random. Erratic — a panicked or confused thing.
-   *  This is what `feral` USED to mean, before positions existed. */
-  | "random"
-  /** The closest reachable target. What an animal does: bite what's in front of
-   *  you. The `feral` default. */
-  | "nearest"
-  /** Scored: soft targets, wounded targets, and its own threat table. `tactical`. */
-  | "threat"
-  /** The SOFTEST target — weighs armor/resist AND the target's dodge and parry,
-   *  i.e. who this unit can actually land damage on. Walks past the plated,
-   *  parrying tank toward the cloth-wearer behind it. Counterplay is defensive:
-   *  armour, and a body-block so the soft one isn't reachable. */
-  | "squishiest"
-  /** The most EXPOSED target — whoever is cut off from their line, and whoever
-   *  is nearly down. Nothing to do with how soft they are: this is the flanker
-   *  that punishes a straggler and finishes the wounded. Counterplay is
-   *  positional: keep formation, don't let anyone drift. */
-  | "opportunist"
-  /** Whatever this unit's allies are already on. The pack instinct — it piles
-   *  onto a target its packmates have committed to, which is what turns a group
-   *  of wolves into a wolf pack. Falls back to `nearest` when nobody has
-   *  committed yet. */
-  | "gang-up"
-  /** Hunt the support line first (priest, then wizard). `cunning`. */
-  | "backline";
+import type { TargetWeights } from "./targetScore.js";
 
 /** How a unit answers a forced-target effect, named for what the unit DOES
  *  rather than what it resists. */
@@ -69,7 +36,11 @@ export type AITauntable = "obeys" | "ignores-generic" | "ignores";
 export type AIFear = "fearless" | "bolts" | "withdraws" | "yields";
 
 export interface AIProfile {
-  targeting: AITargeting;
+  /** What this creature WANTS in a target — a weighted score, not a label. See
+   *  targetScore.ts + docs/design/combat/TARGETING.md. (The seven single-mode
+   *  names this replaced were deleted 2026-09-04: two were already internally
+   *  ranked cascades, and every new taste needed a whole new mode.) */
+  targeting: TargetWeights;
   tauntable: AITauntable;
   fear: AIFear;
 }
@@ -105,7 +76,7 @@ export interface RawSubStats {
   parry?: number;      // + Parry %
   mobility?: number;   // + paces/turn
   initiative?: number; // + turn order
-  armor?: number;      // + physical mitigation — INERT: getDefenseReduction reads only gearDefense; no item sets this yet
+  armor?: number;      // + physical mitigation. A creature's natural hide lives here (2026-09-04)
   presence?: number;   // + aggro drawn (signed; tanks stack it, dps go negative)
   luck?: number;       // + loot-drop chance (party-summed); also live on the unit for combat use (Edmund)
 }
@@ -236,9 +207,9 @@ export interface CombatUnit {
    *  `ai` block (falling back to the legacy fields below). Consumers read THIS,
    *  not the legacy fields, so there's one source of truth per fight. */
   ai?: AIProfile;
-    // ── Threat (WoW-style per-target threat table) ──
-  /** For enemies: maps allyId → accumulated threat against that ally. Highest entry
-   *  is the preferred target (subject to AI tier rules). Allies leave this empty. */
+  // ── Threat (WoW-style per-target threat table) ──
+  /** For enemies: maps allyId → accumulated threat against that ally. Read by the
+   *  scorer's `threat` dimension, weighted per creature. Allies leave this empty. */
   threatTable?: Record<string, number>;
   /** For allies: how much threat they generate per point of damage/heal. Default 1.0.
    *  Mission-side (npcAlly.threatMultiplier) overrides per encounter. */
@@ -288,6 +259,18 @@ export interface CombatUnit {
    *  of fighting. Still on the field, still hittable — reaching the edge sets
    *  `fled`. Transient combat state, never persisted. */
   fleeing?: boolean;
+  /** Perception (TARGETING.md). Two flags because the asymmetry is the point:
+   *  `concealed` = nobody sees THEM (invisibility, or standing in smoke);
+   *  `blinded` = THEY see nothing (a blinding effect, or standing in smoke).
+   *  Contact always reveals, so neither is ever absolute. All transient. */
+  concealed?: boolean;
+  blinded?: boolean;
+  /** Invisibility from an effect (Vanish, a spell) as opposed to from smoke —
+   *  kept separate so stepping out of a cloud does not strip it. */
+  invisible?: boolean;
+  /** Currently standing in a smoke cloud; owned by applySmoke, which clears
+   *  only what it set. */
+  smoked?: boolean;
   /** This unit's presence upgrades the team's retreat judgment (Morgause). Set at
    *  unit-build time. Command is lost if they fall/flee/break. */
   isCommander?: boolean;
@@ -460,6 +443,9 @@ export interface CombatResult {
 
 /** Context passed to ability handlers and AI state methods. */
 export interface CombatContext {
+  /** Active smoke clouds — x-ranges of the field nobody sees into or out of.
+   *  See perception.ts. Optional: almost every fight has none. */
+  smoke?: { from: number; to: number; rounds: number }[];
   round: number;
   /** All adventurer units (including fallen). Filter by hp > 0 for alive. */
   adventurers: CombatUnit[];

@@ -1,9 +1,10 @@
 import type { CombatUnit } from "./types.js";
 import { combatRandom } from "./prng.js";
-import { getDefenseReduction, getMagicResistReduction, dealsMagicalDamage, getAvoidance } from "./stats.js";
-import { getThreat } from "./threat.js";
-import { inReach, paceGap } from "./positional.js";
+import { getDefenseReduction, getMagicResistReduction, dealsMagicalDamage } from "./stats.js";
+import { inReach } from "./positional.js";
 import { resolveAI } from "./ai/profile.js";
+import { scoreTarget, type TargetWeights } from "./targetScore.js";
+import { perceive } from "./perception.js";
 
 /** Prefer targets the attacker can actually reach this turn; if none are in
  *  reach (still closing), fall back to all so a movement intent still resolves
@@ -15,16 +16,15 @@ function reachable(attacker: CombatUnit, alive: CombatUnit[]): CombatUnit[] {
 }
 
 /**
- * Enemy targeting — driven by the resolved `targeting` knob (see ai/profile.ts;
- * every enemy authors it via the ai block, so nothing shipped changes):
- *   random      : any reachable target, erratically
- *   nearest     : the closest reachable target — what `feral` maps to
- *   threat      : scored pick (defense × wounded × threat) — the old `tactical`
- *   squishiest  : the softest — armor/resist AND dodge/parry, i.e. who it can
- *                 actually land on
- *   opportunist : the most exposed — cut off from their line, or nearly down
- *   gang-up     : whatever its allies already committed to (the pack instinct)
- *   backline    : priest, then wizard — the old `cunning`
+ * Enemy targeting — a WEIGHTED SCORE over what a creature wants, times how far
+ * it has to go to get it (docs/design/combat/TARGETING.md, targetScore.ts):
+ *
+ *   score(t) = ( BASE + rolePull + Σ wᵢ·dᵢ(t) ) × reachFactor(t)
+ *
+ * The legacy `targeting` mode names still resolve, each mapped to a canned
+ * vector below, so nothing shipped changes shape. The dimensions are role,
+ * condition, isolation, softness, threat, ganged and sticky — every one 0..1,
+ * with all magnitude in the weight.
  *
  * Forced-target taunt (warrior taunt) short-circuits everything when set.
  * The taunt application itself respects the tauntable knob, so a unit that
@@ -37,21 +37,16 @@ export function pickTarget(attacker: CombatUnit, targets: CombatUnit[], allies?:
   return chosen;
 }
 
-/** How far away another unit still counts as "beside you" for the isolation
- *  read. The ally line normally spans ~14 paces, so this is roughly "in your
- *  formation" — drift further and the opportunist notices. */
-const OPPORTUNIST_SUPPORT_RADIUS = 12;
-/** How much a wounded target adds on top of isolation. Below 1 so a lone fresh
- *  target still outranks a wounded one standing in the middle of their line. */
-const OPPORTUNIST_WOUNDED_WEIGHT = 0.5;
-
-/** The closest unit in the pool. */
-function nearestOf(attacker: CombatUnit, pool: CombatUnit[]): CombatUnit {
-  return pool.reduce((a, b) => (paceGap(attacker, b) < paceGap(attacker, a) ? b : a));
-}
-
 function choose(attacker: CombatUnit, targets: CombatUnit[], allies?: CombatUnit[]): CombatUnit | null {
-  const alive = targets.filter((u) => u.hp > 0 && !u.fled);
+  const standing = targets.filter((u) => u.hp > 0 && !u.fled);
+  if (standing.length === 0) return null;
+
+  // PERCEPTION FIRST (TARGETING.md): a creature can only consider what it can
+  // assess. This runs ahead of the forced overrides on purpose — otherwise an
+  // invisible or smoked taunter would still yank enemies onto itself, which
+  // would defeat the whole point of concealment. Perceiving nobody means
+  // holding: choose() returns null and basicAttack simply does not swing.
+  const alive = perceive(attacker, standing);
   if (alive.length === 0) return null;
 
   // Pack Howl focus: locked on the alpha's marked prey, IGNORING taunts (the pack
@@ -70,73 +65,44 @@ function choose(attacker: CombatUnit, targets: CombatUnit[], allies?: CombatUnit
 
   if (alive.length === 1) return alive[0];
 
-  const { targeting } = resolveAI(attacker);
-  // Positional gate: an enemy hits the highest-threat target it can REACH.
-  const pool = reachable(attacker, alive);
+  // The pool is everything perceivable — NOT the reach-filtered subset. The
+  // reach FACTOR inside the score is the designed replacement for the old reach
+  // FILTER: pre-filtering to what is strikable this turn meant that with
+  // anything in contact, a distant priest was never even a candidate, so no
+  // amount of role weight could express "I will walk past the wall for the
+  // healer". (That limitation predates this refactor — the old `backline` mode
+  // filtered from the same pre-filtered pool, so backline-hunting never
+  // actually worked once a tank engaged.) A unit that picks something it cannot
+  // reach yet advances toward it instead of swinging, which is exactly what
+  // walking past a shield wall looks like.
+  const pool = alive;
+  const w = weightsFor(attacker);
 
-  if (targeting === "random") {
-    return pool[Math.floor(combatRandom() * pool.length)];
+  // Erratic weighs nothing: a maddened thing HAS no preference, so it lunges at
+  // whatever is there rather than scoring anyone.
+  if (w.erratic) return pool[Math.floor(combatRandom() * pool.length)];
+
+  const scoreCtx = { line: alive, allies, pool };
+  const best = bestBy(pool, (t) => scoreTarget(attacker, t, w, scoreCtx));
+  // Deliberate imperfection: occasionally take the second-best so combat does
+  // not read as robotic. Preserved from the old scoredPick.
+  if (pool.length > 1 && combatRandom() < TARGET_MISS_CHANCE) {
+    const second = bestBy(pool.filter((t) => t.id !== best.id), (t) => scoreTarget(attacker, t, w, scoreCtx));
+    return second;
   }
-
-  if (targeting === "nearest") {
-    return nearestOf(attacker, pool);
-  }
-
-  if (targeting === "squishiest") {
-    // The softest target: armour/resistance AND how hittable they are. A plated,
-    // parrying tank scores far below the cloth-wearer behind it, so this walks
-    // past the wall toward whoever it can actually land damage on. Counterplay is
-    // defensive — armour, and a body-block so the soft one isn't reachable.
-    return bestBy(pool, (t) => {
-      const through = 1 - (dealsMagicalDamage(attacker) ? getMagicResistReduction(t) : getDefenseReduction(t));
-      const lands = 1 - getAvoidance(attacker, t).chance / 100;
-      return through * lands;
-    });
-  }
-
-  if (targeting === "opportunist") {
-    // The most EXPOSED target, which is a question about the battlefield rather
-    // than about armour: who has drifted away from their line, and who is nearly
-    // down. A straggler with no one beside them scores highest; a wounded one
-    // scores higher still. Counterplay is positional — hold formation.
-    return bestBy(pool, (t) => {
-      const supporters = pool.filter((a) => a.id !== t.id && paceGap(a, t) <= OPPORTUNIST_SUPPORT_RADIUS).length;
-      const isolation = 1 / (1 + supporters);      // 1 alone · 0.5 with a friend · 0.33 with two
-      const wounded = 1 - t.hp / t.maxHp;          // 0 fresh → 1 at death's door
-      return isolation + wounded * OPPORTUNIST_WOUNDED_WEIGHT;
-    });
-  }
-
-  if (targeting === "gang-up") {
-    // The pack instinct: pile onto whatever packmates already committed to. This
-    // is what makes a group of wolves a wolf PACK — and it compounds with Pack
-    // Tactics, which pays a damage bonus for exactly this. Nobody committed yet
-    // (first mover of the fight) → behave like a plain animal and take the nearest.
-    const committed = new Map<string, number>();
-    for (const mate of allies ?? []) {
-      if (mate.id === attacker.id || mate.hp <= 0 || mate.fled || !mate.lastTargetId) continue;
-      committed.set(mate.lastTargetId, (committed.get(mate.lastTargetId) ?? 0) + 1);
-    }
-    if (committed.size > 0) {
-      const ganged = bestBy(pool, (t) => committed.get(t.id) ?? 0);
-      if ((committed.get(ganged.id) ?? 0) > 0) return ganged;
-    }
-    return nearestOf(attacker, pool);
-  }
-
-  if (targeting === "backline") {
-    // Smart enemies hunt the backline first, threat only breaks ties within a class.
-    const priests = pool.filter((t) => t.class === "priest");
-    if (priests.length > 0) return priests.length === 1 ? priests[0] : highestThreat(attacker, priests) ?? priests[0];
-    const wizards = pool.filter((t) => t.class === "wizard");
-    if (wizards.length > 0) return wizards.length === 1 ? wizards[0] : highestThreat(attacker, wizards) ?? wizards[0];
-    // Fall back to a scored pick where threat barely matters (small weight).
-    return scoredPick(attacker, pool, 10, 0, 0.3);
-  }
-
-  // threat — full threat weighting (the default, and most enemies)
-  return scoredPick(attacker, pool, 20, 0.15, 1.0);
+  return best;
 }
+
+/** How often a pick takes its second choice instead of its best — deliberate
+ *  imperfection so combat doesn't read as robotic. Shared by both sides. */
+const TARGET_MISS_CHANCE = 0.15;
+
+/** A creature's authored taste, resolved through the same knob chain as the
+ *  rest of its AI (authored `ai` → DEFAULT_AI). */
+function weightsFor(attacker: CombatUnit): TargetWeights {
+  return resolveAI(attacker).targeting;
+}
+
 
 /** The candidate scoring highest on `score`. Ties keep the earlier candidate,
  *  so ordering stays deterministic for a given roster. */
@@ -156,7 +122,10 @@ function bestBy(pool: CombatUnit[], score: (u: CombatUnit) => number): CombatUni
  * Threat doesn't apply on this side — adventurers/allies pick their own targets.
  */
 export function pickTargetForAdventurer(attacker: CombatUnit, targets: CombatUnit[]): CombatUnit | null {
-  const alive = targets.filter((u) => u.hp > 0 && !u.fled);
+  // Perception is SYMMETRIC (TARGETING.md): without this the player's heroes
+  // would have godlike sight while enemies groped in the dark. Their scoring
+  // weights stay fixed in v1 — only what they can SEE changes.
+  const alive = perceive(attacker, targets.filter((u) => u.hp > 0 && !u.fled));
   if (alive.length === 0) return null;
   // Threats first, runners after (ROUT_AND_FLIGHT): a fleeing enemy is ignored
   // while anything is still fighting — nobody shoots the running boar while its
@@ -165,50 +134,26 @@ export function pickTargetForAdventurer(attacker: CombatUnit, targets: CombatUni
   const standing = alive.filter((u) => !u.fleeing);
   const pool = standing.length > 0 ? standing : alive;
   if (pool.length === 1) return pool[0];
-  return scoredPick(attacker, reachable(attacker, pool), 20, 0.15, 0);
+  return heroScoredPick(attacker, reachable(attacker, pool));
 }
 
 /**
- * Scores alive targets by attack efficiency + threat (when attacker is an enemy
- * reading its own threat table). missChance picks the second-best instead of
- * the best with that probability — adds occasional "wrong" choices so combat
- * doesn't feel robotic.
+ * Hero-side pick: attack efficiency (how much lands through armour/resist) plus
+ * a nudge toward the wounded. Enemies stopped using this when their targeting
+ * became authored weights (targetScore.ts) — this survives ONLY for
+ * adventurers, whose behaviour deliberately stays as shipped in v1 (their
+ * authorable weights arrive with talents). That is also why the 100-vs-20 scale
+ * mix below is kept as-is: fixing it here would change hero picks.
  */
-function scoredPick(
-  attacker: CombatUnit,
-  alive: CombatUnit[],
-  woundedWeight: number,
-  missChance: number,
-  threatWeight: number,
-): CombatUnit {
+function heroScoredPick(attacker: CombatUnit, alive: CombatUnit[]): CombatUnit {
   const magical = dealsMagicalDamage(attacker);
-  const useThreat = threatWeight > 0 && attacker.isEnemy && attacker.threatTable;
   const scored = alive.map((t) => {
     const reduction = magical ? getMagicResistReduction(t) : getDefenseReduction(t);
-    const baseScore = (1 - reduction) * 100 + (1 - t.hp / t.maxHp) * woundedWeight;
-    const threatScore = useThreat ? getThreat(attacker, t.id) * 0.5 * threatWeight : 0;
-    return { target: t, score: baseScore + threatScore };
+    return { target: t, score: (1 - reduction) * 100 + (1 - t.hp / t.maxHp) * 20 };
   });
   scored.sort((a, b) => b.score - a.score);
-  if (missChance > 0 && scored.length > 1 && combatRandom() < missChance) return scored[1].target;
+  if (scored.length > 1 && combatRandom() < TARGET_MISS_CHANCE) return scored[1].target;
   return scored[0].target;
 }
 
-/**
- * Among a small candidate set, pick the one with the most threat in the
- * attacker's table. Returns null when threat data isn't useful (no enemies
- * have any entries) — caller falls back to first candidate.
- */
-function highestThreat(attacker: CombatUnit, candidates: CombatUnit[]): CombatUnit | null {
-  if (!attacker.isEnemy || !attacker.threatTable) return null;
-  let best: CombatUnit | null = null;
-  let bestThreat = -1;
-  for (const c of candidates) {
-    const t = getThreat(attacker, c.id);
-    if (t > bestThreat) {
-      bestThreat = t;
-      best = c;
-    }
-  }
-  return bestThreat > 0 ? best : null;
-}
+

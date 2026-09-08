@@ -1,6 +1,8 @@
 // ─── Enemy Definitions ──────────────────────────────────────────
 // Enemies appear in mission encounters. Stats drive combat simulation.
-// Enemy HP = VIT * 10. Natural armor = VIT / 3.
+// A creature has no VIT: its `hp` and its `raw.armor` (natural hide) are both
+// authored outright. VIT used to supply both, which welded toughness to hide and
+// made HP tunable only in steps of ten.
 // Designed so unequipped adventurers struggle; gear makes the difference.
 
 export type EnemyTag =
@@ -107,11 +109,16 @@ export interface EnemyDefinition {
   image?: string;
   description: string;
   tier: 1 | 2 | 3 | 4 | 5;
+  /** Hit points, authored outright (2026-09-04). Was VIT*10, which made HP
+   *  tunable only in steps of ten and welded toughness to hide — one stat doing
+   *  two jobs. A creature has no gear and no stat growth, so its two
+   *  survivability numbers are simply written down: `hp` here, `raw.armor`
+   *  below. VIT is gone from a creature's stat block entirely. */
+  hp: number;
   stats: {
     str: number;
     dex: number;
     int: number;
-    vit: number;
     wis: number;
   };
   /** Authored raw sub-stat bonuses (Combat Foundation §2): flat additions on top
@@ -210,7 +217,10 @@ export const ENEMIES: EnemyDefinition[] = [
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/bandit_thug.png",
     description: "A desperate man with a rusty blade. Probably a farmer before the Sundering took his land.",
     tier: 1,
-    stats: { str: 6, dex: 4, int: 2, vit: 7, wis: 2 },
+    hp: 40, // a farmer in rags, not a soldier — armour 6. A rusty blade still opens you
+    dmgMin: 5, dmgMax: 8,
+    stats: { str: 6, dex: 4, int: 2, wis: 2 },
+    raw: { armor: 6 },
     tags: ["humanoid"],
     abilities: [
       // Fights dirty: a rusty blade to the belly that leaves you bleeding.
@@ -231,7 +241,8 @@ export const ENEMIES: EnemyDefinition[] = [
       { type: "item", itemId: "brigands_jerkin", chance: 0.08 }, // or a supple leather jerkin
       { type: "item", itemId: "stranger_signet", chance: 0.01 }, // the thrill jackpot: a dead traveller's luck-charm
     ],
-    ai: { fear: "yields" },
+    // a farmer with a rusty blade: no cleverness, but he answers whoever is hurting him and keeps swinging there
+    ai: { targeting: { threat: 1, sticky: 0.3 }, fear: "yields" },
   },
   {
     id: "tollman",
@@ -239,11 +250,13 @@ export const ENEMIES: EnemyDefinition[] = [
     icon: "🪖",
     description: "The one who turned a scatter of desperate men into a company. He set a price on the road and calls it a toll. Better fed and better armed than his men, and smart enough to keep it that way.",
     tier: 1,
-    stats: { str: 9, dex: 6, int: 3, vit: 15, wis: 4 },
+    hp: 110, // mail and a captain's blade — the company's spine, and the only tier-1 foe that was ever a real threat
+    dmgMin: 8, dmgMax: 13,
+    stats: { str: 9, dex: 6, int: 3, wis: 4 },
+    raw: { armor: 30 },
     tags: ["humanoid"],
     boss: true,
     leader: true, // his presence steadies the company; break him and they scatter (morale)
-    dmgMin: 5, dmgMax: 9, // a captain's blade, kept sharp
     abilities: [
       { id: "rally", name: "Rally the Company", icon: "📣", cooldown: 4, trigger: "round_start", effect: { type: "buff_allies", stat: "str", pct: 20, rounds: 2 } },
     ],
@@ -257,7 +270,8 @@ export const ENEMIES: EnemyDefinition[] = [
       // Lucky (~12%): a fine leather coat, stashed in the camp, not on his back. Leather's rare.
       { type: "item", itemId: "reavers_leathers", chance: 0.12, keepOnRout: true },
     ],
-    ai: { fear: "yields" },
+    // he turned a rabble into a company: reads the fight and answers whoever is hurting it
+    ai: { targeting: { threat: 1, softness: 0.5 }, fear: "yields" },
   },
   {
     // Weaker than a brigand — a hired tough, not a fighter. Comes in numbers
@@ -268,7 +282,10 @@ export const ENEMIES: EnemyDefinition[] = [
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/bandit_thug.png",
     description: "A hired hand doing a cruel errand for coin. Brave in a pack, useless out of one.",
     tier: 1,
-    stats: { str: 3, dex: 3, int: 1, vit: 4, wis: 1 },
+    hp: 44, // a padded jack; dangerous in a pack (packNerve, courage 16), was poking for 2-3
+    dmgMin: 7, dmgMax: 10,
+    stats: { str: 3, dex: 3, int: 1, wis: 1 },
+    raw: { armor: 14 },
     tags: ["humanoid"],
     abilities: [
       // Dirty and cowardly: a thrown handful of grit — you fight clumsy for a bit.
@@ -282,7 +299,8 @@ export const ENEMIES: EnemyDefinition[] = [
     loot: [
       { type: "resource", resource: "gold", chance: 0.35, min: 2, max: 6 },
     ],
-    ai: { fear: "yields" },
+    // "brave in a pack, useless out of one" — piles onto his mates' target, but still notices who hit him
+    ai: { targeting: { ganged: 1, threat: 0.5 }, fear: "yields" },
   },
   {
     id: "poacher",
@@ -290,7 +308,10 @@ export const ENEMIES: EnemyDefinition[] = [
     icon: "🏹",
     description: "An outlaw who learned his aim keeping crows off someone else's barley. Hangs back and picks you off from the treeline.",
     tier: 1,
-    stats: { str: 5, dex: 6, int: 2, vit: 5, wis: 2 },
+    hp: 34, // a woodsman with a bow, not a soldier; fragile if you reach him
+    dmgMin: 6, dmgMax: 9,
+    stats: { str: 5, dex: 6, int: 2, wis: 2 },
+    raw: { armor: 6 },
     tags: ["humanoid"],
     combatRole: "back", // hangs back with a bow — fights from range
     abilities: [
@@ -304,7 +325,8 @@ export const ENEMIES: EnemyDefinition[] = [
       { type: "item", itemId: "poachers_bow", chance: 0.12 },
       { type: "item", itemId: "stranger_signet", chance: 0.01 }, // the thrill jackpot
     ],
-    ai: { fear: "yields" },
+    // "hangs back and picks" — a shooter choosing the soft and the separated
+    ai: { targeting: { softness: 0.8, isolation: 0.5, threat: 0.3 }, fear: "yields" },
   },
   {
     id: "cutthroat",
@@ -312,7 +334,10 @@ export const ENEMIES: EnemyDefinition[] = [
     icon: "🔪",
     description: "A killer for hire with a length of wire and a fast knife. Goes for whoever looks softest.",
     tier: 1,
-    stats: { str: 6, dex: 7, int: 2, vit: 5, wis: 2 },
+    hp: 32, // no armour and little of him — a fast knife looking for the soft spot
+    dmgMin: 8, dmgMax: 11,
+    stats: { str: 6, dex: 7, int: 2, wis: 2 },
+    raw: { armor: 6 },
     tags: ["humanoid"],
     abilities: [
       // Garrote: a strangling wire — a hit that leaves the victim choking, stunned.
@@ -325,7 +350,8 @@ export const ENEMIES: EnemyDefinition[] = [
       { type: "item", itemId: "fighting_knife", chance: 0.12 },
       { type: "item", itemId: "stranger_signet", chance: 0.01 }, // the thrill jackpot
     ],
-    ai: { targeting: "backline", fear: "yields" },
+    // "goes for whoever looks softest" — his own words; the backline is a secondary pull
+    ai: { targeting: { softness: 1, roles: { healer: 0.4, caster: 0.4 }, threat: 0.3 }, fear: "yields" },
   },
   {
     id: "grey_wolf",
@@ -334,7 +360,9 @@ export const ENEMIES: EnemyDefinition[] = [
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/wild_wolf.png",
     description: "Lean, hungry, and hunting in packs. A hard season has made them bold, and a bold wolf is a dangerous one.",
     tier: 1,
-    stats: { str: 4, dex: 5, int: 1, vit: 5, wis: 1 },
+    hp: 30, // a good hit puts a wolf down; it survives by not being hit (dodge 5 + elusive 25)
+    dmgMin: 6, dmgMax: 9,
+    stats: { str: 4, dex: 5, int: 1, wis: 1 },
     tags: ["beast"],
     abilities: [
       { id: "wolf_bite", name: "Rending Bite", icon: "🩸", cooldown: 4, trigger: "always",
@@ -352,10 +380,11 @@ export const ENEMIES: EnemyDefinition[] = [
       { type: "resource", resource: "fang", chance: 0.5, min: 1, max: 2, keepOnRout: true },
       { type: "resource", resource: "sinew_cord", chance: 0.2, min: 1, max: 1 },
     ],
-    raw: { mobility: 27, dodge: 5 }, // pack hunter — fast (~36 paces/turn, closes the field in ~1.5 rounds)
+    raw: { armor: 6, mobility: 27, dodge: 5 }, // pack hunter — fast (~36 paces/turn, closes the field in ~1.5 rounds)
     elusiveAtRange: 25, // weaves through the arrows while it closes; commits at contact
     routsAt: 0.3, // a pack wolf breaks when the fight turns against it
-    ai: { targeting: "nearest", fear: "withdraws" },
+    // the pack instinct: commit together, finish the hurt one, and remember what bit you
+    ai: { targeting: { ganged: 0.8, condition: 0.4, threat: 0.3 }, fear: "withdraws" },
   },
 
   // ── Tier 0 — True novice fodder ───────────────────────────────
@@ -369,7 +398,9 @@ export const ENEMIES: EnemyDefinition[] = [
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/gaunt_wolf.png",
     description: "A lean yearling, kicked out of the pack too early. Hungry and nervous, but still a predator.",
     tier: 1,
-    stats: { str: 3, dex: 4, int: 1, vit: 3, wis: 1 },
+    hp: 22, // a lean yearling, lighter and less sure of its bite than a pack adult
+    dmgMin: 4, dmgMax: 6,
+    stats: { str: 3, dex: 4, int: 1, wis: 1 },
     tags: ["beast"],
     loot: [
       // Gaunt yearling: leaner meat + hide than a Grey, but the fang still bites.
@@ -384,10 +415,11 @@ export const ENEMIES: EnemyDefinition[] = [
         effect: { type: "bleed", pctPerRound: 10, rounds: 2 } },
     ],
     pack: "wolves",
-    raw: { mobility: 20, dodge: 3 }, // lean yearling — quick and jumpy (~28 paces/turn)
+    raw: { armor: 4, mobility: 20, dodge: 3 }, // lean yearling — quick and jumpy (~28 paces/turn)
     elusiveAtRange: 25, // jumpy and hard to pin while it closes
     routsAt: 0.35, // a nervous, starving yearling, breaks and runs easily
-    ai: { targeting: "nearest", fear: "withdraws" },
+    // "kicked out of the pack too early, hungry and nervous" — a loner, so NOT ganged: it takes the safe target
+    ai: { targeting: { isolation: 0.6, condition: 0.6, threat: 0.3 }, fear: "withdraws" },
   },
   {
     // The runt of the pack — half-starved, barely more than skin and ribs. Weak
@@ -401,7 +433,9 @@ export const ENEMIES: EnemyDefinition[] = [
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/gaunt_wolf.png",
     description: "Skin stretched over ribs, driven to the wall by pure hunger. Little fight left in it, but a cornered starving thing still bites.",
     tier: 1,
-    stats: { str: 2, dex: 3, int: 1, vit: 2, wis: 1 },
+    hp: 14, // skin and ribs; a single solid blow ends it
+    dmgMin: 3, dmgMax: 5,
+    stats: { str: 2, dex: 3, int: 1, wis: 1 },
     tags: ["beast"],
     loot: [
       // Starving runt: skin and ribs — scraps of meat/hide, but the fang keeps its worth.
@@ -411,10 +445,11 @@ export const ENEMIES: EnemyDefinition[] = [
       { type: "resource", resource: "sinew_cord", chance: 0.1, min: 1, max: 1 },
     ],
     pack: "wolves",
-    raw: { mobility: 8 }, // spent and slow for a wolf, but still quicker than a boar (~16 paces/turn)
+    raw: { armor: 2, mobility: 8 }, // spent and slow for a wolf, but still quicker than a boar (~16 paces/turn)
     elusiveAtRange: 15, // still weaves, but half-starved and easier to catch
     routsAt: 0.45, // barely holding together; breaks the moment it's hurt
-    ai: { targeting: "nearest", fear: "withdraws" },
+    // "little fight left in it" — desperation goes for whatever is already failing
+    ai: { targeting: { condition: 1, softness: 0.5, threat: 0.2 }, fear: "withdraws" },
   },
   {
     id: "wild_boar",
@@ -422,7 +457,17 @@ export const ENEMIES: EnemyDefinition[] = [
     icon: "🐗",
     description: "All muscle and bad temper, and quick for its size. Those tusks are not for show.",
     tier: 1,
-    stats: { str: 5, dex: 3, int: 1, vit: 6, wis: 1 }, // out-muscles + out-tanks a lone wolf
+    // BURST, NOT ATTRITION (BALANCE_PASS, tuned 2026-09-04, re-measured against
+    // the common-gear baseline 2026-09-06). It was 60 hp poking for 2-4 — a
+    // piñata with tusks that needed 21 hits to drop a level-2 warrior while she
+    // killed it in 10, i.e. a twenty-round slap fight. A boar does not grind you
+    // down, it opens you up. The 7-11 gore is the approved number; what changed
+    // on 2026-09-06 is the HIDE — a boar's shoulder shield is the reason hunters
+    // carried heavy spears, so armour went 9 -> 18 and hp 30 -> 34. Two boars
+    // (`lean_times`) now cost a geared pair 39% of its health.
+    hp: 34, // the shoulder shield is a boar's signature — armour 18, not bulk
+    dmgMin: 7, dmgMax: 11,
+    stats: { str: 5, dex: 3, int: 1, wis: 1 },
     tags: ["beast"],
     loot: [
       // The clean, healthy boar: the MEAT IS THE REWARD (ROUT_AND_FLIGHT). Lean
@@ -436,9 +481,19 @@ export const ENEMIES: EnemyDefinition[] = [
       { type: "resource", resource: "tusk_shard", chance: 0.8, min: 1, max: 2 },
       { type: "resource", resource: "boar_tusk", chance: 0.08, min: 1, max: 1 }, // rare: a tusk out clean
     ],
-    charge: { range: 40, cooldown: 99 }, // one devastating charge, then it fights or flees
+    // It WHEELS AND COMES AGAIN. cooldown was 99 — one charge per fight, then it
+    // walked. A real boar charges, passes, turns and charges again, which is
+    // what the speed below is for.
+    charge: { range: 40, cooldown: 3 },
+    // Faster than a woman in mail (11) and slower than a coursing wolf (36). It
+    // was 8 — the boar was outrun by the armoured warrior chasing it, which for
+    // an animal that sprints at ~40km/h was simply wrong.
+    raw: { armor: 18, mobility: 12 }, // -> ~20 effective; armour 18 = the shoulder shield
     routsAt: 0.3, // a wild animal — breaks and flees when the fight turns against it
-    ai: { targeting: "nearest", fear: "bolts" },
+    // all muscle and bad temper: whatever is in front of it. An EMPTY vector
+    // (not an omitted one — that would take the threat-reading default) means
+    // the reach factor alone decides, which IS this behaviour.
+    ai: { targeting: {}, fear: "bolts" },
   },
   {
     id: "goblin_runt",
@@ -446,12 +501,16 @@ export const ENEMIES: EnemyDefinition[] = [
     icon: "👺",
     description: "The smallest of the goblin scouts, usually sent ahead to spring the traps. Underestimate it and it will make you bleed.",
     tier: 1,
-    stats: { str: 2, dex: 4, int: 2, vit: 3, wis: 2 },
+    hp: 20, // small and vicious — underestimate it and it makes you pay
+    dmgMin: 5, dmgMax: 8,
+    stats: { str: 2, dex: 4, int: 2, wis: 2 },
+    raw: { armor: 6 },
     tags: ["humanoid"],
     loot: [
       { type: "resource", resource: "gold", chance: 0.3, min: 1, max: 4 },
     ],
-    ai: { targeting: "nearest" },
+    // a scout sent to spring the traps — it picks off rather than brawls
+    ai: { targeting: { condition: 0.3, isolation: 0.4, threat: 0.3 } },
   },
 
   // ── Tier 2 — Organized threats ────────────────────────────────
@@ -463,11 +522,12 @@ export const ENEMIES: EnemyDefinition[] = [
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/bandit_captain.png",
     description: "A former Dominion soldier turned outlaw. Dangerous because he still fights like one.",
     tier: 2,
-    stats: { str: 16, dex: 11, int: 5, vit: 18, wis: 5 },
+    hp: 180,
+    stats: { str: 16, dex: 11, int: 5, wis: 5 },
     tags: ["humanoid"],
     boss: true,
     leader: true, // a living anchor — the rabble holds while he stands, breaks when he falls
-    raw: { dodge: 12 }, // disciplined footwork, deflects blows (STR-parry proper lands with hit-resolution)
+    raw: { armor: 54, dodge: 12 }, // disciplined footwork, deflects blows (STR-parry proper lands with hit-resolution)
     dmgMin: 6, dmgMax: 11, // a soldier's blade, wielded like one
     abilities: [
       // Steadies and stiffens the men — a veteran's command in the thick of it.
@@ -478,6 +538,8 @@ export const ENEMIES: EnemyDefinition[] = [
       { type: "item", itemId: "iron_sword", chance: 0.10 },
       { type: "item", itemId: "stranger_signet", chance: 0.01 }, // the thrill jackpot
     ],
+    // "still fights like one": trained discipline reads the threat
+    ai: { targeting: { threat: 1, softness: 0.4 } },
   },
   {
     id: "cave_spinner",
@@ -486,7 +548,9 @@ export const ENEMIES: EnemyDefinition[] = [
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/cave_spider.png",
     description: "Silent, venomous, and the size of a dog. The old Khazdurim mines are thick with them now.",
     tier: 2,
-    stats: { str: 10, dex: 16, int: 1, vit: 12, wis: 2 },
+    hp: 120,
+    stats: { str: 10, dex: 16, int: 1, wis: 2 },
+    raw: { armor: 36 },
     tags: ["beast"],
     abilities: [
       { id: "spider_venom", name: "Venomous Bite", icon: "☠️", cooldown: 3, trigger: "always",
@@ -496,7 +560,8 @@ export const ENEMIES: EnemyDefinition[] = [
       { type: "resource", resource: "spinners_bile", chance: 0.25, min: 1, max: 1 },
       { type: "resource", resource: "chitin_plate", chance: 0.15, min: 1, max: 1 },
     ],
-    ai: { targeting: "nearest" },
+    // silent and venomous — an ambusher, for the soft and the strayed
+    ai: { targeting: { softness: 0.8, isolation: 0.4 } },
   },
   {
     id: "rock_skitter",
@@ -507,12 +572,16 @@ export const ENEMIES: EnemyDefinition[] = [
     tier: 1,
     // Fast and fragile swarm fodder — no venom (that stays the Spinner's mark).
     // Meant to be fought several at once, like brigands.
-    stats: { str: 4, dex: 8, int: 1, vit: 5, wis: 1 },
+    hp: 18, // HAND-SIZED, and never alone. 50 hp made a tide of bugs unkillable; chitin (armour 10) is its only real defence
+    dmgMin: 3, dmgMax: 5,
+    stats: { str: 4, dex: 8, int: 1, wis: 1 },
+    raw: { armor: 10 },
     tags: ["beast"],
     loot: [
       { type: "resource", resource: "chitin_plate", chance: 0.1, min: 1, max: 1 },
     ],
-    ai: { targeting: "nearest" },
+    // "never alone, boil up out of the dark" — a swarm is nothing BUT ganging up
+    ai: { targeting: { ganged: 1 } },
   },
   {
     id: "grief_bound_spirit",
@@ -521,12 +590,19 @@ export const ENEMIES: EnemyDefinition[] = [
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/cursed_spirit.png",
     description: "A restless soul from before the Sundering, bound to this place by old grief. Its wail chills the blood.",
     tier: 1,
-    stats: { str: 3, dex: 5, int: 8, vit: 8, wis: 6 },
+    hp: 40, // no body to speak of; it wounds through cold, not bulk
+    dmgMin: 6, dmgMax: 9,
+    stats: { str: 3, dex: 5, int: 8, wis: 6 },
+    raw: { armor: 12 },
     tags: ["ghost", "magical"],
     loot: [
       { type: "resource", resource: "veilmist", chance: 0.20, min: 1, max: 1 },
       { type: "resource", resource: "soul_shard", chance: 0.08, min: 1, max: 1 },
     ],
+    // bound by old grief, not tactics: it wails at whatever is nearest. An
+    // EMPTY vector, not an omitted one — omitting it takes the threat-reading
+    // default, and a thing made of sorrow holds no grudge against anyone.
+    ai: { targeting: {} },
   },
 
   // ── Tier 3 — Dangerous foes ───────────────────────────────────
@@ -543,7 +619,9 @@ export const ENEMIES: EnemyDefinition[] = [
     description: "He held the post for forty-seven days after the order to fall back never came. The Wastes wore him down to grief and silence. Now he stands his line still, and the dead under him will not let go.",
     revealPortrait: true, // his name + story are in the journal before we face him
     tier: 2, // cosmetic (frame only) — an early Chapter-1 boss, not a mid-tier one
-    stats: { str: 14, dex: 14, int: 24, vit: 26, wis: 18 },
+    hp: 260,
+    stats: { str: 14, dex: 14, int: 24, wis: 18 },
+    raw: { armor: 78 },
     tags: ["ghost", "magical"],
     boss: true,
     // A tired, anguished soul who "stands his line" — not a scheming elite. He
@@ -561,7 +639,8 @@ export const ENEMIES: EnemyDefinition[] = [
       { type: "resource", resource: "ghostweave", chance: 0.4, min: 1, max: 2 },
       { type: "resource", resource: "soul_shard", chance: 0.25, min: 1, max: 1 },
     ],
-    ai: { targeting: "threat" },
+    // forty-seven days holding a post: a soldier still reading the line
+    ai: { targeting: { threat: 1, softness: 0.3 } },
   },
 
   // ── Tier 3 — Elemental threats ──────────────────────────────
@@ -576,12 +655,16 @@ export const ENEMIES: EnemyDefinition[] = [
     // Cosmetic only (tier drives the card frame, not combat). Kept at tier 2 so
     // an early Chapter-1 foe doesn't wear the tier-3 "rare" frame.
     tier: 2,
-    stats: { str: 8, dex: 14, int: 22, vit: 12, wis: 16 },
+    hp: 120,
+    stats: { str: 8, dex: 14, int: 22, wis: 16 },
+    raw: { armor: 36 },
     tags: ["ghost"],
     loot: [
       { type: "resource", resource: "veilmist", chance: 0.25, min: 1, max: 1 },
       { type: "resource", resource: "ghostweave", chance: 0.10, min: 1, max: 1 },
     ],
+    // "remembers how it died" — vengeance answers whoever is hurting it now
+    ai: { targeting: { threat: 0.8, condition: 0.3 } },
   },
 
   // ── Dragon threats (spread across tiers) ───────────────────────
@@ -602,7 +685,10 @@ export const ENEMIES: EnemyDefinition[] = [
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/forest_bear.png",
     description: "A massive brown bear, territorial and aggressive. They don't hunt people, but get between one and its den and it will kill you.",
     tier: 1,
-    stats: { str: 8, dex: 3, int: 1, vit: 9, wis: 2 },
+    hp: 70, // a bear MAULS — thick hide and fat over real bulk. One bear IS the fight: a geared pair wins but leaves a third of its health behind
+    dmgMin: 8, dmgMax: 12,
+    stats: { str: 8, dex: 3, int: 1, wis: 2 },
+    raw: { armor: 27 },
     tags: ["beast"],
     abilities: [{ id: "maul", name: "Maul", icon: "🐾", cooldown: 2, trigger: "always", effect: { type: "damage_mult", mult: 1.5, targets: 1 } }],
     loot: [
@@ -611,7 +697,8 @@ export const ENEMIES: EnemyDefinition[] = [
       { type: "resource", resource: "bear_claw", chance: 0.2, min: 1, max: 2, keepOnRout: true },
     ],
     routsAt: 0.3, // a hurt bear disengages (mostly moot, bears are "wide berth" now)
-    ai: { targeting: "nearest", fear: "withdraws" },
+    // "they do not hunt people, but get between it and" — territorial: it answers whoever provoked it and stays on them
+    ai: { targeting: { threat: 0.8, sticky: 0.6 }, fear: "withdraws" },
   },
   {
     id: "marsh_adder",
@@ -620,14 +707,18 @@ export const ENEMIES: EnemyDefinition[] = [
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/marsh_adder.png",
     description: "Long as a man is tall, with venom that makes your blood burn. Settlers lose more livestock to these than to wolves.",
     tier: 1,
-    stats: { str: 4, dex: 8, int: 2, vit: 5, wis: 1 },
+    hp: 28, // long as a man is tall but no armour to it — the VENOM is the danger, not the body
+    dmgMin: 4, dmgMax: 6,
+    stats: { str: 4, dex: 8, int: 2, wis: 1 },
+    raw: { armor: 4 },
     tags: ["beast"],
     abilities: [{ id: "venomous_strike", name: "Venomous Strike", icon: "☠️", cooldown: 2, trigger: "always", effect: { type: "poison", pctPerRound: 8, rounds: 3 } }],
     loot: [
       { type: "resource", resource: "serpent_fang", chance: 0.25, min: 1, max: 1 },
       { type: "resource", resource: "snake_oil", chance: 0.15, min: 1, max: 1 },
     ],
-    ai: { targeting: "nearest" },
+    // an ambush striker: it bites what it can actually put venom into
+    ai: { targeting: { softness: 0.5, threat: 0.3 } },
   },
   {
     id: "rabid_boar",
@@ -636,7 +727,10 @@ export const ENEMIES: EnemyDefinition[] = [
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/rabid_boar.png",
     description: "Red-eyed and frothing. Something in the bad water drives them mad. They charge anything that moves.",
     tier: 1,
-    stats: { str: 7, dex: 4, int: 1, vit: 8, wis: 1 }, // clumsy but brutal — low DEX, rides its charge + bulk
+    hp: 36, // THE SAME ANIMAL as a wild boar: identical tusks and hide. The madness is behavioural (never routs, charges every 2 rounds), not extra strength or bulk. Was 80 hp poking for 3-5 — a sponge
+    dmgMin: 7, dmgMax: 11,
+    stats: { str: 7, dex: 4, int: 1, wis: 1 }, // clumsy but brutal — low DEX, rides its charge + bulk
+    raw: { armor: 18 },
     tags: ["beast"],
     abilities: [
       // The frothing bite: a normal hit that rarely (10%) infects with the froth,
@@ -652,7 +746,8 @@ export const ENEMIES: EnemyDefinition[] = [
       { type: "resource", resource: "cloven_hoof", chance: 0.6, min: 1, max: 2 },
       { type: "resource", resource: "boar_skull", chance: 0.15, min: 1, max: 1 },
     ],
-    ai: { targeting: "nearest" },
+    // "they charge ANYTHING that moves" — the maddened have no preference at all
+    ai: { targeting: { erratic: true } },
   },
   {
     id: "tainted_boar",
@@ -662,7 +757,9 @@ export const ENEMIES: EnemyDefinition[] = [
     revealPortrait: true, // the scouts came back describing them ("What the Scouts Saw")
     description: "Grey-mottled and weeping black, reeking of cold metal. A spear through the heart barely slows it; the body keeps moving long after it should have stopped, as if the death will not take. Whatever is in these beasts will not let them die easily.",
     tier: 2,
-    stats: { str: 8, dex: 4, int: 1, vit: 13, wis: 1 },
+    hp: 130,
+    stats: { str: 8, dex: 4, int: 1, wis: 1 },
+    raw: { armor: 39 },
     tags: ["beast"],
     charge: { range: 40, cooldown: 2 }, // TODO Hollow beat: + Hollow bite, knockback-immune, breakthrough
     loot: [
@@ -671,7 +768,9 @@ export const ENEMIES: EnemyDefinition[] = [
       { type: "resource", resource: "cloven_hoof", chance: 0.8, min: 1, max: 2 },
       { type: "resource", resource: "boar_skull", chance: 0.4, min: 1, max: 1 },
     ],
-    ai: { targeting: "nearest" },
+    // "a spear through the heart barely" — relentless and mindless, straight
+    // ahead. Empty vector, not an omitted one: no grudges.
+    ai: { targeting: {} },
   },
   {
     id: "tainted_patriarch",
@@ -681,7 +780,9 @@ export const ENEMIES: EnemyDefinition[] = [
     revealPortrait: true, // the mission fiction describes it before we reach the spring
     description: "The old father of the herd, and the most ruined of them. Grey to the bone, weeping black from a dozen wounds that never close. It should have died a season ago. It did not. It guards the bad water as though it were still its own.",
     tier: 3,
-    stats: { str: 11, dex: 4, int: 1, vit: 18, wis: 1 },
+    hp: 180,
+    stats: { str: 11, dex: 4, int: 1, wis: 1 },
+    raw: { armor: 54 },
     tags: ["beast"],
     boss: true,
     charge: { range: 40, cooldown: 3 }, // TODO Hollow beat: + Hollow bite, death-vomit zone, breakthrough
@@ -691,7 +792,8 @@ export const ENEMIES: EnemyDefinition[] = [
       { type: "resource", resource: "cloven_hoof", chance: 1, min: 2, max: 3 },
       { type: "resource", resource: "boar_skull", chance: 1, min: 1, max: 1 },
     ],
-    ai: { targeting: "nearest" },
+    // grown vast on the taint and past all fear — it goes straight through you
+    ai: { targeting: {} },
   },
 
   // ── Tier 2 — New Organized Threats ──────────────────────────────
@@ -702,8 +804,9 @@ export const ENEMIES: EnemyDefinition[] = [
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/alpha_wolf.png",
     description: "A great pale wolf, half again the size of the pack he leads and cleverer than a beast has any right to be. He watches a defense before he breaks it, and spends his own pack freely to reach what he truly wants. The one Nell named, and would not say above a whisper.",
     tier: 2,
-    stats: { str: 16, dex: 14, int: 4, vit: 18, wis: 4 },
-    raw: { mobility: 10, dodge: 5 }, // the pack's fastest — leads the charge
+    hp: 180,
+    stats: { str: 16, dex: 14, int: 4, wis: 4 },
+    raw: { armor: 54, mobility: 10, dodge: 5 }, // the pack's fastest — leads the charge
     tags: ["beast"],
     boss: true,
     abilities: [
@@ -725,6 +828,8 @@ export const ENEMIES: EnemyDefinition[] = [
     ],
     // No routsAt: the pack leader stands and fights to the death — it's the
     // deliberate reckoning the mission sends you for, not a beast to shoo off.
+    // "cleverer than a beast has any right to be" — and at mobility 36 he can ACT on it: the design showcase, where the same weights on slow legs would take the body in front instead
+    ai: { targeting: { roles: { healer: 1, caster: 0.8 }, condition: 0.3 } },
   },
   /* STASHED 2026-06-28 — Bog Witch enemy retired alongside the stale `bog_witch_lair`
      mission. Preserved for a future remake per the tragic Aldith/Ada design in

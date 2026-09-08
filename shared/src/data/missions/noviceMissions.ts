@@ -359,7 +359,10 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
     description: "Gareth's horn is going: wolves at the north wall, a whole knot of them rushing the palisade bold as you please. It is not like them, they have been all patience and shadows until now, but there is no time to wonder at it with the pack at the gate. Rouse the team and get to the wall. Drive them back into the dark and let the camp get its breath.",
     icon: "🐺",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/night_howling.png",
-    slots: [{ class: "any" }, { class: "any" }],
+    // Three slots (2026-09-05): five wolves against two is not a hard fight, it
+    // is an unwinnable one — 0% over 120 seeds. Difficulty at tier 1 is set by
+    // bodies-per-slot far more than by any creature's stats.
+    slots: [{ class: "any" }, { class: "any" }, { class: "any" }],
     duration: 480,
     rewards: [{ resource: "meat", amount: 40 }, { resource: "wolfhide_strip", amount: 1 }, { resource: "gold", amount: 15 }],
     deployCost: 4,
@@ -369,7 +372,9 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
     // Beat 3 — the diversion. The player fights the feint at the wall (Truffle is
     // NOT here — he's at the fold); the maul is the reveal on claim. TODO(#3): the
     // director applies `savaged` to Truffle when this completes.
-    encounters: [{ enemyId: "grey_wolf", count: 5 }],
+    // A real pack is mixed — adults and yearlings, which is what "a whole knot"
+    // looks like. Five bodies still, but only two of them are pack adults.
+    encounters: [{ enemyId: "grey_wolf", count: 2 }, { enemyId: "gaunt_wolf", count: 3 }],
     sideChain: { id: "greyfang", name: "The Fold" },
     excludeCharacters: [{ premadeId: "char_005", reason: "At the watchtower, sounding the alarm" }],
     unique: true,
