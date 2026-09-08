@@ -32,6 +32,7 @@ export const FOOD_CATEGORY: Partial<Record<FoodItemType, FeedCategory>> = {
   morel: "fruit",
   chanterelle: "fruit",
   cepe: "fruit",
+  oyster_mushroom: "fruit",
   nuts: "fruit",
   // meat, eggs, milk, fish → not animal feed
 };

@@ -78,7 +78,8 @@ export const FOOD_ITEMS: FoodItemMeta[] = [
   { id: "morel",         label: "Morel",       icon: "🍄", order: 9, category: "wild" },
   { id: "chanterelle",   label: "Chanterelle", icon: "🍄", order: 10, category: "wild" },
   { id: "cepe",          label: "King Bolete", icon: "🍄", order: 11, category: "wild" },
-  { id: "nuts",          label: "Nuts",        icon: "🌰", order: 12, category: "wild" },
+  { id: "oyster_mushroom", label: "Oyster Mushroom", icon: "🍄", order: 12, category: "wild" },
+  { id: "nuts",          label: "Nuts",        icon: "🌰", order: 13, category: "wild" },
   // Cooked meals — made at the Kitchen; stretch raw food into more portions and
   // count toward food diversity (a hot meal). See crafting.ts kitchen recipes.
   { id: "porridge",    label: "Porridge",    icon: "🥣", iconImage: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/icons/porridge.png",    order: 1, category: "cooked", kind: "meal" },
@@ -101,7 +102,7 @@ export const FISH_TYPES: FoodItemType[] = ["trout", "pike", "eel", "salmon"];
 
 /** The specific mushrooms behind the "mushrooms" alias. Also folded into the
  *  "wild" alias below. */
-export const MUSHROOM_TYPES: FoodItemType[] = ["field_mushroom", "morel", "chanterelle", "cepe"];
+export const MUSHROOM_TYPES: FoodItemType[] = ["field_mushroom", "morel", "chanterelle", "cepe", "oyster_mushroom"];
 
 /** The wild foraged berries behind the "berries" alias (strawberry is a cultivated
  *  garden Fruit, NOT in this alias). */

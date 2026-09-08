@@ -21,5 +21,5 @@ export type FoodItemType =
   | "trout" | "pike" | "eel" | "salmon"
   | "blackberry" | "blueberry" | "raspberry" | "nuts"
   | "dandelion" | "sorrel" | "ramsons" | "wild_carrot"
-  | "field_mushroom" | "morel" | "chanterelle" | "cepe"
+  | "field_mushroom" | "morel" | "chanterelle" | "cepe" | "oyster_mushroom"
   | "porridge" | "hearth_stew" | "river_stew" | "bone_broth";

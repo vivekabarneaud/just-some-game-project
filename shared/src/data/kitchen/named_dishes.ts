@@ -30,7 +30,7 @@ export const FOOD_GROUPS = {
   grain: ["wheat", "barley"], // the real grains today (oats/rye come later)
   /** WILD berries only. Cultivated strawberries are their own thing. */
   berry: ["blackberry", "blueberry", "raspberry"],
-  mushroom: ["field_mushroom", "morel", "chanterelle", "cepe"],
+  mushroom: ["field_mushroom", "morel", "chanterelle", "cepe", "oyster_mushroom"],
   /** Foraged leaves. Wild carrot is a root and sits with the veg instead. */
   greens: ["dandelion", "sorrel", "ramsons"],
 } as const;
@@ -183,6 +183,11 @@ export const NAMED_DISHES: NamedDish[] = [
   { id: "dish_green_board", name: "Green Board", icon: "🌿",
     slots: [any(FOOD_GROUPS.greens, "chop"), one("cabbages", "chop")],
     note: "Wild leaves and cabbage, cut raw. Spring on a plank." },
+  // Winter's two foods, from opposite directions: the bone is what is left when
+  // nothing is killed, the oyster is the one thing still fruiting in the frost.
+  { id: "dish_bone_oyster_broth", name: "Bone and Oyster Broth", icon: "🍜",
+    slots: [one("bone", "boil"), one("oyster_mushroom", "boil")],
+    note: "Marrow broth with the grey fans off a dead trunk. Two things the frost cannot take." },
   { id: "dish_ramsons_broth", name: "Ramsons Broth", icon: "🧄",
     slots: [one("bone", "boil"), one("ramsons", "boil")],
     note: "Marrow broth with wild garlic. It clears a head and warms a chest." },

@@ -81,6 +81,7 @@ const FOOD_ITEM_LABELS: Record<string, { icon: string; name: string }> = {
   morel: { icon: "🍄", name: "Morel" },
   chanterelle: { icon: "🍄", name: "Chanterelle" },
   cepe: { icon: "🍄", name: "King Bolete" },
+  oyster_mushroom: { icon: "🍄", name: "Oyster Mushroom" },
 };
 
 /** Format a mission reward as "icon amount Name" */

@@ -80,6 +80,7 @@ export const FOOD_INGREDIENTS: FoodIngredient[] = [
   { id: "field_mushroom", name: "Field Mushroom", icon: "🍄", role: "veg", signature: "fry", nourish: 2, comfort: 2, flavors: ["hearty"], techniques: FUNGI, note: "Common as grass, and still good in the pan." },
   { id: "morel", name: "Morel", icon: "🍄", role: "veg", signature: "fry", nourish: 2, comfort: 3, flavors: ["hearty"], techniques: FUNGI, note: "Spring's honeycomb prize. Never eaten raw." },
   { id: "chanterelle", name: "Chanterelle", icon: "🍄", role: "veg", signature: "fry", nourish: 2, comfort: 3, fresh: 1, flavors: ["hearty", "fresh"], techniques: FUNGI, note: "Golden, and faintly of apricots. The forager's reward." },
+  { id: "oyster_mushroom", name: "Oyster Mushroom", icon: "🍄", role: "veg", signature: "fry", nourish: 3, comfort: 2, flavors: ["hearty"], techniques: FUNGI, note: "Grey fans off a dead trunk, and the only mushroom still growing in the frost. Tears into strips like meat." },
   { id: "cepe", name: "King Bolete", icon: "🍄", role: "veg", signature: "fry", nourish: 3, comfort: 4, flavors: ["hearty"], techniques: FUNGI, note: "The king of the wood. Thick, nutty, and hoarded." },
 
   // ── Veg · wild greens + roots (foraged, mostly spring and summer) ──
