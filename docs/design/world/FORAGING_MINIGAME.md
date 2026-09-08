@@ -44,6 +44,9 @@ A forager's hut auto-producing 15 plant types is noise: a wall of small numbers 
 
 ## 3a. Rate limiting: the woods remember (no tickets)
 
+> ⚠ **SUPERSEDED 2026-09-08 — see §3d.** The stored stock is gone: the daily
+> mission gates re-entry, and the basket cap is what makes picking a choice.
+
 **Rejected: daily resets and charge/ticket counters.** Anything that expires creates guilt ("I forgot to forage today"), which is the exact opposite of a cozy downtime valve. Anything with a visible counter turns a walk in the woods into an errand.
 
 > ⚠ **The CAPS below are superseded by §3c (2026-08-13).** Stock is no longer a ceiling per plant; the wood holds slots filled by a weighted lottery, so a full autumn no longer holds the same four cepes every time. Everything else here — stock not patches, the season needing no migration, rain bumping the stock — still stands.
@@ -65,6 +68,11 @@ woodsStock: Record<plantId, number>   // { blackberry: 12, chanterelle: 3, ramso
 ---
 
 ## 3b. One trip a day, and the wood remembers *(2026-08-12, after a long argument)*
+
+> ⚠ **SUPERSEDED 2026-09-08 — see §3d.** The conclusion held (a scarce trip is
+> what makes a basket slot valuable); the bespoke machinery did not need
+> building. The mission board already refreshes daily and already prices
+> rerolls exponentially. Read this section for the ARGUMENT, not the plan.
 
 ### The hole in §3a
 
@@ -203,6 +211,62 @@ An earlier tuning pass got this exactly backwards, holding the cepe at 2 forever
 **Never step the decay maths linearly.** `dS/dt = regrow − decay·S` integrated with one big step inverts on long spans: a 300-hour offline catch-up subtracts more than the stock ever held and lands on zero, so a player returning after a week would find a **dead wood instead of a full one**. Solve it, or advance in bounded chunks. There's a test.
 
 **Never let out-of-season stock snap to zero.** It fades, and the safety property survives because it only ever decreases, so it still converges and cannot go stale. The hard reset looks like a simplification and is a regression.
+
+
+## 3d. The trip IS a daily mission *(2026-09-08 — supersedes the bespoke economy in §3b and the persistent stock in §3a)*
+
+The entry point is a **mission on the adventurers' board**, visually distinct from
+the combat cards, sitting on the map. Click it and you arrive in the forest
+directly — no deploy panel, no adventurer occupied, no duration, no failure
+state. You go; the card is only the door.
+
+**This deletes three systems instead of building them**, because the board
+already does the work §3b specified by hand:
+
+| §3b wanted | the board already has |
+| --- | --- |
+| one free trip a day | the board refreshes daily at 3am (`lastMissionRefresh < today3am`) |
+| extra trips at an exponential price | `rerollMissions()` costs `10 * 2^rerollCount` shards |
+| a daily counter that resets | `missionRerollToday` |
+
+So the trip economy needs no new code. What it needs is one small thing the
+board cannot do yet: a mission that **routes to a screen instead of deploying**.
+
+### The wood is full every time, and there is no persistent stock
+
+§3a made picking decrement a stored stock so that passing on a cepe might mean
+losing it. That was solving a problem created by *free re-entry* — walk home,
+walk back, strip it again. The daily mission solves that problem instead, and
+the **basket cap (`BASKET_SIZE = 10`) is what makes picking a choice**: one trip,
+ten slots, more plants in front of you than you can carry.
+
+So the wood starts full on every trip. What varies is the **map** — different
+scenes drawn from the region you are in, and unlocking new map regions through
+the story unlocks new forests to walk into. Within a single trip you can press
+**"next map"** to go further out, which is where an escort and real danger would
+eventually attach.
+
+Deleted by this: `woodsStock` in the save, the SAVE_VERSION bump it needed, the
+tick integration for regrow/decay, and per-region stock bookkeeping. The pure
+functions `advance()` and `rain()` stay in `shared/src/data/foraging/` — they are
+tested and harmless, and a future "the near wood is tired" rule may want them.
+
+### ⚠ What this costs, stated plainly
+
+§3b's stated guard against shard-rerolling-for-resources was that *"the wood is
+already picked over"* — a paid trip walked into a wood you had just stripped.
+A wood that is always full removes that guard, so the rule
+**"the shard buys THE TRIP, it must never refresh the wood"** no longer protects
+itself structurally. What holds instead is economic:
+
+- the basket caps a trip at **10 plants**, no matter how many trips you buy
+- rerolls cost 10, then 20, 40, 80 shards
+- quests pay 3–5 shards, so a second trip is several quests' worth of shards for
+  at most ten low-yield plants
+
+That is a bad enough trade to be safe, but it is now the *only* thing making it
+safe. If shards ever get cheap, or foraging yields ever get generous, this is the
+line that breaks — check it then.
 
 ## 4. Identification, not eyesight (the key mechanic)
 

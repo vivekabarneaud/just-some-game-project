@@ -213,6 +213,33 @@ one-slot dish can never catch a two-body pot — which is why *garnish tolerance
 (letting one extra body behave like an extra spice already does) is worth more
 than any number of new dishes.
 
+## Foraging
+
+- ⭐ **Take an escort** (2026-09-08) — the daily foraging trip is solo by design
+  (you go, nobody is occupied), but a companion is the obvious later axis. An
+  adventurer along could carry **a second basket** (10 slots becomes 20, which is
+  the only real currency in the minigame) and **protect you** if the far maps ever
+  hold anything dangerous. That gives the escort a cost the player can feel: the
+  adventurer is not on a real mission while they are carrying your mushrooms.
+- ⭐ **Take a dog** (2026-09-08) — a dog finds what a man walking past cannot:
+  **truffles** (which need a pig or a dog in reality, and would otherwise have no
+  discovery mechanism at all) and buried oddities — a cache, a coin, a bone. It
+  gives [[project_animal_companions]] a second job beyond guarding the pens, and
+  it is the natural reason the *same* forest map yields something new.
+- **Push further within a trip** — "next map" during a single trip walks you
+  further out. Better finds, and eventually the reason to want the escort. The
+  region you start from is set by the story's map unlocks (§3d).
+- **The herbier** — plants start unstudied; you learn each one's identity and uses
+  by picking it, rather than being shown from the start. Almost certainly the same
+  system as the alchemy **herbalist discovery** idea above, and what finally makes
+  the lethal decoys (funeral bell vs velvet shank) pay off across many trips.
+- **Homes for the orphan yields** — foraging yields `judas_ear`, `velvet_shank`,
+  `parasol` and `rosehip`, and none of them is a kitchen or alchemy ingredient
+  yet, so picking them does nothing. `hemlock` is correctly non-food (it is a
+  poison and wants the Toxin shelf). Each of the four wants its own signature
+  idea rather than sharing one: velvet shank is the interesting case, since its
+  decoy can kill you.
+
 ## Farming
 
 - **Buying seed at market / rare seeds by culture** — how specialty crops get acquired. Today seeds only unlock via quests, so pear, cherry and grapes are locked teasers with no path to them.
