@@ -249,14 +249,33 @@ export const NAMED_DISHES: NamedDish[] = [
   { id: "dish_morel_cream", name: "Morel Cream", icon: "🍄",
     slots: [one("morel", "fry"), one("milk", "boil")],
     note: "Morels softened in milk. Delicate, and gone too fast." },
+  // One entry covers field mushroom, morel, chanterelle and cepe (IDEAS: "no
+  // per-mushroom fried dishes" — "Fried Morels" says nothing this doesn't).
+  // Morels are deliberately NOT excluded: a merely-fried morel can be modest,
+  // it has its signature in Morel Cream. Body slots match exactly, so this
+  // never steals from Bolete Fry.
+  { id: "dish_fried_mushrooms", name: "Fried Mushrooms", icon: "🍄", preknown: true,
+    slots: [any(FOOD_GROUPS.mushroom, "fry")],
+    note: "Mushrooms in the hot pan until they give up their water. Earthy, and better than it sounds." },
   { id: "dish_bolete_fry", name: "Bolete Fry", icon: "🍄",
     slots: [one("cepe", "fry"), one("ramsons", "fry")],
     note: "King boletes and wild garlic in the pan. The whole hut smells of it." },
+  // Roast was the cep's unused technique. Deliberately single-ingredient: a
+  // perfect cep needs nothing, and adding things is what you do with mediocre
+  // mushrooms.
+  { id: "dish_roast_bolete_caps", name: "Roast Bolete Caps", icon: "🍄",
+    slots: [one("cepe", "roast")],
+    note: "A cap the size of a fist, roasted whole. Dense enough that you forget there's no meat in it." },
 
   // ── Plain pots ──
   { id: "dish_mushroom_pottage", name: "Mushroom Pottage", icon: "🍲",
     slots: [any(FOOD_GROUPS.mushroom, "boil"), any(FOOD_GROUPS.grain, "boil")],
     note: "Mushrooms and grain in a plain pot. Woods and field together." },
+  // Uncovered until now because Mushroom Pottage is boiled on BOTH sides — this
+  // roasts the caps and only boils the grain, so the two never collide.
+  { id: "dish_bolete_barley", name: "Bolete Caps and Barley", icon: "🍲",
+    slots: [one("cepe", "roast"), one("barley", "boil")],
+    note: "Roasted caps laid over barley, so the grain takes the juices. Nothing wasted." },
   { id: "dish_cabbage_pottage", name: "Cabbage Pottage", icon: "🥬",
     slots: [one("cabbages", "boil"), any(FOOD_GROUPS.grain, "boil")],
     note: "Cabbage and grain boiled down. Poor food, honestly good." },

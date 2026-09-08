@@ -41,11 +41,15 @@ one pass rather than piecemeal. In dependency order:
 
 **Needs nothing. Buildable the moment someone wants to:**
 
-- [ ] `Fried Mushrooms` — one entry, `FOOD_GROUPS.mushroom` already exists, so it
-      covers field mushroom, morel, chanterelle and cepe at once.
-- [ ] `Roast Bolete Caps` — single ingredient, deliberately.
-- [ ] `Bolete Caps and Barley` — bolete roasted + barley boiled. Uncovered today
-      because Mushroom Pottage is boiled on both sides.
+- [x] `Fried Mushrooms` — BUILT 2026-09-08. One entry, `FOOD_GROUPS.mushroom`
+      covers field mushroom, morel, chanterelle and cepe at once. Preknown.
+- [x] `Roast Bolete Caps` — BUILT 2026-09-08. Single ingredient, deliberately.
+- [x] `Bolete Caps and Barley` — BUILT 2026-09-08. Bolete roasted + barley
+      boiled. Was uncovered because Mushroom Pottage is boiled on both sides.
+
+All three pinned by `frontend/src/engine/boleteDishes.test.ts`, which also
+checks the one-slot Fried Mushrooms does not swallow Bolete Fry or Mushroom
+Omelet (the matcher requires body slots to fill EXACTLY, so it cannot).
 
 **Engine work the rest leans on** (each pays off across every future dish, so
 worth doing before authoring in bulk):
