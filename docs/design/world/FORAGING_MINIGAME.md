@@ -1,6 +1,6 @@
 # Foraging Minigame — Design + Plant Register
 
-- **Status (2026-08-14):** IN PROGRESS on `feat/foraging-minigame` — the data + sandbox layer is BUILT (`shared/src/data/foraging/`: stocking/decay/seasonal handover/rain flush, ~23 plants with decoys; terrain mask + scene anchors; the `/dev-foraging` page; 900+ lines of tests). NOT built: the trip economy (one-a-day + Orison Shard renewal), the herbier, yield→larder wiring, home-page placement, most art.
+- **Status (2026-09-08):** WIRED INTO THE GAME on `feat/foraging-wiring`. The trip is a daily mission card on the board (§3d) that routes straight into the wood, and the basket now reaches the larder via `completeForagingTrip` (honest about what did not fit: larder full, or no pantry home yet). `<ForagingScene>` is shared by the real trip and the dev sandbox. **Built:** stocking/decay/seasonal handover/rain flush, ~23 plants with decoys, terrain mask + scene anchors, board entry + routing + distinct card/pin styling, yield->larder, the trip economy (free via the board's 3AM refresh and its existing 10*2^n shard reroll). **NOT built:** the herbier, multiple regions beyond the near fold, the "next map" push-further step, escort/dog (IDEAS), and most art.
 - **Purpose:** the "nothing left to do" valve for idle downtime, and the home for plant *variety* that a passive building can't carry.
 - **Cross-refs:** [[project_foraging_minigame]], `docs/IDEAS.md` (Alchemy), the retired Farming Expansion doc (in git), the retired seasonal-gathers doc (in git), the retired Tavern doc (in git).
 
