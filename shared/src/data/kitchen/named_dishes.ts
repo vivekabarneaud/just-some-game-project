@@ -4,7 +4,6 @@
 // dish — "a ham needs pork") or an `anyOf` list (a forgiving dish — "a stew
 // takes any red meat"). This is what lets the meat-split feel good: substitute
 // freely where it doesn't matter, demand the real thing where it does.
-//
 // A named dish has its OWN stable id, so every variant (venison stew, pork stew)
 // stacks under the one name. Effects still come from cook() (single source of
 // truth); the name is a blessed label on a matching pot.
@@ -250,14 +249,33 @@ export const NAMED_DISHES: NamedDish[] = [
   { id: "dish_morel_cream", name: "Morel Cream", icon: "🍄",
     slots: [one("morel", "fry"), one("milk", "boil")],
     note: "Morels softened in milk. Delicate, and gone too fast." },
+  // One entry covers field mushroom, morel, chanterelle and cepe (IDEAS: "no
+  // per-mushroom fried dishes" — "Fried Morels" says nothing this doesn't).
+  // Morels are deliberately NOT excluded: a merely-fried morel can be modest,
+  // it has its signature in Morel Cream. Body slots match exactly, so this
+  // never steals from Bolete Fry.
+  { id: "dish_fried_mushrooms", name: "Fried Mushrooms", icon: "🍄", preknown: true,
+    slots: [any(FOOD_GROUPS.mushroom, "fry")],
+    note: "Mushrooms in the hot pan until they give up their water. Earthy, and better than it sounds." },
   { id: "dish_bolete_fry", name: "Bolete Fry", icon: "🍄",
     slots: [one("cepe", "fry"), one("ramsons", "fry")],
     note: "King boletes and wild garlic in the pan. The whole hut smells of it." },
+  // Roast was the cep's unused technique. Deliberately single-ingredient: a
+  // perfect cep needs nothing, and adding things is what you do with mediocre
+  // mushrooms.
+  { id: "dish_roast_bolete_caps", name: "Roast Bolete Caps", icon: "🍄",
+    slots: [one("cepe", "roast")],
+    note: "A cap the size of a fist, roasted whole. Dense enough that you forget there's no meat in it." },
 
   // ── Plain pots ──
   { id: "dish_mushroom_pottage", name: "Mushroom Pottage", icon: "🍲",
     slots: [any(FOOD_GROUPS.mushroom, "boil"), any(FOOD_GROUPS.grain, "boil")],
     note: "Mushrooms and grain in a plain pot. Woods and field together." },
+  // Uncovered until now because Mushroom Pottage is boiled on BOTH sides — this
+  // roasts the caps and only boils the grain, so the two never collide.
+  { id: "dish_bolete_barley", name: "Bolete Caps and Barley", icon: "🍲",
+    slots: [one("cepe", "roast"), one("barley", "boil")],
+    note: "Roasted caps laid over barley, so the grain takes the juices. Nothing wasted." },
   { id: "dish_cabbage_pottage", name: "Cabbage Pottage", icon: "🥬",
     slots: [one("cabbages", "boil"), any(FOOD_GROUPS.grain, "boil")],
     note: "Cabbage and grain boiled down. Poor food, honestly good." },
@@ -294,7 +312,7 @@ export const NAMED_DISHES: NamedDish[] = [
     slots: [one("wheat", "roast"), one("honey", "boil"), one("lavender", "chop")],
     note: "Little wheat cakes baked with honey and lavender. Edda's, and she will not share the trick." },
 
-  // FUTURE (return when the ingredients exist — recorded in DESIGN_KITCHEN §9):
+  // FUTURE (return when the ingredients exist — recorded in docs/IDEAS.md (Kitchen)):
   //   Marrow & Rye  → needs the rye grain
   //   Honey Oats    → needs the oats grain
   //   Summer/Orchard/Green boards → need cheese as a cook-with ingredient + wild mint
@@ -367,7 +385,6 @@ export function matchNamedDish(placements: CookPlacement[]): NamedDish | undefin
   return best;
 }
 
-export const namedDishId = (d: NamedDish): string => d.id;
 
 /** The dish a pot resolves to for DISPLAY / use: cook() for the boons, the named
  *  dish's name when it matches, and a quality FLOOR — a recognised named dish is

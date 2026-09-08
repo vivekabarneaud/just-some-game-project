@@ -10,7 +10,7 @@ const PHYSICAL_WEAPONS = new Set(["sword", "greatsword", "axe", "dagger", "mace"
 /** The physical damage range to display for a weapon, or null if it isn't a
  *  physical weapon. Mirrors the combat resolver: explicit range, else the
  *  rarity default. */
-export function weaponDamageRange(item: ItemDefinition): { min: number; max: number } | null {
+function weaponDamageRange(item: ItemDefinition): { min: number; max: number } | null {
   if (item.slot !== "mainHand" || !item.weaponType) return null;
   if (!PHYSICAL_WEAPONS.has(item.weaponType)) return null;
   if (item.dmgMin != null && item.dmgMax != null) return { min: item.dmgMin, max: item.dmgMax };

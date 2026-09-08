@@ -169,7 +169,7 @@ export const FOUNDING_CHARACTERS: FoundingCharacter[] = [
 
 // ─── Helpers ─────────────────────────────────────────────────────
 
-export function getFoundingCharacter(id: string): FoundingCharacter | undefined {
+function getFoundingCharacter(id: string): FoundingCharacter | undefined {
   return FOUNDING_CHARACTERS.find((c) => c.id === id);
 }
 
@@ -180,15 +180,6 @@ export function getFragmentsForCharacter(characterId: string, unlockedIds: strin
   return char.fragments.filter((f) => unlocked.has(f.id));
 }
 
-/** Returns the characters whose bio fragments include any of the given fragment IDs. */
-export function getCharactersForFragments(fragmentIds: string[]): FoundingCharacter[] {
-  const set = new Set(fragmentIds);
-  const result: FoundingCharacter[] = [];
-  for (const c of FOUNDING_CHARACTERS) {
-    if (c.fragments.some((f) => set.has(f.id))) result.push(c);
-  }
-  return result;
-}
 
 /** Resolves a list of fragment IDs into {character, fragment} pairs in the order
  *  given. Used by the quest claim flow to render one card per memory unlocked. */

@@ -1,8 +1,7 @@
 import { Show, For } from "solid-js";
 import Tooltip from "./Tooltip";
 import HpBar from "./HpBar";
-import {
-  getZoomedPortraitUrl,
+import { getZoomedPortraitUrl,
   getXpForLevel,
   RANK_NAMES,
   RANK_COLORS,

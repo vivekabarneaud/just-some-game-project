@@ -1,15 +1,14 @@
 // ─── 1D positional layer (P1) ───────────────────────────────────────────────
-// Ports the validated sandbox model (docs/DESIGN_POSITIONAL_COMBAT.md; prototype
+// Ports the validated sandbox model (docs/design/combat/POSITIONAL_COMBAT.md; prototype
 // at frontend/src/prototype/) onto production CombatUnits. Ally side = !isEnemy
 // (starts low on the X axis), enemy side = isEnemy (starts high); they close.
-//
 // Baseline numbers live here; gear/talents scale them later. This module is the
 // pure positional logic — placement, movement, engagement, and the reach /
 // pinned / behind predicates the attack layer consults. It is wired into the sim
 // by: placeUnits() at combat start, movePhase() as a round phase before actions,
 // and isPinned/inReach/isBehind inside basicAttack + a reach-aware pickTarget.
 
-import type { CombatContext, CombatUnit } from "./types.js";
+import type { CombatContext, CombatUnit, WeaponProfile } from "./types.js";
 import type { CombatLogEntry } from "./types.js";
 
 export const POS = {
@@ -18,8 +17,18 @@ export const POS = {
   enemyFront: 68, enemyBack: 82,
   contact: 5,          // melee contact distance (paces)
   backstabMult: 1.5,   // baseline flank bonus; talents scale
-  exposureMult: 0.4,   // pinned ranged unit "drew a dagger" — fraction of its attack
   holdPer: 2,          // attackers ONE frontliner pins; the rest overflow to the backline
+};
+
+/** Flight tuning (ROUT_AND_FLIGHT). How a broken enemy leaves the field:
+ *  `bolts` runs flat out at double pace and weaves (a temporary elusion peak, so
+ *  ranged shots get worse as the gap opens — one good shot as it turns, then
+ *  chancy ones); `withdraws` backs off at a wary walk, normally hittable, and
+ *  still bites in reach. Balance-pass knobs, all three. */
+export const FLIGHT = {
+  boltMult: 2,      // bolting: flat-out run, double mobility per turn
+  withdrawMult: 1,  // withdrawing: a backstep at normal pace
+  boltElusion: 35,  // peak bonus dodge % vs ranged while bolting (the zigzag)
 };
 
 /** Charge tuning (Charger archetype). A charge covers ground in the Move phase;
@@ -39,8 +48,19 @@ export function isRanged(u: CombatUnit): boolean {
   if (u.class) return RANGED_CLASSES.has(u.class);   // adventurers/allies: by class
   return u.combatRole === "back";                     // enemies: by authored formation row
 }
+/** Furthest distance ANY of this unit's weapons can strike. Band-based when the
+ *  unit carries weapon profiles; the old role-derived rule is the fallback for
+ *  band-less contexts (raid stacks, hand-built test units). */
 export function reachOf(u: CombatUnit): number {
+  if (u.weapons?.length) return Math.max(...u.weapons.map((w) => w.maxRange));
   return isRanged(u) ? POS.fieldMax : POS.contact; // melee connects at contact distance
+}
+/** The weapon this unit strikes with at `gap` paces: the FIRST profile whose
+ *  band fits, in preference order (primary → sidearm → fists). Null = nothing
+ *  reaches — no swing this beat (Combat Foundation §3). */
+export function weaponAt(u: CombatUnit, gapPaces: number): WeaponProfile | null {
+  if (!u.weapons?.length) return null;
+  return u.weapons.find((w) => gapPaces >= w.minRange && gapPaces <= w.maxRange + 1e-6) ?? null;
 }
 export function mobilityOf(u: CombatUnit): number {
   const base = u.class === "assassin" ? 22
@@ -77,9 +97,19 @@ export function placeUnits(ctx: CombatContext): void {
 }
 
 /** Which advancing melee are HELD by the opposing front this round (capacity =
- *  holders × holdPer, frontmost held first; overflow + bypass slip past). */
+ *  holders × holdPer, frontmost held first; overflow + bypass slip past).
+ *
+ *  A unit in flight holds nothing (ROUT_AND_FLIGHT). `living` already drops
+ *  units that finished fleeing (`fled`), but one still mid-run is on the field —
+ *  and without this it would keep contributing hold capacity, so a boar running
+ *  for the treeline could pin the very people chasing it. Nothing with its back
+ *  turned holds a line. */
 export function computeHolds(ctx: CombatContext): Set<string> {
-  const units = living(ctx);
+  // Nothing you cannot perceive holds you, and nothing with its back turned
+  // holds anyone. Same principle twice: an invisible assassin must not
+  // body-block the front line while unseen (TARGETING.md), and a boar running
+  // for the treeline must not pin its own pursuers (ROUT_AND_FLIGHT).
+  const units = living(ctx).filter((u) => !u.fleeing && !u.concealed);
   const held = new Set<string>();
   for (const enemySide of [true, false]) {
     const attackers = units.filter((u) => u.isEnemy === enemySide && !isRanged(u) && !canBypass(u));
@@ -228,8 +258,11 @@ export function pinningFoe(u: CombatUnit, ctx: CombatContext): CombatUnit | null
   const pinners = foesOf(u, ctx).filter((f) => !isRanged(f) && gap(u, f) <= POS.contact);
   return pinners.length ? nearest(u, pinners) : null;
 }
-/** Can this unit's attack reach the target right now? */
+/** Can this unit's attack reach the target right now? Band-based when the unit
+ *  carries weapon profiles (SOME weapon fits the gap — primary, sidearm, or
+ *  fists); the old single-reach rule covers band-less units. */
 export function inReach(u: CombatUnit, target: CombatUnit): boolean {
+  if (u.weapons?.length) return weaponAt(u, gap(u, target)) !== null;
   return gap(u, target) <= reachOf(u) + 1e-6;
 }
 /** Attacker is on the far side of the target (flanked past it). */

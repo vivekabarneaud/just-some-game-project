@@ -69,6 +69,6 @@ No family or bond entries in `CHAR_RELATIONSHIPS` (she is a curated solo charact
 
 ## Cross-refs
 - `shared/src/data/premade-characters.ts` — char_019 (verbatim bio, class/race/origin/food/trait/portrait).
-- `docs/DESIGN_ROSTER_CURATION.md` — curated-cast deepening note (item 5) + "Weapon affinities — BUILT" section (the `weaponType` / `TRAIT_WEAPON_BONUSES` system, first user = Hester, dormant-until-craftable-axe follow-up).
+- the retired roster-curation doc (in git — superseded by per-character introduction) — curated-cast deepening note (item 5) + "Weapon affinities — BUILT" section (the `weaponType` / `TRAIT_WEAPON_BONUSES` system, first user = Hester, dormant-until-craftable-axe follow-up).
 - Combat wiring: `combat/traits.ts` (`TRAIT_WEAPON_BONUSES`, `getWeaponTraitBonus`), `damage.ts`, `buildAdventurerUnit` (`CombatUnit.weaponType`).
 - Memory: "Roster curation" (curated cast direction), "Origin tiers by guild level" (Ashwick is a Lv.1 origin).

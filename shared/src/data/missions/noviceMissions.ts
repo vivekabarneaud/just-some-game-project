@@ -42,7 +42,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
     requires: { season: "spring" },
   },
   {
-    id: "bee_tree",
+    id: "the_bee_tree",
     map: { x: 0.466, y: 0.595 }, // same bear mark (routine version)
     name: "The Bee-Tree",
     description: "Spring again, and the south hollow's bee-tree is heavy with comb. The bear is there too, the big one the gatherers drove off last year, watching from the far bank. He has learned, and so have we. Nell took to calling him Old Honeypaw, and the name stuck. Smoke the hive, cut what the settlement needs, and leave the rest on the stump for him. No trouble, so long as everyone keeps to the arrangement.",
@@ -82,7 +82,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
     requires: { season: "autumn" },
   },
   {
-    id: "apple_tree",
+    id: "the_old_apple_tree",
     map: { x: 0.486, y: 0.601 }, // same apple mark (routine version)
     name: "The Old Apple Tree",
     description: "Autumn again, and the old tree in the south hollow will be heavy with fruit as it always is. It has carried us through more than one lean winter now, and the folk speak of it almost fondly, the way you would an old neighbour who never asks for anything. Send the baskets down and bring the harvest home before the frost takes it.",
@@ -101,7 +101,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
   // ── The Fish Run (spring seasonal gather) — a simple recurring gather, no
   //    attachment arc. The spring spawning run: a bit of relief in the hungry gap. ──
   {
-    id: "fish_run",
+    id: "the_fish_run",
     map: { x: 0.496, y: 0.489 },
     name: "The Fish Run",
     description: "The winter stores are down to scrapings and the fields are still bare mud, but the stream past the north bend has come alive. The spring run is on, the water thick and silver with fish shouldering upstream to spawn, and it will not hold more than a few days. Send hands down with baskets and spears while it lasts. We take what we can carry and salt the rest against the lean weeks still to come.",
@@ -120,7 +120,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
   // ── The Berry Thickets (summer seasonal gather) — a simple recurring gather,
   //    no arc. High-summer plenty: easy pickings before they spoil. ──
   {
-    id: "berry_thickets",
+    id: "the_berry_thickets",
     map: { x: 0.499, y: 0.58 },
     name: "The Berry Thickets",
     description: "High summer, and the bramble thickets along the east ridge are hanging heavy: blackberries, bilberries, whatever the birds have not already stripped. It is easy work and good eating, but the fruit does not keep and the birds are quicker than we are, so it wants doing now, all hands and every basket we own. Send a party up to pick the ridge clean before the season turns.",
@@ -142,7 +142,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
   //    Frame it as competition, not slaughter (a bear only drops a hide if the
   //    team actually kills one; routed bears leave nothing). ──
   {
-    id: "salmon_run",
+    id: "the_salmon_run",
     map: { x: 0.532, y: 0.44 },
     name: "The Salmon Run",
     description: "The river is boiling with salmon driving upstream to spawn, a bounty that comes once and is gone in days. But we are not the only ones who know it. The bears have come down to the falls to fatten before the snow, and they do not care to share the water. Send a team to work the run and carry back all they can, and be ready to hold their ground at the falls.",
@@ -207,7 +207,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
     difficulty: 1,
     minGuildLevel: 1,
     tags: ["outdoor", "escort"],
-    encounters: [{ enemyId: "wild_wolf", count: 1 }],
+    encounters: [{ enemyId: "grey_wolf", count: 1 }],
     unique: true,
   },
 {
@@ -224,11 +224,11 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
     difficulty: 1,
     minGuildLevel: 1,
     tags: ["outdoor", "escort"],
-    encounters: [{ enemyId: "wild_wolf", count: 1 }],
+    encounters: [{ enemyId: "grey_wolf", count: 1 }],
     requires: { missionDone: "foraging_run_first" },
   },
 {
-    id: "merchant_escort_first",
+    id: "the_first_merchant",
     map: { x: 0.55, y: 0.46 }, // the boundary marker up the Lammast road
     name: "The First Merchant",
     description: "Cobb kept his word. He is coming back up the road, and not with two mules this time: a wagon, a real load, the first merchant to judge the way to us worth the risk. Meet him at the boundary marker and bring him in whole. The cargo matters less than what it means. We are on someone's map now.",
@@ -241,7 +241,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
     difficulty: 2,
     minGuildLevel: 1,
     tags: ["outdoor", "combat"],
-    encounters: [{ enemyId: "bandit_thug", count: 2 }],
+    encounters: [{ enemyId: "displaced_brigand", count: 2 }],
     // Fires once the settlement can actually host him — a market to unload in and
     // a tavern to sleep over. Escorting him in is what starts his recurring stall
     // (see the_returning_trader chain + updateMerchantRecurrence).
@@ -262,8 +262,8 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
     difficulty: 2,
     minGuildLevel: 1,
     tags: ["outdoor", "combat"],
-    encounters: [{ enemyId: "bandit_thug", count: 2 }],
-    requires: { missionDone: "merchant_escort_first" },
+    encounters: [{ enemyId: "displaced_brigand", count: 2 }],
+    requires: { missionDone: "the_first_merchant" },
   },
 {
     id: "herb_gathering",
@@ -283,31 +283,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/herb_gathering.png",
   },
 {
-    id: "wandering_spirit",
-    name: "Wandering Spirit",
-    description: "What the travelers took for one restless spirit at the old crossroads turned out to be two, close enough in the dark to seem like one. Only a priest's blessing can lay them to rest, and mundane weapons pass through bone and cloth alike.",
-    icon: "👻",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/wandering_spirit.png",
-    slots: [{ class: "priest", required: true }, { class: "any" }],
-    duration: 600,
-    rewards: [{ resource: "gold", amount: 35 }],
-    deployCost: 5,
-    difficulty: 2,
-    minGuildLevel: 1,
-    tags: ["magical"],
-    encounters: [{ enemyId: "cursed_spirit", count: 2 }],
-    // Needs a priest to be doable at all (ghosts pass mundane weapons; only a
-    // priest's blessing lays them). Gate on actually having a priest so it
-    // doesn't tease before your first one arrives (Stonebridge arc, etc.).
-    requires: { story: "story_1_scouting", hasClass: "priest" },
-    // STAGED (July 2026): the restless dead are a LATER reveal — the world isn't
-    // meant to show ghosts in the novice tier (magic/undead open up further in).
-    // Kept off the board until it's re-gated to the magical layer's opening.
-    staged: true,
-    unique: true, // one-time: two spirits laid to rest at the old crossroads
-  },
-{
-    id: "bear_den",
+    id: "a_wide_berth",
     map: { x: 0.462, y: 0.583 },
     name: "A Wide Berth",
     description: "Word came back from the southern stand, white-faced, of a forest bear that has denned by the timber road, and there is talk of having it killed. As neighbours go, the bear has declared no war, levied no tax, and laid claim to nothing but the few trees it sleeps under, which is more courtesy than we get from most lords. We will not march on it for that. Mark the bounds of its little realm so no one wanders into its court uninvited, then steer our timber-cutting to a fresh stand well clear of it. There is no shortage of trees.",
@@ -324,7 +300,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
     unique: true,
   },
 {
-    id: "alpha_wolf_hunt",
+    id: "run_to_ground",
     map: { x: 0.53, y: 0.44 }, // Greyfang's den, up past the north gullies
     name: "Run to Ground",
     description: "Truffle will keep no watch for weeks, and the pale one is counting on it. He blinded us on purpose and drew off to wait, and when he comes again there will be no dog at the gate and no cry to wake the camp. We are not going to sit and wait for that. The scouts have marked his den up past the north gullies. Take the team and go to him before he comes to us. Cornered, he will not slink off as he has before; a wolf run to ground fights to the last, so go ready for a hard fight. Put an end to the pale one, and to the danger to the fold, so our people and our flock can sleep again. Bring everyone home.",
@@ -337,84 +313,21 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
     difficulty: 3,
     minGuildLevel: 1,
     tags: ["combat", "outdoor"],
-    encounters: [{ enemyId: "alpha_wolf", count: 1 }, { enemyId: "wild_wolf", count: 4 }],
+    encounters: [{ enemyId: "greyfang", count: 1 }, { enemyId: "grey_wolf", count: 4 }],
     // Beat 4 — the hunt. Greyfang (alpha_wolf) fights to the death (no routsAt).
     sideChain: { id: "greyfang", name: "The Fold" },
-    requires: { pen: "sheep", missionDone: "lost_flock" },
+    requires: { pen: "sheep", missionDone: "wolves_at_the_wall" },
     unique: true, // one-time: the pack leader dies once, dropping ONE of fang/sinew
     chronicleEntryId: "ch1_greyfang_ended",
   },
 
   // ── Pre-scouting village missions (no story gate) ─────────────
-  {
-    id: "lost_child",
-    name: "The Miller's Boy",
-    description: "The miller's son went to check the fish traps at dawn and hasn't come back. The creek runs past the boar wallows, and the boy is seven. Someone needs to find him before dark.",
-    icon: "👦",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/lost_child.png",
-    slots: [{ class: "any" }],
-    duration: 480,
-    rewards: [{ resource: "gold", amount: 30 }],
-    deployCost: 3,
-    difficulty: 2,
-    minGuildLevel: 1,
-    tags: ["outdoor", "exploration"],
-    encounters: [{ enemyId: "rabid_boar", count: 2 }],
-    guaranteed: true,
-    unique: true,
-    // SET ASIDE (July 2026): "the miller's boy" assumes a settled village with
-    // named townsfolk (a miller + family), but this can surface on day 1 when
-    // the settlement is just the founders. Staged out until we model townsfolk /
-    // re-gate it to a later tier. `staged` keeps it off the board.
-    staged: true,
-  },
   // PARKED (July 2026): "Old Bram" names a random townsfolk we don't model yet.
   // With only the known founding cast in play, an unnamed citizen reads as out of
   // place. Revisit when there's a generic-citizen / townsfolk layer to hang this
   // on. Re-enable by uncommenting. (Relates to the mission-character-ties pass.)
   /*
-  {
-    id: "hunter_keepsake",
-    name: "The Hunter's Keepsake",
-    description: "Old Bram dropped his father's pocketwatch somewhere near the bear trails while running for his life. It's all he has left of the old man. He can't pay much, but he's asking.",
-    icon: "⌚",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/hunter_keepsake.png",
-    slots: [{ class: "any" }],
-    duration: 600,
-    rewards: [{ resource: "gold", amount: 20 }, { resource: "meat", amount: 30 }],
-    deployCost: 3,
-    difficulty: 1,
-    minGuildLevel: 1,
-    tags: ["outdoor", "exploration"],
-    encounters: [{ enemyId: "forest_bear", count: 1 }],
-    unique: true,
-  },
   */
-  {
-    id: "spider_hollow",
-    name: "Spider Hollow",
-    description: "The women drawing from the eastern well came up with silk on the bucket rope and something moving in the dark below. A nest has taken the hollow under the well, and the bite these carry swells a hand black and does not stop there. We would leave it be had it denned anywhere else, but not under the water the whole camp drinks. Go down, clear it out, and mind the venom; take an antidote along if Edda can spare one.",
-    icon: "🕷️",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/spider_hollow.png",
-    slots: [{ class: "any" }, { class: "any" }],
-    duration: 540,
-    rewards: [{ resource: "gold", amount: 25 }, { resource: "stone", amount: 20 }],
-    deployCost: 3,
-    difficulty: 2,
-    minGuildLevel: 1,
-    tags: ["combat", "outdoor"],
-    // Difficulty-2 venom fight (the Spinner's poison is what the Herbal Antidote
-    // counters). 3 was unwinnable for an early team (0% in sim); 2 is a real
-    // "gear up / bring an antidote" challenge.
-    encounters: [{ enemyId: "cave_spider", count: 2 }],
-    unique: true,
-    // PARKED 2026-08-05: the premise hinges on a WELL, but the well is Village-tier
-    // gated — a novice mission can't assume one exists (and "the women at the well"
-    // assumes townsfolk we don't model early). Kept for future inspiration (spiders
-    // fouling the drinking water is a strong hook); re-home to a real early water
-    // source + reword before un-staging.
-    staged: true,
-  },
   {
     id: "night_howling",
     map: { x: 0.492, y: 0.542 }, // the fold at night, at the settlement
@@ -429,86 +342,27 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
     difficulty: 2,
     minGuildLevel: 1,
     tags: ["combat", "outdoor"],
-    encounters: [{ enemyId: "wild_wolf", count: 3 }],
+    encounters: [{ enemyId: "grey_wolf", count: 3 }],
     // Beat 2 of the Greyfang arc (unique). Truffle fights beside the team.
     npcAlly: { npcId: "truffle", threatMultiplier: 0.4, cannotFall: true, deathFailsMission: false },
     sideChain: { id: "greyfang", name: "The Fold" },
     excludeCharacters: [{ premadeId: "char_005", reason: "At the watchtower, sounding the alarm" }],
     unique: true,
-    requires: { pen: "sheep", missionCount: { id: "fold_vigil", count: 2 } },
-  },
-  {
-    id: "old_bridge",
-    name: "The Old Bridge",
-    description: "A fallen oak and a season's debris have choked the river crossing south of camp, the only dry path to the hunting grounds, and it has to be cleared. Two boars have taken to the wreckage, and by the froth and the stagger of them the sickness is in both, the kind that turns a beast blind to all but the charge. There is no shooing a rabid animal off and no mending it. Clear the crossing, and if they come, put them down clean and quick, the way you would want it done. It is no cruelty to end a suffering that only ends the one way.",
-    icon: "🌉",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/old_bridge.png",
-    slots: [{ class: "any" }, { class: "any" }],
-    duration: 600,
-    rewards: [{ resource: "wood", amount: 50 }, { resource: "gold", amount: 15 }],
-    deployCost: 5,
-    difficulty: 3,
-    minGuildLevel: 1,
-    tags: ["outdoor", "exploration"],
-    encounters: [{ enemyId: "rabid_boar", count: 2 }],
-    unique: true,
-    // PARKED 2026-08-05: no clean fight justification. Rabid boars belong to the
-    // maddened-herd / taint arc (keep them special); non-rabid animals on the
-    // hunting road would just be hunted or rerouted, not a mission. Bank the
-    // "blocked ford to the hunting grounds" idea; rework the threat/name (it's a
-    // fallen-oak ford, not a bridge) before un-staging.
-    staged: true,
-  },
-  {
-    id: "stranger_tracks",
-    name: "Tracks at the Treeline",
-    description: "The woodcutters found deep claw marks gouged into the bark near their worksite, and something large bedded down in the undergrowth overnight. Track it far enough to know what it is, no closer. It proves a bear's day-bed, not a hunt; mark the ground so the cutters swing wide, and move their work to fresh timber well clear of it. A lone wolf trails the treeline a while, then thinks better of it.",
-    icon: "🐾",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/stranger_tracks.png",
-    slots: [{ class: "any" }],
-    duration: 540,
-    rewards: [{ resource: "gold", amount: 30 }, { resource: "wood", amount: 30 }],
-    deployCost: 3,
-    difficulty: 1,
-    minGuildLevel: 1,
-    tags: ["outdoor", "exploration", "peaceful"],
-    guaranteed: true, // investigate + reroute: the bear gets a wide berth, not a fight
-    // PARKED 2026-08-05: the "give a bear a wide berth" beat is already the
-    // bee-tree / Old Honeypaw arc's job (done better, with a named bear + a
-    // relationship), so this reads as a weaker duplicate. Bank the good shape
-    // (investigate → it's harmless → work around it) for reuse with a NON-bear
-    // subject before un-staging.
-    staged: true,
-  },
-  {
-    id: "first_patrol",
-    name: "The Northern Bounds",
-    // Parked: there's nothing authored to discover north yet. Kept in the pool
-    // (so a save mid-flight still resolves) but `staged` hides it from the board
-    // until the north has something to find. Renamed ready for that revival.
-    staged: true,
-    description: "The northern perimeter hasn't been walked since we came. A pair of young wolves have been worrying the trap line, thin-ribbed and skittish. No need for blood: walk the bounds, see them off, and come back having proven you can hold a line without drawing one.",
-    icon: "🚩",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/first_patrol.png",
-    slots: [{ class: "any" }],
-    duration: 480,
-    rewards: [{ resource: "gold", amount: 20 }, { resource: "meat", amount: 15 }],
-    deployCost: 3,
-    difficulty: 1,
-    minGuildLevel: 1,
-    tags: ["outdoor", "combat"],
-    encounters: [{ enemyId: "gaunt_wolf", count: 2 }],
+    requires: { pen: "sheep", missionCount: { id: "a_wolf_at_the_fold", count: 2 } },
   },
 
   // ── Pre-scouting missions gated behind livestock pens ─────────
   {
-    id: "lost_flock",
+    id: "wolves_at_the_wall",
     map: { x: 0.505, y: 0.522 }, // the north wall of the settlement
     name: "Wolves at the Wall",
     description: "Gareth's horn is going: wolves at the north wall, a whole knot of them rushing the palisade bold as you please. It is not like them, they have been all patience and shadows until now, but there is no time to wonder at it with the pack at the gate. Rouse the team and get to the wall. Drive them back into the dark and let the camp get its breath.",
     icon: "🐺",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/night_howling.png",
-    slots: [{ class: "any" }, { class: "any" }],
+    // Three slots (2026-09-05): five wolves against two is not a hard fight, it
+    // is an unwinnable one — 0% over 120 seeds. Difficulty at tier 1 is set by
+    // bodies-per-slot far more than by any creature's stats.
+    slots: [{ class: "any" }, { class: "any" }, { class: "any" }],
     duration: 480,
     rewards: [{ resource: "meat", amount: 40 }, { resource: "wolfhide_strip", amount: 1 }, { resource: "gold", amount: 15 }],
     deployCost: 4,
@@ -518,7 +372,9 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
     // Beat 3 — the diversion. The player fights the feint at the wall (Truffle is
     // NOT here — he's at the fold); the maul is the reveal on claim. TODO(#3): the
     // director applies `savaged` to Truffle when this completes.
-    encounters: [{ enemyId: "wild_wolf", count: 5 }],
+    // A real pack is mixed — adults and yearlings, which is what "a whole knot"
+    // looks like. Five bodies still, but only two of them are pack adults.
+    encounters: [{ enemyId: "grey_wolf", count: 2 }, { enemyId: "gaunt_wolf", count: 3 }],
     sideChain: { id: "greyfang", name: "The Fold" },
     excludeCharacters: [{ premadeId: "char_005", reason: "At the watchtower, sounding the alarm" }],
     unique: true,
@@ -526,7 +382,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
     chronicleEntryId: "ch1_truffle_mauled",
   },
   {
-    id: "fold_vigil",
+    id: "a_wolf_at_the_fold",
     map: { x: 0.475, y: 0.55 }, // the fold, at the settlement
     name: "A Wolf at the Fold",
     description: "Truffle has made the fold his own, and it is well he did. There have been wolves at the pens these last nights, coming together and coming back, the same hour and the same wind each time, testing the fences and slinking off the moment he throws up his racket. He has held them alone so far, one dog facing the tree line, but that is a wager we will not leave him to make twice. Walk out with him after dark and put the pack back into the trees, while it still costs us nothing but sleep.",
@@ -538,7 +394,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
     difficulty: 1,
     minGuildLevel: 1,
     tags: ["outdoor", "combat"],
-    encounters: [{ enemyId: "wild_wolf", count: 2 }],
+    encounters: [{ enemyId: "grey_wolf", count: 2 }],
     // Beat 1 of the Greyfang arc (repeatable — the grind that earns the turn).
     // Truffle fights beside the team: low threat (the pack peels onto the team),
     // and cannotFall — the escorts can never put the good boy down.
@@ -548,7 +404,7 @@ export const NOVICE_MISSIONS: MissionTemplate[] = [
     requires: { pen: "sheep", chronicleFired: "ch1_truffle_takes_fold" },
   },
   {
-    id: "chicken_coop_raiders",
+    id: "something_in_the_henhouse",
     name: "Something in the Henhouse",
     description: "Three hens dead this week, torn apart in the night, and the coop door nosed open from outside. A fox, most likely, fast and bold and back every night now that it knows the way in. No work for blades. Set someone to stand a quiet watch, mend the coop, lay a snare, and see the thief off for good.",
     icon: "🦊",

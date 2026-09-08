@@ -2,6 +2,7 @@ import type { GameState, TradeResourceKey } from "@medieval-realm/shared";
 import { prisma } from "../lib/prisma.js";
 import { addResource } from "../lib/resources.js";
 import { resolveActiveCoops } from "./coopResolution.js";
+import { getGlobalSeason, settlementYear, SEASON_ORDER, SEASON_ELAPSED_SPAN } from "@medieval-realm/shared/data/calendar";
 
 const TICK_INTERVAL_MS = 60_000; // 60 seconds
 const SKIP_IF_RECENT_MS = 30_000; // skip if client saved recently
@@ -19,7 +20,7 @@ function totalPop(citizens: GameState["citizens"] | undefined): number {
 // Simplified server-side tick for offline progress.
 // Handles resource production, season advancement, building upgrades, and crafting.
 // The client tick is more detailed — this covers what matters while offline.
-export function applyServerTick(state: GameState, elapsedMs: number): GameState {
+function applyServerTick(state: GameState, elapsedMs: number): GameState {
   const s = structuredClone(state);
   // Always use speed 1 on the server — gameSpeed is a dev-only feature
   const elapsedHours = elapsedMs / 1000 / 3600;
@@ -89,31 +90,23 @@ export function applyServerTick(state: GameState, elapsedMs: number): GameState 
   }
 
   // ─── Season advancement (global calendar) ────────────────────
-  // Seasons are derived from real-world time — same for all players.
-  // Spring starts April 1, 2026. Each season = 4 real days.
-  const CALENDAR_EPOCH = Date.UTC(2026, 3, 1); // April 1, 2026
-  const SEASON_DURATION_MS = 4 * 24 * 60 * 60 * 1000; // 4 days
-  const HOURS_PER_SEASON = 24;
-  const order: GameState["season"][] = ["spring", "summer", "autumn", "winter"];
+  // Straight from shared/data/calendar, which is the ONE definition. This block
+  // used to carry its own copy (epoch April 1, 4-day seasons) against the
+  // client's (May 2, 3-day), so the two overwrote each other on every
+  // save/load and a player's season ping-ponged between them.
+  const global = getGlobalSeason();
 
-  const elapsed = Date.now() - CALENDAR_EPOCH;
-  const totalSeasons = Math.floor(elapsed / SEASON_DURATION_MS);
-  const globalSeason = order[((totalSeasons % 4) + 4) % 4];
-  const globalYear = Math.floor(totalSeasons / 4) + 1;
-  const globalProgress = (elapsed % SEASON_DURATION_MS) / SEASON_DURATION_MS;
-
-  if (globalSeason !== s.season) {
-    // Advance through seasons until we match
-    while (s.season !== globalSeason) {
-      const idx = order.indexOf(s.season);
-      s.season = order[(idx + 1) % 4];
-      if (s.season === "spring") {
-        s.year += 1;
-      }
+  if (global.season !== s.season) {
+    // Walk forward so each crossed season fires its own transition.
+    while (s.season !== global.season) {
+      const idx = SEASON_ORDER.indexOf(s.season);
+      s.season = SEASON_ORDER[(idx + 1) % 4];
     }
   }
-  s.seasonElapsed = globalProgress * HOURS_PER_SEASON;
-  s.year = globalYear;
+  s.seasonElapsed = global.progress * SEASON_ELAPSED_SPAN;
+  // A settlement's year is its own AGE, not the world year — this used to
+  // assign the world year, which the client then recomputed as age.
+  s.year = settlementYear(global.year, s.foundingYear);
 
   // ─── Resource production (simplified) ───────────────────────
   // We compute a basic rate from building levels.
@@ -225,7 +218,7 @@ async function deliverArrivedCaravans() {
   }
 }
 
-export async function tickAllSettlements() {
+async function tickAllSettlements() {
   // Resolve any coop expeditions whose duration has elapsed
   await resolveActiveCoops();
 
@@ -272,7 +265,7 @@ export function startTickLoop() {
   }, TICK_INTERVAL_MS);
 }
 
-export function stopTickLoop() {
+function stopTickLoop() {
   if (tickInterval) {
     clearInterval(tickInterval);
     tickInterval = null;

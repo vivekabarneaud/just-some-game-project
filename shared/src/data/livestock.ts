@@ -1,3 +1,4 @@
+import type { FoodItemType } from "./pantry.js";
 import { growth } from "./farmingMath";
 
 export type AnimalId = "chickens" | "pigs" | "goats" | "sheep";
@@ -72,7 +73,6 @@ export const PEN_BASE_COST = { wood: 30, stone: 15 };
 export const PEN_COST_MULTIPLIER = 1.4;
 export const PEN_BASE_BUILD_TIME = 5; // seconds
 export const PEN_BUILD_TIME_MULTIPLIER = 1.5;
-export const MAX_PENS = 6;
 export const PEN_MAX_LEVEL = 8;
 
 // ── Population model (slice 1) ──
@@ -150,8 +150,8 @@ export function getCullYield(animal: AnimalId): CullYield {
 }
 
 /** Which specific meat an animal butchers into (post meat-split). String, not the
- *  frontend FoodItemType, since shared can't import it — callers cast/look it up. */
-export const CULL_MEAT: Record<AnimalId, string> = {
+ *  FoodItemType, now that it lives in shared (TECH_DEBT 4.5 closed). */
+export const CULL_MEAT: Record<AnimalId, FoodItemType> = {
   chickens: "chicken",
   goats: "goat",
   pigs: "pork",

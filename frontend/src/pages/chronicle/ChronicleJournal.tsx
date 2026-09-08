@@ -1,8 +1,7 @@
 import { createSignal, createMemo, For, Show, onMount } from "solid-js";
 import { useSearchParams } from "@solidjs/router";
 import { useGame } from "~/engine/gameState";
-import {
-  CHRONICLE_CHAPTERS,
+import { CHRONICLE_CHAPTERS,
   CHRONICLE_ENTRIES,
   getEntriesByChapter,
 } from "~/data/chronicle_entries";

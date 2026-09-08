@@ -4,8 +4,6 @@
 // / adults / elderly. Combat eligibility, food consumption, and growth events
 // all derive from this shape; the topbar dropdown surfaces the breakdown for
 // the player.
-//
-// See docs/DESIGN_CITIZEN_CATEGORIES.md for the full design.
 
 export interface CitizenCounts {
   toddlers: number;  // 0-4 years, 0.5× food, no combat
@@ -16,28 +14,16 @@ export interface CitizenCounts {
 
 export type CitizenCategory = keyof CitizenCounts;
 
-export const CITIZEN_CATEGORIES: CitizenCategory[] = ["toddlers", "children", "adults", "elderly"];
 
-/** Display metadata for the topbar / event log. */
-export const CITIZEN_META: Record<CitizenCategory, { icon: string; label: string; singular: string }> = {
-  toddlers: { icon: "👶", label: "toddlers", singular: "toddler" },
-  children: { icon: "🧒", label: "children",  singular: "child"   },
-  adults:   { icon: "🧑", label: "adults",    singular: "adult"   },
-  elderly:  { icon: "👵", label: "elderly",   singular: "elder"   },
-};
 
 /** Per-category food multiplier applied to FOOD_PER_CITIZEN_PER_HOUR. */
-export const FOOD_MULTIPLIER: Record<CitizenCategory, number> = {
+const FOOD_MULTIPLIER: Record<CitizenCategory, number> = {
   toddlers: 0.5,
   children: 0.75,
   adults: 1.0,
   elderly: 0.75,
 };
 
-/** Empty cohort — used for fresh state and as a fallback. */
-export function emptyCitizens(): CitizenCounts {
-  return { toddlers: 0, children: 0, adults: 0, elderly: 0 };
-}
 
 /** Founder mapping — bio-accurate slice of the 6 starting characters.
  *  Edda (71) + Father Corin (68) elderly. The Lord (~37) + Jory (36) +
@@ -91,7 +77,6 @@ export function effectiveFoodMouths(c: CitizenCounts): number {
 /** Apply a survival ratio (0..1) to every category, flooring to keep counts
  *  integer. Used for famine / freeze / unhappiness — losses spread across
  *  the whole population uniformly.
- *
  *  Optional `floor` clamps each category from below: useful with
  *  FOUNDER_FLOOR so the founding cast (Nell, Jory, Tomas, Edda, Corin)
  *  is never silently killed by ratio-based attrition. */
@@ -134,21 +119,7 @@ export function reduceByPriority(
 //   - Otherwise apply default 60/20/12/8 split (adults / children / elderly / toddlers).
 // Total is preserved.
 
-const DEFAULT_SPLIT: Record<CitizenCategory, number> = {
-  adults: 0.6, children: 0.2, elderly: 0.12, toddlers: 0.08,
-};
 
-export function migrateLegacyPopulation(legacy: number): CitizenCounts {
-  const total = Math.max(0, Math.floor(legacy));
-  if (total === 5) return founderCitizens();
-  // Floor each category, then dump the rounding remainder into adults so
-  // the total matches exactly.
-  const tod = Math.floor(total * DEFAULT_SPLIT.toddlers);
-  const ch = Math.floor(total * DEFAULT_SPLIT.children);
-  const eld = Math.floor(total * DEFAULT_SPLIT.elderly);
-  const ad = total - tod - ch - eld;
-  return { toddlers: tod, children: ch, adults: ad, elderly: eld };
-}
 
 // ─── Aging tick (yearly cohort step) ──────────────────────────
 // Deterministic fractions — reproducible, no RNG. Fires once per game-year
@@ -158,7 +129,7 @@ export function migrateLegacyPopulation(legacy: number): CitizenCounts {
 //   Adult → Elderly: 2% / year (avg 50 years as adult)
 //   Elderly mortality: 5% / year baseline
 
-export const AGING_RATES = {
+const AGING_RATES = {
   toddlerToChild: 0.25,
   childToAdult: 0.10,
   adultToElderly: 0.02,
@@ -193,7 +164,7 @@ export function ageStep(c: CitizenCounts): AgingResult {
 // joined the settlement. Probabilities slide a little with happiness — happy
 // villages pull families more, unhappy ones get drifters.
 
-export type ArrivalKind = "drifter" | "couple" | "family_baby" | "family_child" | "elder";
+type ArrivalKind = "drifter" | "couple" | "family_baby" | "family_child" | "elder";
 
 export interface ArrivalEntry {
   kind: ArrivalKind;

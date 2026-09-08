@@ -125,7 +125,7 @@ const [muted, setMutedSignal] = createSignal(initialMuted);
 
 export const isMuted = muted;
 
-export function setMuted(value: boolean) {
+function setMuted(value: boolean) {
   setMutedSignal(value);
   try {
     localStorage.setItem(MUTE_KEY, value ? "1" : "0");
@@ -198,7 +198,7 @@ export function setAmbientVolume(v: number) { const c = Math.min(1, Math.max(0, 
 export function setMusicVolume(v: number) { const c = Math.min(1, Math.max(0, v)); setMusicVolSignal(c); persistVol(VOL_KEYS.music, c); }
 
 /** Effective gain for a channel, before the clip's own volume. */
-export function channelVolume(channel: SoundChannel): number {
+function channelVolume(channel: SoundChannel): number {
   const ch = channel === "ambient" ? ambientVol() : channel === "music" ? musicVol() : uiVol();
   return ch * masterVol();
 }

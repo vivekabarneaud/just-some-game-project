@@ -7,7 +7,7 @@ import type { Technique, Role, Placement } from "@medieval-realm/shared/data/alc
 /** TEMP dev page (/dev-alchemy) — the free-form alchemy SANDBOX. No art, no
  *  inventory wiring: pick a plant from each ROLE shelf, choose how to PREPARE it
  *  (technique), and watch the computed brew update live — so we can feel
- *  combinations + tune the effect-vector engine. See docs/DESIGN_APOTHECARY.md. */
+ *  combinations + tune the effect-vector engine. See docs/IDEAS.md (Alchemy) for what's still unbuilt. */
 
 const ROLE_SHELVES: { role: Role; label: string; hint: string }[] = [
   { role: "base", label: "Base", hint: "the carrier — a brew wants one" },

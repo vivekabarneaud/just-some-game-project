@@ -199,7 +199,7 @@ export default function ChronicleBestiary() {
                                 display: "flex", gap: "10px", "margin-top": "6px",
                                 "font-size": "0.75rem",
                               }}>
-                                <span style={{ color: "var(--accent-red)" }}>❤ {enemy.stats.vit * 10} HP</span>
+                                <span style={{ color: "var(--accent-red)" }}>❤ {enemy.hp} HP</span>
                                 <span style={{ color: "var(--text-muted)" }}>STR {enemy.stats.str} · DEX {enemy.stats.dex}</span>
                               </div>
                               <div style={{

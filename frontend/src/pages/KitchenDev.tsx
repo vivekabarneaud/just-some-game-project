@@ -6,7 +6,7 @@ import type { CookTechnique, FoodRole, DishChannel, CookPlacement } from "@medie
 /** TEMP dev page (/dev-kitchen) — the free-form COOKING sandbox. No art, no
  *  economy: pick an ingredient from each shelf, choose how to PREPARE it (roast
  *  the meat, boil the staple), set a quantity, and watch the dish update live —
- *  so we can feel combinations and tune the cook engine. See docs/DESIGN_KITCHEN.md. */
+ *  so we can feel combinations and tune the cook engine. See docs/IDEAS.md (Kitchen). */
 
 const SHELVES: { role: FoodRole; label: string; hint: string }[] = [
   { role: "staple", label: "🌾 Staple", hint: "the base — a meal wants one" },

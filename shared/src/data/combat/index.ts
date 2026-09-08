@@ -12,11 +12,13 @@ import { runRound } from "./round/index.js";
 import { buildResult } from "./result.js";
 
 // ─── Public types re-exported for consumers ─────────────────────
-export type { CombatUnit, CombatLogEntry, CombatResult, CombatantSnapshot, LootResult, CombatContext, AITier, TauntImmunity, CombatKind } from "./types.js";
+export type { CombatUnit, CombatLogEntry, CombatResult, CombatantSnapshot, LootResult, CombatContext, CombatKind, WeaponProfile } from "./types.js";
 export { setCombatSeed, combatRandom } from "./prng.js";
 export { calcDamageResult, woundedDamageMult } from "./damage.js";
-export { getAttackPower, getMagicPower, getCritChance, getDodgeChance, getAccuracy, getParry, getAvoidance, MAX_AVOIDANCE, getInitiative, getDefenseReduction, getMagicResistReduction, dealsMagicalDamage, ATTACK_STAT_SCALE, UNARMED_RANGE, rarityWeaponRange, derivedDamageRange } from "./stats.js";
+export { getAttackPower, getMagicPower, getCritChance, getDodgeChance, getAccuracy, getParry, getAvoidance, MAX_AVOIDANCE, getInitiative, getDefenseReduction, getMagicResistReduction, dealsMagicalDamage, ATTACK_STAT_SCALE, UNARMED_RANGE, rarityWeaponRange, derivedDamageRange, weaponBand, MELEE_BAND, RANGED_BAND, CLOSE_IN_FRACTION } from "./stats.js";
+export { weaponAt, inReach, reachOf } from "./positional.js";
 export { pickTarget, pickTargetForAdventurer } from "./targeting.js";
+export { perceivable, perceive, applySmoke, type SmokeCloud } from "./perception.js";
 export { buildAdventurerUnit, buildEnemyUnits, buildNpcAllyUnit, calcFamilyBonuses } from "./units.js";
 export type { AIBehavior, AIState, AITransition } from "./ai/index.js";
 export { DEFAULT_BEHAVIOR } from "./ai/index.js";
@@ -44,7 +46,7 @@ export function simulateCombat(
     hpOverride?: Record<string, number>;
     skipRecoveryHeal?: boolean;
     /** Turn off the whole retreat/reflex layer (expeditions + special missions,
-     *  which are lethal by design). Model C — see DESIGN_RECOVERY_AND_RETREAT. */
+     *  which are lethal by design). Model C — see docs/IDEAS.md (Adventurer recovery). */
     disableRetreat?: boolean;
   },
 ): CombatResult | null {
@@ -105,6 +107,22 @@ export function simulateCombat(
     const cont = runRound(ctx);
     positions.push(snapX());
     if (!cont) break;
+  }
+
+  // Round-cap escape hatch (ROUT_AND_FLIGHT): anything still mid-flight when
+  // the cap lands got away — the fight is over and nobody chases forever. Marks
+  // them fled so the result counts them defeated-with-sheddable-loot, exactly
+  // as if they had made the edge, and so a runner can never strand a fight.
+  for (const e of enemies) {
+    if (e.fleeing && !e.fled && e.hp > 0) {
+      e.fled = true;
+      ctx.log.push({
+        round: ctx.round, attackerName: e.name, attackerIcon: "🏃",
+        targetName: e.name, damage: 0, dodged: false, crit: false, killed: false,
+        targetHp: Math.max(0, e.hp), targetMaxHp: e.maxHp, isEnemy: true,
+        beat: "flee_success", note: `${e.name} is gone into the wilds`,
+      });
+    }
   }
 
   stampLogIds(ctx.log, roster);

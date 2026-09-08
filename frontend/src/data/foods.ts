@@ -2,17 +2,8 @@
 // Tracks individual food stockpiles. The pantry caps the TOTAL across all types.
 // Consumption is proportional — citizens eat from all types in proportion to stock.
 
-export type FoodItemType =
-  | "wheat" | "barley"
-  | "cabbages" | "turnips" | "peas" | "squash" | "fava"
-  | "apples" | "pears" | "cherries" | "strawberries"
-  | "venison" | "boar" | "wisent" | "pork" | "mutton" | "goat" | "chicken" | "wild_fowl" | "rabbit"
-  | "eggs" | "milk"
-  | "trout" | "pike" | "eel" | "salmon"
-  | "blackberry" | "blueberry" | "raspberry" | "nuts"
-  | "dandelion" | "sorrel" | "ramsons" | "wild_carrot"
-  | "field_mushroom" | "morel" | "chanterelle" | "cepe"
-  | "porridge" | "hearth_stew" | "river_stew" | "bone_broth";
+export type { FoodItemType } from "@medieval-realm/shared/data/pantry";
+import type { FoodItemType } from "@medieval-realm/shared/data/pantry";
 
 export type FoodCategoryId = "grain" | "veggie" | "fruit" | "animal" | "wild" | "cooked";
 
@@ -34,21 +25,13 @@ export interface FoodItemMeta {
   kind?: DishKind;
 }
 
-export interface FoodCategoryMeta {
+interface FoodCategoryMeta {
   id: FoodCategoryId;
   label: string;
   icon: string;
   order: number;
 }
 
-export const FOOD_CATEGORIES: FoodCategoryMeta[] = [
-  { id: "grain",  label: "Grains",          icon: "🌾", order: 1 },
-  { id: "veggie", label: "Vegetables",      icon: "🥬", order: 2 },
-  { id: "fruit",  label: "Fruits",          icon: "🍎", order: 3 },
-  { id: "animal", label: "Animal Products", icon: "🍖", order: 4 },
-  { id: "wild",   label: "Wild Foods",      icon: "🍄", order: 5 },
-  { id: "cooked", label: "Cooked Meals",    icon: "🍲", order: 6 },
-];
 
 export const FOOD_ITEMS: FoodItemMeta[] = [
   // Grains
@@ -104,7 +87,7 @@ export const FOOD_ITEMS: FoodItemMeta[] = [
   { id: "bone_broth",  label: "Bone Broth",  icon: "🍜", order: 4, category: "cooked", kind: "meal" },
 ];
 
-export const FOOD_ITEM_IDS: FoodItemType[] = FOOD_ITEMS.map((f) => f.id);
+const FOOD_ITEM_IDS: FoodItemType[] = FOOD_ITEMS.map((f) => f.id);
 
 /** The specific meats behind the "meat" cost/feed alias. A recipe or reward that
  *  asks for "meat" resolves across all of these (like "grain" = wheat+barley), so
@@ -126,7 +109,7 @@ export const BERRY_TYPES: FoodItemType[] = ["blackberry", "blueberry", "raspberr
 
 /** Everything the Forager brings home = the "wild" alias. Derived from the wild
  *  category so new foraged foods fold in automatically. */
-export const WILD_TYPES: FoodItemType[] = FOOD_ITEMS.filter((f) => f.category === "wild").map((f) => f.id);
+const WILD_TYPES: FoodItemType[] = FOOD_ITEMS.filter((f) => f.category === "wild").map((f) => f.id);
 
 export function getFoodMeta(id: FoodItemType): FoodItemMeta {
   return FOOD_ITEMS.find((f) => f.id === id)!;
@@ -250,11 +233,3 @@ export function addFood(
   return actual;
 }
 
-/** Migrate an old save's flat resources.food into the new typed foods map. */
-export function migrateFoodsFromLegacy(legacyFood: number | undefined): Record<FoodItemType, number> {
-  const foods = emptyFoods();
-  if (legacyFood && legacyFood > 0) {
-    foods.wheat = legacyFood;
-  }
-  return foods;
-}

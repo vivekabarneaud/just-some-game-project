@@ -42,7 +42,7 @@ const CATEGORY_GRADUATION: Partial<Record<FlavorCategory, QuestTrigger[]>> = {
   defense: [{ type: "th_level", level: 5 }],
 };
 
-export const OVERVIEW_FLAVORS: OverviewFlavor[] = [
+const OVERVIEW_FLAVORS: OverviewFlavor[] = [
   // ── Settlement (teaching track — graduates at Town) ──
   {
     id: "fresh_start",
@@ -170,7 +170,7 @@ export const OVERVIEW_FLAVORS: OverviewFlavor[] = [
   {
     id: "thread_bog_witch",
     category: "chain",
-    triggers: [{ type: "custom", check: (s) => s.completedUniqueMissionIds.includes("reeds_bargain") }],
+    triggers: [{ type: "custom", check: (s) => s.completedUniqueMissionIds.includes("the_reeds_price") }],
     text: "The old woman in the fen still sends her askings across the reeds. Grain, and only grain.",
   },
   {
@@ -180,7 +180,7 @@ export const OVERVIEW_FLAVORS: OverviewFlavor[] = [
       type: "custom",
       check: (s) =>
         s.completedUniqueMissionIds.includes("bad_blood") &&
-        !s.completedUniqueMissionIds.includes("tainted_spring"),
+        !s.completedUniqueMissionIds.includes("the_tainted_spring"),
     }],
     text: "Something in the bad water is turning the boars, and we have not yet found its source.",
   },
@@ -190,8 +190,8 @@ export const OVERVIEW_FLAVORS: OverviewFlavor[] = [
     triggers: [{
       type: "custom",
       check: (s) =>
-        s.completedUniqueMissionIds.includes("hester_rescue") &&
-        !s.completedUniqueMissionIds.includes("quiet_the_woods"),
+        s.completedUniqueMissionIds.includes("run_down") &&
+        !s.completedUniqueMissionIds.includes("no_one_followed"),
     }],
     text: "Hester keeps to the tree line and her own silence. The woods past her are not yet quiet.",
   },
@@ -221,4 +221,4 @@ export function getCurrentOverviewFlavors(state: GameState): OverviewFlavor[] {
 
 /** Display order for the fixed teaching/story tracks. Settlement first (the
  *  primary loop); chain threads append after these. */
-export const FLAVOR_CATEGORY_ORDER: FlavorCategory[] = ["settlement", "adventurers", "defense"];
+const FLAVOR_CATEGORY_ORDER: FlavorCategory[] = ["settlement", "adventurers", "defense"];

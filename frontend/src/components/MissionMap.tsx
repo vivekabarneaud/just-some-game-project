@@ -13,12 +13,10 @@ import { MAP_REGIONS } from "~/data/mapRegions";
 // team assembly panel (the parent owns selection, same as the old card grid).
 // Missions with no coords fall to the "Close to home" dock below the map, so
 // nothing goes unreachable while pins are authored one at a time.
-//
 // DEV "Place mode": pick a mission (click its pin or its dock card), then click
 // the map to drop it there. Placements are stored in localStorage as an override
 // layer so they preview live over the authored coords; "Copy placements" dumps
 // them as JSON to paste back for baking into the mission source.
-// See docs/DESIGN_MISSION_MAP.md.
 
 const MAP_SRC = "/images/map/valley.jpg";
 const MAP_W = 2400, MAP_H = 2243;         // the downscaled sketch

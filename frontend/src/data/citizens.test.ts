@@ -1,6 +1,5 @@
 import { describe, it, expect } from "vitest";
-import {
-  type CitizenCounts,
+import { type CitizenCounts,
   totalPopulation,
   effectiveFoodMouths,
   founderCitizens,

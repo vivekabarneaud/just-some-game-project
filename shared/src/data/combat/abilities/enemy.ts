@@ -3,6 +3,7 @@ import { calcDamageResult } from "../damage.js";
 import { getAttackPower, derivedDamageRange } from "../stats.js";
 import { getEnemy } from "../../enemies.js";
 import { reachOf, paceGap } from "../positional.js";
+import { resolveAI } from "../ai/profile.js";
 import type { CombatContext, CombatUnit } from "../types.js";
 
 /** Damage-ability effect types that must respect reach (a bite/spit can't cross
@@ -120,7 +121,7 @@ export function tryEnemyAbility(unit: CombatUnit, ctx: CombatContext): boolean {
         const power = eff.magical ? unit.int : unit.str;
         const baseDmg = Math.floor(power * eff.pct / 100);
         const hits = reachTargets.map((t) => {
-          const def = eff.magical ? t.wis * 3 : (t.isEnemy ? t.vit * 3 : t.gearDefense);
+          const def = eff.magical ? t.wis * 3 : (t.gearDefense);
           const reduction = def / (def + 150);
           const dmg = Math.max(1, Math.floor(baseDmg * (1 - reduction)));
           t.hp -= dmg;
@@ -287,7 +288,7 @@ export function tryEnemyAbility(unit: CombatUnit, ctx: CombatContext): boolean {
         const summonDef = getEnemy(eff.enemyId);
         if (!summonDef) continue;
         for (let s = 0; s < eff.count; s++) {
-          const summonHp = summonDef.stats.vit * 10;
+          const summonHp = summonDef.hp;
           const summonRange = (summonDef.dmgMin != null && summonDef.dmgMax != null)
             ? { min: summonDef.dmgMin, max: summonDef.dmgMax }
             : derivedDamageRange(Math.max(summonDef.stats.str, summonDef.stats.dex));
@@ -299,7 +300,7 @@ export function tryEnemyAbility(unit: CombatUnit, ctx: CombatContext): boolean {
             str: summonDef.stats.str,
             dex: summonDef.stats.dex,
             int: summonDef.stats.int,
-            vit: summonDef.stats.vit,
+            vit: 0,
             wis: summonDef.stats.wis ?? 0,
             class: undefined,
             isMagical: summonDef.tags.includes("magical") || summonDef.tags.includes("demon"),
@@ -308,8 +309,7 @@ export function tryEnemyAbility(unit: CombatUnit, ctx: CombatContext): boolean {
             enemyTags: summonDef.tags,
             enemyDefId: summonDef.id,
             canAct: true, canBeHealed: true, isTauntable: true,
-            aiTier: summonDef.aiTier ?? "tactical",
-            tauntImmunity: summonDef.tauntImmunity ?? "none",
+            ai: resolveAI({ ai: summonDef.ai, routsAt: summonDef.routsAt }),
             threatTable: {},
             cooldowns: {}, slowed: 0, poisonTicks: [], statDebuffs: [],
           });

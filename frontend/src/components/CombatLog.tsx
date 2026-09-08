@@ -114,6 +114,11 @@ const BEAT_STYLE: Record<string, { color: string; bg: string; weight: string }> 
   order_hold:     { color: "var(--accent-gold)", bg: "rgba(212, 175, 55, 0.10)", weight: "600" },
   order_fallback: { color: "#d4831a",            bg: "rgba(212, 131, 26, 0.12)", weight: "700" },
   broken:         { color: "#d4831a",            bg: "rgba(212, 131, 26, 0.08)", weight: "600" },
+  // ROUT_AND_FLIGHT: the nerve going. `turns_tail` is the moment it breaks and
+  // starts running (still catchable — amber, like `broken`); `yields` is a
+  // person laying down arms, which is a quieter, colder thing than a rout.
+  turns_tail:     { color: "#d4831a",            bg: "rgba(212, 131, 26, 0.10)", weight: "600" },
+  yields:         { color: "var(--text-secondary)", bg: "rgba(255,255,255,0.06)", weight: "600" },
   flee_success:   { color: "var(--accent-green)",bg: "rgba(46, 204, 113, 0.10)", weight: "600" },
   flee_fail:      { color: "var(--accent-red)",  bg: "rgba(231, 76, 60, 0.08)",  weight: "500" },
   abandoned:      { color: "var(--accent-red)",  bg: "rgba(231, 76, 60, 0.14)",  weight: "700" },

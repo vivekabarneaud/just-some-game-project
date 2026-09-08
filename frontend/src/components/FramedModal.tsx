@@ -56,11 +56,6 @@ export default function FramedModal(props: {
                   <div style={{ position: "absolute", inset: "0", background: "linear-gradient(to top, rgba(0,0,0,0.7), rgba(0,0,0,0.1))" }} />
                 </div>
               </Show>
-              <button
-                onClick={close}
-                title="Close"
-                style={{ position: "absolute", top: "26px", right: "26px", background: "rgba(0,0,0,0.4)", border: "none", color: "var(--text-secondary)", "font-size": "1.2rem", cursor: "pointer", "line-height": 1, width: "28px", height: "28px", "border-radius": "0", "z-index": "6" }}
-              >✕</button>
               <div style={{ display: "flex", "align-items": "center", gap: "12px", padding: props.image ? "14px 28px" : "24px 28px 14px", ...(props.image ? { position: "absolute", bottom: "0", left: "0", right: "0" } : {}) }}>
                 <Show when={!props.image && props.icon}>
                   <div style={{ "font-size": "2rem" }}>{props.icon}</div>
@@ -79,6 +74,18 @@ export default function FramedModal(props: {
 
           {/* Gold ornament frame, drawn OVER the edges (banner bleeds underneath). */}
           <CardFrame rarity="uncommon" border={20} bottomFade={scrollable()} />
+
+          {/* The ✕ lives OUT here, a sibling of the scroller rather than inside
+              it. It used to sit in the header, which is inside the
+              `overflow: auto` box — so on a tall modal it scrolled out of reach
+              and you had to scroll back up to close. Anchored to the shell it
+              stays put, and being after CardFrame it paints over the frame. */}
+          <button
+            onClick={close}
+            title="Close"
+            aria-label="Close"
+            style={{ position: "absolute", top: "26px", right: "26px", background: "rgba(0,0,0,0.4)", border: "none", color: "var(--text-secondary)", "font-size": "1.2rem", cursor: "pointer", "line-height": 1, width: "28px", height: "28px", "border-radius": "0", "z-index": "7" }}
+          >✕</button>
         </div>
       </div>
     </Portal>

@@ -1,7 +1,7 @@
 // ─── Cooking → the mission-pack facet ───────────────────────────────────────
 // What a packed dish does for an adventurer on the road. Mild, per the design:
 // nourishment → a well-fed HP bonus (same scale as the fixed foods); comfort →
-// a small loyalty gain (you fed them well). See docs/DESIGN_KITCHEN.md §effects.
+// a small loyalty gain (you fed them well). See docs/IDEAS.md (Kitchen).
 
 import type { DishEffect } from "./types.js";
 
@@ -17,7 +17,6 @@ const amountOf = (effects: DishEffect[], channel: DishEffect["channel"]) =>
 
 /** Resolve a dish's boons for a mission pack. hpBonus ≈ nourishment (mild — the
  *  fixed foods give +5 to +10); loyalty ≈ comfort / 3 (a nudge, not a grind).
- *
  *  FUTURE (deferred — needs high-tier content to tune): make hpBonus EVOLUTIVE so
  *  a good meal still matters at high level. Plan: scale by the eater's max HP /
  *  level and DISPLAY the actual scaled number (stays a concrete value, not a %,

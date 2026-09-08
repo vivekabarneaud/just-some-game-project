@@ -1,12 +1,11 @@
 // ─── Tavern: hospitality mechanics ──────────────────────────────
-// Phase 1-2 of the tavern rework (docs/DESIGN_TAVERN.md). The economy loop:
+// Phase 1-2 of the tavern rework (docs/IDEAS.md (Tavern & merchants)). The economy loop:
 //   staffing (adult servers, shared with the garrison pool) gates whether beds
 //   can be served; pricing trades occupancy for margin; reputation (the tavern's
 //   own bar) raises the occupancy ceiling. Numbers are placeholder — tune to
 //   play. `calcTavern` is the single source of truth for the tick and the page.
 
-import {
-  getSettlementTier, type SettlementTier,
+import { getSettlementTier, type SettlementTier,
   ALE_PRODUCTION_PER_BREWERY_LEVEL, ALE_FOOD_COST_PER_BREWERY_LEVEL, ALE_CONSUMED_PER_TAVERN_LEVEL, ALE_STORAGE_BASE, ALE_STORAGE_PER_BREWERY_LEVEL,
   MEAD_PRODUCTION_PER_BREWERY_LEVEL, MEAD_HONEY_COST_PER_BREWERY_LEVEL, MEAD_CONSUMED_PER_TAVERN_LEVEL, MEAD_STORAGE_BASE, MEAD_STORAGE_PER_BREWERY_LEVEL,
   CIDER_PRODUCTION_PER_BREWERY_LEVEL, CIDER_APPLE_COST_PER_BREWERY_LEVEL, CIDER_CONSUMED_PER_TAVERN_LEVEL, CIDER_STORAGE_BASE, CIDER_STORAGE_PER_BREWERY_LEVEL,
@@ -94,7 +93,7 @@ export function menuCapacity(level: number): number {
 }
 
 /** Gold per occupied room per game-day, before the pricing margin (placeholder). */
-export const TAVERN_GOLD_PER_ROOM_PER_DAY = 5;
+const TAVERN_GOLD_PER_ROOM_PER_DAY = 5;
 
 /** How fast reputation eases toward the current service quality (points/game-hour). */
 export const REPUTATION_DRIFT_PER_HOUR = 1.5;
@@ -130,7 +129,7 @@ const clamp01 = (x: number) => Math.max(0, Math.min(1, x));
 
 /** Reputation raises the ceiling on occupancy: at 0 rep only half the beds ever
  *  fill; a renowned tavern (100) can fill them all. */
-export function reputationCeiling(reputation: number): number {
+function reputationCeiling(reputation: number): number {
   return 0.5 + (Math.max(0, Math.min(100, reputation)) / 100) * 0.5; // 0.5 .. 1.0
 }
 

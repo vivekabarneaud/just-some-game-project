@@ -105,17 +105,17 @@ Supporting build: durable `missionCompletions` tally + `MissionRequirements.miss
 ## Open threads / TBD
 - **The dark descent is design-locked but UNBUILT.** Banked 2026-06-22, post-alpha.
 - **NOT yet built:** the discovery/scout-report epilogue on `marsh_clearing`; the **"The Cabin in the Reeds"** follow-up mission; the deeper offering drift (coin / grave-dust / `soul_shard` / a named thing); the side-chronicle vignettes + the **letter-quoting** in the journal; the **founder-memory vignette** system (Edda's prayer); the **offering→peaceful** tradeoff beat (mechanic B, post-reveal); the final kill mission; the later **ally-return** beat.
-- **Stale placeholder to reconcile:** the existing apprentice mission **`bog_witch_lair` ("The Bog Witch's Lair")** is a generic "end this" kill quest that **predates** the Aldith/Ada narrative and contradicts its tone (linear-merciful, name-the-grief). Flag: when the chain is built, either retire/rework `bog_witch_lair` or fold it in, so there is one canonical Bog Witch, not two.
+- **~~Stale placeholder to reconcile~~ — RESOLVED 2026-08-31.** The conflicting apprentice mission `bog_witch_lair` ("The Bog Witch's Lair") is **gone**, deleted in the apprentice-tier cull, and the `bog_witch` enemy is a commented-out `STASHED` block in `enemies.ts` kept for exactly this remake. So there is no longer a second, tonally wrong Bog Witch to reconcile: the field is clear, and whatever this chain builds is the only one. Her mechanical body has to be re-authored from the stashed block when the descent is built.
 - **Fenbalm PAIR (banked):** a recurring "gather at the fen" chore (unlocks via `missionDone: marsh_clearing`) **and** a Fenbalm remedy recipe (winter-fever / deep-cough) — build together when alchemy is touched. **Post-chain, the fen-gather is adders only** (revenants gone with her).
 - **Reward TBD:** recipe vs Greymantle vs small boon for completing the chain.
 - **Dependencies:** offering/`deployItems` mechanic (A, BUILT — live on Greyford) → build the offering tradeoff (B) on top; chronicle letter-quoting; founder-memory vignettes. A proper **Niamh / Primal ward** to fully quiet the marsh edge is an **optional later callback** (like the spring), not needed for alpha.
 - **Branch (dropped for now):** an earlier "small choice to bring her back / try to reach her and fail" needs choice-plumbing; ship **linear** first.
 
 ## Cross-refs
-- **Design (primary source):** `docs/DESIGN_SIDE_STORIES.md` — "Prototype chain — The Bog Witch" and the "Aldith & Ada" sections (all of it consolidated here).
-- **Lore:** `docs/LORE_TIMELINE.md` — Hollow magic, "contain, don't cleanse," the thinning vs the Wastes, death-in-the-thinning (voice-population), broken-ward = revert-to-thinning.
+- **Design (primary source):** the retired side-stories doc (in git) — "Prototype chain — The Bog Witch" and the "Aldith & Ada" sections (all of it consolidated here).
+- **Lore:** `docs/lore/TIMELINE.md` — Hollow magic, "contain, don't cleanse," the thinning vs the Wastes, death-in-the-thinning (voice-population), broken-ward = revert-to-thinning.
 - **Magic rules memory:** `[[project_magic_rules]]` (resurrection-via-sacrifice = the path Halldora refused → Cult; casters carry their own power; priests = unwitting Light/Solara).
 - **Code:** `shared/src/data/missions/sideChainMissions.ts` (`marsh_clearing`); `shared/src/data/herbs.ts` (`fenbalm`, marsh-only); `shared/src/data/enemies.ts` (`bog_witch`, `marsh_adder`, `swamp_revenant`); `shared/src/data/missions/apprenticeMissions.ts` (`bog_witch_lair` — stale placeholder, see TBD).
 - **Cast:** `[[founder_edda]]`, `[[founder_nell]]`, `[[founder_the_lord]]`.
-- **Sibling chains:** the Tainted Spring / boar chain (same "thinning into the everyday" family) — `docs/DESIGN_SIDE_STORIES.md`, `docs/DESIGN_ACT1_SETTING.md`.
-- **Founder bios:** `docs/FOUNDING_CHARACTERS.md` (Edda's Mira/Mae loss, '47 fever).
+- **Sibling chains:** the Tainted Spring / boar chain (same "thinning into the everyday" family) — the retired side-stories doc (in git), `design/world/ACT1_SETTING.md`.
+- **Founder bios:** `docs/lore/FOUNDERS.md` (Edda's Mira/Mae loss, '47 fever).

@@ -1,6 +1,6 @@
 // ─── Free-form alchemy — the brew engine ────────────────────────────────────
 // Pure + deterministic (no RNG → stable live preview): placements in, a summed,
-// capped BrewResult out. See docs/DESIGN_APOTHECARY.md. Wildcard "risk" is baked
+// capped BrewResult out. See docs/IDEAS.md (Alchemy) for what's still unbuilt. Wildcard "risk" is baked
 // into the ingredient data (a wildcard contributes its own downside), so the
 // engine stays deterministic while combos still surprise.
 
@@ -59,8 +59,6 @@ const CAP: Partial<Record<EffectChannel, number>> = {
 };
 const DEFAULT_CAP = 50;
 
-/** Channels the engine treats as catalyst MODIFIERS, not summed output. */
-const MODIFIER_CHANNELS = new Set<EffectChannel>(["amplify", "extend"]);
 
 // diminish() lives in ../craft/placements.js (shared with the kitchen cook
 // engine): the biggest contribution counts full, each further one counts less.

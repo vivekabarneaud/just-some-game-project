@@ -1,7 +1,6 @@
 import { createSignal, createMemo, For, Show, onMount } from "solid-js";
 import { useGame } from "~/engine/gameState";
-import {
-  FOUNDING_CHARACTERS,
+import { FOUNDING_CHARACTERS,
   getFragmentsForCharacter,
   type FoundingCharacter,
 } from "~/data/founding_characters";

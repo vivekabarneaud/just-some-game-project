@@ -29,7 +29,7 @@ export default function Lightning() {
   const { state } = useGame();
   const [flash, setFlash] = createSignal(0);
 
-  const weather = () => resolveCurrentWeather(state.season, state.seasonElapsed, state.year);
+  const weather = () => resolveCurrentWeather(state);
   const stormKind = (): "storm" | "aether" | null => {
     const w = weather();
     if (w === "storm") return "storm";

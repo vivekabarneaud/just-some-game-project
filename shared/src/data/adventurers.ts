@@ -299,7 +299,7 @@ export interface ArrivalContext {
   guildBuilt: boolean;
   completedStoryMissions: readonly string[];
   completedQuests: readonly string[];
-  /** Unique/side-chain missions completed (e.g. Hester's "hester_rescue"). */
+  /** Unique/side-chain missions completed (e.g. Hester's "run_down"). */
   completedUniqueMissionIds: readonly string[];
   builtBuildingIds: ReadonlySet<string>;
   /** premadeId -> highest loyalty among recruited instances of that character */
@@ -591,7 +591,7 @@ export interface DeathRecord {
 /** A lingering wound carried home from combat. Blocks passive HP regen while
  *  present; decays over game-time (see applyTicks). `remainingRounds` is the
  *  DoT's remaining duration at the moment combat ended — it future-proofs the
- *  banked "decay over real time" refinement (see DESIGN_RECOVERY_AND_RETREAT). */
+ *  banked "decay over real time" refinement (see docs/IDEAS.md (Adventurer recovery)). */
 export interface AdventurerCondition {
   /** "froth" is the rabid-boar bite-sickness: unlike the bleed/poison DoTs it
    *  does NOT fade on its own — it worsens (drains HP toward a KO floor) and
@@ -630,6 +630,9 @@ export interface Adventurer {
     cloak: string | null;
     mainHand: string | null;
     offHand: string | null;
+    /** Belt-carried backup weapon (Combat Foundation §3) — the fallback when the
+     *  primary's range band doesn't fit. Optional key: absent on older saves. */
+    sidearm?: string | null;
     ring1: string | null;
     ring2: string | null;
     amulet: string | null;
@@ -683,12 +686,34 @@ export const CLASS_BASE_STATS: Record<AdventurerClass, AdventurerStats> = {
   assassin:{ str: 8, int: 4, dex: 9, vit: 5, wis: 2 },
 };
 
+/**
+ * Per-level stat growth. **+2 to the pair that defines the class, +1 to the
+ * rest** — about 7 points a level, down from ~15 (2026-09-04).
+ *
+ * WHY IT WAS CUT IN HALF. `STAT_POINTS_PER_LEVEL` below says "gear is the main
+ * customization", but the numbers said otherwise: the best tier-1 weapon in the
+ * game (`enchanted_staff`) carries +6 stat points, a steel sword +4, while ONE
+ * LEVEL carried +15. Levelling was worth two-and-a-half of your best weapons,
+ * so gear could never be the interesting choice. A steel sword is now worth two
+ * levels instead of two-thirds of one.
+ *
+ * It also fixes pacing: warrior HP grew 64 -> 824 over twenty levels (13x), so
+ * you outgrew a whole enemy tier in about two levels. Now 64 -> 368 (5.75x),
+ * which is four or five levels per tier.
+ *
+ * ⚠ KNOWN GAP, accepted deliberately (user call): this thins what a level GIVES
+ * you, and the other two things it is supposed to give are not built yet — 155
+ * talent nodes exist and the combat engine reads NONE of them, and `statReq` on
+ * items is declared but authored by zero items. So for now a level is mostly
+ * talent points that do nothing. Filed in TECH_DEBT; the gap is the motivation
+ * to build the trees.
+ */
 export const CLASS_STAT_GROWTH: Record<AdventurerClass, AdventurerStats> = {
-  warrior: { str: 6, int: 1, dex: 2, vit: 5, wis: 1 },
-  wizard:  { str: 1, int: 7, dex: 1, vit: 2, wis: 4 },
-  priest:  { str: 1, int: 5, dex: 1, vit: 4, wis: 4 },
-  archer:  { str: 2, int: 2, dex: 6, vit: 3, wis: 1 },
-  assassin:{ str: 4, int: 2, dex: 6, vit: 2, wis: 1 },
+  warrior: { str: 2, int: 1, dex: 1, vit: 2, wis: 1 }, // the wall: hits and holds
+  wizard:  { str: 1, int: 2, dex: 1, vit: 1, wis: 2 }, // the mind: power and resistance
+  priest:  { str: 1, int: 2, dex: 1, vit: 2, wis: 1 }, // heals (INT) and endures
+  archer:  { str: 1, int: 1, dex: 2, vit: 1, wis: 1 }, // precision above all
+  assassin:{ str: 2, int: 1, dex: 2, vit: 1, wis: 1 }, // precision AND a real edge
 };
 
 /** Stat points gained per level that player can allocate */
@@ -727,12 +752,6 @@ export function getXpForLevel(level: number): number {
   return Math.floor(15 * Math.pow(1.5, level - 1));
 }
 
-/** Total XP accumulated across all levels */
-export function getTotalXpForLevel(level: number): number {
-  let total = 0;
-  for (let i = 1; i < level; i++) total += getXpForLevel(i);
-  return total;
-}
 
 /** XP gained from a mission */
 export function getMissionXp(difficulty: number, success: boolean): number {
@@ -776,7 +795,6 @@ export function applyXp(adv: Adventurer, xpGain: number): { leveled: boolean; ra
 
 // ─── Portrait system ────────────────────────────────────────────
 
-export const CDN_CHARS_PLACEHOLDER_DELETED = true; // marker for deletion below
 
 
 // ─── Portrait system ────────────────────────────────────────────
@@ -822,14 +840,6 @@ export function getCharacterSummary(premadeId?: string): string | undefined {
   return m ? m[0].trim() : bio;
 }
 
-/** Pick a premade character not already in use, optionally filtered by origin. */
-function pickPremadeCharacter(usedNames?: Set<string>, allowedOrigins?: Set<Origin>): PremadeCharacter | null {
-  let pool: PremadeCharacter[] = PREMADE_CHARACTERS.filter((c) => !c.questOnly);
-  if (allowedOrigins) pool = pool.filter((c) => allowedOrigins.has(c.origin));
-  if (usedNames) pool = pool.filter((c) => !usedNames.has(c.name));
-  if (pool.length === 0) return null;
-  return pool[Math.floor(Math.random() * pool.length)];
-}
 
 /** Pick a weighted random backstory trait */
 function pickTrait(): BackstoryTrait {
@@ -842,17 +852,6 @@ function pickTrait(): BackstoryTrait {
   return BACKSTORY_TRAITS[BACKSTORY_TRAITS.length - 1];
 }
 
-/** Gold cost to recruit an adventurer based on their rank */
-export function getRecruitCost(rank: AdventurerRank): number {
-  const COSTS: Record<AdventurerRank, number> = {
-    1: 25,
-    2: 75,
-    3: 200,
-    4: 500,
-    5: 1200,
-  };
-  return COSTS[rank];
-}
 
 /** Per-adventurer deploy wage by rank — the cost to send one hero on a mission
  *  (supplies + pay). Deploy cost is the sum over the deployed team, so a bigger
@@ -895,17 +894,19 @@ function starterEquipment(premade: PremadeCharacter): Adventurer["equipment"] {
 }
 
 /** Build an Adventurer from a premade character definition */
-function buildAdventurerFromPremade(id: string, premade: PremadeCharacter, maxRank: AdventurerRank): Adventurer {
+function buildAdventurerFromPremade(id: string, premade: PremadeCharacter, atLevel: number): Adventurer {
   const quirk = PERSONALITY_QUIRKS[Math.floor(Math.random() * PERSONALITY_QUIRKS.length)];
   const trait = premade.trait ?? pickTrait().id;
 
-  let rank: AdventurerRank = 1;
-  const roll = Math.random();
-  if (maxRank >= 5 && roll > 0.97) rank = 5;
-  else if (maxRank >= 4 && roll > 0.90) rank = 4;
-  else if (maxRank >= 3 && roll > 0.75) rank = 3;
-  else if (maxRank >= 2 && roll > 0.50) rank = 2;
-  const level = Math.max(1, RANK_LEVEL_THRESHOLDS[rank] - 1);
+  // Built AT a level; the rank follows from it. This used to take a `maxRank`
+  // and ROLL Math.random() against it — a leftover of the random-recruitment
+  // subsystem deleted 2026-08-31 (generateCandidate, getMaxRecruitRank et al).
+  // Nothing in the game ever used it: every production caller passes 1, and the
+  // dev page's own control is called `level()`. What it did do was make the
+  // builder non-deterministic AND unseedable — it used Math.random(), not
+  // combatRandom() — so every combat test silently built a team of random
+  // strength (a "rank 3" hero came out level 1, 3 or 7).
+  const level = Math.max(1, Math.floor(atLevel));
   const actualRank = getRankForLevel(level);
 
   const adv: Adventurer = {
@@ -935,62 +936,16 @@ function buildAdventurerFromPremade(id: string, premade: PremadeCharacter, maxRa
   return adv;
 }
 
-/** Generate an adventurer candidate from the premade pool. Pass guildLevel
- *  to gate the origin pool by settlement fame (Lv.1 = local only, Lv.5 = all),
- *  completedStoryMissions to apply story-gated unlocks (e.g. Feldgrund
- *  recruits appear once story 6 is done), and completedQuests to apply
- *  quest-gated unlocks (e.g. Silvaneth recruits after Watch the Walls). */
-export function generateCandidate(
-  id: string,
-  maxRank: AdventurerRank = 2,
-  usedNames?: Set<string>,
-  guildLevel = 5,
-  completedStoryMissions: readonly string[] = [],
-  completedQuests: readonly string[] = [],
-): Adventurer {
-  const allowed = new Set(getOriginsForGuildLevel(guildLevel, completedStoryMissions, completedQuests));
-  const premade = pickPremadeCharacter(usedNames, allowed);
-  if (premade) return buildAdventurerFromPremade(id, premade, maxRank);
-  // Origin-pool exhaustion: fall back to any allowed-origin char even if name reused
-  const browsable = PREMADE_CHARACTERS.filter((c) => !c.questOnly);
-  const allowedPool = browsable.filter((c) => allowed.has(c.origin));
-  const fallback = allowedPool.length > 0
-    ? allowedPool[Math.floor(Math.random() * allowedPool.length)]
-    : browsable[Math.floor(Math.random() * browsable.length)];
-  return buildAdventurerFromPremade(id, fallback, maxRank);
-}
 
 /** Build a specific premade as a roster-ready adventurer (for quest-unlock recruits). */
-export function buildRecruitFromPremadeId(advId: string, premadeId: string, rank: AdventurerRank = 1): Adventurer | null {
+/** Build a named premade as a roster-ready adventurer AT a given level (rank is
+ *  derived). Arrivals are scripted now, so every production caller passes 1. */
+export function buildRecruitFromPremadeId(advId: string, premadeId: string, atLevel = 1): Adventurer | null {
   const premade = PREMADE_CHARACTERS.find((c) => c.id === premadeId);
-  return premade ? buildAdventurerFromPremade(advId, premade, rank) : null;
+  return premade ? buildAdventurerFromPremade(advId, premade, atLevel) : null;
 }
 
-/** Max adventurer rank available — based on guild level AND average top-3 adventurer levels */
-export function getMaxRecruitRank(guildLevel: number, adventurers?: Adventurer[]): AdventurerRank {
-  // Guild level sets the hard cap
-  const guildCap: AdventurerRank = guildLevel >= 5 ? 5 : guildLevel >= 4 ? 4 : guildLevel >= 3 ? 3 : guildLevel >= 2 ? 2 : 1;
 
-  if (!adventurers || adventurers.length === 0) return Math.min(guildCap, 1) as AdventurerRank;
-
-  // Average level of top 3 adventurers determines soft cap
-  const sorted = [...adventurers].filter((a) => a.alive).sort((a, b) => b.level - a.level);
-  const top3 = sorted.slice(0, 3);
-  const avgLevel = top3.reduce((sum, a) => sum + a.level, 0) / top3.length;
-
-  let levelCap: AdventurerRank = 1;
-  if (avgLevel >= 16) levelCap = 5;
-  else if (avgLevel >= 10) levelCap = 4;
-  else if (avgLevel >= 6) levelCap = 3;
-  else if (avgLevel >= 3) levelCap = 2;
-
-  return Math.min(guildCap, levelCap) as AdventurerRank;
-}
-
-/** Number of recruitment candidates shown per refresh */
-export function getCandidateCount(guildLevel: number): number {
-  return Math.min(2 + guildLevel, 6); // 3 at Lv1, up to 6
-}
 
 /** Max roster size based on guild level */
 export function getMaxRoster(guildLevel: number): number {
@@ -999,5 +954,3 @@ export function getMaxRoster(guildLevel: number): number {
 
 // ─── Recruitment refresh interval (game-hours) ──────────────────
 
-export const RECRUIT_REFRESH_HOURS = 6; // ~1 real day with 4-day seasons
-export const MISSION_REFRESH_HOURS = 6; // ~1 real day with 4-day seasons

@@ -27,14 +27,14 @@ const [toasts, setToasts] = createSignal<Toast[]>([]);
 let nextId = 1;
 
 /** Push a toast onto the stack. Returns its id so callers can dismiss it early. */
-export function showToast(t: Omit<Toast, "id">): number {
+function showToast(t: Omit<Toast, "id">): number {
   const id = nextId++;
   const toast: Toast = { duration: 10000, accent: "var(--accent-gold)", ...t, id };
   setToasts((prev) => [...prev, toast]);
   return id;
 }
 
-export function dismissToast(id: number): void {
+function dismissToast(id: number): void {
   setToasts((prev) => prev.filter((t) => t.id !== id));
 }
 

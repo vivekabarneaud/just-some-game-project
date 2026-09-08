@@ -5,7 +5,7 @@
 - **Class / Race / Origin:** Archer / Human / Ashwick
 - **Food preference:** sweet *(his mother's sweet things, shared with Nessa)*
 - **Trait(s):** none assigned yet (TBD)
-- **Family:** Middle child, eldest son; brother of Nessa and Godric. See [thornwood-family.md](thornwood-family.md).
+- **Family:** Middle child, eldest son; brother of Nessa and Godric. See [cast/thornwood-family.md](cast/thornwood-family.md).
 
 ## Recruit-card bio (public surface)
 > Gareth went for a soldier before the bad winter came, the eldest son sending coin home to a farm that could not feed three, and he was good at it, the marching and the bow both, the best shot in his company. He was away on the northern marches when the winter took his father and the land, and he has never forgiven himself the distance. Then his company was sent to make an example of a border village said to shelter Nordveld raiders, and because he was the best bow they handed him the worst task: to ring the place and put down anyone who ran from the fire. He would not turn his aim on fleeing families who looked exactly like his own. He let them scatter into the dark, saved not one soul he could name, and walked, which makes him a deserter the Crown would hang. He keeps the company's tin badge in his boot, not from loyalty but because throwing it out would mean deciding what that day meant. He laughs easily and starts fights over anyone being pushed around; his sister says those are the same thing in him.
@@ -27,7 +27,7 @@
 - Best marksman of the three. The badge in the boot. Sweet tooth.
 
 ## Combat identity & talents (parked 2026-06-29)
-**Archetype: Elite Marksman / Sharpshooter (archer) — the disciplined soldier-bow.** Big **single-target** damage, **focus-fire** (rarely switches targets), **high crit, low miss, armor-pierce**, and uniquely a **heavier archer** (can wear chainmail — the trained soldier survives the front, unlike Nessa's light woodland kit). His "starts fights over anyone pushed around" bleeds into a **peel / cover-the-weak** angle. Talent model = Godric's template (see [godric-thornwood.md](godric-thornwood.md)).
+**Archetype: Elite Marksman / Sharpshooter (archer) — the disciplined soldier-bow.** Big **single-target** damage, **focus-fire** (rarely switches targets), **high crit, low miss, armor-pierce**, and uniquely a **heavier archer** (can wear chainmail — the trained soldier survives the front, unlike Nessa's light woodland kit). His "starts fights over anyone pushed around" bleeds into a **peel / cover-the-weak** angle. Talent model = Godric's template (see [cast/godric-thornwood.md](cast/godric-thornwood.md)).
 **Tree layout (2026-06-29):**
 - *Signature passive (free, L1):* **Focused Aim** — each consecutive turn he attacks the *same* target, +damage (stacks; resets on switch). His "rarely switches targets" discipline.
 - **Tier 1 — Foundations** (minors): **Steady Hand** (+crit/rank), **Bowman's Strength** (+single-target dmg/rank).
@@ -45,4 +45,4 @@
 - Assign a backstory trait.
 
 ## Cross-refs
-- [thornwood-family.md](thornwood-family.md); `premade-characters.ts` char_005; `LORE_TIMELINE.md` (Nordveld, the northern war).
+- [cast/thornwood-family.md](cast/thornwood-family.md); `premade-characters.ts` char_005; `lore/TIMELINE.md` (Nordveld, the northern war).

@@ -3,7 +3,7 @@
 - **Recruit ID:** char_029
 - **Portrait file:** `alaric_stonebridge` — **MISMATCH:** asset keeps the old name; the picture is the one the user pictures as Magnus. Rename asset or accept (same as Hester / Sable).
 - **Class / Race / Origin:** Wizard / Human / Ashwick
-- **Age:** ~20 *(his brother Aldwin is ~35; the ~15-year gap means Aldwin all but raised him — see [aldwin-stonebridge.md](aldwin-stonebridge.md))*
+- **Age:** ~20 *(his brother Aldwin is ~35; the ~15-year gap means Aldwin all but raised him — see [cast/aldwin-stonebridge.md](cast/aldwin-stonebridge.md))*
 - **Food preference:** fresh
 - **Trait(s):** TBD — leaning a bespoke "raw prodigy" direction (high power, shaky control) over plain `quick_learner`.
 - **Family:** Younger brother of **Aldwin Stonebridge** (char_017). **Parents alive but left behind** — see Family, below.
@@ -32,10 +32,10 @@
 
 ## Relationships
 - **Aldwin** — brother and the man who raised him; won't let him leave to "spare" him. The bond is the spine of both characters.
-- **The dramatic irony he can't see:** Aldwin does magic too (unwitting Light/Solara healing) — they're the same force (aether), sorted by the Church into "holy" and "damned." (See Aldwin's file + `LORE_TIMELINE.md`.)
+- **The dramatic irony he can't see:** Aldwin does magic too (unwitting Light/Solara healing) — they're the same force (aether), sorted by the Church into "holy" and "damned." (See Aldwin's file + `lore/TIMELINE.md`.)
 
 ## Combat identity & talents (parked 2026-06-29)
-**Archetype: the caged firestorm (wizard) — restraint vs unleash.** Default = he **throttles** himself: small, controlled, *low-attention* magic (makes himself small, stays hidden). **Unleash** is a deliberate, devastating choice he only takes **when it's safe — when the enemies' attention is elsewhere** (mechanically: when his own threat/aggro is low because Godric/Gareth hold the line). So he's a **team payoff**: the tank pulls eyes, Aldwin shields his back, *then* the boy levels the field. The firestorm needs cover — the brothers' whole life in one mechanic. Talent model = Godric's template (see [godric-thornwood.md](godric-thornwood.md)).
+**Archetype: the caged firestorm (wizard) — restraint vs unleash.** Default = he **throttles** himself: small, controlled, *low-attention* magic (makes himself small, stays hidden). **Unleash** is a deliberate, devastating choice he only takes **when it's safe — when the enemies' attention is elsewhere** (mechanically: when his own threat/aggro is low because Godric/Gareth hold the line). So he's a **team payoff**: the tank pulls eyes, Aldwin shields his back, *then* the boy levels the field. The firestorm needs cover — the brothers' whole life in one mechanic. Talent model = Godric's template (see [cast/godric-thornwood.md](cast/godric-thornwood.md)).
 - **Magic = a mix of pure Aether + Wind** (user call, 2026-06-29). Both are real combat elements (`elemental_aether`, `elemental_wind`) and both are *invisible*, so his restraint/unleash is **doubly literal**: nothing to see until the storm lands (a draft draws no eye; a gale can't be hidden). **Aether is neutral** — the raw substrate of *all* magic (LORE_TIMELINE: "all magic flows from the Aether") — which fits his early, raw, can't-be-hidden power; **Wind** gives it form and motion. NB: the *corruption* is **Hollow** magic (dead/stagnant Aether — the Cult, the Wastes), nothing to do with Magnus; he channels *living, raw* Aether shaped as wind. Default small/unseen; the unleash is a visible storm.
 - *Signature mechanic — Restraint / Unleash:* low, safe output by default; an **Unleash** (big AoE storm) that fires when his threat is low / he's unobserved, **loyalty-gated** (he only dares cut loose for people he trusts).
 - *Prodigy-control arc:* very high raw power, shaky control early → *gains* control as he levels / with loyalty (Bede's lessons finally taking root) — a literal wild-to-disciplined arc.
@@ -51,7 +51,7 @@
 
 ## The pair (with Aldwin) — codependency
 - **Aldwin alive + near → Magnus dares to unleash** (he feels safe). **Aldwin falls → Magnus breaks**: a wild uncontrolled surge, or he panics and shuts down. Losing the brother unmakes him.
-- Aldwin shields/heals Magnus **first**, so the firestorm survives to fire. They are only whole together. See [aldwin-stonebridge.md](aldwin-stonebridge.md), [stonebridge-arrival.md](stonebridge-arrival.md).
+- Aldwin shields/heals Magnus **first**, so the firestorm survives to fire. They are only whole together. See [cast/aldwin-stonebridge.md](cast/aldwin-stonebridge.md), [cast/stonebridge-arrival.md](cast/stonebridge-arrival.md).
 
 ## Who he'll travel with — the secrecy constraint (mechanic, 2026-07-27)
 A mission-team restriction that makes his hunted-ness *tangible* and turns loyalty into a real lever. **Magnus will not go out alongside an untrusted Ashwick companion** — Ashwick is the witch-fearing, Inquisition-reached culture he fled (common Ashwick are raised on witch-dread; the Inquisition's reach is strongest there). Outing him to a stranger from *that* stock could get him burned like Bede. It's a mechanical echo of "be a sparrow."
@@ -76,4 +76,4 @@ So early game (roster mostly untrusted Ashwick) he's **alone or with Aldwin** �
 - A **control arc** (wild → disciplined) tied to loyalty/leveling.
 
 ## Cross-refs
-- `premade-characters.ts` char_029; `LORE_TIMELINE.md` (the three magic traditions; the Doctrine); aldwin-stonebridge.md.
+- `premade-characters.ts` char_029; `lore/TIMELINE.md` (the three magic traditions; the Doctrine); cast/aldwin-stonebridge.md.

@@ -2,7 +2,6 @@ import type { MissionTemplate } from "./types.js";
 
 /**
  * Side-story chain missions.
- *
  * These are gated narrative beats (linked by `requires.missionDone` and story
  * gates), NOT generic tier content. They live here, out of the NOVICE/APPRENTICE/…
  * arrays, on purpose:
@@ -14,8 +13,7 @@ import type { MissionTemplate } from "./types.js";
  *     appearance filter (a ★★★ beat won't surface until the team is strong
  *     enough). So a chain can escalate freely without being mis-filed under a tier.
  *   - Every beat carries `sideChain { id, name }` → the teal frame + banner.
- *
- * Add new chains here. See docs/DESIGN_ACT1_SETTING.md + docs/DESIGN_SIDE_STORIES.md.
+ * Add new chains here. See docs/design/world/ACT1_SETTING.md.
  */
 export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
   // ── Quarry-spider gate (the "dig deeper, wake worse things" loop). These are
@@ -24,9 +22,9 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
   //    while quarry.level > quarrySpidersClearedLevel, and the quarry yields at the
   //    previous level until it's cleared. Short duration — it's right in the pit.
   //    XP-only (internal settlement defence; materials come off the spiders). Each
-  //    higher level fields worse spiders. See docs/DESIGN_SPIDERS.md. ──
+  //    higher level fields worse spiders. See docs/design/combat/SPIDERS.md. ──
   {
-    id: "clear_diggings_2",
+    id: "clear_the_diggings",
     map: { x: 0.492, y: 0.546 },
     name: "Clear the Diggings",
     description: "The deeper cut woke something. Tomas came up white to the elbows saying the fresh face of the pit is boiling with spiders, hand-sized and legion, pouring out of a crack the picks opened. Nobody wants the stone badly enough to lose a hand for it. Send a couple down to stand with the crew and drive the things back into the dark. It is their rock; we only want the seam. Make it safe and the cutters can work the new depth.",
@@ -44,7 +42,7 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
     requires: { missionDone: "__forced_only__" }, // sentinel: never met → forced-only
   },
   {
-    id: "clear_diggings_3",
+    id: "the_deeper_cut",
     map: { x: 0.492, y: 0.546 }, // routine twin of the -first mission
     name: "The Deeper Cut",
     description: "Deeper again, and the spiders came bigger. Tomas says the skittering ones still boil up in their tide, but among them now are the dog-sized spinners, slow and venomous, the kind that do not run. The crew have pulled back to the second gallery and will not go down until it is done. Send a team to hold the crew and clear the dark ahead of the picks. Same as before, only meaner: drive them down, do not chase them into their holes, and make the new seam safe to work.",
@@ -57,7 +55,7 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
     difficulty: 3,
     minGuildLevel: 1,
     tags: ["combat", "survival"],
-    encounters: [{ enemyId: "rock_skitter", count: 3 }, { enemyId: "cave_spider", count: 2 }],
+    encounters: [{ enemyId: "rock_skitter", count: 3 }, { enemyId: "cave_spinner", count: 2 }],
     urgent: true,
     requires: { missionDone: "__forced_only__" }, // sentinel: never met → forced-only
   },
@@ -65,9 +63,10 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
   //    empty). The survival loop's answer to a food crisis: meat on four legs.
   //    Forced-only (sentinel requires); recurring (NOT unique) so it can return
   //    each time the food runs low. Rewards meat (a hunt legitimately does), plus
-  //    the wild boar's own loot. See docs/DESIGN_TIER1_GEAR.md §Boar missions. ──
+  //    the wild boar's own loot. See docs/docs/design/combat/NOVICE_ITEMS.md §Boar missions. ──
   {
-    id: "wild_boar_hunt", // rewards boar specifically (its only source)
+    id: "lean_times", // the boar meat comes from the boars (loot, not rewards):
+    // a fled boar feeds nobody. XP-only rewards, like the quarry-gate missions.
     map: { x: 0.458, y: 0.55 },
     name: "Lean Times",
     description: "The larder is down to scrapings and nothing is coming in. But Gareth came down off the watchtower swearing he had glassed a sounder of wild boar rooting the thornbrake past the old field: meat on four legs, enough to carry us a while yet. Send a team to bring some down before they move on. It is a fair hunt, not a cull. Take what the larder needs and let the rest run.",
@@ -75,7 +74,7 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/missions/boar_hunt.png",
     slots: [{ class: "any" }, { class: "any" }],
     duration: 300, // a hunt out past the old field — quick, the larder can't wait
-    rewards: [{ resource: "boar", amount: 20 }],
+    rewards: [], // XP only — the meat is whatever the team brings down
     deployCost: 5,
     difficulty: 2,
     minGuildLevel: 1,
@@ -91,7 +90,7 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
   //    logic (engine). Reuses the gaunt/starving wolves. Mercy note: everything's
   //    starving, wolves included. ──
   {
-    id: "deer_yard",
+    id: "the_deer_yard",
     map: { x: 0.49, y: 0.523 },
     name: "The Deer Yard",
     description: "Deep winter, the larder near empty, and the deer have yarded up: a whole herd packed into a sheltered cedar hollow, treading the snow to reach the browse, too many in too small a place to run well. It is the surest meat of the cold months. But we are not the only ones who found them. A wolf pack, gaunt as we are and twice as desperate, has the hollow staked out. Drive them off and take what the settlement needs, and leave the rest to the herd and the wolves both. A lean winter is hard on everything that breathes.",
@@ -116,7 +115,7 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
   //    available from the first dry spell. Forced-only, recurring (NOT unique) so
   //    it returns whenever the reserve runs low. Rewards WATER (tops the reserve).
   {
-    id: "north_stream",
+    id: "the_north_stream",
     map: { x: 0.474, y: 0.492 }, // the water-source drop on the north river bend
     name: "The North Stream",
     description: "Our stream has run shallow, and we are drawing off it faster than it gives back. The water still runs strong to the north, colder and fuller than our east bend. Load the barrels onto the yoke-poles and send a team up to haul back what the settlement needs before the reserve runs dry.",
@@ -139,7 +138,7 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
   //    that isn't summer (winter's frozen stream, a dry year, any dip). Peaceful,
   //    recurring, forced-only. Rewards water. ──
   {
-    id: "fill_barrels",
+    id: "fill_the_barrels",
     map: { x: 0.474, y: 0.492 }, // the same water-source drop on the river
     name: "Fill the Barrels",
     description: "The cistern's run low, and there's not enough coming in to cover the fields and the folk both. Send a team out with the barrels to fill up wherever the water still stands, and haul it back before we're rationing every cup.",
@@ -163,7 +162,7 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
   // the main thread. The side-chain proper begins here, with the herd worsening,
   // and gates on bad_blood being done.
   {
-    id: "bad_season_boars",
+    id: "a_bad_season_for_boars",
     map: { x: 0.485, y: 0.56 },
     name: "A Bad Season for Boars",
     description: "That makes the fourth this month, all of them frothing, all of them charging the fields instead of fleeing them. Boars do not sicken in numbers like this. Clear the ones that have come down from the tree line, and have someone keep a tally, because this is starting to feel like more than a bad season.",
@@ -182,7 +181,7 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
     sideChain: { id: "maddened_herd", name: "The Maddened Herd" },
   },
   {
-    id: "what_scouts_saw",
+    id: "what_the_scouts_saw",
     map: { x: 0.495, y: 0.6 },
     name: "What the Scouts Saw",
     description: "The scouts who walked the deep tree line came back short on nerve. The boars out there are worse: grey-mottled, weeping black, reeking of cold metal, and one took a spear clean through and kept coming as if it had not noticed dying. Whatever has taken them, they are past saving and in pain. Go and give them a clean end, before they wander down onto the trails where our people walk.",
@@ -196,7 +195,7 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
     minGuildLevel: 1,
     tags: ["combat", "outdoor"],
     encounters: [{ enemyId: "tainted_boar", count: 2 }, { enemyId: "rabid_boar", count: 1 }],
-    requires: { missionDone: "bad_season_boars", story: "story_2_ruins" },
+    requires: { missionDone: "a_bad_season_for_boars", story: "story_2_ruins" },
     unique: true,
     sideChain: { id: "maddened_herd", name: "The Maddened Herd" },
   },
@@ -215,13 +214,13 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
     minGuildLevel: 1,
     tags: ["exploration", "peaceful"],
     guaranteed: true,
-    requires: { missionDone: "what_scouts_saw", story: "story_4_captains_rest" },
+    requires: { missionDone: "what_the_scouts_saw", story: "story_4_captains_rest" },
     unique: true,
     sideChain: { id: "maddened_herd", name: "The Maddened Herd" },
     npcAlly: { npcId: "corin", passive: true },
   },
   {
-    id: "tainted_spring",
+    id: "the_tainted_spring",
     map: { x: 0.51, y: 0.614 },
     name: "The Tainted Spring",
     description: "The trail the priest and Father Corin pointed to ends at a spring in the deep wood, glowing faint and wrong, the water tasting of cold metal, the ground around it grey and dead. This is where the boars drank. The worst of them has denned by the water, a great patriarch more than half turned, and it will not let anyone near. We cannot make the water clean again, not with what we have. Put down what the spring has ruined, then cap the spring and mark it wide, so nothing drinks here again. We hold this; we do not win it.",
@@ -234,22 +233,22 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
     difficulty: 3,
     minGuildLevel: 1,
     tags: ["combat", "magical", "outdoor"],
-    encounters: [{ enemyId: "tainted_patriarch_boar", count: 1 }, { enemyId: "tainted_boar", count: 2 }],
+    encounters: [{ enemyId: "tainted_patriarch", count: 1 }, { enemyId: "tainted_boar", count: 2 }],
     requires: { missionDone: "reading_the_carcass" },
     unique: true,
     sideChain: { id: "maddened_herd", name: "The Maddened Herd" },
   },
 
-  // ── "The Bog Witch" front. Its opener, "Clear the Marshes" (marsh_clearing),
+  // ── "The Bog Witch" front. Its opener, "Clear the Marshes" (clear_the_marshes),
   //    was PROMOTED into the golden story spine (STORY_MISSIONS, Chapter 1 beat 4)
   //    on 2026-07-27 — it reads as the main questline now, not a side errand. It
-  //    still opens this front: reeds_bargain gates on missionDone "marsh_clearing"
+  //    still opens this front: the_reeds_price gates on missionDone "clear_the_marshes"
   //    (completedUniqueMissionIds), which the story mission still populates. ──
   // ── The bog-witch front, step 2: the bargain. After clearing the adders once,
   //    a voice in the reeds offered terms. Bring the offering and the gatherers
   //    walk safe — a non-combat barter. (The_bog_witch chain fires the beats.) ──
   {
-    id: "reeds_bargain",
+    id: "the_reeds_price",
     map: { x: 0.437, y: 0.610 }, // Aldith's hut, the flat stone by the water
     name: "The Reeds' Price",
     description: "The old woman in the reeds kept her word before, so Edda says: leave what she asked at the flat stone by the water, and the adders will let the gatherers cut fenbalm in peace. A strange arrangement, and I do not much like owing a marsh. But it is cheaper than sending armed men every time the fevers come. Take her offering in, leave it where she said, and bring the herb home. No blades needed, if she is honest.",
@@ -264,7 +263,7 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
     minGuildLevel: 1,
     tags: ["outdoor"],
     guaranteed: true,
-    requires: { missionDone: "marsh_clearing" },
+    requires: { missionDone: "clear_the_marshes" },
     unique: true,
     sideChain: { id: "the_bog_witch", name: "The Reeds" },
   },
@@ -272,7 +271,7 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
   //    no chronicle beat — it just establishes the pattern (a normal, safe trade)
   //    so the drift, when it comes later, lands against something familiar. ──
   {
-    id: "fen_barter",
+    id: "tea_at_aldiths",
     map: { x: 0.437, y: 0.610 }, // Aldith's hut (the little house drawn on the map)
     name: "Tea at Aldith's",
     description: "The old woman keeps her bargain, and Edda's fenbalm stores run low again. Leave the grain at the flat stone, cut the herb, and not a snake will stir. Aldith, the gatherers call her now, and she will have whoever we send in for tea and send them home with a full belly besides. Routine now. Send someone to make the trade.",
@@ -288,9 +287,9 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
     tags: ["outdoor"],
     guaranteed: true,
     // Repeatable (not unique, no beat) — the safe recurring gather.
-    requires: { missionDone: "reeds_bargain" },
+    requires: { missionDone: "the_reeds_price" },
   },
-  // ── The drift. After the tea (fen_barter ×3, where she learns of Nell), the
+  // ── The drift. After the tea (tea_at_aldiths ×3, where she learns of Nell), the
   //    asking stops being grain and starts to read like a recipe: a precise,
   //    symbolic COUNT of humble parts she could not take herself, the number
   //    shrinking as the thing grows grimmer — three tusks, two hooves, one skull.
@@ -298,7 +297,7 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
   //    ch1_reeds_tea before the tusks and ch1_reeds_doubt (the line drawn) after
   //    the skull. The dark descent is still deferred. ──
   {
-    id: "reeds_tusks",
+    id: "three_tusks",
     map: { x: 0.437, y: 0.610 }, // Aldith's hut (same flat stone)
     name: "Three Tusks",
     description: "The old woman sent her asking back with the last of the fenbalm, and it is not grain this time. Three boar tusks, she wants, no more and no fewer, left at the flat stone by dark. Edda says the old have their cures and their charms and it is not for us to know the reason of them, so do as she asks and think nothing of it. I will send them, and gladly: we grind boar tusk for the salve against the froth, and there are shards enough in the store to spare her three. It is only the exactness of it, three and not four, that sits oddly with me.",
@@ -313,12 +312,12 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
     minGuildLevel: 1,
     tags: ["outdoor"],
     guaranteed: true,
-    requires: { missionCount: { id: "fen_barter", count: 3 } },
+    requires: { missionCount: { id: "tea_at_aldiths", count: 3 } },
     unique: true,
     sideChain: { id: "the_bog_witch", name: "The Reeds" },
   },
   {
-    id: "reeds_hooves",
+    id: "two_hooves",
     map: { x: 0.437, y: 0.610 }, // Aldith's hut (same flat stone)
     name: "Two Hooves",
     description: "The tusks went to the stone and the herb came home, and I had half forgotten it when her next asking came back. Two cloven hooves this time, off a boar, left at the flat stone by dark. Fewer than the tusks, and stranger. Edda still says think nothing of it, an old woman's remedy, and I want to believe her. I will send them, because the fenbalm keeps my people through the winter. But a body does not put hooves in a poultice, and I have started to wonder what she does put them in.",
@@ -333,12 +332,12 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
     minGuildLevel: 1,
     tags: ["outdoor"],
     guaranteed: true,
-    requires: { missionDone: "reeds_tusks" },
+    requires: { missionDone: "three_tusks" },
     unique: true,
     sideChain: { id: "the_bog_witch", name: "The Reeds" },
   },
   {
-    id: "reeds_skull",
+    id: "one_skull",
     map: { x: 0.437, y: 0.610 }, // Aldith's hut (same flat stone)
     name: "One Skull",
     description: "And now the last of it, or so I will make it the last. One boar's skull, she wants, picked clean, left at the flat stone by dark. Three, then two, then one, and each thing worse than the last. This is no longer a remedy and we both know it, whatever Edda says. I will send the skull, this once, because I will not break faith over a thing that costs us nothing and leave my people short of fenbalm on a suspicion. But I mean to send word with it: grain, from here, and only grain. One more asking like this and we are done with the reeds.",
@@ -353,7 +352,7 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
     minGuildLevel: 1,
     tags: ["outdoor"],
     guaranteed: true,
-    requires: { missionDone: "reeds_hooves" },
+    requires: { missionDone: "two_hooves" },
     unique: true,
     sideChain: { id: "the_bog_witch", name: "The Reeds" },
   },
@@ -376,7 +375,7 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
     tags: ["combat", "escort"],
     // Hired toughs over a card debt (Dominion Toughs), not desperate displaced
     // farmers — fits the fiction, and they're weaker in a pack.
-    encounters: [{ enemyId: "dominion_thug", count: 3 }],
+    encounters: [{ enemyId: "dominion_tough", count: 3 }],
     // "The haven's name spreads." Gated on tavern reputation, not just a built
     // tavern — the hunted only come once the settlement is genuinely running as a
     // waystation (ale, staffing, a full house are what build reputation). Placeholder 40.
@@ -385,7 +384,7 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
   },
 
   // ── "The Woodcutter" — Hester Ironbark's arrival. Its first two beats,
-  //    "Run Down" (hester_rescue) and "No One Followed" (quiet_the_woods), were
+  //    "Run Down" (run_down) and "No One Followed" (no_one_followed), were
   //    PROMOTED into the golden story spine (STORY_MISSIONS, Chapter 1 beats 2–3)
   //    on 2026-07-27, so they read as the main questline. Her quiet return +
   //    recruitment + the Woodworker unlock are handled by the "the_woodcutter"
@@ -393,7 +392,7 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
   //    completedUniqueMissionIds — still populated because both keep
   //    `unique: true`. See docs/cast/hester-ironbark.md. ──
   {
-    id: "find_nell",
+    id: "wheres_nell",
     map: { x: 0.495, y: 0.571 },
     name: "Where's Nell?",
     description: "Nell slipped away from Edda's herb beds sometime after breakfast, and no one has seen her since. She does not answer when she is called, she never has, and the woods run a long way south. We would all rest easier with someone out there who can follow a small pair of footprints through the summer grass before the light goes.",
@@ -422,7 +421,7 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
   {
     // The reciprocal first visit: they left us grain, so we return meat (a wood's
     // larder for a farm's). Peaceful, guaranteed — the east track is safe ground.
-    id: "lammast_first_trade",
+    id: "the_boundary_stone",
     map: { x: 0.553, y: 0.51 },
     name: "The Boundary Stone",
     description: "Lammast left us grain and asked nothing for it, and we do not answer a welcome with empty hands. We have no grain to spare, but the hunters have meat, and game for grain is a fair trade between a wood and a farm. Walk the east track to the old boundary stone, make the exchange, and take the measure of these people while we are about it. The road east is quiet ground, for now.",
@@ -447,7 +446,7 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
     // The north road is the Tollman's ground — these thugs (dominion_thug) are his
     // rank-and-file, though we do not know it yet; the Tollman's Road arc later
     // reveals the hand behind them. "A toll to be had" quietly seeds it.
-    id: "lammast_grain_north",
+    id: "grain_for_the_north",
     map: { x: 0.601, y: 0.346 },
     name: "Grain for the North",
     description: "Lammast grows more grain than it can eat and has no fighters to move it. They mean to sell the surplus north, to the Crown's men and the fat cities up the Tessoria road, and they have asked us to see it there whole. It pays, and pays well, for the north road is not the east: settlers come down it heavy with all they own, and the men who work it have learned there is a toll to be had for the taking. Ride with the wagons, keep them to the waystation, and come home paid.",
@@ -460,8 +459,8 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
     difficulty: 2,
     minGuildLevel: 1,
     tags: ["outdoor", "combat", "escort"],
-    encounters: [{ enemyId: "dominion_thug", count: 2 }],
-    requires: { missionDone: "lammast_first_trade" },
+    encounters: [{ enemyId: "dominion_tough", count: 2 }],
+    requires: { missionDone: "the_boundary_stone" },
     unique: false,
     sideChain: { id: "lammast", name: "Lammast" },
   },
@@ -485,7 +484,7 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
     difficulty: 2,
     minGuildLevel: 1,
     tags: ["outdoor", "combat", "escort"],
-    encounters: [{ enemyId: "bandit_thug", count: 2 }],
+    encounters: [{ enemyId: "displaced_brigand", count: 2 }],
     // Not the moment Cobb first arrives: let the road become a working thing first
     // (his first caravan escorted, then at least one more trader run) so the
     // robbery lands as an escalation, not an opening.
@@ -507,7 +506,7 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
     difficulty: 2,
     minGuildLevel: 1,
     tags: ["outdoor", "combat"],
-    encounters: [{ enemyId: "bandit_thug", count: 3 }],
+    encounters: [{ enemyId: "displaced_brigand", count: 3 }],
     requires: { missionDone: "see_cobb_home" },
     unique: true,
     sideChain: { id: "tollmans_road", name: "The Tollman's Road" },
@@ -526,7 +525,7 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
     difficulty: 3,
     minGuildLevel: 1,
     tags: ["outdoor", "combat"],
-    encounters: [{ enemyId: "reaver_captain", count: 1 }, { enemyId: "bandit_thug", count: 2 }],
+    encounters: [{ enemyId: "tollman", count: 1 }, { enemyId: "displaced_brigand", count: 2 }],
     requires: { missionDone: "hold_the_road" },
     unique: true,
     sideChain: { id: "tollmans_road", name: "The Tollman's Road" },

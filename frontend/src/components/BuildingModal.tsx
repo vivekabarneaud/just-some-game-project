@@ -1,7 +1,6 @@
 import { Show, For } from "solid-js";
 import { A } from "@solidjs/router";
-import {
-  BUILDINGS,
+import { BUILDINGS,
   isBuildingUnlocked,
   isBuildingChapterUnlocked,
   getTierPrerequisitesMet,

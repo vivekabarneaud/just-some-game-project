@@ -1,9 +1,9 @@
 // ─── Threat / aggro tracking ───────────────────────────────────
 // WoW-style per-target threat: each enemy maintains its own threat table
 // keyed by ally id. When an ally attacks or heals, the relevant enemies'
-// tables grow. Targeting (in targeting.ts) reads these tables, weighted
-// by AI tier — feral ignores threat, tactical follows it, cunning treats
-// it as a tiebreaker behind backline-priority.
+// tables grow. The target scorer reads these tables through its `threat`
+// dimension (targetScore.ts), weighted per creature: a soldier weighs it at 1,
+// a wolf at 0.3, a maddened thing not at all.
 
 import type { CombatUnit } from "./types.js";
 import type { EnemyTag } from "../enemies.js";

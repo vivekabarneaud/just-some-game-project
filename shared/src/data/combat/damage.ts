@@ -15,6 +15,11 @@ export interface DamageOptions {
    *  `ignoreArmor` primitive; reusable by any armor-piercing attack. Only affects
    *  physical hits (magical already routes through magic-resist). */
   ignoreArmor?: boolean;
+  /** The specific weapon profile this swing uses (Combat Foundation §3 band
+   *  selection). Overrides the unit's default dmgMin/dmgMax; `physical: true`
+   *  forces the physical roll even for a caster — a pinned wizard stabbing with
+   *  a belt knife is steel, not spellwork. */
+  weapon?: { dmgMin: number; dmgMax: number; physical?: boolean };
 }
 
 export interface DamageResult {
@@ -59,7 +64,7 @@ export function woundedDamageMult(unit: CombatUnit): number {
  *  - Defense reduction (physical or magic-resist)
  */
 export function calcDamageResult(attacker: CombatUnit, defender: CombatUnit, opts?: DamageOptions): DamageResult {
-  const magical = dealsMagicalDamage(attacker) || !!opts?.ignorePhysicalDef;
+  const magical = (dealsMagicalDamage(attacker) && !opts?.weapon?.physical) || !!opts?.ignorePhysicalDef;
 
   // Ghost: immune to physical unless spirit_sensitive trait, OR a mission
   // modifier (e.g. Niamh's binding ritual) is currently making the defender
@@ -87,9 +92,13 @@ export function calcDamageResult(attacker: CombatUnit, defender: CombatUnit, opt
   if (magical) {
     rawDamage = Math.max(1, Math.floor(getMagicPower(attacker) * (0.7 + combatRandom() * 0.6)));
   } else {
-    const span = attacker.dmgMax - attacker.dmgMin;
-    const roll = attacker.dmgMin + Math.floor(combatRandom() * (span + 1));
-    rollFactor = span > 0 ? (roll - attacker.dmgMin) / span : 1; // 0 = low end, 1 = high end of the weapon's range
+    // The band-selected weapon's range when one was chosen (sidearm, fists),
+    // else the unit's primary — pre-band paths (raids, abilities) unchanged.
+    const dmgMin = opts?.weapon?.dmgMin ?? attacker.dmgMin;
+    const dmgMax = opts?.weapon?.dmgMax ?? attacker.dmgMax;
+    const span = dmgMax - dmgMin;
+    const roll = dmgMin + Math.floor(combatRandom() * (span + 1));
+    rollFactor = span > 0 ? (roll - dmgMin) / span : 1; // 0 = low end, 1 = high end of the weapon's range
     const scale = 1 + getAttackPower(attacker) * ATTACK_STAT_SCALE;
     rawDamage = Math.max(1, Math.floor(roll * scale));
   }

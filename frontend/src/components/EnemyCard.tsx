@@ -32,7 +32,7 @@ const TAG_LABELS: Record<string, string> = {
 // ─── Tooltip content ────────────────────────────────────────────
 
 function EnemyTooltipContent(props: { enemy: EnemyDefinition }) {
-  const hp = () => props.enemy.stats.vit * 10;
+  const hp = () => props.enemy.hp;
   const hints = () => enemyHints(props.enemy);
   const tags = () => props.enemy.tags.map((t) => TAG_LABELS[t]).filter(Boolean);
   return (
@@ -65,7 +65,7 @@ function EnemyTooltipContent(props: { enemy: EnemyDefinition }) {
  *  - "portrait": portrait + name + lore, but combat measure withheld. A foe
  *    known by reputation (revealPortrait) that hasn't been fought yet.
  *  - "none": a "???" card — an unknown creature. */
-export type EnemyReveal = "full" | "portrait" | "none";
+type EnemyReveal = "full" | "portrait" | "none";
 
 interface EnemyCardProps {
   enemy: EnemyDefinition;

@@ -3,8 +3,7 @@
 // larder (frontend data/foods.ts) + a couple of resources (honey, bone); the
 // spice shelf is the culinary herb (lavender) + honey + the trade spices that
 // arrive via merchants (saffron/cinnamon/long pepper).
-// See docs/DESIGN_KITCHEN.md.
-//
+// See docs/IDEAS.md (Kitchen).
 // FOOD-SUBCATEGORY PASS LANDED (2026-08-07). The generic `meat`/`fish`/
 // `berries`/`mushrooms` rows are GONE, replaced by the real split cuts, because
 // the economy now sources every one of them (pens cull per-animal, the hunting
@@ -12,10 +11,8 @@
 // the Salmon Run, the forager's seasonal picks). Keeping both would double-count
 // on the shelf: `getCookIngredientQty("meat")` resolves the ALIAS (the sum of
 // all cuts), so "Meat" and "Venison" would each show the same stock.
-//
 // Forgiveness now lives in FOOD_GROUPS (named_dishes.ts) instead: a stew asks
 // for `any(redMeat)` and takes all six, while a dish may still demand `one("pork")`.
-//
 // Technique notes:
 //  · `signature` is authorial intent only — the engine never reads it. It says
 //    what an ingredient is FOR, not what it's limited to.

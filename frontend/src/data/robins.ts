@@ -30,7 +30,7 @@ export interface RobinEvent {
   unlocks?: RobinUnlocks;
 }
 
-export const ROBIN_EVENTS: RobinEvent[] = [
+const ROBIN_EVENTS: RobinEvent[] = [
   {
     id: "robin_first",
     triggerAfter: "story_4_captains_rest",

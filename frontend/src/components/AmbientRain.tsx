@@ -16,7 +16,7 @@ const CLIP_VOLUME = 0.6; // per-clip baseline, before channel × master
 export default function AmbientRain() {
   const { state } = useGame();
 
-  const weather = () => resolveCurrentWeather(state.season, state.seasonElapsed, state.year);
+  const weather = () => resolveCurrentWeather(state);
   const isWet = () => {
     const w = weather();
     return w === "rain" || w === "heavy_rain" || w === "storm" || w === "unnatural_storm";

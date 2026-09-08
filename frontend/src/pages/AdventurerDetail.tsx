@@ -1,17 +1,12 @@
 import { A, useParams, useNavigate } from "@solidjs/router";
 import { For, Show } from "solid-js";
 import { useGame } from "~/engine/gameState";
-import {
-  getClassMeta,
+import { getClassMeta,
   RANK_NAMES,
   RANK_COLORS,
   getXpForLevel,
   calcStats,
   getUnspentStatPoints,
-  STAT_META,
-  type AdventurerRank,
-  type AdventurerClass,
-  type AdventurerStats,
   getPortraitUrl,
   getOrigin,
   RACE_NAMES,
@@ -19,7 +14,6 @@ import {
   getFoodPref,
   getLoyaltyRank,
   getNextLoyaltyRank,
-  LOYALTY_RANKS,
   getRelationship,
   CLASS_ABILITIES,
 } from "@medieval-realm/shared/data/adventurers";
@@ -62,12 +56,13 @@ const GEAR_GRID = [
 const SIDE_SLOTS = [
   { id: "mainHand", name: "Main Hand", icon: "⚔️" },
   { id: "offHand", name: "Off Hand", icon: "🛡️" },
+  { id: "sidearm", name: "Sidearm", icon: "🗡️" },
   { id: "trinket", name: "Trinket", icon: "🔮" },
 ];
 
 const SLOT_NAMES: Record<string, string> = {
   head: "Head", chest: "Chest", legs: "Legs", boots: "Boots", gloves: "Gloves", cloak: "Cloak",
-  mainHand: "Main Hand", offHand: "Off Hand", ring1: "Ring", ring2: "Ring",
+  mainHand: "Main Hand", offHand: "Off Hand", sidearm: "Sidearm", ring1: "Ring", ring2: "Ring",
   amulet: "Amulet", trinket: "Trinket",
 };
 

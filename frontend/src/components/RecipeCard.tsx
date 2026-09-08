@@ -2,7 +2,7 @@ import { JSX, Show, createSignal } from "solid-js";
 import Tooltip from "./Tooltip";
 
 /** Action config for a RecipeCard. Either craftable (with quantity controls) or locked (shows a badge). */
-export type RecipeCardAction =
+type RecipeCardAction =
   | {
       type: "craft";
       maxQty: () => number;
@@ -22,7 +22,7 @@ export type RecipeCardAction =
       badge: JSX.Element;
     };
 
-export interface RecipeCardProps {
+interface RecipeCardProps {
   /** Fallback icon when no image */
   icon: string;
   /** Optional image URL */

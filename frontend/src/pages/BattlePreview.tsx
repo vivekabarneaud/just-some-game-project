@@ -1,6 +1,6 @@
 import { createSignal, For, Show } from "solid-js";
 import { simulateCombat, type CombatResult } from "@medieval-realm/shared/data/combat";
-import { buildRecruitFromPremadeId, type AdventurerRank } from "@medieval-realm/shared/data/adventurers";
+import { buildRecruitFromPremadeId } from "@medieval-realm/shared/data/adventurers";
 import { NOVICE_MISSIONS } from "@medieval-realm/shared/data/missions";
 import CombatPlayback from "~/components/CombatPlayback";
 
@@ -16,22 +16,22 @@ import CombatPlayback from "~/components/CombatPlayback";
 type Enc = { enemyId: string; count: number };
 
 const PRESETS: { label: string; encounters: Enc[] }[] = [
-  { label: "Lone Grey Wolf", encounters: [{ enemyId: "wild_wolf", count: 1 }] },
-  { label: "Grey Wolf pack ×3", encounters: [{ enemyId: "wild_wolf", count: 3 }] },
+  { label: "Lone Grey Wolf", encounters: [{ enemyId: "grey_wolf", count: 1 }] },
+  { label: "Grey Wolf pack ×3", encounters: [{ enemyId: "grey_wolf", count: 3 }] },
   { label: "Mixed pack (2 grey, gaunt, starving)", encounters: [
-    { enemyId: "wild_wolf", count: 2 }, { enemyId: "gaunt_wolf", count: 1 }, { enemyId: "starving_wolf", count: 1 },
+    { enemyId: "grey_wolf", count: 2 }, { enemyId: "gaunt_wolf", count: 1 }, { enemyId: "starving_wolf", count: 1 },
   ] },
-  { label: "Alpha + 2 grey", encounters: [{ enemyId: "alpha_wolf", count: 1 }, { enemyId: "wild_wolf", count: 2 }] },
+  { label: "Alpha + 2 grey", encounters: [{ enemyId: "greyfang", count: 1 }, { enemyId: "grey_wolf", count: 2 }] },
   { label: "— boars (for later) —", encounters: [] },
   { label: "Lone Wild Boar", encounters: [{ enemyId: "wild_boar", count: 1 }] },
   { label: "Rabid Boar ×2", encounters: [{ enemyId: "rabid_boar", count: 2 }] },
   { label: "— outlaws (morale) —", encounters: [] },
-  { label: "Leaderless mob (5 Toughs)", encounters: [{ enemyId: "dominion_thug", count: 5 }] },
+  { label: "Leaderless mob (5 Toughs)", encounters: [{ enemyId: "dominion_tough", count: 5 }] },
   { label: "Led mob (Tollman + 3 Toughs + Brigand)", encounters: [
-    { enemyId: "reaver_captain", count: 1 }, { enemyId: "dominion_thug", count: 3 }, { enemyId: "bandit_thug", count: 1 },
+    { enemyId: "tollman", count: 1 }, { enemyId: "dominion_tough", count: 3 }, { enemyId: "displaced_brigand", count: 1 },
   ] },
   { label: "Dirty crew (Brigand, Poacher, Cutthroat)", encounters: [
-    { enemyId: "bandit_thug", count: 1 }, { enemyId: "bandit_poacher", count: 1 }, { enemyId: "bandit_cutthroat", count: 1 },
+    { enemyId: "displaced_brigand", count: 1 }, { enemyId: "poacher", count: 1 }, { enemyId: "cutthroat", count: 1 },
   ] },
 ];
 
@@ -49,9 +49,11 @@ export default function BattlePreview() {
 
   const watch = (encounters: Enc[]) => {
     if (!encounters.length) return;
-    const rank = Math.max(1, Math.min(5, level())) as AdventurerRank;
+    // The control was always called `level()` — it now IS one (it used to be
+    // cast to a maxRank and rolled against).
+    const lvl = Math.max(1, Math.min(20, level()));
     const team = TRIO
-      .map((t) => buildRecruitFromPremadeId(t.instance, t.premade, rank))
+      .map((t) => buildRecruitFromPremadeId(t.instance, t.premade, lvl))
       .filter((a): a is NonNullable<typeof a> => !!a);
     if (!team.length) { setNote("Could not build the party."); return; }
     const res = simulateCombat(NOVICE_MISSIONS[0], team, undefined, seed(), { encounters });
@@ -72,7 +74,7 @@ export default function BattlePreview() {
         <label>Seed <input type="number" value={seed()} onInput={(e) => setSeed(+e.currentTarget.value)}
           style={{ width: "70px", "margin-left": "6px" }} /></label>
         <button onClick={() => setSeed(seed() + 1)} style={btn}>seed +1</button>
-        <label>Party rank (1-5) <input type="number" min="1" max="5" value={level()} onInput={(e) => setLevel(+e.currentTarget.value)}
+        <label>Party level (1-20) <input type="number" min="1" max="20" value={level()} onInput={(e) => setLevel(+e.currentTarget.value)}
           style={{ width: "55px", "margin-left": "6px" }} /></label>
       </div>
 

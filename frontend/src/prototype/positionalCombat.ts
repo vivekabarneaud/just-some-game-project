@@ -1,10 +1,10 @@
 // ─── 1D Positional Combat — SANDBOX (prototype, not production) ──────────────
 // A tiny, self-contained, deterministic positional sim to tune the MODEL and
-// NUMBERS before touching the real engine (see docs/DESIGN_POSITIONAL_COMBAT.md).
+// NUMBERS before touching the real engine (see docs/design/combat/POSITIONAL_COMBAT.md).
 // Runs headless; a harness dumps traces. Throwaway/iterate freely.
 
 export type Side = "ally" | "enemy";
-export type AiTier = "feral" | "tactical" | "cunning";
+type AiTier = "feral" | "tactical" | "cunning";
 export type Role = "melee" | "ranged";
 
 export interface PUnit {

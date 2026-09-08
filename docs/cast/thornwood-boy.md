@@ -2,7 +2,7 @@
 - **Status:** concept + name locked (Jack, chosen 2026-08)
 - **Recruit ID:** none — **settlement NPC** (like Nell), not a recruitable adventurer (too young to fight)
 - **Age:** ~7 (canon: *"smaller than Nell and louder"*; Nell is 11)
-- **Family:** Adopted by the Thornwoods. Nessa is his mother in all but blood. See [thornwood-family.md](thornwood-family.md).
+- **Family:** Adopted by the Thornwoods. Nessa is his mother in all but blood. See [cast/thornwood-family.md](cast/thornwood-family.md).
 
 ## Who he is
 A child the **killing winter orphaned** (~5 years ago) — a neighbour's boy whose parents died of cold and hunger. The grieving Thornwoods, burying their own father that same season, took him in: **they buried one soul and took in another.** He was ~2 then, too young to be marked by any of it. He has been a Thornwood for ~5 years and **knows no other family.**
@@ -19,4 +19,4 @@ He is **the family's answer to death** — the proof that a household stripped o
 - Possible later: does he become recruitable when older (years into a long campaign)? Open.
 
 ## Cross-refs
-- [thornwood-family.md](thornwood-family.md); Overview flavor `hunters_settling` (`overview_flavors.ts`); [[founder_nell]].
+- [cast/thornwood-family.md](cast/thornwood-family.md); Overview flavor `hunters_settling` (`overview_flavors.ts`); [[founder_nell]].

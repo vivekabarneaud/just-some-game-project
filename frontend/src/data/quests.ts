@@ -32,13 +32,6 @@ export interface ChapterState {
   completedChapters: number[];
 }
 
-export const INITIAL_CHAPTER_STATE: ChapterState[] = [
-  { storyline: "settlement", current: 1, completedChapters: [] },
-  { storyline: "guild", current: 0, completedChapters: [] },
-  { storyline: "story", current: 1, completedChapters: [] },
-  { storyline: "defense", current: 0, completedChapters: [] },
-  { storyline: "social", current: 1, completedChapters: [] },
-];
 
 // ─── Trigger system ──────────────────────────────────────────────
 
@@ -54,13 +47,13 @@ export type QuestTrigger =
 
 // ─── Quest definition ────────────────────────────────────────────
 
-export interface QuestReward {
+interface QuestReward {
   resource: "gold" | "wood" | "stone" | "wheat" | "fish" | "wool" | "astralShards";
   amount: number;
   label: string;
 }
 
-export interface QuestPrerequisite {
+interface QuestPrerequisite {
   /** True when this prerequisite is satisfied. */
   met: (state: GameState) => boolean;
   /** Short label shown on the locked card, e.g. "an Adventurer's Guild". */
@@ -142,14 +135,6 @@ export interface QuestDefinition {
 const bldg = (state: GameState, id: string) =>
   state.buildings.find((b) => b.buildingId === id);
 
-const chapterCompleted = (
-  state: GameState,
-  storyline: StorylineId,
-  chapter: number,
-): boolean => {
-  const cs = state.chapters?.find((c) => c.storyline === storyline);
-  return cs ? cs.completedChapters.includes(chapter) : false;
-};
 
 const chapterUnlocked = (
   state: GameState,
@@ -229,27 +214,10 @@ export function isQuestClaimable(
   return isQuestActive(quest, state) && quest.condition(state);
 }
 
-/** All currently active quests (not yet claimed), optionally filtered by storyline. */
-export function getActiveQuests(
-  state: GameState,
-  storyline?: StorylineId,
-): QuestDefinition[] {
-  return QUEST_DEFINITIONS.filter(
-    (q) =>
-      (!storyline || q.storyline === storyline) && isQuestActive(q, state),
-  );
-}
 
-/** First active quest (back-compat for "current quest" UI patterns). */
-export function getCurrentQuest(state: GameState): QuestDefinition | null {
-  for (const q of QUEST_DEFINITIONS) {
-    if (isQuestActive(q, state)) return q;
-  }
-  return null;
-}
 
 /** All quests in a specific chapter of a storyline. */
-export function getQuestsInChapter(
+function getQuestsInChapter(
   storyline: StorylineId,
   chapter: number,
 ): QuestDefinition[] {
@@ -484,7 +452,7 @@ export const QUEST_DEFINITIONS: QuestDefinition[] = [
   // strawberry unlock is being redesigned as a later, summer-firing adventurer
   // mission ("find Nell asleep in the wild strawberries"). Until that lands,
   // strawberries stay locked (their garden shows as "???"). See
-  // docs/DESIGN_FARMING_EXPANSION.md §5.
+  // docs/IDEAS.md (Farming).
 
   // ╔══════════════════════════════════════════════════════════════╗
   // ║ SETTLEMENT — Chapter 3: The Shepherd                        ║
@@ -855,7 +823,7 @@ export const QUEST_DEFINITIONS: QuestDefinition[] = [
   {
     // Main-story beat 4: the payoff for holding the wall points Gareth's eyes
     // outward, and the first thing the watch turns up is a woman being run down.
-    // Breadcrumb into the Hester side-chain's opening mission (hester_rescue),
+    // Breadcrumb into the Hester side-chain's opening mission (run_down),
     // which is now gated on the wall-held chronicle so it lands right here.
     id: "spine_run_down",
     storyline: "story",
@@ -867,8 +835,8 @@ export const QUEST_DEFINITIONS: QuestDefinition[] = [
     objective: "Send a team to drive off the men",
     icon: "🪓",
     triggers: [{ type: "quest_completed", questId: "baptism_of_fire" }],
-    condition: (s) => (s.completedUniqueMissionIds ?? []).includes("hester_rescue"),
-    completedByMission: "hester_rescue",
+    condition: (s) => (s.completedUniqueMissionIds ?? []).includes("run_down"),
+    completedByMission: "run_down",
     rewards: [],
     targetPage: "/guild",
   },
@@ -887,8 +855,8 @@ export const QUEST_DEFINITIONS: QuestDefinition[] = [
     objective: "Walk the approaches and quiet the woods",
     icon: "🌲",
     triggers: [{ type: "quest_completed", questId: "spine_run_down" }],
-    condition: (s) => (s.completedUniqueMissionIds ?? []).includes("quiet_the_woods"),
-    completedByMission: "quiet_the_woods",
+    condition: (s) => (s.completedUniqueMissionIds ?? []).includes("no_one_followed"),
+    completedByMission: "no_one_followed",
     rewards: [],
     targetPage: "/guild",
   },
@@ -906,15 +874,15 @@ export const QUEST_DEFINITIONS: QuestDefinition[] = [
     objective: "Cut fenbalm from the marsh",
     icon: "🐍",
     triggers: [{ type: "quest_completed", questId: "spine_no_one_followed" }],
-    condition: (s) => (s.completedUniqueMissionIds ?? []).includes("marsh_clearing"),
-    completedByMission: "marsh_clearing",
+    condition: (s) => (s.completedUniqueMissionIds ?? []).includes("clear_the_marshes"),
+    completedByMission: "clear_the_marshes",
     rewards: [],
     targetPage: "/guild",
   },
   {
     // Ch1 BREATHER beat between the marsh (Aldith) and the next arrival. Whoever
     // took the worst adder-bite on Clear the Marshes comes home with a lingering
-    // venom that won't fade (applied by the marsh_clearing success script in
+    // venom that won't fade (applied by the clear_the_marshes success script in
     // gameState, which also unlocks the Herbal Antidote recipe). Cure them by
     // brewing + applying the antidote. narrativeFn names the venomed hero live
     // (pronoun-free; no gender field exists on the cast).

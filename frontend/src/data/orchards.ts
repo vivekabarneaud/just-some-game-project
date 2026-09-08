@@ -100,15 +100,12 @@ export function getOrchardSeedReturn(matureTrees: number): number {
 }
 
 // Costs
-export const ORCHARD_BASE_COST = { wood: 25, stone: 10, gold: 40 };
-export const ORCHARD_COST_MULTIPLIER = 1.3;
-export const ORCHARD_GOLD_PER_LEVEL = 25;
-export const ORCHARD_BASE_BUILD_TIME = 5; // seconds
-export const ORCHARD_BUILD_TIME_MULTIPLIER = 1.4;
-export const MAX_ORCHARDS = 4;
+const ORCHARD_BASE_COST = { wood: 25, stone: 10, gold: 40 };
+const ORCHARD_COST_MULTIPLIER = 1.3;
+const ORCHARD_GOLD_PER_LEVEL = 25;
+const ORCHARD_BASE_BUILD_TIME = 5; // seconds
+const ORCHARD_BUILD_TIME_MULTIPLIER = 1.4;
 export const ORCHARD_MAX_LEVEL = 6;
-export const FRUIT_BASE_STORAGE = 50;
-export const FRUIT_STORAGE_PER_LEVEL = 20;
 
 export function getOrchardCost(level: number): { wood: number; stone: number; gold: number } {
   return {
@@ -129,10 +126,6 @@ export function getOrchardTreeSlots(level: number): number {
   return level <= 0 ? 0 : level * 2;
 }
 
-/** Gold to plant one sapling/cutting. Scales with the fruit's richness. */
-export function getSaplingCost(fruit: FruitDefinition): number {
-  return fruit.baseRate * 3;
-}
 
 /** Fruit per hour from a single MATURE tree, in season. Total orchard yield is
  *  this times the number of mature trees. */
@@ -149,7 +142,7 @@ export function isOrchardActive(fruit: FruitDefinition, season: Season): boolean
   return fruit.harvestSeasons.includes(season);
 }
 
-export function isOrchardBlossoming(fruit: FruitDefinition, season: Season): boolean {
+function isOrchardBlossoming(fruit: FruitDefinition, season: Season): boolean {
   return season === "spring" && !fruit.harvestSeasons.includes("spring");
 }
 
@@ -164,7 +157,3 @@ export function getOrchardStatus(
   return "Dormant";
 }
 
-export function getFruitStorageCap(orchards: { level: number }[]): number {
-  const totalLevels = orchards.reduce((sum, o) => sum + o.level, 0);
-  return FRUIT_BASE_STORAGE + totalLevels * FRUIT_STORAGE_PER_LEVEL;
-}

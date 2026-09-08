@@ -8,12 +8,12 @@
     "build": "vite build",
     "preview": "vite preview",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@medieval-realm/shared": "workspace:*",
     "@solidjs/router": "^0.15.3",
-    "@tanstack/solid-query": "^5.68.0",
     "page-flip": "^2.0.7",
     "solid-js": "^1.9.5"
   },

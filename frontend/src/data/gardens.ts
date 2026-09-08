@@ -122,12 +122,10 @@ export function getVeggie(id: VeggieId): VeggieDefinition {
   return VEGGIES.find((v) => v.id === id)!;
 }
 
-export const GARDEN_BASE_COST = { wood: 20, stone: 5 };
-export const GARDEN_COST_MULTIPLIER = 1.3;
-export const GARDEN_BASE_BUILD_TIME = 5; // seconds
-export const GARDEN_BUILD_TIME_MULTIPLIER = 1.4;
-/** Fixed at 4 — one slot per veggie type. Every save pre-spawns all four. */
-export const MAX_GARDENS = VEGGIES.length;
+const GARDEN_BASE_COST = { wood: 20, stone: 5 };
+const GARDEN_COST_MULTIPLIER = 1.3;
+const GARDEN_BASE_BUILD_TIME = 5; // seconds
+const GARDEN_BUILD_TIME_MULTIPLIER = 1.4;
 export const GARDEN_MAX_LEVEL = 8;
 
 export function getGardenCost(level: number): { wood: number; stone: number } {
@@ -146,20 +144,13 @@ export function getGardenBuildTime(level: number): number {
  *  (like a pen's output is its head count). Crops differ by germination, season,
  *  water need and food type — not by per-plant rate. (`baseRate` in the crop
  *  data is legacy and no longer drives yield.) */
-export const GARDEN_YIELD_PER_PLANT = 1;
+const GARDEN_YIELD_PER_PLANT = 1;
 
 /** The full-plot rate — every capacity slot a bearing plant. */
 export function getGardenRate(_veggie: VeggieDefinition, level: number): number {
   return getSeedCapacity(level) * GARDEN_YIELD_PER_PLANT;
 }
 
-/** Scales seed cost lightly with level so bigger gardens cost a bit more to sow.
- *  NOTE: legacy gold-cost planting. Superseded by the per-crop seed system
- *  (getSeedCapacity / getEffectiveGardenRate); kept only for the marketplace
- *  buy price, which still reads it. */
-export function getSeedCost(veggie: VeggieDefinition, level: number): number {
-  return Math.max(1, Math.floor(veggie.seedCost * (1 + (level - 1) * 0.2)));
-}
 
 // ─── Per-crop seed system ───────────────────────────────────────
 // Seeds are what you SOW, not the harvest. Each seed becomes a plant that
@@ -223,7 +214,7 @@ export function getLiveGardenRate(level: number, plantsAlive: number): number {
 /** Seed kept back from a season's crop, per sprouted plant. >1 so a steady plot
  *  still nets a little (after germination losses) — but far less than the raw
  *  sown count, so filling more plots leans on trade. */
-export const SEED_RETURN_FACTOR = 1.5;
+const SEED_RETURN_FACTOR = 1.5;
 export function getSeedReturn(sproutedPlants: number): number {
   return Math.floor(Math.max(0, sproutedPlants) * SEED_RETURN_FACTOR);
 }

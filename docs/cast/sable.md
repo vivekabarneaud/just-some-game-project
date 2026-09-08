@@ -1,5 +1,5 @@
 # Sable
-- **Status:** locked 2026-06-28 (rename applied to code today; design from `DESIGN_ROSTER_CURATION.md`, 2026-06-22)
+- **Status:** locked 2026-06-28 (rename applied to code today; design from the retired roster-curation doc (in git — superseded by per-character introduction), 2026-06-22)
 - **Recruit ID:** char_008 *(formerly "Lyra Emberheart" — renamed because "Lyra" collided with Jory's dead wife)*
 - **Portrait file:** `lyra_emberheart` — **MISMATCH:** the asset still carries the old name. Rename the R2 asset or accept it (same situation as Hester / `helga_ironbark`).
 - **Class / Race / Origin:** Assassin / Human / Ashwick
@@ -36,4 +36,4 @@
 - **Mononym edge case:** `calcFamilyBonuses` (`combat/units.ts`) derives "family" from the surname (everything after the first space). A mononym has an empty surname; harmless with only one mononym on the roster, but if a second mononym is ever added they'd falsely register as "family." Flag for whenever a second mononym appears.
 
 ## Cross-refs
-- `premade-characters.ts` char_008; `DESIGN_ROSTER_CURATION.md` (full design + ability options); [[project_tavern_conversations]]; loyalty ranks (`LOYALTY_RANKS`).
+- `premade-characters.ts` char_008; the retired roster-curation doc (in git — superseded by per-character introduction) (full design + ability options); [[project_tavern_conversations]]; loyalty ranks (`LOYALTY_RANKS`).

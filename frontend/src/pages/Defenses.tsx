@@ -18,8 +18,7 @@ const RING_FRAME_RARITY: Record<DefenseRing, string> = {
 // Module-scoped signal so any card can pop the manager modal without
 // prop-drilling. One modal at a time — re-clicking another building swaps it.
 const [openGarrison, setOpenGarrison] = createSignal<{ kind: "watchtower" | "barracks"; ring: DefenseRing } | null>(null);
-import {
-  getWallCost,
+import { getWallCost,
   getWatchtowerCost,
   getBarracksCost,
   getWallRepairCost,

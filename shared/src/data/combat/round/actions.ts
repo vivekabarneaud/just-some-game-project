@@ -1,13 +1,14 @@
 import type { CombatContext, CombatUnit } from "../types.js";
 import { combatRandom } from "../prng.js";
-import { getAvoidance, getInitiative } from "../stats.js";
+import { getAvoidance, getInitiative, CLOSE_IN_FRACTION } from "../stats.js";
 import { calcDamageResult } from "../damage.js";
 import { pickTarget, pickTargetForAdventurer } from "../targeting.js";
 import { tryClassAbility, tryEnemyAbility } from "../abilities/index.js";
 import { evaluateTransitions, getCurrentState } from "../ai/index.js";
 import { addDamageThreat } from "../threat.js";
 import { shouldFlee, attemptFlee, moraleBreaks } from "../retreat.js";
-import { POS, CHARGE, moveUnit, computeHolds, chargePlan, pinningFoe, inReach, isBehind, hasPackmateOn, PACK_TACTICS_BONUS, livingPackmates, PACK_NERVE_ACCURACY } from "../positional.js";
+import { canBreak, resolveAI } from "../ai/profile.js";
+import { POS, CHARGE, FLIGHT, mobilityOf, moveUnit, computeHolds, chargePlan, pinningFoe, inReach, isBehind, weaponAt, paceGap, hasPackmateOn, PACK_TACTICS_BONUS, livingPackmates, PACK_NERVE_ACCURACY } from "../positional.js";
 
 /**
  * The main action phase of a round.
@@ -60,14 +61,26 @@ export function runActions(ctx: CombatContext): void {
     // spend their turn trying to break contact instead of fighting.
     if (shouldFlee(unit, ctx)) { attemptFlee(unit, ctx); continue; }
 
-    // Break-and-run: a beast worn to/below its routsAt (fear of pain), OR a
+    // Nerve break: a beast worn to/below its routsAt (fear of pain), OR a
     // human whose morale snaps (mates fallen, leader down, outnumbered — see
-    // moraleBreaks). It survives and leaves the field; counts as defeated for
-    // victory, yields only keepOnRout loot.
-    if (unit.isEnemy && (enemyBreaksAndRuns(unit) || moraleBreaks(unit, ctx))) { routEnemy(unit, ctx); continue; }
-
-    // Move on this unit's own turn (charge/advance/kite), THEN act below.
-    moveUnit(unit, ctx, held);
+    // moraleBreaks). HOW it leaves is its fear style (ROUT_AND_FLIGHT):
+    // `yields` throws down its weapon where it stands (out of the fight now —
+    // counts as defeated, keepOnRout loot only); `bolts`/`withdraws` actually
+    // RUN, and can be chased down or shot before they make the treeline.
+    if (unit.isEnemy && !unit.fleeing && canBreak(unit) && (enemyBreaksAndRuns(unit) || moraleBreaks(unit, ctx))) {
+      const fear = resolveAI(unit).fear;
+      if (fear === "yields" || unit.x == null) { yieldEnemy(unit, ctx, fear); continue; }
+      startFlight(unit, ctx, fear);
+    }
+    if (unit.isEnemy && unit.fleeing) {
+      if (fleeMove(unit, ctx)) continue;              // reached the edge — gone
+      if (resolveAI(unit).fear === "bolts") continue; // flat out: never acts
+      // `withdraws`: backing off facing the line — may still bite something in
+      // reach. Falls through to the action phase (the withdrawal WAS its move).
+    } else {
+      // Move on this unit's own turn (charge/advance/kite), THEN act below.
+      moveUnit(unit, ctx, held);
+    }
 
     evaluateTransitions(unit, ctx);
     const { state } = getCurrentState(unit);
@@ -79,7 +92,8 @@ export function runActions(ctx: CombatContext): void {
     if (!unit.isEnemy && tryClassAbility(unit, ctx)) continue;
     // A unit that charged this round drives home a goring basic attack (the
     // charge bonus + knockback ride the swing) rather than using another ability.
-    if (unit.isEnemy && !unit.chargedThisRound && tryEnemyAbility(unit, ctx)) continue;
+    // A withdrawing unit is past tactics — basic attacks only while it backs off.
+    if (unit.isEnemy && !unit.chargedThisRound && !unit.fleeing && tryEnemyAbility(unit, ctx)) continue;
 
     basicAttack(unit, ctx);
   }
@@ -89,22 +103,70 @@ export function runActions(ctx: CombatContext): void {
  * Mind-controlled adventurers hit their own team and decrement the counter.
  * Returns true if the unit's turn was consumed here.
  */
-/** A beast at/below its rout threshold breaks off (already-fled units excluded). */
+/** A beast at/below its rout threshold breaks off (already-fled units excluded).
+ *  Fearlessness is gated by the caller's `canBreak`, which covers this and the
+ *  morale path together. */
 function enemyBreaksAndRuns(unit: CombatUnit): boolean {
   if (unit.routsAt == null || unit.fled || unit.hp <= 0) return false;
   return unit.hp <= unit.routsAt * unit.maxHp;
 }
 
-/** The beast turns tail: mark it fled (survives, off the field) and log the break.
- *  No escape roll — the settlement wants it gone, not run down. */
-function routEnemy(unit: CombatUnit, ctx: CombatContext): void {
+/** A person who breaks throws down their weapon and stays — out of the fight
+ *  where they stand. Instant (no movement, nothing to chase); still `fled` for
+ *  the victory/loot semantics: defeated, sheddable (`keepOnRout`) drops only —
+ *  the bandit hands over his purse. Also the fallback for a unit with no
+ *  position (defensive: positionless sims can't run a chase). */
+function yieldEnemy(unit: CombatUnit, ctx: CombatContext, fear: string): void {
   unit.fled = true;
+  const yielded = fear === "yields";
+  ctx.log.push({
+    round: ctx.round, attackerName: unit.name, attackerIcon: yielded ? "🏳️" : "🏃",
+    targetName: unit.name, damage: 0, dodged: false, crit: false, killed: false,
+    targetHp: Math.max(0, unit.hp), targetMaxHp: unit.maxHp, isEnemy: true,
+    beat: yielded ? "yields" : "flee_success",
+    note: yielded ? `${unit.name} throws down their weapon` : `${unit.name} breaks and runs`,
+  });
+}
+
+/** The nerve breaks and the creature RUNS — `fleeing` until it makes its own
+ *  field edge. A bolting animal weaves flat out: it borrows the Skirmisher
+ *  elusion (distance-scaled dodge vs ranged), so the farther it gets, the worse
+ *  the shot. A withdrawing one backs off at a walk, facing the line. */
+function startFlight(unit: CombatUnit, ctx: CombatContext, fear: string): void {
+  unit.fleeing = true;
+  if (fear === "bolts") {
+    unit.elusiveAtRange = Math.max(unit.elusiveAtRange ?? 0, FLIGHT.boltElusion);
+  }
   ctx.log.push({
     round: ctx.round, attackerName: unit.name, attackerIcon: "🏃",
     targetName: unit.name, damage: 0, dodged: false, crit: false, killed: false,
     targetHp: Math.max(0, unit.hp), targetMaxHp: unit.maxHp, isEnemy: true,
-    beat: "flee_success", note: `${unit.name} breaks and runs`,
+    beat: "turns_tail",
+    note: fear === "bolts" ? `${unit.name} turns tail and bolts` : `${unit.name} falls back, still facing the line`,
   });
+}
+
+/** One turn of flight: run toward this side's field edge. Enemies flee toward
+ *  fieldMax — back into the woods, never through the party. Returns true when
+ *  the unit makes the edge (off the field, `fled`, defeated-with-sheddable-loot
+ *  like any rout). Slain mid-flight = a full loot table, which is the point. */
+function fleeMove(unit: CombatUnit, ctx: CombatContext): boolean {
+  const mult = resolveAI(unit).fear === "bolts" ? FLIGHT.boltMult : FLIGHT.withdrawMult;
+  const speed = Math.max(4, Math.round(mobilityOf(unit) * mult));
+  const newX = (unit.x ?? POS.enemyFront) + speed;
+  if (newX >= POS.fieldMax) {
+    unit.x = POS.fieldMax;
+    unit.fled = true;
+    ctx.log.push({
+      round: ctx.round, attackerName: unit.name, attackerIcon: "🏃",
+      targetName: unit.name, damage: 0, dodged: false, crit: false, killed: false,
+      targetHp: Math.max(0, unit.hp), targetMaxHp: unit.maxHp, isEnemy: true,
+      beat: "flee_success", note: `${unit.name} escapes into the wilds`,
+    });
+    return true;
+  }
+  unit.x = newX;
+  return false;
 }
 
 function mindControlAttack(unit: CombatUnit, ctx: CombatContext): boolean {
@@ -135,21 +197,36 @@ function basicAttack(unit: CombatUnit, ctx: CombatContext): void {
   const chargeTarget = chargeInfo
     ? targetPool.find((t) => t.id === chargeInfo.targetId && t.hp > 0)
     : undefined;
-  const target = chargeTarget ?? pin ?? (unit.isEnemy ? pickTarget(unit, targetPool) : pickTargetForAdventurer(unit, targetPool));
+  const target = chargeTarget ?? pin ?? (unit.isEnemy ? pickTarget(unit, targetPool, ctx.enemies) : pickTargetForAdventurer(unit, targetPool));
   if (!target || target.hp <= 0) return;
   const charged = !!chargeTarget && target.id === chargeTarget.id;
-  // Reach gate: still-closing units don't swing. A charger just reached contact,
-  // so it always connects.
-  if (!pin && !charged && !inReach(unit, target)) return;
+
+  // Weapon selection (Combat Foundation §3): strike with the best weapon whose
+  // band fits the gap — primary, then sidearm, then fists. Nothing fitting =
+  // no swing this beat (still closing). Band-less units keep the old reach gate.
+  // A pin/charge guarantees contact, where sidearm/fists always fit.
+  const weapon = unit.weapons?.length ? weaponAt(unit, paceGap(unit, target)) : null;
+  if (unit.weapons?.length) {
+    if (!weapon) return;
+  } else if (!pin && !charged && !inReach(unit, target)) {
+    return;
+  }
+  // An adventurer falling back to steel (sidearm/fists) attacks physically even
+  // if their primary attack is a spell. Enemy fallbacks keep their own school —
+  // a lich's claws rake with the same deathly touch as its bolts.
+  const forcePhysical = !!weapon && weapon.kind !== "primary" && !unit.isEnemy;
 
   // The charge's run-up + gore render as ONE line; its slide animates on this entry.
   const chargePaces = charged ? Math.round(chargeInfo!.distance) : 0;
   const chargeSlide = charged ? { id: unit.id, x: Math.round(unit.x ?? 0) } : undefined;
-  const icon = charged ? "💨" : (unit.isEnemy ? unit.icon : (unit.isMagical ? "🔮" : "⚔️"));
+  const icon = charged ? "💨"
+    : weapon?.kind === "sidearm" && !unit.isEnemy ? "🗡️"
+    : weapon?.kind === "fists" && !unit.isEnemy ? "👊"
+    : (unit.isEnemy ? unit.icon : (unit.isMagical ? "🔮" : "⚔️"));
 
   // Hit resolution: one avoidance roll (Dodge + Parry − Accuracy, capped). On a
   // successful roll the attack is negated; `parried` picks the flavor.
-  const avoid = getAvoidance(unit, target);
+  const avoid = getAvoidance(unit, target, forcePhysical);
   // Pack Nerve: a packed attacker's aim firms up with each living packmate, so a
   // mob lands hits a lone skirmisher never would. Lowers the target's avoidance.
   if (unit.packNerve) {
@@ -168,13 +245,19 @@ function basicAttack(unit: CombatUnit, ctx: CombatContext): void {
     return;
   }
 
-  const dr = calcDamageResult(unit, target);
+  // A magical creature's close-in fallback rakes at the claws fraction — its
+  // magic path ignores the profile's damage values, so the falloff rides a mult.
+  const magicalClawsMult = weapon?.kind === "sidearm" && unit.isEnemy && unit.isMagical
+    ? CLOSE_IN_FRACTION : undefined;
+  const dr = calcDamageResult(unit, target, weapon
+    ? { weapon: { dmgMin: weapon.dmgMin, dmgMax: weapon.dmgMax, physical: forcePhysical }, damageMult: magicalClawsMult }
+    : undefined);
   const rawDamage = dr.rawDamage;
   const crit = dr.crit;
-  // Positional modifiers: a pinned archer's dagger does a fraction; a flank from
-  // behind does bonus damage. (Baseline; talents scale these later.)
+  // Positional modifiers: a flank from behind does bonus damage. (The old
+  // pinned-exposure fraction is gone — a pinned unit now swings its actual
+  // sidearm/fists, whose own damage IS the falloff.) Baseline; talents scale.
   let damage = dr.damage;
-  if (pin) damage = Math.max(1, Math.round(damage * POS.exposureMult));
   if (isBehind(unit, target)) damage = Math.round(damage * POS.backstabMult);
   // Pack Tactics: wolves (and any packed foe) bite harder when a packmate is
   // also on the target — the whole reason a lone wolf is weak and a pack lethal.

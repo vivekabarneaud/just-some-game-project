@@ -6,7 +6,7 @@ import type { PlayerWall, PlayerWatchtower, PlayerBarracks } from "~/engine/game
 
 // ─── Raid tags ──────────────────────────────────────────────────
 
-export type RaidTag = "bandits" | "monsters" | "undead" | "siege" | "horde";
+type RaidTag = "bandits" | "monsters" | "undead" | "siege" | "horde";
 
 // ─── Raid template ──────────────────────────────────────────────
 
@@ -63,7 +63,7 @@ export const RAID_POOL: RaidTemplate[] = [
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/raids/hungry_bandits.png",
     tags: ["bandits"],
     strength: 25,
-    encounters: [{ enemyId: "bandit_thug", count: 3 }],
+    encounters: [{ enemyId: "displaced_brigand", count: 3 }],
     stealsResources: true,
     resourceStealPercent: 0.15,
     killsCitizens: true,
@@ -80,7 +80,7 @@ export const RAID_POOL: RaidTemplate[] = [
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/raids/wolf_pack.png",
     tags: ["monsters"],
     strength: 20,
-    encounters: [{ enemyId: "wild_wolf", count: 2 }, { enemyId: "gaunt_wolf", count: 3 }],
+    encounters: [{ enemyId: "grey_wolf", count: 2 }, { enemyId: "gaunt_wolf", count: 3 }],
     stealsResources: false,
     resourceStealPercent: 0,
     killsCitizens: true,
@@ -119,7 +119,7 @@ export const RAID_POOL: RaidTemplate[] = [
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/raids/petty_thieves.png",
     tags: ["bandits"],
     strength: 15,
-    encounters: [{ enemyId: "bandit_thug", count: 2 }, { enemyId: "goblin_runt", count: 2 }],
+    encounters: [{ enemyId: "displaced_brigand", count: 2 }, { enemyId: "goblin_runt", count: 2 }],
     stealsResources: true,
     resourceStealPercent: 0.10,
     killsCitizens: false,
@@ -138,7 +138,7 @@ export const RAID_POOL: RaidTemplate[] = [
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/raids/bandit_raid.png",
     tags: ["bandits"],
     strength: 60,
-    encounters: [{ enemyId: "bandit_thug", count: 4 }, { enemyId: "bandit_captain", count: 1 }],
+    encounters: [{ enemyId: "displaced_brigand", count: 4 }, { enemyId: "dominion_deserter", count: 1 }],
     stealsResources: true,
     resourceStealPercent: 0.20,
     killsCitizens: true,
@@ -146,23 +146,6 @@ export const RAID_POOL: RaidTemplate[] = [
     minTier: "village",
     baseWarning: 6,
     victoryLoot: [{ resource: "gold", amount: 50 }, { resource: "wood", amount: 30 }],
-  },
-  {
-    id: "goblin_scouts",
-    name: "Goblin Scouts",
-    description: "A scouting party of goblins, testing your defenses for a larger force.",
-    icon: "👺",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/raids/goblin_scouts.png",
-    tags: ["monsters"],
-    strength: 45,
-    encounters: [{ enemyId: "goblin_scout", count: 4 }, { enemyId: "goblin_shaman", count: 1 }],
-    stealsResources: true,
-    resourceStealPercent: 0.15,
-    killsCitizens: true,
-    maxCitizenLoss: 3,
-    minTier: "village",
-    baseWarning: 5,
-    victoryLoot: [{ resource: "gold", amount: 30 }, { resource: "stone", amount: 20 }],
   },
   {
     id: "wild_boars",
@@ -183,110 +166,8 @@ export const RAID_POOL: RaidTemplate[] = [
   },
 
   // ── Town-tier raids ───────────────────────────────────────────
-  {
-    id: "skeleton_horde",
-    name: "Skeleton Horde",
-    description: "The dead rise from a nearby burial ground, marching toward your settlement.",
-    icon: "💀",
-    tags: ["undead", "horde"],
-    strength: 90,
-    encounters: [{ enemyId: "skeleton", count: 6 }, { enemyId: "skeleton_archer", count: 3 }, { enemyId: "burnt_skeleton", count: 1 }],
-    stealsResources: false,
-    resourceStealPercent: 0,
-    killsCitizens: true,
-    maxCitizenLoss: 10,
-    minTier: "town",
-    baseWarning: 8,
-    victoryLoot: [{ resource: "stone", amount: 60 }, { resource: "gold", amount: 40 }],
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/raids/skeleton_horde.png",
-  },
-  {
-    id: "mercenary_company",
-    name: "Mercenary Company",
-    description: "A well-equipped mercenary band demands tribute. Pay up or fight.",
-    icon: "⚔️",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/raids/mercenary_company.png",
-    tags: ["bandits", "siege"],
-    strength: 100,
-    encounters: [{ enemyId: "bandit_thug", count: 4 }, { enemyId: "bandit_captain", count: 2 }, { enemyId: "dark_mage", count: 1 }],
-    stealsResources: true,
-    resourceStealPercent: 0.25,
-    killsCitizens: true,
-    maxCitizenLoss: 8,
-    minTier: "town",
-    baseWarning: 10,
-    victoryLoot: [{ resource: "gold", amount: 120 }, { resource: "wood", amount: 50 }],
-  },
-  {
-    id: "troll_attack",
-    name: "Troll Attack",
-    description: "A massive troll has wandered down from the mountains, hungry and angry.",
-    icon: "👹",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/raids/troll_attack.png",
-    tags: ["monsters"],
-    strength: 80,
-    encounters: [{ enemyId: "troll", count: 1 }, { enemyId: "cave_spider", count: 2 }],
-    stealsResources: true,
-    resourceStealPercent: 0.15,
-    killsCitizens: true,
-    maxCitizenLoss: 8,
-    minTier: "town",
-    baseWarning: 6,
-    victoryLoot: [{ resource: "meat", amount: 100 }, { resource: "stone", amount: 40 }],
-  },
 
   // ── City-tier raids ───────────────────────────────────────────
-  {
-    id: "orc_warband",
-    name: "Orc Warband",
-    description: "A fearsome orc warband, siege engines in tow. They come to conquer.",
-    icon: "🔥",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/raids/orc_warband.png",
-    tags: ["horde", "siege"],
-    strength: 160,
-    encounters: [{ enemyId: "gharkal_raider", count: 4 }, { enemyId: "gharkal_warlord", count: 1 }, { enemyId: "goblin_scout", count: 3 }],
-    stealsResources: true,
-    resourceStealPercent: 0.30,
-    killsCitizens: true,
-    maxCitizenLoss: 40,
-    minTier: "city",
-    baseWarning: 12,
-    victoryLoot: [{ resource: "gold", amount: 200 }, { resource: "wood", amount: 100 }, { resource: "stone", amount: 100 }],
-  },
-  {
-    id: "necromancer",
-    name: "Necromancer's Army",
-    description: "A dark wizard raises an army of undead to siege your city walls.",
-    icon: "🧙‍♂️",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/raids/necromancer.png",
-    tags: ["undead", "horde", "siege"],
-    strength: 180,
-    encounters: [{ enemyId: "skeleton", count: 6 }, { enemyId: "skeleton_archer", count: 3 }, { enemyId: "necromancer_acolyte", count: 2 }, { enemyId: "lich_apprentice", count: 1 }],
-    stealsResources: true,
-    resourceStealPercent: 0.25,
-    killsCitizens: true,
-    maxCitizenLoss: 50,
-    minTier: "city",
-    baseWarning: 14,
-    victoryLoot: [{ resource: "gold", amount: 250 }, { resource: "astralShards", amount: 5 }],
-  },
-  {
-    id: "dragon_attack",
-    name: "Dragon Attack",
-    description: "A wild dragon descends from the sky, raining fire. Only a dragon of your own can truly stop it.",
-    icon: "🐉",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/raids/dragon_attack.png",
-    tags: ["monsters"],
-    strength: 120,
-    encounters: [{ enemyId: "feral_drake", count: 1 }, { enemyId: "dragon_hatchling", count: 2 }],
-    stealsResources: true,
-    resourceStealPercent: 0.25,
-    killsCitizens: true,
-    maxCitizenLoss: 20,
-    minTier: "city",
-    baseWarning: 8,
-    victoryLoot: [{ resource: "gold", amount: 300 }, { resource: "wheat", amount: 150 }, { resource: "astralShards", amount: 8 }],
-  },
 ];
 
 // ─── Defense calculation ────────────────────────────────────────
@@ -370,7 +251,7 @@ const TIER_ORDER: SettlementTier[] = ["camp", "village", "town", "city"];
 /**
  * Get available raids for current tier.
  */
-export function getAvailableRaids(tier: SettlementTier): RaidTemplate[] {
+function getAvailableRaids(tier: SettlementTier): RaidTemplate[] {
   const tierIdx = TIER_ORDER.indexOf(tier);
   return RAID_POOL.filter((r) => TIER_ORDER.indexOf(r.minTier) <= tierIdx);
 }
@@ -384,11 +265,14 @@ export function spawnRaid(tier: SettlementTier, year: number): { raid: RaidTempl
   if (available.length === 0) return null;
 
   const raid = available[Math.floor(Math.random() * available.length)];
-  // Scale strength: +20% per year
-  const yearBonus = 1 + (year - 1) * 0.20;
-  const strength = Math.floor(raid.strength * yearBonus);
+  return { raid, strength: scaleRaidStrength(raid.strength, year) };
+}
 
-  return { raid, strength };
+/** Raid strength scales +20% per year, for progression. ONE implementation:
+ *  spawnRaid above and the scripted-raid path in gameState both call it (they
+ *  used to inline the same two lines, which is how they drift). */
+export function scaleRaidStrength(baseStrength: number, year: number): number {
+  return Math.floor(baseStrength * (1 + (year - 1) * 0.20));
 }
 
 /**
@@ -425,7 +309,7 @@ export function getRaid(raidId: string): RaidTemplate | undefined {
 
 // ─── Defense tips ───────────────────────────────────────────────
 
-export interface DefenseTip {
+interface DefenseTip {
   icon: string;
   text: string;
   actionLink?: string; // optional link to a page

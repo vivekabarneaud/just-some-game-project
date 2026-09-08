@@ -1,6 +1,8 @@
 // ─── Enemy Definitions ──────────────────────────────────────────
 // Enemies appear in mission encounters. Stats drive combat simulation.
-// Enemy HP = VIT * 10. Natural armor = VIT / 3.
+// A creature has no VIT: its `hp` and its `raw.armor` (natural hide) are both
+// authored outright. VIT used to supply both, which welded toughness to hide and
+// made HP tunable only in steps of ten.
 // Designed so unequipped adventurers struggle; gear makes the difference.
 
 export type EnemyTag =
@@ -99,8 +101,6 @@ export interface EnemyAbility {
 
 /** See combat/types.ts for the canonical definition. Re-declared here as a type
  *  alias to avoid a cross-package import (this file is leaf-level data). */
-export type EnemyAITier = "feral" | "tactical" | "cunning";
-export type EnemyTauntImmunity = "none" | "normal" | "all";
 
 export interface EnemyDefinition {
   id: string;
@@ -109,11 +109,16 @@ export interface EnemyDefinition {
   image?: string;
   description: string;
   tier: 1 | 2 | 3 | 4 | 5;
+  /** Hit points, authored outright (2026-09-04). Was VIT*10, which made HP
+   *  tunable only in steps of ten and welded toughness to hide — one stat doing
+   *  two jobs. A creature has no gear and no stat growth, so its two
+   *  survivability numbers are simply written down: `hp` here, `raw.armor`
+   *  below. VIT is gone from a creature's stat block entirely. */
+  hp: number;
   stats: {
     str: number;
     dex: number;
     int: number;
-    vit: number;
     wis: number;
   };
   /** Authored raw sub-stat bonuses (Combat Foundation §2): flat additions on top
@@ -133,8 +138,8 @@ export interface EnemyDefinition {
   boss?: boolean;
   /** Combat-stage row: "back" for ranged/casters (they set up behind the line),
    *  "front" (default) for melee. Purely presentational — where the card sits in
-   *  the formation. Distinct from aiTier (targeting), which "cunning" enemies use
-   *  to hunt the player's own backline. */
+   *  the formation. Distinct from `ai.targeting`, which backline-hunters use to
+   *  chase the player's own support line. */
   combatRole?: "front" | "back";
   /** The settlement already knows this foe by reputation before ever fighting it
    *  (named in the journal, described by scouts, etc.). Its PORTRAIT + name show
@@ -142,10 +147,11 @@ export interface EnemyDefinition {
    *  hints) stays hidden until actually fought. Contrast the default: unknown
    *  creatures stay a "???" card until first encountered. */
   revealPortrait?: boolean;
-  /** Targeting style. Default "tactical" (threat-aware scored pick). Orthogonal to boss. */
-  aiTier?: EnemyAITier;
-  /** Resistance to forced-target taunt effects. Default "none". */
-  tauntImmunity?: EnemyTauntImmunity;
+  /** Composable AI knobs (TIER1_ENEMIES §1 + ROUT_AND_FLIGHT). Author only the
+   *  knobs that make this creature distinct; anything omitted falls back to the
+   *  defaults (targeting "threat", tauntable "obeys", and fear inferred from
+   *  routsAt: no threshold = fearless, a threshold with no style = withdraws). */
+  ai?: Partial<import("./combat/types.js").AIProfile>;
   abilities?: EnemyAbility[];
   /** Pack tag (Combat Foundation, Flanker archetype): creatures sharing a `pack`
    *  string get **Pack Tactics** — a damage bonus when a packmate is also engaged
@@ -188,6 +194,10 @@ export interface EnemyDefinition {
    *  un-tuned enemy hits exactly as before) — set explicitly to hand-tune. */
   dmgMin?: number;
   dmgMax?: number;
+  /** Range band of the natural attack in paces (Combat Foundation §3): a
+   *  spitting adder strikes 6–20, a biting one 0–5. Omit for the default —
+   *  melee contact, or the ranged band when combatRole is "back". */
+  attackBand?: { min: number; max: number };
   /** Beast rout: this creature BREAKS AND FLEES when its HP falls to/below this
    *  fraction of max (0-1), surviving instead of being killed. A fled enemy
    *  counts as defeated (field cleared = victory, full performance) but yields
@@ -201,26 +211,16 @@ export const ENEMIES: EnemyDefinition[] = [
   // ── Tier 1 — Common threats ───────────────────────────────────
   // Challenging for level 1-3 with no gear. Beatable with basic gear.
   {
-    id: "goblin_scout",
-    name: "Frontier Goblin",
-    icon: "👺",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/goblin_scout.png",
-    description: "Small, sneaky, and cowardly alone, but they never come alone. The frontier breeds them like flies.",
-    tier: 1,
-    stats: { str: 4, dex: 6, int: 2, vit: 6, wis: 2 },
-    tags: ["humanoid"],
-    loot: [
-      { type: "resource", resource: "gold", chance: 0.4, min: 2, max: 8 },
-    ],
-  },
-  {
-    id: "bandit_thug",
+    id: "displaced_brigand",
     name: "Displaced Brigand",
     icon: "🗡️",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/bandit_thug.png",
     description: "A desperate man with a rusty blade. Probably a farmer before the Sundering took his land.",
     tier: 1,
-    stats: { str: 6, dex: 4, int: 2, vit: 7, wis: 2 },
+    hp: 40, // a farmer in rags, not a soldier — armour 6. A rusty blade still opens you
+    dmgMin: 5, dmgMax: 8,
+    stats: { str: 6, dex: 4, int: 2, wis: 2 },
+    raw: { armor: 6 },
     tags: ["humanoid"],
     abilities: [
       // Fights dirty: a rusty blade to the belly that leaves you bleeding.
@@ -241,18 +241,22 @@ export const ENEMIES: EnemyDefinition[] = [
       { type: "item", itemId: "brigands_jerkin", chance: 0.08 }, // or a supple leather jerkin
       { type: "item", itemId: "stranger_signet", chance: 0.01 }, // the thrill jackpot: a dead traveller's luck-charm
     ],
+    // a farmer with a rusty blade: no cleverness, but he answers whoever is hurting him and keeps swinging there
+    ai: { targeting: { threat: 1, sticky: 0.3 }, fear: "yields" },
   },
   {
-    id: "reaver_captain",
+    id: "tollman",
     name: "The Tollman",
     icon: "🪖",
     description: "The one who turned a scatter of desperate men into a company. He set a price on the road and calls it a toll. Better fed and better armed than his men, and smart enough to keep it that way.",
     tier: 1,
-    stats: { str: 9, dex: 6, int: 3, vit: 15, wis: 4 },
+    hp: 110, // mail and a captain's blade — the company's spine, and the only tier-1 foe that was ever a real threat
+    dmgMin: 8, dmgMax: 13,
+    stats: { str: 9, dex: 6, int: 3, wis: 4 },
+    raw: { armor: 30 },
     tags: ["humanoid"],
     boss: true,
     leader: true, // his presence steadies the company; break him and they scatter (morale)
-    dmgMin: 5, dmgMax: 9, // a captain's blade, kept sharp
     abilities: [
       { id: "rally", name: "Rally the Company", icon: "📣", cooldown: 4, trigger: "round_start", effect: { type: "buff_allies", stat: "str", pct: 20, rounds: 2 } },
     ],
@@ -266,17 +270,22 @@ export const ENEMIES: EnemyDefinition[] = [
       // Lucky (~12%): a fine leather coat, stashed in the camp, not on his back. Leather's rare.
       { type: "item", itemId: "reavers_leathers", chance: 0.12, keepOnRout: true },
     ],
+    // he turned a rabble into a company: reads the fight and answers whoever is hurting it
+    ai: { targeting: { threat: 1, softness: 0.5 }, fear: "yields" },
   },
   {
     // Weaker than a brigand — a hired tough, not a fighter. Comes in numbers
     // (a mob), so a mission can pit 5-6 of them and still read as low-danger.
-    id: "dominion_thug",
+    id: "dominion_tough",
     name: "Dominion Tough",
     icon: "👊",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/bandit_thug.png",
     description: "A hired hand doing a cruel errand for coin. Brave in a pack, useless out of one.",
     tier: 1,
-    stats: { str: 3, dex: 3, int: 1, vit: 4, wis: 1 },
+    hp: 44, // a padded jack; dangerous in a pack (packNerve, courage 16), was poking for 2-3
+    dmgMin: 7, dmgMax: 10,
+    stats: { str: 3, dex: 3, int: 1, wis: 1 },
+    raw: { armor: 14 },
     tags: ["humanoid"],
     abilities: [
       // Dirty and cowardly: a thrown handful of grit — you fight clumsy for a bit.
@@ -290,14 +299,19 @@ export const ENEMIES: EnemyDefinition[] = [
     loot: [
       { type: "resource", resource: "gold", chance: 0.35, min: 2, max: 6 },
     ],
+    // "brave in a pack, useless out of one" — piles onto his mates' target, but still notices who hit him
+    ai: { targeting: { ganged: 1, threat: 0.5 }, fear: "yields" },
   },
   {
-    id: "bandit_poacher",
+    id: "poacher",
     name: "Poacher",
     icon: "🏹",
     description: "An outlaw who learned his aim keeping crows off someone else's barley. Hangs back and picks you off from the treeline.",
     tier: 1,
-    stats: { str: 5, dex: 6, int: 2, vit: 5, wis: 2 },
+    hp: 34, // a woodsman with a bow, not a soldier; fragile if you reach him
+    dmgMin: 6, dmgMax: 9,
+    stats: { str: 5, dex: 6, int: 2, wis: 2 },
+    raw: { armor: 6 },
     tags: ["humanoid"],
     combatRole: "back", // hangs back with a bow — fights from range
     abilities: [
@@ -311,16 +325,20 @@ export const ENEMIES: EnemyDefinition[] = [
       { type: "item", itemId: "poachers_bow", chance: 0.12 },
       { type: "item", itemId: "stranger_signet", chance: 0.01 }, // the thrill jackpot
     ],
+    // "hangs back and picks" — a shooter choosing the soft and the separated
+    ai: { targeting: { softness: 0.8, isolation: 0.5, threat: 0.3 }, fear: "yields" },
   },
   {
-    id: "bandit_cutthroat",
+    id: "cutthroat",
     name: "Cutthroat",
     icon: "🔪",
     description: "A killer for hire with a length of wire and a fast knife. Goes for whoever looks softest.",
     tier: 1,
-    stats: { str: 6, dex: 7, int: 2, vit: 5, wis: 2 },
+    hp: 32, // no armour and little of him — a fast knife looking for the soft spot
+    dmgMin: 8, dmgMax: 11,
+    stats: { str: 6, dex: 7, int: 2, wis: 2 },
+    raw: { armor: 6 },
     tags: ["humanoid"],
-    aiTier: "cunning", // hunts the softest target it can reach
     abilities: [
       // Garrote: a strangling wire — a hit that leaves the victim choking, stunned.
       { id: "garrote", name: "Garrote", icon: "🪢", cooldown: 4, trigger: "always", effect: { type: "stun", rounds: 1 } },
@@ -332,15 +350,19 @@ export const ENEMIES: EnemyDefinition[] = [
       { type: "item", itemId: "fighting_knife", chance: 0.12 },
       { type: "item", itemId: "stranger_signet", chance: 0.01 }, // the thrill jackpot
     ],
+    // "goes for whoever looks softest" — his own words; the backline is a secondary pull
+    ai: { targeting: { softness: 1, roles: { healer: 0.4, caster: 0.4 }, threat: 0.3 }, fear: "yields" },
   },
   {
-    id: "wild_wolf",
+    id: "grey_wolf",
     name: "Grey Wolf",
     icon: "🐺",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/wild_wolf.png",
     description: "Lean, hungry, and hunting in packs. A hard season has made them bold, and a bold wolf is a dangerous one.",
     tier: 1,
-    stats: { str: 4, dex: 5, int: 1, vit: 5, wis: 1 },
+    hp: 30, // a good hit puts a wolf down; it survives by not being hit (dodge 5 + elusive 25)
+    dmgMin: 6, dmgMax: 9,
+    stats: { str: 4, dex: 5, int: 1, wis: 1 },
     tags: ["beast"],
     abilities: [
       { id: "wolf_bite", name: "Rending Bite", icon: "🩸", cooldown: 4, trigger: "always",
@@ -358,44 +380,11 @@ export const ENEMIES: EnemyDefinition[] = [
       { type: "resource", resource: "fang", chance: 0.5, min: 1, max: 2, keepOnRout: true },
       { type: "resource", resource: "sinew_cord", chance: 0.2, min: 1, max: 1 },
     ],
-    raw: { mobility: 27, dodge: 5 }, // pack hunter — fast (~36 paces/turn, closes the field in ~1.5 rounds)
+    raw: { armor: 6, mobility: 27, dodge: 5 }, // pack hunter — fast (~36 paces/turn, closes the field in ~1.5 rounds)
     elusiveAtRange: 25, // weaves through the arrows while it closes; commits at contact
     routsAt: 0.3, // a pack wolf breaks when the fight turns against it
-    aiTier: "feral"
-  },
-  {
-    id: "giant_rat",
-    name: "Ruin Rat",
-    icon: "🐀",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/giant_rat.png",
-    description: "Bloated and disease-ridden. They breed in every ruin the Sundering left behind.",
-    tier: 1,
-    stats: { str: 4, dex: 6, int: 1, vit: 5, wis: 1 },
-    tags: ["beast"],
-    loot: [
-      { type: "resource", resource: "meat", chance: 0.2, min: 1, max: 3 },
-      { type: "resource", resource: "gnawed_marrow", chance: 0.2, min: 1, max: 1 },
-    ],
-    aiTier: "feral"
-  },
-  {
-    id: "skeleton",
-    name: "Barrowfield Walker",
-    icon: "💀",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/skeleton.png",
-    description: "Bones held together by Netheron's lingering death-magic. They don't tire and they don't stop.",
-    tier: 1,
-    stats: { str: 5, dex: 3, int: 2, vit: 8, wis: 1 },
-    tags: ["undead"],
-    abilities: [
-      { id: "bone_reform", name: "Reassemble", icon: "💀", cooldown: 5, trigger: "hp_below_50",
-        effect: { type: "heal_self", pct: 25 } },
-    ],
-    loot: [
-      { type: "resource", resource: "bonewalk_shard", chance: 0.3, min: 1, max: 2 },
-      { type: "resource", resource: "barrow_ash", chance: 0.15, min: 1, max: 1 },
-    ],
-    aiTier: "feral"
+    // the pack instinct: commit together, finish the hurt one, and remember what bit you
+    ai: { targeting: { ganged: 0.8, condition: 0.4, threat: 0.3 }, fear: "withdraws" },
   },
 
   // ── Tier 0 — True novice fodder ───────────────────────────────
@@ -409,7 +398,9 @@ export const ENEMIES: EnemyDefinition[] = [
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/gaunt_wolf.png",
     description: "A lean yearling, kicked out of the pack too early. Hungry and nervous, but still a predator.",
     tier: 1,
-    stats: { str: 3, dex: 4, int: 1, vit: 3, wis: 1 },
+    hp: 22, // a lean yearling, lighter and less sure of its bite than a pack adult
+    dmgMin: 4, dmgMax: 6,
+    stats: { str: 3, dex: 4, int: 1, wis: 1 },
     tags: ["beast"],
     loot: [
       // Gaunt yearling: leaner meat + hide than a Grey, but the fang still bites.
@@ -424,10 +415,11 @@ export const ENEMIES: EnemyDefinition[] = [
         effect: { type: "bleed", pctPerRound: 10, rounds: 2 } },
     ],
     pack: "wolves",
-    raw: { mobility: 20, dodge: 3 }, // lean yearling — quick and jumpy (~28 paces/turn)
+    raw: { armor: 4, mobility: 20, dodge: 3 }, // lean yearling — quick and jumpy (~28 paces/turn)
     elusiveAtRange: 25, // jumpy and hard to pin while it closes
     routsAt: 0.35, // a nervous, starving yearling, breaks and runs easily
-    aiTier: "feral"
+    // "kicked out of the pack too early, hungry and nervous" — a loner, so NOT ganged: it takes the safe target
+    ai: { targeting: { isolation: 0.6, condition: 0.6, threat: 0.3 }, fear: "withdraws" },
   },
   {
     // The runt of the pack — half-starved, barely more than skin and ribs. Weak
@@ -441,7 +433,9 @@ export const ENEMIES: EnemyDefinition[] = [
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/gaunt_wolf.png",
     description: "Skin stretched over ribs, driven to the wall by pure hunger. Little fight left in it, but a cornered starving thing still bites.",
     tier: 1,
-    stats: { str: 2, dex: 3, int: 1, vit: 2, wis: 1 },
+    hp: 14, // skin and ribs; a single solid blow ends it
+    dmgMin: 3, dmgMax: 5,
+    stats: { str: 2, dex: 3, int: 1, wis: 1 },
     tags: ["beast"],
     loot: [
       // Starving runt: skin and ribs — scraps of meat/hide, but the fang keeps its worth.
@@ -451,10 +445,11 @@ export const ENEMIES: EnemyDefinition[] = [
       { type: "resource", resource: "sinew_cord", chance: 0.1, min: 1, max: 1 },
     ],
     pack: "wolves",
-    raw: { mobility: 8 }, // spent and slow for a wolf, but still quicker than a boar (~16 paces/turn)
+    raw: { armor: 2, mobility: 8 }, // spent and slow for a wolf, but still quicker than a boar (~16 paces/turn)
     elusiveAtRange: 15, // still weaves, but half-starved and easier to catch
     routsAt: 0.45, // barely holding together; breaks the moment it's hurt
-    aiTier: "feral"
+    // "little fight left in it" — desperation goes for whatever is already failing
+    ai: { targeting: { condition: 1, softness: 0.5, threat: 0.2 }, fear: "withdraws" },
   },
   {
     id: "wild_boar",
@@ -462,18 +457,43 @@ export const ENEMIES: EnemyDefinition[] = [
     icon: "🐗",
     description: "All muscle and bad temper, and quick for its size. Those tusks are not for show.",
     tier: 1,
-    stats: { str: 5, dex: 3, int: 1, vit: 6, wis: 1 }, // out-muscles + out-tanks a lone wolf
+    // BURST, NOT ATTRITION (BALANCE_PASS, tuned 2026-09-04, re-measured against
+    // the common-gear baseline 2026-09-06). It was 60 hp poking for 2-4 — a
+    // piñata with tusks that needed 21 hits to drop a level-2 warrior while she
+    // killed it in 10, i.e. a twenty-round slap fight. A boar does not grind you
+    // down, it opens you up. The 7-11 gore is the approved number; what changed
+    // on 2026-09-06 is the HIDE — a boar's shoulder shield is the reason hunters
+    // carried heavy spears, so armour went 9 -> 18 and hp 30 -> 34. Two boars
+    // (`lean_times`) now cost a geared pair 39% of its health.
+    hp: 34, // the shoulder shield is a boar's signature — armour 18, not bulk
+    dmgMin: 7, dmgMax: 11,
+    stats: { str: 5, dex: 3, int: 1, wis: 1 },
     tags: ["beast"],
     loot: [
-      // The clean, healthy boar: good meat + its full materials (hide, tusk-shards).
-      { type: "resource", resource: "meat", chance: 0.5, min: 2, max: 4 },
+      // The clean, healthy boar: the MEAT IS THE REWARD (ROUT_AND_FLIGHT). Lean
+      // Times pays nothing flat — a slain boar dresses out guaranteed, a fled
+      // one keeps its meat (no keepOnRout), so what reaches the larder is
+      // exactly what the hunters brought down. Two slain ≈ the old flat 20.
+      // Typed "boar", not generic "meat" (which grantReward deposits as
+      // venison) — hunting a boar should fill the boar shelf.
+      { type: "resource", resource: "boar", chance: 1, min: 8, max: 12 },
       { type: "resource", resource: "bristlehide", chance: 0.35, min: 1, max: 2 },
       { type: "resource", resource: "tusk_shard", chance: 0.8, min: 1, max: 2 },
       { type: "resource", resource: "boar_tusk", chance: 0.08, min: 1, max: 1 }, // rare: a tusk out clean
     ],
-    charge: { range: 40, cooldown: 99 }, // one devastating charge, then it fights or flees
+    // It WHEELS AND COMES AGAIN. cooldown was 99 — one charge per fight, then it
+    // walked. A real boar charges, passes, turns and charges again, which is
+    // what the speed below is for.
+    charge: { range: 40, cooldown: 3 },
+    // Faster than a woman in mail (11) and slower than a coursing wolf (36). It
+    // was 8 — the boar was outrun by the armoured warrior chasing it, which for
+    // an animal that sprints at ~40km/h was simply wrong.
+    raw: { armor: 18, mobility: 12 }, // -> ~20 effective; armour 18 = the shoulder shield
     routsAt: 0.3, // a wild animal — breaks and flees when the fight turns against it
-    aiTier: "feral"
+    // all muscle and bad temper: whatever is in front of it. An EMPTY vector
+    // (not an omitted one — that would take the threat-reading default) means
+    // the reach factor alone decides, which IS this behaviour.
+    ai: { targeting: {}, fear: "bolts" },
   },
   {
     id: "goblin_runt",
@@ -481,63 +501,33 @@ export const ENEMIES: EnemyDefinition[] = [
     icon: "👺",
     description: "The smallest of the goblin scouts, usually sent ahead to spring the traps. Underestimate it and it will make you bleed.",
     tier: 1,
-    stats: { str: 2, dex: 4, int: 2, vit: 3, wis: 2 },
+    hp: 20, // small and vicious — underestimate it and it makes you pay
+    dmgMin: 5, dmgMax: 8,
+    stats: { str: 2, dex: 4, int: 2, wis: 2 },
+    raw: { armor: 6 },
     tags: ["humanoid"],
     loot: [
       { type: "resource", resource: "gold", chance: 0.3, min: 1, max: 4 },
     ],
-    aiTier: "feral"
+    // a scout sent to spring the traps — it picks off rather than brawls
+    ai: { targeting: { condition: 0.3, isolation: 0.4, threat: 0.3 } },
   },
 
   // ── Tier 2 — Organized threats ────────────────────────────────
   // Require level 4-6 WITH basic gear. Dangerous without.
   {
-    id: "gharkal_raider",
-    name: "Ghar'kal Raider",
-    icon: "👹",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/orc_warrior.png",
-    description: "Broad-shouldered and battle-scarred. Driven north by the spreading Wastes, they fight for what land is left: kill or be displaced.",
-    tier: 2,
-    stats: { str: 18, dex: 7, int: 2, vit: 20, wis: 3 },
-    tags: ["humanoid"],
-    abilities: [
-      { id: "orc_warcry", name: "War Cry", icon: "📯", cooldown: 4, trigger: "always",
-        effect: { type: "buff_allies", stat: "str", pct: 20, rounds: 2 } },
-    ],
-    loot: [
-      { type: "resource", resource: "gold", chance: 0.5, min: 5, max: 15 },
-      { type: "resource", resource: "orc_steel", chance: 0.2, min: 1, max: 1 },
-      { type: "resource", resource: "war_paint", chance: 0.1, min: 1, max: 1 },
-    ],
-  },
-  {
-    id: "skeleton_archer",
-    name: "Barrowfield Archer",
-    icon: "🏹",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/skeleton_archer.png",
-    description: "Dead eyes, steady aim. Barrowfield archers who kept their skill past death. They never miss twice.",
-    tier: 2,
-    stats: { str: 6, dex: 16, int: 3, vit: 12, wis: 2 },
-    tags: ["undead"],
-    combatRole: "back",
-    loot: [
-      { type: "resource", resource: "cursed_iron", chance: 0.2, min: 1, max: 1 },
-      { type: "resource", resource: "bonewalk_shard", chance: 0.3, min: 1, max: 2 },
-    ],
-    aiTier: "feral"
-  },
-  {
-    id: "bandit_captain",
+    id: "dominion_deserter",
     name: "Dominion Deserter",
     icon: "⚔️",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/bandit_captain.png",
     description: "A former Dominion soldier turned outlaw. Dangerous because he still fights like one.",
     tier: 2,
-    stats: { str: 16, dex: 11, int: 5, vit: 18, wis: 5 },
+    hp: 180,
+    stats: { str: 16, dex: 11, int: 5, wis: 5 },
     tags: ["humanoid"],
     boss: true,
     leader: true, // a living anchor — the rabble holds while he stands, breaks when he falls
-    raw: { dodge: 12 }, // disciplined footwork, deflects blows (STR-parry proper lands with hit-resolution)
+    raw: { armor: 54, dodge: 12 }, // disciplined footwork, deflects blows (STR-parry proper lands with hit-resolution)
     dmgMin: 6, dmgMax: 11, // a soldier's blade, wielded like one
     abilities: [
       // Steadies and stiffens the men — a veteran's command in the thick of it.
@@ -548,15 +538,19 @@ export const ENEMIES: EnemyDefinition[] = [
       { type: "item", itemId: "iron_sword", chance: 0.10 },
       { type: "item", itemId: "stranger_signet", chance: 0.01 }, // the thrill jackpot
     ],
+    // "still fights like one": trained discipline reads the threat
+    ai: { targeting: { threat: 1, softness: 0.4 } },
   },
   {
-    id: "cave_spider",
+    id: "cave_spinner",
     name: "Cave Spinner",
     icon: "🕷️",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/cave_spider.png",
     description: "Silent, venomous, and the size of a dog. The old Khazdurim mines are thick with them now.",
     tier: 2,
-    stats: { str: 10, dex: 16, int: 1, vit: 12, wis: 2 },
+    hp: 120,
+    stats: { str: 10, dex: 16, int: 1, wis: 2 },
+    raw: { armor: 36 },
     tags: ["beast"],
     abilities: [
       { id: "spider_venom", name: "Venomous Bite", icon: "☠️", cooldown: 3, trigger: "always",
@@ -566,7 +560,8 @@ export const ENEMIES: EnemyDefinition[] = [
       { type: "resource", resource: "spinners_bile", chance: 0.25, min: 1, max: 1 },
       { type: "resource", resource: "chitin_plate", chance: 0.15, min: 1, max: 1 },
     ],
-    aiTier: "feral"
+    // silent and venomous — an ambusher, for the soft and the strayed
+    ai: { targeting: { softness: 0.8, isolation: 0.4 } },
   },
   {
     id: "rock_skitter",
@@ -577,99 +572,41 @@ export const ENEMIES: EnemyDefinition[] = [
     tier: 1,
     // Fast and fragile swarm fodder — no venom (that stays the Spinner's mark).
     // Meant to be fought several at once, like brigands.
-    stats: { str: 4, dex: 8, int: 1, vit: 5, wis: 1 },
+    hp: 18, // HAND-SIZED, and never alone. 50 hp made a tide of bugs unkillable; chitin (armour 10) is its only real defence
+    dmgMin: 3, dmgMax: 5,
+    stats: { str: 4, dex: 8, int: 1, wis: 1 },
+    raw: { armor: 10 },
     tags: ["beast"],
     loot: [
       { type: "resource", resource: "chitin_plate", chance: 0.1, min: 1, max: 1 },
     ],
-    aiTier: "feral"
+    // "never alone, boil up out of the dark" — a swarm is nothing BUT ganging up
+    ai: { targeting: { ganged: 1 } },
   },
   {
-    id: "cursed_spirit",
+    id: "grief_bound_spirit",
     name: "Grief-Bound Spirit",
     icon: "👻",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/cursed_spirit.png",
     description: "A restless soul from before the Sundering, bound to this place by old grief. Its wail chills the blood.",
     tier: 1,
-    stats: { str: 3, dex: 5, int: 8, vit: 8, wis: 6 },
+    hp: 40, // no body to speak of; it wounds through cold, not bulk
+    dmgMin: 6, dmgMax: 9,
+    stats: { str: 3, dex: 5, int: 8, wis: 6 },
+    raw: { armor: 12 },
     tags: ["ghost", "magical"],
     loot: [
       { type: "resource", resource: "veilmist", chance: 0.20, min: 1, max: 1 },
       { type: "resource", resource: "soul_shard", chance: 0.08, min: 1, max: 1 },
     ],
+    // bound by old grief, not tactics: it wails at whatever is nearest. An
+    // EMPTY vector, not an omitted one — omitting it takes the threat-reading
+    // default, and a thing made of sorrow holds no grudge against anyone.
+    ai: { targeting: {} },
   },
 
   // ── Tier 3 — Dangerous foes ───────────────────────────────────
   // Require level 6-10 with decent gear. Party composition matters.
-  {
-    id: "gharkal_warlord",
-    name: "Ghar'kal Warlord",
-    icon: "🔱",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/orc_warlord.png",
-    description: "Commands the displaced southern clans through strength alone. Kill the warlord and the warband scatters.",
-    tier: 3,
-    stats: { str: 26, dex: 8, int: 3, vit: 28, wis: 5 },
-    tags: ["humanoid"],
-    boss: true,
-    abilities: [
-      { id: "warlord_rally", name: "Rally the Clans", icon: "📯", cooldown: 4, trigger: "always",
-        effect: { type: "buff_allies", stat: "str", pct: 30, rounds: 2 } },
-      { id: "warlord_cleave", name: "Devastating Cleave", icon: "⚔️", cooldown: 3, trigger: "always",
-        effect: { type: "damage_mult", mult: 2.0, targets: 2 } },
-    ],
-    loot: [
-      { type: "resource", resource: "gold", chance: 0.9, min: 30, max: 80 },
-      { type: "resource", resource: "orc_steel", chance: 0.5, min: 1, max: 3 },
-      { type: "resource", resource: "torn_banner", chance: 0.3, min: 1, max: 1 },
-      { type: "item", itemId: "iron_armor", chance: 0.08 },
-    ],
-    aiTier: "cunning"
-  },
-  {
-    id: "dark_mage",
-    name: "Veil-Touched Scholar",
-    icon: "🧙",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/dark_mage.png",
-    description: "A scholar who dug too deep into pre-Sundering texts. The air crackles and tastes of copper near him.",
-    tier: 3,
-    stats: { str: 4, dex: 7, int: 26, vit: 14, wis: 18 },
-    tags: ["humanoid", "magical"],
-    combatRole: "back",
-    boss: true,
-    abilities: [
-      { id: "mind_control", name: "Dominate Mind", icon: "🧠", cooldown: 5, trigger: "always",
-        effect: { type: "mind_control", rounds: 1 } },
-      { id: "dark_bolt", name: "Dark Bolt", icon: "⚡", cooldown: 2, trigger: "always",
-        effect: { type: "damage_mult", mult: 1.8, targets: 1 } },
-    ],
-    loot: [
-      { type: "resource", resource: "astralShards", chance: 0.25, min: 1, max: 2 },
-      { type: "resource", resource: "nightbloom", chance: 0.15, min: 1, max: 1 },
-      { type: "resource", resource: "nettle", chance: 0.2, min: 1, max: 2 },
-      { type: "item", itemId: "enchanted_staff", chance: 0.08 },
-    ],
-    aiTier: "cunning"
-  },
-  {
-    id: "wraith",
-    name: "Netheron's Shade",
-    icon: "👤",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/wraith.png",
-    description: "Not quite alive, not quite dead. Born where Netheron's death-essence seeps thickest. Steel passes through it.",
-    tier: 3,
-    stats: { str: 10, dex: 12, int: 20, vit: 16, wis: 14 },
-    tags: ["ghost", "magical"],
-    abilities: [
-      { id: "life_drain", name: "Life Drain", icon: "💀", cooldown: 3, trigger: "always",
-        effect: { type: "damage_mult", mult: 1.5, targets: 1 } },
-      { id: "wail", name: "Chilling Wail", icon: "😱", cooldown: 4, trigger: "always",
-        effect: { type: "debuff_target", stat: "str", pct: 30, rounds: 2 } },
-    ],
-    loot: [
-      { type: "resource", resource: "ghostweave", chance: 0.2, min: 1, max: 1 },
-      { type: "resource", resource: "veilmist", chance: 0.3, min: 1, max: 2 },
-    ],
-  },
   // ── ENGINE TEST STUB ──────────────────────────────────────────
   // Captain Hale stand-in for the npc-escort engine test. Real Hale stats,
   // lore, and portrait will be authored by the parallel story thread —
@@ -682,15 +619,15 @@ export const ENEMIES: EnemyDefinition[] = [
     description: "He held the post for forty-seven days after the order to fall back never came. The Wastes wore him down to grief and silence. Now he stands his line still, and the dead under him will not let go.",
     revealPortrait: true, // his name + story are in the journal before we face him
     tier: 2, // cosmetic (frame only) — an early Chapter-1 boss, not a mid-tier one
-    stats: { str: 14, dex: 14, int: 24, vit: 26, wis: 18 },
+    hp: 260,
+    stats: { str: 14, dex: 14, int: 24, wis: 18 },
+    raw: { armor: 78 },
     tags: ["ghost", "magical"],
     boss: true,
     // A tired, anguished soul who "stands his line" — not a scheming elite. He
     // fights whoever presses him (threat-aware) and CAN be goaded by a warrior's
     // taunt, rather than coldly hunting the backline. Makes the first real fight
     // winnable by peeling him onto the tank.
-    aiTier: "tactical",
-    tauntImmunity: "none",
     abilities: [
       { id: "spectral_lash", name: "Spectral Lash", icon: "💢", cooldown: 2, trigger: "always",
         effect: { type: "damage_mult", mult: 1.75, targets: 1 } },
@@ -702,91 +639,15 @@ export const ENEMIES: EnemyDefinition[] = [
       { type: "resource", resource: "ghostweave", chance: 0.4, min: 1, max: 2 },
       { type: "resource", resource: "soul_shard", chance: 0.25, min: 1, max: 1 },
     ],
-  },
-  {
-    id: "troll",
-    name: "Thornveil Troll",
-    icon: "🧌",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/troll.png",
-    description: "Massive, foul-smelling, and nearly impossible to kill. The Thornveil Rangers say they've been pushing further from the Wastes each year.",
-    tier: 3,
-    stats: { str: 28, dex: 4, int: 1, vit: 35, wis: 2 },
-    tags: ["beast"],
-    boss: true,
-    abilities: [
-      { id: "troll_regen", name: "Regeneration", icon: "💚", cooldown: 0, trigger: "round_start",
-        effect: { type: "heal_self", pct: 15 } },
-      { id: "troll_slam", name: "Ground Slam", icon: "💥", cooldown: 4, trigger: "always",
-        effect: { type: "aoe_damage", pct: 40, magical: false } },
-    ],
-    loot: [
-      { type: "resource", resource: "trollhide", chance: 0.4, min: 1, max: 2 },
-      { type: "resource", resource: "gnawed_marrow", chance: 0.6, min: 2, max: 4 },
-      { type: "resource", resource: "gold", chance: 0.5, min: 10, max: 30 },
-    ],
-    aiTier: "feral"
+    // forty-seven days holding a post: a soldier still reading the line
+    ai: { targeting: { threat: 1, softness: 0.3 } },
   },
 
   // ── Tier 3 — Elemental threats ──────────────────────────────
-  {
-    id: "flame_wisp",
-    name: "Ley-Flame Wisp",
-    icon: "🔥",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/flame_wisp.png",
-    description: "A mote of living Aether-fire, born where the ley lines broke during the Sundering. Small, but it sets everything ablaze.",
-    tier: 3,
-    stats: { str: 14, dex: 18, int: 16, vit: 14, wis: 6 },
-    tags: ["elemental_fire", "magical"],
-    loot: [
-      { type: "resource", resource: "livingflame_bead", chance: 0.25, min: 1, max: 1 },
-    ],
-  },
-  {
-    id: "stone_golem",
-    name: "Aether-Hewn Golem",
-    icon: "🗿",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/stone_golem.png",
-    description: "A hulk of animated granite, shaped by Aether leaking from a shattered ley line. It doesn't think, doesn't feel, and doesn't stop.",
-    tier: 3,
-    stats: { str: 28, dex: 2, int: 1, vit: 32, wis: 1 },
-    tags: ["elemental_earth"],
-    boss: true,
-    loot: [
-      { type: "resource", resource: "heartstone", chance: 0.3, min: 1, max: 1 },
-      { type: "resource", resource: "stone", chance: 0.9, min: 20, max: 50 },
-    ],
-  },
-  {
-    id: "storm_sprite",
-    name: "Sky-Thorn",
-    icon: "⚡",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/storm_sprite.png",
-    description: "A crackling ball of wind and lightning. The Khor'vani call them sky-thorns, they swarm where Aether converges.",
-    tier: 3,
-    stats: { str: 6, dex: 24, int: 14, vit: 10, wis: 8 },
-    tags: ["elemental_wind", "magical"],
-    loot: [
-      { type: "resource", resource: "thunderglass", chance: 0.2, min: 1, max: 1 },
-      { type: "resource", resource: "windweave_fiber", chance: 0.15, min: 1, max: 1 },
-    ],
-  },
-  {
-    id: "tide_serpent",
-    name: "Aether Serpent",
-    icon: "🌊",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/tide_serpent.png",
-    description: "Born from stagnant Aether pooling in old Khazdurim waterways. Its body flows like water because it is water.",
-    tier: 3,
-    stats: { str: 16, dex: 14, int: 12, vit: 20, wis: 8 },
-    tags: ["elemental_water", "magical"],
-    loot: [
-      { type: "resource", resource: "frozen_droplet", chance: 0.2, min: 1, max: 1 },
-    ],
-  },
 
   // ── Tier 3 — Ghost threats ────────────────────────────────────
   {
-    id: "wailing_phantom",
+    id: "wastes_phantom",
     name: "Wastes Phantom",
     icon: "👻",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/wailing_phantom.png",
@@ -794,291 +655,25 @@ export const ENEMIES: EnemyDefinition[] = [
     // Cosmetic only (tier drives the card frame, not combat). Kept at tier 2 so
     // an early Chapter-1 foe doesn't wear the tier-3 "rare" frame.
     tier: 2,
-    stats: { str: 8, dex: 14, int: 22, vit: 12, wis: 16 },
+    hp: 120,
+    stats: { str: 8, dex: 14, int: 22, wis: 16 },
+    raw: { armor: 36 },
     tags: ["ghost"],
     loot: [
       { type: "resource", resource: "veilmist", chance: 0.25, min: 1, max: 1 },
       { type: "resource", resource: "ghostweave", chance: 0.10, min: 1, max: 1 },
     ],
+    // "remembers how it died" — vengeance answers whoever is hurting it now
+    ai: { targeting: { threat: 0.8, condition: 0.3 } },
   },
 
   // ── Dragon threats (spread across tiers) ───────────────────────
-  {
-    id: "wyrmling",
-    name: "Stray Wyrmling",
-    icon: "🦎",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/wyrmling.png",
-    description: "Barely hatched and confused. The Thornveil scouts say dragon clutches are appearing further from the mountains each season.",
-    tier: 2,
-    stats: { str: 12, dex: 14, int: 6, vit: 14, wis: 4 },
-    tags: ["dragon", "magical"],
-    loot: [
-      { type: "resource", resource: "dragonfire_ash", chance: 0.3, min: 1, max: 2 },
-    ],
-    aiTier: "feral"
-  },
-  {
-    id: "dragon_hatchling",
-    name: "Ley-Woken Hatchling",
-    icon: "🐉",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/dragon_hatchling.png",
-    description: "A few months old. Already singes stone. The Silvaneth warned us, the dragons are waking with the ley lines.",
-    tier: 3,
-    stats: { str: 18, dex: 10, int: 12, vit: 22, wis: 6 },
-    tags: ["dragon", "magical"],
-    abilities: [
-      { id: "fire_breath_small", name: "Fire Breath", icon: "🔥", cooldown: 3, trigger: "always",
-        effect: { type: "aoe_damage", pct: 35, magical: true } },
-    ],
-    loot: [
-      { type: "resource", resource: "wyrmshell_plate", chance: 0.25, min: 1, max: 2 },
-      { type: "resource", resource: "dragonfire_ash", chance: 0.4, min: 1, max: 3 },
-    ],
-    aiTier: "feral"
-  },
 
   // ── Tier 4 — Elite threats ────────────────────────────────────
   // Require level 10-15 with good gear. Full party required.
-  {
-    id: "feral_drake",
-    name: "Hollow Drake",
-    icon: "🐉",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/feral_drake.png",
-    description: "An adolescent dragon that survived alone in the Hollow Wastes. Vicious, fast, and smart enough to ambush. It has never known kindness.",
-    tier: 4,
-    stats: { str: 26, dex: 16, int: 18, vit: 32, wis: 12 },
-    tags: ["dragon", "magical"],
-    boss: true,
-    abilities: [
-      { id: "drake_fire", name: "Inferno Breath", icon: "🔥", cooldown: 3, trigger: "always",
-        effect: { type: "aoe_damage", pct: 50, magical: true } },
-      { id: "drake_roar", name: "Terrifying Roar", icon: "😱", cooldown: 4, trigger: "always",
-        effect: { type: "debuff_target", stat: "str", pct: 25, rounds: 2 } },
-    ],
-    loot: [
-      { type: "resource", resource: "wyrmshell_plate", chance: 0.5, min: 2, max: 4 },
-      { type: "resource", resource: "dragon_blood", chance: 0.3, min: 1, max: 2 },
-      { type: "resource", resource: "dragon_fang", chance: 0.2, min: 1, max: 1 },
-    ],
-  },
-  {
-    id: "wasteland_wyrm",
-    name: "Netheron's Wyrm",
-    icon: "🐲",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/wasteland_wyrm.png",
-    description: "A dragon born too close to Netheron's corpse. Its scales are blackened, its breath is necrotic. The land dies where it rests.",
-    tier: 4,
-    stats: { str: 30, dex: 12, int: 22, vit: 36, wis: 14 },
-    tags: ["dragon", "magical", "undead"],
-    boss: true,
-    loot: [
-      { type: "resource", resource: "wyrmshell_plate", chance: 0.6, min: 2, max: 5 },
-      { type: "resource", resource: "dragon_blood", chance: 0.4, min: 1, max: 3 },
-      { type: "resource", resource: "shadow_fragment", chance: 0.15, min: 1, max: 1 },
-    ],
-  },
-  {
-    id: "lich_apprentice",
-    name: "Half-Lich",
-    icon: "☠️",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/lich_apprentice.png",
-    description: "A Hauts-Cieux scholar who traded his life for power. Not yet a true lich, but Netheron's whisper grows louder in him.",
-    tier: 4,
-    stats: { str: 8, dex: 8, int: 30, vit: 22, wis: 20 },
-    tags: ["undead", "magical"],
-    boss: true,
-    abilities: [
-      { id: "raise_dead", name: "Raise Dead", icon: "💀", cooldown: 5, trigger: "ally_dead",
-        effect: { type: "revive_ally", hpPct: 40 } },
-      { id: "death_bolt", name: "Death Bolt", icon: "⚡", cooldown: 2, trigger: "always",
-        effect: { type: "damage_mult", mult: 2.0, targets: 1 } },
-      { id: "summon_skeletons", name: "Summon Skeletons", icon: "💀", cooldown: 6, trigger: "always",
-        effect: { type: "summon", enemyId: "skeleton", count: 2 } },
-    ],
-    loot: [
-      { type: "resource", resource: "lichglass", chance: 0.2, min: 1, max: 1 },
-      { type: "resource", resource: "shimmer", chance: 0.3, min: 1, max: 2 },
-      { type: "resource", resource: "barrow_ash", chance: 0.5, min: 2, max: 4 },
-      { type: "resource", resource: "nightbloom", chance: 0.12, min: 1, max: 1 },
-      { type: "resource", resource: "moonpetal", chance: 0.05, min: 1, max: 1 },
-      { type: "item", itemId: "enchanted_staff", chance: 0.06 },
-    ],
-    aiTier: "cunning"
-  },
-  {
-    id: "demon_scout",
-    name: "Ashland Fiend",
-    icon: "😈",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/demon_scout.png",
-    description: "A minor fiend slipping through cracks the Sundering left in the veil. Its masters in the Ashlands are watching.",
-    tier: 4,
-    stats: { str: 22, dex: 16, int: 14, vit: 24, wis: 12 },
-    tags: ["demon", "magical"],
-    loot: [
-      { type: "resource", resource: "ashblood", chance: 0.3, min: 1, max: 2 },
-      { type: "resource", resource: "hellite", chance: 0.2, min: 1, max: 1 },
-      { type: "resource", resource: "infernal_link", chance: 0.15, min: 1, max: 1 },
-    ],
-  },
-  {
-    id: "magma_golem",
-    name: "Ironspine Golem",
-    icon: "🌋",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/magma_golem.png",
-    description: "Stone and fire fused by raw Aether deep beneath the Ironspine. The Khazdurim sealed these things away. The seals are failing.",
-    tier: 4,
-    stats: { str: 30, dex: 4, int: 8, vit: 34, wis: 4 },
-    tags: ["elemental_fire", "elemental_earth"],
-    boss: true,
-    loot: [
-      { type: "resource", resource: "heartstone", chance: 0.4, min: 1, max: 2 },
-      { type: "resource", resource: "livingflame_bead", chance: 0.3, min: 1, max: 2 },
-      { type: "resource", resource: "stone", chance: 0.8, min: 30, max: 60 },
-    ],
-  },
-  {
-    id: "aether_wraith",
-    name: "Crystalline Revenant",
-    icon: "✨",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/aether_wraith.png",
-    description: "Pure crystallized Aether given form. Spells dissolve on contact, it eats magic. Only steel and fists will do.",
-    tier: 4,
-    stats: { str: 12, dex: 20, int: 28, vit: 20, wis: 18 },
-    tags: ["elemental_aether", "magical"],
-    boss: true,
-    loot: [
-      { type: "resource", resource: "shimmer", chance: 0.5, min: 1, max: 3 },
-      { type: "resource", resource: "astralShards", chance: 0.4, min: 1, max: 2 },
-    ],
-  },
-  {
-    id: "temple_guardian",
-    name: "Korrath's Sentinel",
-    icon: "⚜️",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/temple_guardian.png",
-    description: "A divine sentinel of Korrath, still guarding his shrine after millennia. It doesn't know its god is dormant.",
-    tier: 4,
-    stats: { str: 26, dex: 10, int: 18, vit: 28, wis: 22 },
-    tags: ["divine", "magical"],
-    boss: true,
-    loot: [
-      { type: "resource", resource: "godspark", chance: 0.15, min: 1, max: 1 },
-      { type: "resource", resource: "dormant_sigil", chance: 0.25, min: 1, max: 1 },
-    ],
-  },
-  {
-    id: "banshee",
-    name: "Silvaneth Keener",
-    icon: "💀",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/banshee.png",
-    description: "Her scream kills. Not metaphorically. A Silvaneth priestess who died in the Sundering and never forgave the world for surviving.",
-    tier: 4,
-    stats: { str: 4, dex: 16, int: 28, vit: 18, wis: 20 },
-    tags: ["ghost", "magical"],
-    boss: true,
-    abilities: [
-      { id: "banshee_scream", name: "Death Scream", icon: "💀", cooldown: 4, trigger: "always",
-        effect: { type: "aoe_damage", pct: 45, magical: true } },
-      { id: "banshee_wail", name: "Soul-Rending Wail", icon: "😱", cooldown: 5, trigger: "hp_below_50",
-        effect: { type: "debuff_target", stat: "int", pct: 40, rounds: 3 } },
-    ],
-    loot: [
-      { type: "resource", resource: "keening_shard", chance: 0.25, min: 1, max: 1 },
-      { type: "resource", resource: "ghostweave", chance: 0.4, min: 1, max: 2 },
-      { type: "resource", resource: "veilmist", chance: 0.5, min: 1, max: 3 },
-    ],
-  },
 
   // ── Tier 5 — Legendary ────────────────────────────────────────
   // Require level 18+ fully geared elite party. Expect casualties.
-  {
-    id: "ancient_wyrm",
-    name: "Elder Wyrm",
-    icon: "🐲",
-    description: "A thousand years of hunger, rage, and fire. It remembers the world before the Sundering. Kingdoms have fallen to lesser dragons.",
-    tier: 5,
-    stats: { str: 40, dex: 14, int: 22, vit: 50, wis: 16 },
-    tags: ["dragon", "magical"],
-    boss: true,
-    abilities: [
-      { id: "wyrm_inferno", name: "Ancient Inferno", icon: "🔥", cooldown: 3, trigger: "always",
-        effect: { type: "aoe_damage", pct: 60, magical: true } },
-      { id: "wyrm_crush", name: "Tail Crush", icon: "💥", cooldown: 2, trigger: "always",
-        effect: { type: "damage_mult", mult: 2.5, targets: 2 } },
-      { id: "wyrm_roar", name: "Primordial Roar", icon: "😱", cooldown: 5, trigger: "hp_below_50",
-        effect: { type: "debuff_target", stat: "dex", pct: 40, rounds: 3 } },
-    ],
-    loot: [
-      { type: "resource", resource: "wyrm_scale", chance: 0.8, min: 3, max: 6 },
-      { type: "resource", resource: "dragon_blood", chance: 0.7, min: 2, max: 5 },
-      { type: "resource", resource: "wyrm_heart", chance: 0.15, min: 1, max: 1 },
-      { type: "resource", resource: "astralShards", chance: 0.9, min: 3, max: 8 },
-    ],
-    aiTier: "cunning"
-  },
-  {
-    id: "shadow_lord",
-    name: "Voidwalker",
-    icon: "🌑",
-    description: "A being of pure darkness from beyond the veil the gods once maintained. With them dormant, it walks freely.",
-    tier: 5,
-    stats: { str: 28, dex: 18, int: 35, vit: 38, wis: 24 },
-    tags: ["demon", "magical"],
-    boss: true,
-    abilities: [
-      { id: "void_dominate", name: "Dominate Will", icon: "🧠", cooldown: 5, trigger: "always",
-        effect: { type: "mind_control", rounds: 2 } },
-      { id: "void_blast", name: "Void Eruption", icon: "🌑", cooldown: 3, trigger: "always",
-        effect: { type: "aoe_damage", pct: 55, magical: true } },
-      { id: "reality_tear", name: "Reality Tear", icon: "💜", cooldown: 4, trigger: "hp_below_50",
-        effect: { type: "summon", enemyId: "cursed_spirit", count: 2 } },
-    ],
-    loot: [
-      { type: "resource", resource: "shadow_fragment", chance: 0.4, min: 1, max: 2 },
-      { type: "resource", resource: "voidthorn", chance: 0.2, min: 1, max: 1 },
-      { type: "resource", resource: "ashblood", chance: 0.6, min: 2, max: 4 },
-      { type: "resource", resource: "astralShards", chance: 0.9, min: 3, max: 6 },
-    ],
-    aiTier: "cunning"
-  },
-  {
-    id: "seraph_fallen",
-    name: "Fallen Radiance",
-    icon: "👼",
-    description: "Once a fragment of divine will, abandoned when the gods fell dormant. Now corrupted, weeping light and fury. It still believes it's righteous.",
-    tier: 5,
-    stats: { str: 32, dex: 16, int: 30, vit: 36, wis: 28 },
-    tags: ["divine", "magical"],
-    boss: true,
-    abilities: [
-      { id: "divine_wrath", name: "Divine Wrath", icon: "⚡", cooldown: 3, trigger: "always",
-        effect: { type: "aoe_damage", pct: 55, magical: true } },
-      { id: "seraph_heal", name: "Corrupted Blessing", icon: "💛", cooldown: 4, trigger: "any_ally_below_30",
-        effect: { type: "heal_ally", pct: 40 } },
-      { id: "judgment", name: "Righteous Judgment", icon: "👼", cooldown: 5, trigger: "hp_below_50",
-        effect: { type: "damage_mult", mult: 3.0, targets: 1 } },
-    ],
-    loot: [
-      { type: "resource", resource: "seraphs_grief", chance: 0.2, min: 1, max: 1 },
-      { type: "resource", resource: "godspark", chance: 0.4, min: 1, max: 2 },
-      { type: "resource", resource: "astralShards", chance: 0.9, min: 4, max: 8 },
-    ],
-  },
-  {
-    id: "aether_colossus",
-    name: "Aether Colossus of the Old Age",
-    icon: "💠",
-    description: "A towering construct of pure crystallized Aether from the age before the Sundering. Magic is meaningless against it. Bring hammers.",
-    tier: 5,
-    stats: { str: 20, dex: 8, int: 38, vit: 44, wis: 26 },
-    tags: ["elemental_aether"],
-    boss: true,
-    loot: [
-      { type: "resource", resource: "aether_core", chance: 0.2, min: 1, max: 1 },
-      { type: "resource", resource: "shimmer", chance: 0.8, min: 3, max: 6 },
-      { type: "resource", resource: "astralShards", chance: 0.9, min: 5, max: 10 },
-    ],
-  },
 
   // ── New Enemies — Content Expansion ────────────────────────────
 
@@ -1090,7 +685,10 @@ export const ENEMIES: EnemyDefinition[] = [
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/forest_bear.png",
     description: "A massive brown bear, territorial and aggressive. They don't hunt people, but get between one and its den and it will kill you.",
     tier: 1,
-    stats: { str: 8, dex: 3, int: 1, vit: 9, wis: 2 },
+    hp: 70, // a bear MAULS — thick hide and fat over real bulk. One bear IS the fight: a geared pair wins but leaves a third of its health behind
+    dmgMin: 8, dmgMax: 12,
+    stats: { str: 8, dex: 3, int: 1, wis: 2 },
+    raw: { armor: 27 },
     tags: ["beast"],
     abilities: [{ id: "maul", name: "Maul", icon: "🐾", cooldown: 2, trigger: "always", effect: { type: "damage_mult", mult: 1.5, targets: 1 } }],
     loot: [
@@ -1099,7 +697,8 @@ export const ENEMIES: EnemyDefinition[] = [
       { type: "resource", resource: "bear_claw", chance: 0.2, min: 1, max: 2, keepOnRout: true },
     ],
     routsAt: 0.3, // a hurt bear disengages (mostly moot, bears are "wide berth" now)
-    aiTier: "feral"
+    // "they do not hunt people, but get between it and" — territorial: it answers whoever provoked it and stays on them
+    ai: { targeting: { threat: 0.8, sticky: 0.6 }, fear: "withdraws" },
   },
   {
     id: "marsh_adder",
@@ -1108,14 +707,18 @@ export const ENEMIES: EnemyDefinition[] = [
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/marsh_adder.png",
     description: "Long as a man is tall, with venom that makes your blood burn. Settlers lose more livestock to these than to wolves.",
     tier: 1,
-    stats: { str: 4, dex: 8, int: 2, vit: 5, wis: 1 },
+    hp: 28, // long as a man is tall but no armour to it — the VENOM is the danger, not the body
+    dmgMin: 4, dmgMax: 6,
+    stats: { str: 4, dex: 8, int: 2, wis: 1 },
+    raw: { armor: 4 },
     tags: ["beast"],
     abilities: [{ id: "venomous_strike", name: "Venomous Strike", icon: "☠️", cooldown: 2, trigger: "always", effect: { type: "poison", pctPerRound: 8, rounds: 3 } }],
     loot: [
       { type: "resource", resource: "serpent_fang", chance: 0.25, min: 1, max: 1 },
       { type: "resource", resource: "snake_oil", chance: 0.15, min: 1, max: 1 },
     ],
-    aiTier: "feral"
+    // an ambush striker: it bites what it can actually put venom into
+    ai: { targeting: { softness: 0.5, threat: 0.3 } },
   },
   {
     id: "rabid_boar",
@@ -1124,7 +727,10 @@ export const ENEMIES: EnemyDefinition[] = [
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/rabid_boar.png",
     description: "Red-eyed and frothing. Something in the bad water drives them mad. They charge anything that moves.",
     tier: 1,
-    stats: { str: 7, dex: 4, int: 1, vit: 8, wis: 1 }, // clumsy but brutal — low DEX, rides its charge + bulk
+    hp: 36, // THE SAME ANIMAL as a wild boar: identical tusks and hide. The madness is behavioural (never routs, charges every 2 rounds), not extra strength or bulk. Was 80 hp poking for 3-5 — a sponge
+    dmgMin: 7, dmgMax: 11,
+    stats: { str: 7, dex: 4, int: 1, wis: 1 }, // clumsy but brutal — low DEX, rides its charge + bulk
+    raw: { armor: 18 },
     tags: ["beast"],
     abilities: [
       // The frothing bite: a normal hit that rarely (10%) infects with the froth,
@@ -1140,7 +746,8 @@ export const ENEMIES: EnemyDefinition[] = [
       { type: "resource", resource: "cloven_hoof", chance: 0.6, min: 1, max: 2 },
       { type: "resource", resource: "boar_skull", chance: 0.15, min: 1, max: 1 },
     ],
-    aiTier: "feral"
+    // "they charge ANYTHING that moves" — the maddened have no preference at all
+    ai: { targeting: { erratic: true } },
   },
   {
     id: "tainted_boar",
@@ -1150,7 +757,9 @@ export const ENEMIES: EnemyDefinition[] = [
     revealPortrait: true, // the scouts came back describing them ("What the Scouts Saw")
     description: "Grey-mottled and weeping black, reeking of cold metal. A spear through the heart barely slows it; the body keeps moving long after it should have stopped, as if the death will not take. Whatever is in these beasts will not let them die easily.",
     tier: 2,
-    stats: { str: 8, dex: 4, int: 1, vit: 13, wis: 1 },
+    hp: 130,
+    stats: { str: 8, dex: 4, int: 1, wis: 1 },
+    raw: { armor: 39 },
     tags: ["beast"],
     charge: { range: 40, cooldown: 2 }, // TODO Hollow beat: + Hollow bite, knockback-immune, breakthrough
     loot: [
@@ -1159,17 +768,21 @@ export const ENEMIES: EnemyDefinition[] = [
       { type: "resource", resource: "cloven_hoof", chance: 0.8, min: 1, max: 2 },
       { type: "resource", resource: "boar_skull", chance: 0.4, min: 1, max: 1 },
     ],
-    aiTier: "feral"
+    // "a spear through the heart barely" — relentless and mindless, straight
+    // ahead. Empty vector, not an omitted one: no grudges.
+    ai: { targeting: {} },
   },
   {
-    id: "tainted_patriarch_boar",
+    id: "tainted_patriarch",
     name: "Tainted Patriarch",
     icon: "🐗",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/tainted_patriarch.png",
     revealPortrait: true, // the mission fiction describes it before we reach the spring
     description: "The old father of the herd, and the most ruined of them. Grey to the bone, weeping black from a dozen wounds that never close. It should have died a season ago. It did not. It guards the bad water as though it were still its own.",
     tier: 3,
-    stats: { str: 11, dex: 4, int: 1, vit: 18, wis: 1 },
+    hp: 180,
+    stats: { str: 11, dex: 4, int: 1, wis: 1 },
+    raw: { armor: 54 },
     tags: ["beast"],
     boss: true,
     charge: { range: 40, cooldown: 3 }, // TODO Hollow beat: + Hollow bite, death-vomit zone, breakthrough
@@ -1179,74 +792,21 @@ export const ENEMIES: EnemyDefinition[] = [
       { type: "resource", resource: "cloven_hoof", chance: 1, min: 2, max: 3 },
       { type: "resource", resource: "boar_skull", chance: 1, min: 1, max: 1 },
     ],
-    aiTier: "feral"
-  },
-  {
-    id: "fungal_crawler",
-    name: "Fungal Crawler",
-    icon: "🍄",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/fungal_crawler.png",
-    description: "A dog-sized insect infested with luminous fungi. When threatened, it bursts spores that burn the lungs and blur the eyes.",
-    tier: 1,
-    stats: { str: 4, dex: 5, int: 3, vit: 6, wis: 2 },
-    tags: ["beast", "magical"],
-    abilities: [{ id: "spore_burst", name: "Spore Burst", icon: "💨", cooldown: 3, trigger: "always", effect: { type: "aoe_damage", pct: 15, magical: true } }],
-    loot: [
-      { type: "resource", resource: "glowcap_spore", chance: 0.3, min: 1, max: 2 },
-      { type: "resource", resource: "chitin_plate", chance: 0.1, min: 1, max: 1 },
-      { type: "resource", resource: "chamomile", chance: 0.15, min: 1, max: 1 },
-    ],
-    aiTier: "feral"
+    // grown vast on the taint and past all fear — it goes straight through you
+    ai: { targeting: {} },
   },
 
   // ── Tier 2 — New Organized Threats ──────────────────────────────
   {
-    id: "goblin_shaman",
-    name: "Goblin Shaman",
-    icon: "🧙",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/goblin_shaman.png",
-    description: "Older, smarter, and meaner than the rank and file. Paints hexes on bones and screams at the sky until something listens.",
-    tier: 2,
-    stats: { str: 6, dex: 8, int: 16, vit: 12, wis: 10 },
-    tags: ["humanoid", "magical"],
-    combatRole: "back",
-    abilities: [
-      { id: "hex_bolt", name: "Hex Bolt", icon: "🔮", cooldown: 1, trigger: "always", effect: { type: "damage_mult", mult: 1.3, targets: 1 } },
-      { id: "heal_ally_shaman", name: "Mend Flesh", icon: "💚", cooldown: 3, trigger: "any_ally_below_30", effect: { type: "heal_ally", pct: 25 } },
-    ],
-    loot: [
-      { type: "resource", resource: "hex_fetish", chance: 0.25, min: 1, max: 1 },
-      { type: "resource", resource: "crude_ruby", chance: 0.1, min: 1, max: 1 },
-      { type: "resource", resource: "gold", chance: 0.3, min: 3, max: 8 },
-      { type: "resource", resource: "chamomile", chance: 0.25, min: 1, max: 2 },
-      { type: "resource", resource: "mugwort", chance: 0.2, min: 1, max: 1 },
-    ],
-  },
-  {
-    id: "ghoul",
-    name: "Ghoul",
-    icon: "🧟",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/ghoul.png",
-    description: "Not quite undead, not quite alive. Something that ate the wrong corpse near the Wastes and became this. It remembers being human. It doesn't care.",
-    tier: 2,
-    stats: { str: 14, dex: 10, int: 4, vit: 16, wis: 3 },
-    tags: ["undead"],
-    abilities: [{ id: "paralyzing_touch", name: "Paralyzing Touch", icon: "🥶", cooldown: 3, trigger: "always", effect: { type: "debuff_target", stat: "dex", pct: 50, rounds: 1 } }],
-    loot: [
-      { type: "resource", resource: "ghoul_marrow", chance: 0.3, min: 1, max: 2 },
-      { type: "resource", resource: "grave_dust", chance: 0.2, min: 1, max: 2 },
-    ],
-    aiTier: "feral"
-  },
-  {
-    id: "alpha_wolf",
+    id: "greyfang",
     name: "Greyfang",
     icon: "🐺",
     image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/alpha_wolf.png",
     description: "A great pale wolf, half again the size of the pack he leads and cleverer than a beast has any right to be. He watches a defense before he breaks it, and spends his own pack freely to reach what he truly wants. The one Nell named, and would not say above a whisper.",
     tier: 2,
-    stats: { str: 16, dex: 14, int: 4, vit: 18, wis: 4 },
-    raw: { mobility: 10, dodge: 5 }, // the pack's fastest — leads the charge
+    hp: 180,
+    stats: { str: 16, dex: 14, int: 4, wis: 4 },
+    raw: { armor: 54, mobility: 10, dodge: 5 }, // the pack's fastest — leads the charge
     tags: ["beast"],
     boss: true,
     abilities: [
@@ -1268,275 +828,17 @@ export const ENEMIES: EnemyDefinition[] = [
     ],
     // No routsAt: the pack leader stands and fights to the death — it's the
     // deliberate reckoning the mission sends you for, not a beast to shoo off.
+    // "cleverer than a beast has any right to be" — and at mobility 36 he can ACT on it: the design showcase, where the same weights on slow legs would take the body in front instead
+    ai: { targeting: { roles: { healer: 1, caster: 0.8 }, condition: 0.3 } },
   },
   /* STASHED 2026-06-28 — Bog Witch enemy retired alongside the stale `bog_witch_lair`
      mission. Preserved for a future remake per the tragic Aldith/Ada design in
      docs/cast/aldith-the-bog-witch.md. Not referenced by any active mission.
-  {
-    id: "bog_witch",
-    name: "Bog Witch",
-    icon: "🧙‍♀️",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/bog_witch.png",
-    description: "She lives in the marsh and talks to things that shouldn't talk back. The villagers used to trade with her. Then the livestock started dying.",
-    tier: 2,
-    stats: { str: 6, dex: 8, int: 18, vit: 14, wis: 14 },
-    tags: ["humanoid", "magical"],
-    combatRole: "back",
-    boss: true,
-    abilities: [
-      { id: "curse_weakness", name: "Curse of Weakness", icon: "💀", cooldown: 3, trigger: "always", effect: { type: "debuff_target", stat: "str", pct: 25, rounds: 2 } },
-      { id: "poison_cloud", name: "Poison Cloud", icon: "☁️", cooldown: 4, trigger: "always", effect: { type: "aoe_damage", pct: 20, magical: true } },
-    ],
-    loot: [
-      { type: "resource", resource: "hex_fetish", chance: 0.5, min: 1, max: 2 },
-      { type: "resource", resource: "witch_eye", chance: 0.2, min: 1, max: 1 },
-      { type: "resource", resource: "nightbloom", chance: 0.15, min: 1, max: 1 },
-      { type: "resource", resource: "mugwort", chance: 0.3, min: 1, max: 2 },
-      { type: "resource", resource: "nettle", chance: 0.2, min: 1, max: 1 },
-      { type: "resource", resource: "snake_oil", chance: 0.15, min: 1, max: 1 },
-      { type: "item", itemId: "witch_eye_trinket", chance: 0.08 },
-    ],
-  },
   */
-  {
-    id: "burnt_skeleton",
-    name: "Burnt Skeleton",
-    icon: "🔥",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/burnt_skeleton.png",
-    description: "Blackened bones wreathed in sickly orange flame. Whatever killed them, the fire stayed. Touch them and you'll understand why.",
-    tier: 2,
-    stats: { str: 12, dex: 8, int: 8, vit: 10, wis: 2 },
-    tags: ["undead", "elemental_fire"],
-    abilities: [{ id: "self_immolate", name: "Self-Immolate", icon: "💥", cooldown: 99, trigger: "hp_below_50", effect: { type: "aoe_damage", pct: 20, magical: true } }],
-    loot: [
-      { type: "resource", resource: "charite", chance: 0.25, min: 1, max: 1 },
-      { type: "resource", resource: "bonewalk_shard", chance: 0.2, min: 1, max: 2 },
-      { type: "resource", resource: "crude_ruby", chance: 0.08, min: 1, max: 1 },
-    ],
-    aiTier: "feral"
-  },
 
   // ── Tier 3 — New Dangerous Foes ─────────────────────────────────
-  {
-    id: "corrupted_treant",
-    name: "Corrupted Treant",
-    icon: "🌳",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/corrupted_treant.png",
-    description: "A tree that woke up angry. The Wastes corruption turned its roots to grasping hands and its sap to acid. It doesn't distinguish between threats and visitors.",
-    tier: 3,
-    stats: { str: 20, dex: 4, int: 12, vit: 28, wis: 8 },
-    tags: ["beast", "magical", "elemental_earth"],
-    abilities: [
-      { id: "root_grasp", name: "Root Grasp", icon: "🌿", cooldown: 3, trigger: "always", effect: { type: "debuff_target", stat: "dex", pct: 50, rounds: 1 } },
-      { id: "thorn_spray", name: "Thorn Spray", icon: "🌿", cooldown: 2, trigger: "always", effect: { type: "aoe_damage", pct: 30, magical: false } },
-    ],
-    loot: [
-      { type: "resource", resource: "living_heartwood", chance: 0.3, min: 1, max: 1 },
-      { type: "resource", resource: "amber_resin", chance: 0.2, min: 1, max: 2 },
-      { type: "resource", resource: "emerald_shard", chance: 0.15, min: 1, max: 1 },
-      { type: "resource", resource: "wood", chance: 0.8, min: 10, max: 25 },
-      { type: "resource", resource: "chamomile", chance: 0.2, min: 1, max: 2 },
-      { type: "resource", resource: "mugwort", chance: 0.15, min: 1, max: 1 },
-    ],
-  },
-  {
-    id: "necromancer_acolyte",
-    name: "Necromancer Acolyte",
-    icon: "💀",
-    description: "A student of the forbidden arts, too clever for their own good. They raise the dead not out of malice but curiosity. That's worse.",
-    tier: 3,
-    stats: { str: 8, dex: 10, int: 22, vit: 16, wis: 16 },
-    tags: ["humanoid", "undead", "magical"],
-    combatRole: "back",
-    boss: true,
-    abilities: [
-      { id: "raise_dead_acolyte", name: "Raise Dead", icon: "💀", cooldown: 5, trigger: "always", effect: { type: "summon", enemyId: "skeleton", count: 2 } },
-      { id: "dark_bolt_acolyte", name: "Dark Bolt", icon: "⚡", cooldown: 1, trigger: "always", effect: { type: "damage_mult", mult: 1.5, targets: 1 } },
-    ],
-    loot: [
-      { type: "resource", resource: "soul_shard", chance: 0.3, min: 1, max: 1 },
-      { type: "resource", resource: "grave_dust", chance: 0.4, min: 1, max: 3 },
-      { type: "resource", resource: "lichglass", chance: 0.1, min: 1, max: 1 },
-      { type: "resource", resource: "gold", chance: 0.6, min: 10, max: 30 },
-      { type: "resource", resource: "nettle", chance: 0.25, min: 1, max: 2 },
-      { type: "resource", resource: "nightbloom", chance: 0.1, min: 1, max: 1 },
-    ],
-    aiTier: "cunning"
-  },
-  {
-    id: "ember_elemental",
-    name: "Ember Elemental",
-    icon: "🔥",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/ember_elemental.png",
-    description: "A swirling column of living fire, born where ley lines crack and Aether bleeds into the world. It doesn't think. It just burns.",
-    tier: 3,
-    stats: { str: 16, dex: 12, int: 18, vit: 18, wis: 8 },
-    tags: ["elemental_fire", "magical"],
-    abilities: [
-      { id: "flame_wave", name: "Flame Wave", icon: "🌊", cooldown: 3, trigger: "always", effect: { type: "aoe_damage", pct: 35, magical: true } },
-      { id: "ignite", name: "Ignite", icon: "🔥", cooldown: 2, trigger: "always", effect: { type: "bleed", pctPerRound: 12, rounds: 3 } },
-    ],
-    loot: [
-      { type: "resource", resource: "livingflame_bead", chance: 0.3, min: 1, max: 1 },
-      { type: "resource", resource: "fire_ruby", chance: 0.15, min: 1, max: 1 },
-    ],
-  },
-  {
-    id: "frost_elemental",
-    name: "Frost Elemental",
-    icon: "❄️",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/frost_elemental.png",
-    description: "Where the Aether pools in cold places, ice takes shape and learns to hate warmth. It freezes the ground where it walks and the blood of anyone too slow to run.",
-    tier: 3,
-    stats: { str: 14, dex: 10, int: 20, vit: 20, wis: 10 },
-    tags: ["elemental_water", "magical"],
-    abilities: [
-      { id: "frost_bolt", name: "Frost Bolt", icon: "❄️", cooldown: 1, trigger: "always", effect: { type: "damage_mult", mult: 1.5, targets: 1 } },
-      { id: "freeze", name: "Freeze", icon: "🥶", cooldown: 4, trigger: "always", effect: { type: "debuff_target", stat: "dex", pct: 40, rounds: 1 } },
-    ],
-    loot: [
-      { type: "resource", resource: "frozen_droplet", chance: 0.3, min: 1, max: 2 },
-      { type: "resource", resource: "frost_sapphire", chance: 0.15, min: 1, max: 1 },
-    ],
-  },
-  {
-    id: "dire_bear",
-    name: "Dire Bear",
-    icon: "🐻",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/dire_bear.png",
-    description: "The old hunters call them 'mountain kings.' Twice the size of a forest bear, scarred from a lifetime of fighting everything, including other dire bears. This one has claimed your territory.",
-    tier: 3,
-    stats: { str: 24, dex: 8, int: 4, vit: 30, wis: 6 },
-    tags: ["beast"],
-    boss: true,
-    abilities: [
-      { id: "savage_maul", name: "Savage Maul", icon: "🐾", cooldown: 2, trigger: "always", effect: { type: "damage_mult", mult: 2.0, targets: 1 } },
-      { id: "roar", name: "Roar", icon: "🗣️", cooldown: 4, trigger: "round_start", effect: { type: "debuff_target", stat: "dex", pct: 30, rounds: 2 } },
-    ],
-    loot: [
-      { type: "resource", resource: "thick_pelt", chance: 0.8, min: 2, max: 4 },
-      { type: "resource", resource: "bear_claw", chance: 0.6, min: 1, max: 3 },
-      { type: "resource", resource: "beast_heart", chance: 0.15, min: 1, max: 1 },
-      { type: "resource", resource: "meat", chance: 0.9, min: 8, max: 20 },
-      { type: "item", itemId: "beast_heart_charm", chance: 0.08 },
-    ],
-    aiTier: "feral"
-  },
-  {
-    id: "swamp_revenant",
-    name: "Swamp Revenant",
-    icon: "👻",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/swamp_revenant.png",
-    description: "Something drowned in the bog and didn't stay down. It rises from the black water trailing weeds and old rage. The locals say it's a Dominion soldier who deserted and was executed by his own unit.",
-    tier: 3,
-    stats: { str: 14, dex: 8, int: 14, vit: 20, wis: 10 },
-    tags: ["undead", "ghost"],
-    abilities: [
-      { id: "drain_life", name: "Drain Life", icon: "💜", cooldown: 2, trigger: "always", effect: { type: "damage_mult", mult: 1.3, targets: 1 } },
-    ],
-    loot: [
-      { type: "resource", resource: "ghostweave", chance: 0.15, min: 1, max: 1 },
-      { type: "resource", resource: "grave_dust", chance: 0.3, min: 1, max: 2 },
-      { type: "resource", resource: "snake_oil", chance: 0.2, min: 1, max: 1 },
-      { type: "resource", resource: "mugwort", chance: 0.2, min: 1, max: 1 },
-      { type: "resource", resource: "nettle", chance: 0.15, min: 1, max: 1 },
-    ],
-    aiTier: "feral"
-  },
 
   // ── Tier 4 — New Elite Threats ──────────────────────────────────
-  {
-    id: "goblin_warchief",
-    name: "Goblin Warchief",
-    icon: "👑",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/goblin_warchief.png",
-    description: "A goblin who killed enough other goblins to call himself king. He wears a crown of bent copper and commands a warband of hundreds. Underestimate him at your peril, he didn't survive this long by being stupid.",
-    tier: 4,
-    stats: { str: 22, dex: 18, int: 12, vit: 26, wis: 10 },
-    tags: ["humanoid"],
-    boss: true,
-    abilities: [
-      { id: "war_drums", name: "War Drums", icon: "🥁", cooldown: 4, trigger: "round_start", effect: { type: "buff_allies", stat: "str", pct: 25, rounds: 2 } },
-      { id: "poison_blade_gc", name: "Poisoned Blade", icon: "🗡️", cooldown: 2, trigger: "always", effect: { type: "poison", pctPerRound: 15, rounds: 3 } },
-      { id: "call_reinforcements", name: "Call Reinforcements", icon: "📯", cooldown: 99, trigger: "hp_below_50", effect: { type: "summon", enemyId: "goblin_scout", count: 2 } },
-    ],
-    loot: [
-      { type: "resource", resource: "hex_fetish", chance: 0.6, min: 2, max: 4 },
-      { type: "resource", resource: "crude_ruby", chance: 0.3, min: 1, max: 2 },
-      { type: "resource", resource: "war_paint", chance: 0.5, min: 1, max: 3 },
-      { type: "resource", resource: "gold", chance: 0.9, min: 30, max: 80 },
-      { type: "item", itemId: "goblin_crown", chance: 0.06 },
-    ],
-  },
-  {
-    id: "arch_necromancer",
-    name: "Arch-Necromancer",
-    icon: "☠️",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/arch_necromancer.png",
-    description: "The acolyte's master. Decades of studying death magic have left them barely human, skin like parchment, eyes like candleflame, and a soul that's been dead longer than some of the things they raise.",
-    tier: 4,
-    stats: { str: 10, dex: 12, int: 32, vit: 24, wis: 22 },
-    tags: ["humanoid", "undead", "magical"],
-    boss: true,
-    abilities: [
-      { id: "mass_raise", name: "Mass Raise", icon: "💀", cooldown: 5, trigger: "always", effect: { type: "summon", enemyId: "skeleton", count: 3 } },
-      { id: "soul_harvest", name: "Soul Harvest", icon: "💜", cooldown: 3, trigger: "always", effect: { type: "aoe_damage", pct: 40, magical: true } },
-      { id: "death_grip", name: "Death Grip", icon: "✊", cooldown: 4, trigger: "hp_below_50", effect: { type: "damage_mult", mult: 2.0, targets: 1 } },
-    ],
-    loot: [
-      { type: "resource", resource: "lichglass", chance: 0.4, min: 1, max: 2 },
-      { type: "resource", resource: "soul_shard", chance: 0.5, min: 1, max: 3 },
-      { type: "resource", resource: "shadow_fragment", chance: 0.15, min: 1, max: 1 },
-      { type: "resource", resource: "void_topaz", chance: 0.1, min: 1, max: 1 },
-      { type: "resource", resource: "nightbloom", chance: 0.2, min: 1, max: 2 },
-      { type: "resource", resource: "moonpetal", chance: 0.08, min: 1, max: 1 },
-      { type: "resource", resource: "nettle", chance: 0.3, min: 1, max: 3 },
-      { type: "item", itemId: "necromancer_cowl", chance: 0.06 },
-    ],
-    aiTier: "cunning"
-  },
-  {
-    id: "storm_elemental",
-    name: "Storm Elemental",
-    icon: "⛈️",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/storm_elemental.png",
-    description: "A howling vortex of wind and lightning given malicious purpose. It moves faster than you can swing and hits everything at once. The Thornveil say they form where three ley lines cross during a thunderstorm.",
-    tier: 4,
-    stats: { str: 18, dex: 24, int: 26, vit: 22, wis: 14 },
-    tags: ["elemental_wind", "magical"],
-    abilities: [
-      { id: "chain_lightning", name: "Chain Lightning", icon: "⚡", cooldown: 2, trigger: "always", effect: { type: "aoe_damage", pct: 30, magical: true } },
-      { id: "static_field", name: "Static Field", icon: "⚡", cooldown: 4, trigger: "round_start", effect: { type: "debuff_target", stat: "dex", pct: 20, rounds: 2 } },
-      { id: "thunder_crash", name: "Thunder Crash", icon: "💥", cooldown: 99, trigger: "hp_below_50", effect: { type: "aoe_damage", pct: 45, magical: true } },
-    ],
-    loot: [
-      { type: "resource", resource: "thunderglass", chance: 0.4, min: 1, max: 2 },
-      { type: "resource", resource: "storm_topaz", chance: 0.15, min: 1, max: 1 },
-      { type: "resource", resource: "windweave_fiber", chance: 0.3, min: 1, max: 2 },
-    ],
-  },
-  {
-    id: "infernal_knight",
-    name: "Infernal Knight",
-    icon: "🔥",
-    image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/enemies/infernal_knight.png",
-    description: "A demon in stolen plate armor, wreathed in hellfire. It walked through the boundary like a door and hasn't stopped killing since. The armor is fused to its body, or its body grew to fill the armor. Hard to tell.",
-    tier: 4,
-    stats: { str: 28, dex: 14, int: 18, vit: 30, wis: 12 },
-    tags: ["demon", "humanoid"],
-    boss: true,
-    abilities: [
-      { id: "hellfire_slash", name: "Hellfire Slash", icon: "🔥", cooldown: 1, trigger: "always", effect: { type: "damage_mult", mult: 1.8, targets: 1 } },
-      { id: "summon_flames", name: "Summon Flames", icon: "🔥", cooldown: 99, trigger: "hp_below_50", effect: { type: "aoe_damage", pct: 35, magical: true } },
-    ],
-    loot: [
-      { type: "resource", resource: "ashblood", chance: 0.5, min: 1, max: 3 },
-      { type: "resource", resource: "hellite", chance: 0.4, min: 1, max: 2 },
-      { type: "resource", resource: "infernal_link", chance: 0.3, min: 1, max: 1 },
-      { type: "resource", resource: "fire_ruby", chance: 0.2, min: 1, max: 1 },
-      { type: "item", itemId: "infernal_signet", chance: 0.06 },
-    ],
-  },
 ];
 
 export function getEnemy(id: string): EnemyDefinition | undefined {

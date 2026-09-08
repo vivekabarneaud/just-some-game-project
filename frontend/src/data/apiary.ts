@@ -20,17 +20,17 @@ export const APIARY: ApiaryDefinition = {
 export const APIARY_IMAGE = "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/farming/apiary.png";
 
 // Costs
-export const HIVE_BASE_COST = { wood: 15, stone: 5, gold: 30 };
-export const HIVE_COST_MULTIPLIER = 1.3;
-export const HIVE_GOLD_PER_LEVEL = 20;
-export const HIVE_BASE_BUILD_TIME = 5; // seconds
-export const HIVE_BUILD_TIME_MULTIPLIER = 1.4;
+const HIVE_BASE_COST = { wood: 15, stone: 5, gold: 30 };
+const HIVE_COST_MULTIPLIER = 1.3;
+const HIVE_GOLD_PER_LEVEL = 20;
+const HIVE_BASE_BUILD_TIME = 5; // seconds
+const HIVE_BUILD_TIME_MULTIPLIER = 1.4;
 // A single apiary the settlement upgrades as it grows (upgrades are capped by
 // Town Hall level, like every other building). Not a multi-slot yard.
 export const MAX_HIVES = 1;
 export const HIVE_MAX_LEVEL = 5;
-export const HONEY_BASE_STORAGE = 30;
-export const HONEY_STORAGE_PER_LEVEL = 15;
+const HONEY_BASE_STORAGE = 30;
+const HONEY_STORAGE_PER_LEVEL = 15;
 
 export function getHiveCost(level: number): { wood: number; stone: number; gold: number } {
   return {

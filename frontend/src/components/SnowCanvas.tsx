@@ -49,7 +49,7 @@ export default function SnowCanvas(props: { variant?: "screen" | "strip" }) {
   const layers = () => (props.variant === "strip" ? LAYERS_STRIP : LAYERS_SCREEN);
   let canvas!: HTMLCanvasElement;
 
-  const weather = () => resolveCurrentWeather(state.season, state.seasonElapsed, state.year);
+  const weather = () => resolveCurrentWeather(state);
   // Memoized so the render effect only re-runs when the weather TYPE flips to/from
   // snow — not on every game tick (weather() reads seasonElapsed, which changes
   // constantly and would otherwise re-seed all flakes ~1×/sec, causing a "jump").

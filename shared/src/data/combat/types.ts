@@ -3,14 +3,47 @@ import type { EnemyTag, EnemyAbility } from "../enemies.js";
 import type { CombatPotionEffect } from "../items/index.js";
 
 /**
- * Per-enemy targeting intelligence — drives how the threat system affects them.
- *   feral    : random target, ignores threat (mindless beasts, low-tier mobs)
- *   tactical : threat-aware scored pick (default — most enemies)
- *   cunning  : prioritize backline (priest > wizard) over threat (smart casters, elites)
- *
- * Boss flag is orthogonal — a feral dragon is fine. AI tier shapes targeting only.
+ * Composable AI knobs (DESIGN_TIER1_ENEMIES §1 "Composable AI"). A unit's brain
+ * is a few ORTHOGONAL knobs rather than one tier string: defaults plus opt-in
+ * exceptions, the same philosophy as the stat schema. Deliberately small and
+ * flat — knobs, not a behavior-tree engine.
+ * Authored per enemy via the `ai` block (the old `aiTier` was deleted
+ * 2026-09-04 — every enemy sets `targeting` explicitly now), so no
+ * existing enemy changes behaviour (see ai/profile.ts).
+ * The doc's fourth knob, **movement** (charger/kiter/holder/flanker), is NOT
+ * here yet: that one is a rewrite of the positional layer's role-derived
+ * `isRanged`/`canBypass`, so it stays on the existing `charge`/`combatRole`
+ * fields until that work lands. Three knobs wired beats four half-wired.
  */
-export type AITier = "feral" | "tactical" | "cunning";
+import type { TargetWeights } from "./targetScore.js";
+
+/** How a unit answers a forced-target effect, named for what the unit DOES
+ *  rather than what it resists. */
+export type AITauntable = "obeys" | "ignores-generic" | "ignores";
+
+/** The SHAPE OF THE EXIT when a unit's nerve breaks (`routsAt` threshold for
+ *  beasts, morale for humans — those decide WHEN; this decides WHAT it looks
+ *  like). Movement only, on purpose: tactics while retreating (a mage's frost
+ *  nova) belong to per-enemy behaviours, or the set explodes. See
+ *  docs/design/combat/ROUT_AND_FLIGHT.md.
+ *    fearless  : never breaks (undead, constructs, the maddened)
+ *    bolts     : turns and runs flat out — fast, and hard to shoot (elusive
+ *                while running); only something quick catches it. Prey.
+ *    withdraws : backs off still facing you — slower, normally hittable, and
+ *                still bites in reach. Wolves, the bear.
+ *    yields    : does not run at all. A person who breaks throws down their
+ *                weapon and stays. Out of the fight where they stand. */
+export type AIFear = "fearless" | "bolts" | "withdraws" | "yields";
+
+export interface AIProfile {
+  /** What this creature WANTS in a target — a weighted score, not a label. See
+   *  targetScore.ts + docs/design/combat/TARGETING.md. (The seven single-mode
+   *  names this replaced were deleted 2026-09-04: two were already internally
+   *  ranked cascades, and every new taste needed a whole new mode.) */
+  targeting: TargetWeights;
+  tauntable: AITauntable;
+  fear: AIFear;
+}
 
 /**
  * Resistance to forced-target effects (warrior taunt, future "elite" taunts).
@@ -18,19 +51,18 @@ export type AITier = "feral" | "tactical" | "cunning";
  *   normal : ignores generic taunts; only "elite" taunts work (e.g. thorns wall)
  *   all    : nothing forces targeting on this unit (final-boss tier)
  */
-export type TauntImmunity = "none" | "normal" | "all";
+
 
 /**
  * Combatant role. Finer-grained than `isEnemy` — splits the player's side into
  * regular adventurers, scripted NPC allies (Niamh), and entities (walls/wards
  * shipping in a later branch). Enemy is its own side.
- *
  * `isEnemy` stays as the two-side discriminator so existing targeting / round /
  * damage code keeps working untouched. `kind` is additive.
  */
 export type CombatKind = "adventurer" | "ally" | "entity" | "enemy";
 
-/** Damage schools (Combat Foundation — docs/DESIGN_COMBAT_FOUNDATION.md). Physical
+/** Damage schools (Combat Foundation — docs/design/combat/COMBAT_FOUNDATION.md). Physical
  *  is handled by Armor + Parry, NOT a resistance. Light + Hollow are lore-locked. */
 export type DamageSchool =
   | "physical" | "aether" | "fire" | "frost" | "lightning" | "light" | "hollow" | "nature";
@@ -44,9 +76,22 @@ export interface RawSubStats {
   parry?: number;      // + Parry %
   mobility?: number;   // + paces/turn
   initiative?: number; // + turn order
-  armor?: number;      // + physical mitigation — INERT: getDefenseReduction reads only gearDefense; no item sets this yet
+  armor?: number;      // + physical mitigation. A creature's natural hide lives here (2026-09-04)
   presence?: number;   // + aggro drawn (signed; tanks stack it, dps go negative)
   luck?: number;       // + loot-drop chance (party-summed); also live on the unit for combat use (Edmund)
+}
+
+/** One weapon a unit can strike with, carrying its own range band + damage
+ *  (Combat Foundation §3). Ordered by preference on the unit (primary →
+ *  sidearm → fists); the swing uses the FIRST profile whose band fits the gap.
+ *  An enemy's natural attack (bite/spit) is a profile like any other. */
+export interface WeaponProfile {
+  kind: "primary" | "sidearm" | "fists";
+  /** Band in paces: the weapon connects when minRange ≤ gap ≤ maxRange. */
+  minRange: number;
+  maxRange: number;
+  dmgMin: number;
+  dmgMax: number;
 }
 
 /** An in-combat actor. Adventurer, NPC ally, entity, or enemy. Mutated during the simulation. */
@@ -85,6 +130,12 @@ export interface CombatUnit {
    *  this range is the BASE, then scaled by the primary stat in calcDamageResult. */
   dmgMin: number;
   dmgMax: number;
+  /** Range-banded weapon list, preference-ordered (primary → sidearm → fists).
+   *  The attack layer strikes with the first band that fits the current gap;
+   *  none fitting = no swing this beat. Absent in band-less contexts (raids),
+   *  where reach falls back to the role-derived rule. dmgMin/dmgMax above stay
+   *  as the primary's range for the paths that don't select by band. */
+  weapons?: WeaponProfile[];
   trait?: string;
   /** Adventurer talent ids (for combat hooks — e.g. the wounded-damage penalty
    *  can be bypassed by "unflinching" or inverted by "last_stand"). */
@@ -149,13 +200,16 @@ export interface CombatUnit {
   aiBehavior?: string;
   /** Current AI state id within the unit's behavior. Transitions evaluated once per round. */
   aiState?: string;
-  /** Targeting tier — drives how threat affects this enemy. Allies/entities don't read this. */
-  aiTier?: AITier;
-  /** Forced-target resistance for enemies. Allies/entities don't read this. */
-  tauntImmunity?: TauntImmunity;
+  /** Who this unit chose last time it picked a target. Read by the `gang-up`
+   *  targeting mode so packmates converge on the same prey. Transient. */
+  lastTargetId?: string;
+  /** Resolved AI knobs, stamped at unit-build time from the enemy's authored
+   *  `ai` block (falling back to the legacy fields below). Consumers read THIS,
+   *  not the legacy fields, so there's one source of truth per fight. */
+  ai?: AIProfile;
   // ── Threat (WoW-style per-target threat table) ──
-  /** For enemies: maps allyId → accumulated threat against that ally. Highest entry
-   *  is the preferred target (subject to AI tier rules). Allies leave this empty. */
+  /** For enemies: maps allyId → accumulated threat against that ally. Read by the
+   *  scorer's `threat` dimension, weighted per creature. Allies leave this empty. */
   threatTable?: Record<string, number>;
   /** For allies: how much threat they generate per point of damage/heal. Default 1.0.
    *  Mission-side (npcAlly.threatMultiplier) overrides per encounter. */
@@ -196,10 +250,27 @@ export interface CombatUnit {
   /** Positional movement intent, committed once: true = pushed past the front to
    *  hunt the backline; false = holds the front line. Undefined until decided. */
   breakthrough?: boolean;
-  /** Enemy rout threshold (0-1 of maxHp). When an enemy at/below this breaks and
-   *  flees on its turn — set `fled` (survives, off the field) instead of fighting
-   *  on. Carried from EnemyDefinition.routsAt. Undefined = fights to the end. */
+  /** Enemy rout threshold (0-1 of maxHp). At/below this the unit's nerve breaks;
+   *  its `ai.fear` style decides what that looks like (ROUT_AND_FLIGHT): yields =
+   *  out where they stand; bolts/withdraws = actual movement toward its own field
+   *  edge. Carried from EnemyDefinition.routsAt. Undefined = fights to the end. */
   routsAt?: number;
+  /** Mid-flight: nerve broken, moving toward its own field edge each turn instead
+   *  of fighting. Still on the field, still hittable — reaching the edge sets
+   *  `fled`. Transient combat state, never persisted. */
+  fleeing?: boolean;
+  /** Perception (TARGETING.md). Two flags because the asymmetry is the point:
+   *  `concealed` = nobody sees THEM (invisibility, or standing in smoke);
+   *  `blinded` = THEY see nothing (a blinding effect, or standing in smoke).
+   *  Contact always reveals, so neither is ever absolute. All transient. */
+  concealed?: boolean;
+  blinded?: boolean;
+  /** Invisibility from an effect (Vanish, a spell) as opposed to from smoke —
+   *  kept separate so stepping out of a cloud does not strip it. */
+  invisible?: boolean;
+  /** Currently standing in a smoke cloud; owned by applySmoke, which clears
+   *  only what it set. */
+  smoked?: boolean;
   /** This unit's presence upgrades the team's retreat judgment (Morgause). Set at
    *  unit-build time. Command is lost if they fall/flee/break. */
   isCommander?: boolean;
@@ -284,7 +355,7 @@ export interface CombatLogEntry {
   /** Retreat/recovery narrative beat (Model C). Interim flat-schema marker until
    *  the combat-log discriminated-union refactor lands; the renderer can special-
    *  case these as highlighted lines. */
-  beat?: "broken" | "flee_success" | "flee_fail" | "order_hold" | "order_fallback" | "abandoned" | "move" | "stunned";
+  beat?: "broken" | "turns_tail" | "yields" | "flee_success" | "flee_fail" | "order_hold" | "order_fallback" | "abandoned" | "move" | "stunned";
   /** Human-readable narrative line for a `beat` entry. */
   note?: string;
   /** Battlefield position updates applied WHEN this entry plays (id → new pace on
@@ -372,6 +443,9 @@ export interface CombatResult {
 
 /** Context passed to ability handlers and AI state methods. */
 export interface CombatContext {
+  /** Active smoke clouds — x-ranges of the field nobody sees into or out of.
+   *  See perception.ts. Optional: almost every fight has none. */
+  smoke?: { from: number; to: number; rounds: number }[];
   round: number;
   /** All adventurer units (including fallen). Filter by hp > 0 for alive. */
   adventurers: CombatUnit[];

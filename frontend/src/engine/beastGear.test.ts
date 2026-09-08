@@ -4,7 +4,7 @@ import { buildRecruitFromPremadeId } from "@medieval-realm/shared/data/adventure
 import { getItem, getItemByRecipe } from "@medieval-realm/shared/data/items";
 import { CRAFTING_RECIPES } from "./crafting";
 
-// The 11 wolf/boar pieces authored from DESIGN_TIER1_GEAR.md.
+// The 11 wolf/boar pieces authored from docs/design/combat/NOVICE_ITEMS.md.
 const NEW_GEAR = [
   "greypelt_jerkin", "wolfhide_treads", "hunters_cloak", "fang_gauntlets",
   "bristlehide_hauberk", "bristlehide_greaves", "tusked_boar_hood", "bristlehide_shoes",

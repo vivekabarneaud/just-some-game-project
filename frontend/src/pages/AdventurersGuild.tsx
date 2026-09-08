@@ -3,8 +3,7 @@ import { A, useSearchParams } from "@solidjs/router";
 import { Portal } from "solid-js/web";
 import { useGame } from "~/engine/gameState";
 import { IS_DEV } from "~/data/seasons";
-import {
-  ADVENTURER_CLASSES,
+import { ADVENTURER_CLASSES,
   getClassMeta,
   RANK_NAMES,
   RANK_COLORS,
@@ -16,13 +15,10 @@ import {
 } from "@medieval-realm/shared/data/adventurers";
 import { getUnspentTalentPoints } from "~/data/talents";
 import { getItem } from "@medieval-realm/shared/data/items";
-import {
-  type MissionTemplate,
+import { type MissionTemplate,
   type ActiveMission,
   getMission,
-  formatReward,
   getCurrentStoryMission,
-  isExpedition,
   getMissionPhase,
 } from "@medieval-realm/shared/data/missions";
 import type { CinematicSlide } from "~/components/CinematicOverlay";
@@ -30,7 +26,6 @@ import CinematicOverlay from "~/components/CinematicOverlay";
 import { STORY_CINEMATICS } from "~/data/cinematics";
 import Countdown from "~/components/Countdown";
 import Tooltip from "~/components/Tooltip";
-import MissionCard from "~/components/MissionCard";
 import TraitBadge from "~/components/TraitBadge";
 import AdventurerVitals from "~/components/AdventurerVitals";
 import RecoveryActions from "~/components/RecoveryActions";
@@ -667,7 +662,6 @@ export default function AdventurersGuild() {
               })()}
               <Show when={IS_DEV}>
                 <button onClick={() => actions.devSpawnAllNoviceMissions()} class="skip-season-btn" style={{ "font-size": "0.68rem", padding: "3px 10px" }}>Spawn novice</button>
-                <button onClick={() => actions.devSpawnVeteranMissions()} class="skip-season-btn" style={{ "font-size": "0.68rem", padding: "3px 10px" }}>Spawn veteran</button>
                 <button onClick={() => actions.devTriggerRobin()} class="skip-season-btn" style={{ "font-size": "0.68rem", padding: "3px 10px" }}>🐦 Robin</button>
               </Show>
             </div>

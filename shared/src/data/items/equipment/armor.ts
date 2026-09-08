@@ -205,13 +205,6 @@ export const ARMOR: ItemDefinition[] = [
     recipeId: "shadow_mantle", consumable: false, defense: 22,
   },
   {
-    id: "infernal_mail", rarity: "rare", name: "Infernal Mail", icon: "⛓️", slot: "chest",
-    description: "+2 VIT, +1 STR, 65 DEF. Demon-forged links that radiate heat.",
-    classes: ["warrior"],
-    stats: { vit: 2, str: 1 }, durationMod: 1, lootMod: 1,
-    recipeId: "infernal_mail", consumable: false, defense: 65,
-  },
-  {
     id: "wolfhide_armor", rarity: "uncommon", name: "Wolfhide Armor", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/leatherworking/wolfhide_armor.png", icon: "🐺", slot: "chest",
     description: "+1 VIT, +1 DEX, 32 DEF. Tough and pungent. The frontier's favorite.",
     classes: [], armorType: "leather",
@@ -294,32 +287,11 @@ export const ARMOR: ItemDefinition[] = [
     recipeId: "chitin_vest", consumable: false, defense: 36,
   },
   {
-    id: "trollhide_cloak", rarity: "rare", name: "Trollhide Cloak", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/leatherworking/trollhide_cloak.png", icon: "🧌", slot: "cloak",
-    description: "+2 VIT, +1 STR, 30 DEF. Still warm. The regeneration lingers.",
-    classes: [], armorType: "leather",
-    stats: { vit: 2, str: 1 }, durationMod: 1, lootMod: 1,
-    recipeId: "trollhide_cloak", consumable: false, defense: 30,
-  },
-  {
-    id: "wyrmscale_armor", rarity: "epic", name: "Wyrmscale Armor", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/leatherworking/wyrmscale_armor.png", icon: "🐉", slot: "chest",
-    description: "+3 VIT, +2 STR, 70 DEF. Dragon scales over leather. Forge-resistant and magnificent.",
-    classes: [], armorType: "plate",
-    stats: { vit: 3, str: 2 }, durationMod: 1, lootMod: 1,
-    recipeId: "wyrmscale_armor", consumable: false, defense: 70,
-  },
-  {
     id: "ghostweave_cloak", rarity: "rare", name: "Ghostweave Cloak", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/tailoring/shadow_cloak.png", icon: "👻", slot: "cloak",
     description: "+2 INT, +1 WIS, 15 DEF. Nearly invisible. Cold as moonlight.",
     classes: [], armorType: "cloth",
     stats: { int: 2, wis: 1 }, durationMod: 1, lootMod: 1,
     recipeId: "ghostweave_cloak", consumable: false, defense: 15,
-  },
-  {
-    id: "windweave_robe", rarity: "rare", name: "Windweave Robe", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/tailoring/windweave_robe.png", icon: "💨", slot: "chest",
-    description: "+3 INT, +1 DEX, 20 DEF. Weighs nothing. Dries instantly. 5% faster missions.",
-    classes: ["wizard"], armorType: "cloth",
-    stats: { int: 3, dex: 1 }, durationMod: 0.95, lootMod: 1,
-    recipeId: "windweave_robe", consumable: false, defense: 20,
   },
   {
     id: "iron_helm", rarity: "uncommon", name: "Iron Helm", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/blacksmith/steel_helm.png", icon: "🪖", slot: "head",
@@ -376,12 +348,6 @@ export const ARMOR: ItemDefinition[] = [
     stats: { dex: 1, vit: 1 }, durationMod: 1, lootMod: 1, recipeId: "ranger_trousers", consumable: false, defense: 22,
   },
   {
-    id: "wyrmscale_greaves", rarity: "epic", name: "Wyrmscale Greaves", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/leatherworking/dragonscale_greaves.png", icon: "🐉", slot: "legs",
-    description: "+3 VIT, +1 STR, 50 DEF. Dragon-scale leg plates. Worth more than most houses.",
-    classes: [], armorType: "plate",
-    stats: { vit: 3, str: 1 }, durationMod: 1, lootMod: 1, recipeId: "wyrmscale_greaves", consumable: false, defense: 50,
-  },
-  {
     id: "iron_sabatons", rarity: "uncommon", name: "Iron Sabatons", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/blacksmith/steel_boots.png", icon: "🥾", slot: "boots",
     description: "+1 VIT, +1 STR, 30 DEF. Plated boots. Every step sounds like a hammer.",
     classes: [], armorType: "plate",
@@ -423,12 +389,6 @@ export const ARMOR: ItemDefinition[] = [
     description: "+2 DEX, 18 DEF. Supple leather, silent on any surface. The archer's best friend.",
     classes: [], armorType: "leather",
     stats: { dex: 2 }, durationMod: 1, lootMod: 1, recipeId: "scout_boots", consumable: false, defense: 18,
-  },
-  {
-    id: "trollhide_boots", rarity: "rare", name: "Trollhide Boots", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/leatherworking/troll_stompers.png", icon: "🥾", slot: "boots",
-    description: "+2 VIT, +1 DEX, 25 DEF. Tough as stone, ugly as sin. They'll outlast you.",
-    classes: [], armorType: "leather",
-    stats: { vit: 2, dex: 1 }, durationMod: 1, lootMod: 1, recipeId: "trollhide_boots", consumable: false, defense: 25,
   },
   {
     id: "goblin_crown", rarity: "rare", name: "Goblin Crown", image: "https://pub-63efdde7a8414a0393a736c5add726cc.r2.dev/images/items/jewelcrafting/goblin_crown.png", icon: "👑", slot: "head",

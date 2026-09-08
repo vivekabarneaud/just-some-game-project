@@ -34,6 +34,24 @@ export default function MemoryPreviewModal(props: Props) {
 
   return (
     <div class="modal-overlay page-modal-backdrop" onClick={props.onClose} style={{ "z-index": "1100" }}>
+      {/* The shell exists so the ✕ has something that does NOT scroll to anchor
+          to. The card below is the scroller (max-height + overflow: auto), and
+          the button used to be absolutely positioned inside it — so on a long
+          memory it scrolled out of reach and you had to scroll back up to
+          close. */}
+      <div style={{ position: "relative", "max-width": "620px", width: "100%" }} onClick={(e) => e.stopPropagation()}>
+        <button
+          onClick={props.onClose}
+          style={{
+            position: "absolute", top: "10px", right: "12px", "z-index": "2",
+            background: "transparent", border: "none",
+            color: INK_SOFT, "font-size": "1.4rem",
+            cursor: "pointer", "line-height": "1",
+          }}
+          aria-label="Close"
+        >
+          ×
+        </button>
       <div
         class="page-modal-card"
         style={{
@@ -49,19 +67,6 @@ export default function MemoryPreviewModal(props: Props) {
         }}
         onClick={(e) => e.stopPropagation()}
       >
-        <button
-          onClick={props.onClose}
-          style={{
-            position: "absolute", top: "10px", right: "12px",
-            background: "transparent", border: "none",
-            color: INK_SOFT, "font-size": "1.4rem",
-            cursor: "pointer", "line-height": "1",
-          }}
-          aria-label="Close"
-        >
-          ×
-        </button>
-
         <div style={{ display: "flex", "align-items": "center", gap: "14px", "margin-bottom": "18px" }}>
           <img
             src={props.character.portrait}
@@ -125,6 +130,7 @@ export default function MemoryPreviewModal(props: Props) {
             Dismiss
           </button>
         </div>
+      </div>
       </div>
     </div>
   );

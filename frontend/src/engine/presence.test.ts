@@ -19,7 +19,7 @@ describe("Presence — the tank draws aggro, the dps sheds it", () => {
     for (let s = 0; s < 40; s++) {
       // bandit_thug is tactical (follows threat); the Presence baseline seeds it round 1
       const res = simulateCombat(NOVICE_MISSIONS[0], [godric(), maren()], undefined, s, {
-        encounters: [{ enemyId: "bandit_thug", count: 3 }],
+        encounters: [{ enemyId: "displaced_brigand", count: 3 }],
       });
       if (!res) continue;
       for (const e of res.log) {

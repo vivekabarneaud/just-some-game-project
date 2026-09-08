@@ -3,7 +3,7 @@ import { getItem } from "@medieval-realm/shared/data/items";
 import { ALCHEMY_RECIPES } from "@medieval-realm/shared/data/alchemy_recipes";
 import Tooltip from "./Tooltip";
 
-export interface SupplyOption {
+interface SupplyOption {
   id: string;
   name: string;
   icon: string;

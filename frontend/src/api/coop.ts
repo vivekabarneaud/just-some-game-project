@@ -1,5 +1,4 @@
-import type {
-  CoopListResponse,
+import type { CoopListResponse,
   CoopExpeditionInfo,
   CreateCoopInviteRequest,
   RespondCoopInviteRequest,

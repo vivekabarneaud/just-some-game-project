@@ -2,9 +2,9 @@
 // Type definitions + armor-tier metadata shared across equipment, foods,
 // potions, and materials. No item data lives here.
 
-import type { AdventurerClass, AdventurerStats } from "../adventurers.js";
+import type { AdventurerClass, AdventurerStats , FoodPreference } from "../adventurers.js";
 
-export type ItemSlot = "head" | "chest" | "legs" | "boots" | "gloves" | "cloak" | "mainHand" | "offHand" | "ring1" | "ring2" | "amulet" | "trinket";
+export type ItemSlot = "head" | "chest" | "legs" | "boots" | "gloves" | "cloak" | "mainHand" | "offHand" | "sidearm" | "ring1" | "ring2" | "amulet" | "trinket";
 
 /** Armor tier — gates equipment by class + talents. Weapons/rings/trinkets have no armorType. */
 export type ArmorType = "cloth" | "leather" | "mail" | "plate";
@@ -111,6 +111,12 @@ export interface ItemDefinition {
    *  Casters (staves/wands) drive damage through their spell instead (Phase 2). */
   dmgMin?: number;
   dmgMax?: number;
+  /** Weapon range band in paces (Combat Foundation §3): the distances at which
+   *  this weapon can strike. Omitted → a default by weaponType (bows fight at
+   *  range, everything else at melee contact — see weaponBand in combat/stats).
+   *  Author these only on weapons whose band is distinctive. */
+  minRange?: number;
+  maxRange?: number;
   /** Stat bonuses provided by this item */
   stats: Partial<AdventurerStats>;
   /** Raw sub-stat bonuses (Combat Foundation): flat additions on top of the
@@ -159,7 +165,7 @@ export interface ItemDefinition {
   /** Physical damage reduction in combat (WoW-style: DEF/(DEF+150) = % reduction) */
   defense?: number;
   /** Food flavor tags for adventurer preference matching (food items only) */
-  foodFlavors?: ("sweet" | "spicy" | "hearty" | "smoky" | "fresh")[];
+  foodFlavors?: FoodPreference[];
 }
 
 export interface InventoryItem {

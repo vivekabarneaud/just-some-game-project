@@ -1,8 +1,7 @@
 import { Show, createSignal, For } from "solid-js";
 import { useNavigate } from "@solidjs/router";
 import { useGame } from "~/engine/gameState";
-import {
-  isMuted, toggleMuted, playSound,
+import { isMuted, toggleMuted, playSound,
   masterVolume, setMasterVolume,
   uiVolume, setUiVolume,
   ambientVolume, setAmbientVolume,
@@ -12,7 +11,6 @@ import {
 
 // Module-level open state so any component (e.g. the sidebar gear) can pop it.
 const [open, setOpen] = createSignal(false);
-export const openSettings = open;
 export const setOpenSettings = setOpen;
 
 type Channel = {

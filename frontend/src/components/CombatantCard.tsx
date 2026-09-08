@@ -32,7 +32,7 @@ export const DEFAULT_SLOTS = {
   hp:       { l: 40, t: 34.5, w: 53.5, h: 12.5, bevel: 4.5 }, // bevel = % of bar width slanted off the outer edge
   status:   { l: 41, slotW: 9.5, gap: 1.5, top: 59, h: 24, count: 3 },
 };
-export type CardSlots = typeof DEFAULT_SLOTS;
+type CardSlots = typeof DEFAULT_SLOTS;
 
 const CLASS_GLYPH: Record<string, string> = {
   warrior: "⚔️", archer: "🏹", assassin: "🗡️", wizard: "🔥", priest: "✨",
