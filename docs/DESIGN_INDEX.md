@@ -54,7 +54,8 @@ authoring) and **lore canon** (creative source material, not specs).
 | design/combat/SPIDERS.md | Web-root, ambush, brood mother. `silk` still doesn't exist as a material. The quarry spider-gate is built. |
 | design/combat/ENCHANTED_SCROLLS.md | Five recipes, complete to the numbers. **Parked** — every one needs Mage Tower 2+ and Act 1 has no reachable magic. |
 | design/settlement/BUILDING_TOOLS.md | ~18 tools + buff slots. Only `cutting_board` exists. |
-| design/world/FORAGING_MINIGAME.md | **In progress** on `feat/foraging-minigame`. Data + sandbox built; trip economy, herbier and larder wiring open. |
+| design/world/FORAGING_MINIGAME.md | **Merged to preprod 2026-09-08** (was on `feat/foraging-minigame`). 23 plants incl. the winter wood fungi, seasonal weighting, regrow/decay, one-trip-a-day + shard renewal, anchored-plant daubs. The minigame SCREEN is still `import.meta.env.DEV` only. Gaps: the wood fungi are forageable but not cookable, and The Works (grind -> flour) is designed here but unbuilt. |
+| design/world/APOTHECARY.md | **RESTORED 2026-09-08** — deleting it as "already duplicated by IDEAS.md" was wrong; the ideas list never held the two axes (ROLE = shelf, TECHNIQUE = station), the additive effect-vector, the effect palette, the plant sheets, or the unified-lab layout transcribed from the user's sketch. Internal status lines are from 2026-08-02 — do not trust them. |
 
 ## Partial — shipped core, live remainder
 
@@ -114,8 +115,8 @@ DESIGN_ROSTER_CURATION (characters now arrive one at a time with their own
 stories) and DESIGN_TALENT_TREES (per-character trees replace the class pentagon
 — the direction lives in `docs/cast/`). Their unbuilt remainders are in `IDEAS.md`.
 
-**Folded into `IDEAS.md` 2026-08-31 (idea, not spec):** APOTHECARY ·
-KEPT_ANIMALS · WEATHER · TRAVELING_MERCHANTS (these four were already
+**Folded into `IDEAS.md` 2026-08-31 (idea, not spec):**
+KEPT_ANIMALS · WEATHER · TRAVELING_MERCHANTS (these were already
 duplicated word-for-idea by the ideas list) · RECOVERY_AND_RETREAT ·
 RAID_REINFORCEMENTS · FACTION_BALANCE · ROSTER_ECONOMY · QUIRKS_REWORK (worth
 opening in git — it holds ~50 unused quirk texts) · WORKERS_PLAGUES. This
