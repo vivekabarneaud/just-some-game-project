@@ -1,0 +1,720 @@
+<title>Parcel 14</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=Alegreya:ital,wght@0,400;0,500;0,700;1,400&family=Courier+Prime:ital,wght@0,400;0,700;1,400&display=swap">
+<style>
+  :root {
+    --paper: #E8E1D0;
+    --paper-deep: #DDD5C2;
+    --ink: #26221B;
+    --ink-soft: #5B554A;
+    --rule: #B9AE98;
+    --candle: #B47A22;
+    --candle-soft: #D9B36A;
+    --slate: #2B3534;
+    --slate-edge: #3C4A47;
+    --moss: #7E8C6C;
+    --ward: #C9CFC2;
+    --ward-dim: #9AA497;
+    --accent: var(--candle);
+    --measure: 68ch;
+  }
+  .under {
+    --paper: #DCDAD0;
+    --paper-deep: #CFCEC3;
+    --rule: #A9ACA0;
+    --accent: var(--moss);
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } * { transition: none !important; } }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "Alegreya", Georgia, "Times New Roman", serif;
+    font-size: 18px;
+    line-height: 1.55;
+    transition: background 600ms ease;
+  }
+  a { color: inherit; }
+  ::selection { background: var(--candle-soft); color: var(--ink); }
+
+  /* ---- top bar ---- */
+  .bar {
+    position: sticky; top: 0; z-index: 10;
+    background: var(--paper);
+    border-bottom: 1px solid var(--rule);
+    transition: background 600ms ease;
+  }
+  .bar-inner {
+    max-width: 960px; margin: 0 auto; padding: 10px 20px;
+    display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+  }
+  .wordmark {
+    font-family: "IM Fell English", "Alegreya", Georgia, serif;
+    font-size: 20px; letter-spacing: 0.02em;
+  }
+  .wordmark em { font-style: italic; color: var(--ink-soft); font-size: 16px; margin-left: 10px; }
+  .controls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .mode, .editctl {
+    display: inline-flex; border: 1px solid var(--ink); border-radius: 2px; overflow: hidden;
+    font-family: "Courier Prime", "Courier New", monospace; font-size: 13px; letter-spacing: 0.04em;
+  }
+  .mode button, .editctl button {
+    appearance: none; border: 0; margin: 0; cursor: pointer;
+    padding: 7px 14px; background: transparent; color: var(--ink);
+    font: inherit; letter-spacing: inherit; text-transform: uppercase;
+  }
+  .mode button + button, .editctl button + button { border-left: 1px solid var(--ink); }
+  .mode button[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+  .mode button:focus-visible, .editctl button:focus-visible { outline: 2px solid var(--accent); outline-offset: -3px; }
+  .editctl { border-color: var(--accent); }
+  .editctl button { color: var(--ink); }
+  .editctl button.primary { background: var(--accent); color: #fff; }
+  .editctl button[disabled] { opacity: 0.5; cursor: default; }
+  .status {
+    font-family: "Courier Prime", monospace; font-size: 13px; letter-spacing: 0.04em; color: var(--ink-soft);
+  }
+
+  /* ---- page ---- */
+  .page { max-width: 960px; margin: 0 auto; padding: 48px 20px 96px; }
+  .col { max-width: var(--measure); }
+
+  h1 {
+    font-family: "IM Fell English", "Alegreya", Georgia, serif;
+    font-weight: 400; font-size: clamp(44px, 7vw, 72px); line-height: 1; margin: 0 0 6px;
+    text-wrap: balance; letter-spacing: -0.005em;
+  }
+  .deck {
+    font-family: "IM Fell English", "Alegreya", Georgia, serif; font-style: italic;
+    font-size: 22px; color: var(--ink-soft); margin: 0 0 32px; text-wrap: balance;
+  }
+  .note {
+    border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule);
+    padding: 18px 0; margin: 0 0 56px; font-size: 17px;
+  }
+  .note p { margin: 0 0 10px; }
+  .note p:last-child { margin: 0; }
+  .k {
+    font-family: "Courier Prime", "Courier New", monospace; font-size: 13px; letter-spacing: 0.05em;
+    text-transform: uppercase; padding: 1px 6px; border: 1px solid var(--ink); border-radius: 2px; white-space: nowrap;
+  }
+
+  h2 {
+    font-family: "IM Fell English", "Alegreya", Georgia, serif; font-weight: 400;
+    font-size: 30px; line-height: 1.15; margin: 72px 0 24px; text-wrap: balance;
+    display: flex; align-items: baseline; gap: 14px;
+  }
+  h2::after { content: ""; flex: 1; border-top: 1px solid var(--rule); transform: translateY(-6px); }
+  .intro { margin: 0 0 18px; }
+
+  /* ---- scenes ---- */
+  .scene { margin: 0 0 56px; }
+  .when {
+    font-family: "Courier Prime", "Courier New", monospace; font-size: 13px; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--ink-soft); margin: 0 0 4px;
+  }
+  .scene h3 {
+    font-family: "IM Fell English", "Alegreya", Georgia, serif; font-weight: 400;
+    font-size: 27px; line-height: 1.15; margin: 0 0 14px; text-wrap: balance;
+  }
+  .scene p { margin: 0 0 14px; }
+  .scene .chron {
+    margin: 6px 0 14px; padding: 8px 0 0; border-top: 1px solid var(--rule);
+    font-size: 15.5px; color: var(--ink-soft);
+  }
+  .scene .chron .lbl {
+    font-family: "Courier Prime", "Courier New", monospace; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--ink); margin-right: 6px;
+  }
+
+  .beneath {
+    overflow: hidden; max-height: 0; opacity: 0;
+    transition: max-height 500ms ease, opacity 400ms ease, margin 400ms ease;
+    margin: 0;
+  }
+  .under .beneath { max-height: 1600px; opacity: 1; margin: 22px 0 0; }
+  .beneath-in {
+    background: var(--slate); color: var(--ward); border: 1px solid var(--slate-edge);
+    padding: 18px 22px; border-radius: 2px;
+    font-size: 17px; line-height: 1.55;
+  }
+  .beneath-in .lbl {
+    font-family: "Courier Prime", monospace; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--moss); display: block; margin-bottom: 8px;
+  }
+  .beneath-in p { margin: 0 0 10px; }
+  .beneath-in p:last-child { margin: 0; }
+  .beneath-in strong { color: #E6EAE0; font-weight: 500; }
+
+  /* ---- cast ---- */
+  .cast { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 0 40px; margin: 0; padding: 0; list-style: none; }
+  .cast li { padding: 14px 0; border-top: 1px solid var(--rule); }
+  .cast .who { font-family: "IM Fell English", "Alegreya", Georgia, serif; font-size: 21px; }
+  .cast .who .tag { font-family: "Courier Prime", monospace; font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-soft); margin-left: 8px; }
+  .cast .seen { margin: 4px 0 0; font-size: 16.5px; }
+  .cast .secret {
+    margin: 0; max-height: 0; opacity: 0; overflow: hidden; transition: max-height 400ms ease, opacity 300ms ease, margin 300ms ease;
+    font-size: 16px; color: var(--slate); border-left: 2px solid var(--moss); padding-left: 10px;
+  }
+  .under .cast .secret { max-height: 400px; opacity: 1; margin: 8px 0 0; }
+  .cast-group { margin: 34px 0 0; }
+  .cast-group .when { margin-bottom: 8px; }
+
+  /* ---- strata ---- */
+  .strata { list-style: none; margin: 0; padding: 0; border: 1px solid var(--rule); border-radius: 2px; overflow: hidden; }
+  .strata li { border-top: 1px solid rgba(0,0,0,0.12); scroll-margin-top: 84px; }
+  a.ref { color: inherit; text-decoration: underline dotted; text-decoration-color: var(--accent); text-decoration-thickness: 1px; text-underline-offset: 3px; }
+  a.ref:hover, a.ref:focus-visible { text-decoration-style: solid; outline: none; }
+  .beneath-in a.ref { text-decoration-color: var(--moss); }
+  .strata li:first-child { border-top: 0; }
+  .strata .head {
+    appearance: none; width: 100%; text-align: left; border: 0; cursor: pointer; margin: 0;
+    padding: 12px 18px; display: flex; align-items: baseline; gap: 14px;
+    font-family: "IM Fell English", "Alegreya", Georgia, serif; font-size: 19px; color: inherit; background: transparent;
+  }
+  .strata .head:focus-visible { outline: 2px solid var(--candle-soft); outline-offset: -4px; }
+  .strata .depth { font-family: "Courier Prime", monospace; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; opacity: 0.75; min-width: 9ch; }
+  .strata .body { max-height: 0; overflow: hidden; transition: max-height 450ms ease; }
+  .strata li.open .body { max-height: 900px; }
+  .strata .body-in { padding: 0 18px 18px 18px; font-size: 16.5px; line-height: 1.5; }
+  .strata .body-in p { margin: 0 0 8px; }
+  .strata .body-in p:last-child { margin: 0; }
+  .s1 { background: #E1D9C5; color: var(--ink); }
+  .s2 { background: #CFC9B6; color: var(--ink); }
+  .s3 { background: #AEB2A4; color: var(--ink); }
+  .s4 { background: #7F8B7C; color: #F0F2EA; }
+  .s5 { background: #5A6663; color: #F0F2EA; }
+  .s6 { background: #3B4646; color: #E6EAE0; }
+  .s7 { background: #1C2222; color: #E6EAE0; }
+  .s7 .depth { color: var(--candle-soft); }
+  .strata-hint { font-family: "Courier Prime", monospace; font-size: 13px; letter-spacing: 0.04em; color: var(--ink-soft); margin: 10px 0 0; }
+
+  .closing { margin-top: 72px; padding-top: 18px; border-top: 1px solid var(--rule); font-size: 17px; }
+  .closing p { margin: 0 0 12px; }
+
+  /* ---- editing ---- */
+  .editing [data-path] {
+    outline: 1px dashed var(--accent); outline-offset: 3px; border-radius: 1px; cursor: text;
+  }
+  .editing [data-path]:focus { outline: 2px solid var(--accent); background: rgba(255,255,255,0.35); }
+  .editing .beneath-in [data-path]:focus { background: rgba(255,255,255,0.08); }
+  .editing .beneath { max-height: none; opacity: 1; margin: 22px 0 0; }
+  .editing .cast .secret { max-height: none; opacity: 1; margin: 8px 0 0; }
+  .editing .strata .body { max-height: none; }
+  .editing .strata .head { cursor: default; }
+  .edit-help {
+    display: none; max-width: 960px; margin: 0 auto; padding: 8px 20px 0;
+    font-family: "Courier Prime", monospace; font-size: 13px; color: var(--ink-soft); letter-spacing: 0.02em;
+  }
+  .editing .edit-help { display: block; }
+  .edit-help code { font: inherit; padding: 0 4px; border: 1px solid var(--rule); border-radius: 2px; }
+
+  @media (max-width: 640px) {
+    body { font-size: 17px; }
+    .bar-inner { padding: 10px 14px; }
+    .page { padding: 32px 14px 72px; }
+    .mode button, .editctl button { padding: 7px 10px; font-size: 12px; }
+  }
+</style>
+
+<div class="bar">
+  <div class="bar-inner">
+    <div class="wordmark">Valenheart <em>the opening, as a treatment</em></div>
+    <div class="controls">
+      <div class="mode" role="group" aria-label="Reading mode">
+        <button type="button" id="btn-lord" aria-pressed="true">The Lord's eyes</button>
+        <button type="button" id="btn-under" aria-pressed="false">What is underneath</button>
+      </div>
+      <div class="editctl" id="editctl" hidden>
+        <button type="button" id="btn-edit">Edit</button>
+        <button type="button" id="btn-cancel" hidden>Cancel</button>
+        <button type="button" id="btn-save" class="primary" hidden>Save</button>
+      </div>
+      <span class="status" id="status" hidden></span>
+    </div>
+  </div>
+  <div class="edit-help">Click any text to change it. <code>**bold**</code> makes an emphasis; <code>{{Nordveld|peoples}}</code> makes a link to a lore layer (settlement, frontier, thinning, halldora, peoples, sundering, eighth). Save publishes a new version of this page for everyone who has the link.</div>
+</div>
+
+<main class="page"><div class="col" id="root"></div></main>
+
+<script type="application/json" id="content">
+{
+  "title": "Parcel 14",
+  "deck": "The first hour of Valenheart, scene by scene: what the player is told, and what is true.",
+  "note": [
+    "This page describes the first hour of Valenheart as it is meant to play, not as the current prototype plays. It lists what happens, who is involved, and what each beat sets up. Everything comes from the design documents and the in-game text.",
+    "The switch at the top has two positions. [[The Lord's eyes]] shows only what the player knows at that point. [[What is underneath]] adds, under each scene and each character, the facts that are true but not yet revealed."
+  ],
+  "castTitle": "The people who came",
+  "castGroups": [
+    {
+      "when": "",
+      "people": [
+        {
+          "name": "The Lord",
+          "tag": "the player, about 37",
+          "seen": "Former schoolmaster of Ashwick, a village in the Hearthlands. Took a Crown land grant on the southern frontier when his school lost its funding. Unmarried. Keeps a journal, and the journal is the text the player reads. The title came with the grant; he is a commoner and uncomfortable with it.",
+          "secret": "He believes he came to build something of his own. The actual reason: the five people he brought were each adrift in Ashwick, and the grant let him gather them. He is not aware of this. His parents stayed in Ashwick. They cannot read, so letters go through Brother Aelric, the parish priest."
+        },
+        {
+          "name": "Edda",
+          "tag": "midwife, 71",
+          "seen": "Midwife of Ashwick for forty years; delivered the Lord. Keeps the herbs, the cellar and the hearth. Came south for Nell, not for the Lord. Calls him \"my boy\" in private.",
+          "secret": "Her grandmother came from {{Nordveld|peoples}} and married into Ashwick. Edda attends church and also performs her grandmother's small rituals privately. She teaches Nell the herbs under the old northern names. Lost a daughter, Mira, and a granddaughter, Mae, to fever before Nell was born; Nell does not know. The Lord does not know about the rituals."
+        },
+        {
+          "name": "Nell",
+          "tag": "Jory's daughter, 11",
+          "seen": "Shy with strangers, talkative with family. Calls the Lord \"uncle\" and tells him what she sees around the settlement. Spends her time with Edda, the animals and the herb garden. Edda is a grandmother to her. Keeps a small book the Lord gave her at ten and shows it to no one.",
+          "secret": "Her mother, Lyra, died of fever four years ago. Nell stopped drawing then. She is the narrative device for off-screen events: she sees them and tells the Lord, and he records them. She names the needy animals. She is the first to see the alpha wolf at the fold and names him Greyfang. When she draws again is open, and unconnected to anyone else's arc."
+        },
+        {
+          "name": "Jory",
+          "tag": "carpenter, 36",
+          "seen": "Carpenter and instrument maker from Ashwick; the Lord's oldest friend. Widower. Brought his lute and plays at the fire in the evenings. Runs the lumber mill at first and dislikes it.",
+          "secret": "Married Lyra; she died four years ago, when Nell was seven. Constant joking covers the grief; the Lord and Edda can tell the difference. He plays the old northern songs Edda hums without asking what they are. When Hester arrives he moves to the Woodworker and carves bows, shields and instruments."
+        },
+        {
+          "name": "Tomas",
+          "tag": "stonemason, 48",
+          "seen": "Stonemason and quarry lead; former militia sergeant, discharged with a leg wound. Does not speak. Communicates by nods, grunts and the work. Walks the perimeter at dusk. Keeps a ten-year-old cat that was not originally his.",
+          "secret": "Conscripted at 38. Two years in, his squad was ambushed; he gave the order to fall back east and his closest friend Bren died covering the retreat. Tomas was wounded going back for him. He has not spoken since: his voice gave the order that killed Bren, and he fears it will kill again. Nobody in the settlement knows why. His fiancée believed him dead and married another. The cat was Bren's. If he speaks again it will be on his own timeline."
+        },
+        {
+          "name": "Father Corin",
+          "tag": "retired priest, 68",
+          "seen": "Priest of the Radiant One in Ashwick for forty-five years; retired to come south. Baptized the Lord, married Jory and Lyra, buried Lyra. Reads scripture for mercy rather than letter. Holds the settlement's services.",
+          "secret": "He and Edda are old friends: forty years of the same sickbeds, births and burials in Ashwick. He has known about her rituals the whole time and never said so. He is curious and amused, not troubled, and privately thinks it is the same god under older names. He has never practiced any of it. Edda does not know that he knows."
+        }
+      ]
+    },
+    {
+      "when": "Arrive in the first week, at night, see the third scene",
+      "people": [
+        {
+          "name": "Nessa Thornwood",
+          "tag": "archer, about 33",
+          "seen": "Eldest of the three Thornwood siblings and the one who decides. Learned the bow keeping crows off the family's barley. Rations food by habit and dislikes waste.",
+          "secret": "Her mother died giving birth to Godric when Nessa was twelve; Nessa raised him. After the family lost its farm she spent five years landless, feeding herself and the adopted boy by poaching, a hanging crime. Never married. Carries a twist of barley seed from the old farm. Food preference: sweet, from her mother's honey."
+        },
+        {
+          "name": "Gareth Thornwood",
+          "tag": "archer, about 31",
+          "seen": "Second Thornwood sibling. Talkative, laughs easily, quick to defend anyone being pushed around. Does not waste arrows.",
+          "secret": "Enlisted as a soldier before the family lost the farm and was away on the northern marches when his father died; he has not forgiven himself. Deserted after refusing an order to shoot villagers fleeing a burning border village. Desertion is a capital crime. Food preference: sweet."
+        },
+        {
+          "name": "Godric Thornwood",
+          "tag": "warrior, about 21",
+          "seen": "Youngest Thornwood sibling. Very large, gentle. Gave his own bowl to the children on the first night.",
+          "secret": "His mother died giving birth to him; his father could not look at him afterwards, so Nessa raised him. Conscripted at sixteen, right after the family lost the farm, into the Nordveld war; deserted after two years. Holds a line but will not kill the helpless; Nessa finishes what he pins. Food preference: spicy in the data today; smoky is under consideration."
+        },
+        {
+          "name": "Jack",
+          "tag": "about 7",
+          "seen": "Loud and cheerful. Announces his own name before the adults manage a greeting. A settlement child, not recruitable.",
+          "secret": "A neighbour's child orphaned by the same winter that killed the Thornwoods' father; they took him in that season. Nessa is his mother in all but blood. Deliberately untraumatized. He and Nell are the two children of the camp."
+        },
+        {
+          "name": "Ser Sniffsalot",
+          "tag": "Nessa's hound",
+          "seen": "A scent hound. Comes out of the trees ahead of the family on the first night. Works with the hunters from the next morning.",
+          "secret": "Bound to Nessa: the player cannot reassign him and he does not count against kennel capacity. He introduces the dog-boost mechanic with no setup. A separate stray, Truffle, arrives later, prompts the Kennel, and is named by Nell."
+        }
+      ]
+    }
+  ],
+  "scenesTitle": "The first hour",
+  "scenes": [
+    {
+      "when": "The first night",
+      "title": "Arrival at Parcel 14",
+      "paras": [
+        "Six people and a wagon reach the parcel after a fortnight on the road from Ashwick. The land: a river bending east, a stone ridge to the north, old forest all around. The clearing is wild; nobody has settled it before. They camp at dusk. The Lord begins the journal that night."
+      ],
+      "chronicle": "Chronicle entry \"Arrival\". The intro cinematic, three pages of the Lord's book, covers the road and this night.",
+      "beneath": [
+        "The Crown stopped garrisoning this frontier about 150 years ago, after several garrisons were lost, Hale's among them, and switched to land grants. The land office has issued parcels from unchanged maps since. Nobody lied to the Lord; the Crown forgot.",
+        "The nearest earlier settlers were Hale's garrison, two days' march south. The forest to the south is losing its game."
+      ]
+    },
+    {
+      "when": "The first days",
+      "title": "Setting up",
+      "paras": [
+        "The core loop begins: shelter, water, wood, food, before the first winter. Tomas finds stone on the north ridge and opens the quarry. Jory builds the first houses and runs the mill. Edda starts the herb garden. Corin holds evening service. The Lord works beside them and keeps the journal.",
+        "Spring runs a food deficit; the harvest closes it if the player planted in time. This tension is the intended rhythm of the early game."
+      ],
+      "chronicle": null,
+      "beneath": [
+        "Four of the six carry things the player discovers later: Tomas's silence and its cause, Edda's rituals, Corin's knowledge of them, the Lord's real reason for the grant. None of it is stated in Chapter 1."
+      ]
+    },
+    {
+      "when": "A night in the first week",
+      "title": "The Thornwoods arrive",
+      "paras": [
+        "Night, the settlers around the fire. Nessa's hound comes out of the trees first and goes round the circle. Nessa follows with fresh game and asks if there is room in the pot. Gareth, Godric and Jack come behind her. The Lord takes them in.",
+        "Their arrival opens the Adventurers' Guild: three recruitable characters (two archers, one warrior), a hunting camp to staff, and the first missions."
+      ],
+      "chronicle": "Chronicle entry \"Two bows, a strong back, and a loud boy\".",
+      "beneath": [
+        "Gareth and Godric are deserters. Desertion is a capital crime, and the frontier is beyond the Crown's practical reach.",
+        "The family were tenant barley farmers in the Hearthlands. The mother died giving birth to Godric; she had spent her last coins on sweet things for her children. Five years ago a killing winter took the farm and the father, who ate last and died of it. They took in Jack the same season. Family principle: they give what they do not have, and they will not harm the helpless. None of this is told for many hours."
+      ]
+    },
+    {
+      "when": "The next morning",
+      "title": "First mission: scouting south",
+      "paras": [
+        "The Lord asks the hunters to map the land: water, game, stone, dangers. Nessa and Gareth go; Godric stays for heavy work; the hound goes with the archers. This is the first deployable mission. Danger: wolves."
+      ],
+      "chronicle": null,
+      "beneath": [
+        "The Lord never fights and never leaves the settlement in Act 1. All missions are the team's; he learns outcomes from reports and writes them down. The whole narrative is built on this constraint."
+      ]
+    },
+    {
+      "when": "Two days later",
+      "title": "The scouts' report",
+      "paras": [
+        "The scouts return with a map. A wolf pack attacked on the ridge and was driven off. Useful land: game trails north, berry thickets along the river, a quarry site on the eastern ridge, water in three places.",
+        "Two days' march south: an abandoned stone watchtower on a hilltop. Foundations, a collapsed well, half the tower standing. No bodies, no graves, no sign of a fight. A standing stone on each side of the hill, taller than a man, older than the tower, carved with worn marks. The Lord records them as old boundary stones. Survival takes priority; the ruins are not visited again in Chapter 1."
+      ],
+      "chronicle": "Chronicle entry \"South, on a hill\". A four-slide cinematic exists in the older painted style.",
+      "beneath": [
+        "The tower is the old watch: Captain Vardin Hale's garrison, posted about 150 years ago. His men heard the voices of their dead and walked south one by one. His journal lasts 47 days and ends when he hears his dead daughter, Ennara. The player enters the tower and reads the journal at the Chapter 2 climax.",
+        "The two stones are ward-stones in a belt along the edge of {{the thinning|thinning}}, where the boundary between living and dead is worn through. In Hale's time one stone was broken and his walls stood outside the other's reach. Rangers mended it afterwards; both stand whole now, which is why the scouts hear nothing. The thinning advances about two days' walk per century: Hale's seven days' march is now three days' walk."
+      ]
+    },
+    {
+      "when": "The first season",
+      "title": "Survival, wolves, neighbours",
+      "paras": [
+        "A raven from the land office announces two more families. Houses go up, then a hunting camp and food stores. The wolves attack the settlement an hour after dusk; Gareth holds the new watchtower; the wall holds. The pack was starving.",
+        "Later the watchtower spots farmers from Lammast, a village a day east and a year older. First contact with neighbours."
+      ],
+      "chronicle": "Chronicle entries \"The wall held\" and \"The east track\".",
+      "beneath": [
+        "The starving wolves are Chapter 1's only evidence that the south is dying. Beyond the thinning lie the Hollow Wastes: dead ground, nothing grows, the dead do not stay down. The Wastes were static for nineteen centuries and began expanding about 150 years ago; this frontier is the leading edge.",
+        "Rule: Chapter 1 confirms nothing supernatural. Every strange thing has a mundane reading and the Lord takes it."
+      ]
+    },
+    {
+      "when": "Later in the first season",
+      "title": "Hester",
+      "paras": [
+        "Gareth's patrol finds a woman being run down by a group of men and intervenes. The crew is subdued and released; the woman has already fled. One of the crew calls her a murderer. Mission \"Run Down\".",
+        "Days later, timber appears on the mill stack overnight with no one claiming it. Mission \"No One Followed\". After a real-time delay the woman shows herself: Hester Ironbark. Gareth recognises her from the chase. The Lord takes her in on her deeds. She joins the roster and takes the lumber mill. Her arrival unlocks the Woodworker, which frees Jory to carve."
+      ],
+      "chronicle": "Chronicle entries \"A murderer, they said\", \"The ghost in the woodpile\", \"The woman who came back\".",
+      "beneath": [
+        "Hester hauled ironbark for years among men who harassed her. She killed the last foreman who touched her. She tells herself it was unintended; what frightens her is how easy it was. Her hardness is a wall built deliberately that day. She whittles small birds and does not discuss either thing. She avoids men and hates being touched. First weapon-affinity character (axe).",
+        "The Lord's joke about a ghost in the woodpile comes before any ghost is confirmed in the story."
+      ]
+    },
+    {
+      "when": "Threads opening in parallel",
+      "title": "Parallel chains and the Chapter 1 climax",
+      "paras": [
+        "Several chains run in parallel from here. A marsh-gathering mission for fenbalm opens the bog-witch chain and leaves one adventurer venomed until an antidote is brewed. A stray dog, Truffle, prompts the Kennel and later a wolf side-chain. The peddler Cobb is robbed on the downriver road, which opens the bandit chain. The Stonebridge brothers, Aldwin and Magnus, arrive as refugees.",
+        "Chapter 1 climax: a tainted boar (\"Bad Blood\") wounds someone. Edda cannot treat the wound. Aldwin heals it by what appears to be prayer. Magnus is suspected. The brothers confess. The settlement is knowingly harboring a wizard: the first confirmed magic in the game.",
+        "Chapter 2: the old watch is entered and Hale's journal read; confirmed witchcraft and maddened animals. Chapter 3: Niamh of the Thornveil rangers arrives; the first confirmed ghost; a ritual frees Hale's soul. Act 1 ends with a cult assault on the settlement."
+      ],
+      "chronicle": "Chronicle entries for the marsh, Truffle, Cobb, the Stonebridges and the confession exist or are planned; the Chapter 2 and 3 entries exist.",
+      "beneath": [
+        "The marsh belongs to Aldith, the bog witch, who is not what the Church would call her. Corruption of ground or flesh cannot be cleansed in this world, only contained: the god who ran the life-force cycle is dead. Aldwin's healing is Light magic; so is every priest's blessing, Corin's included, and none of them know it. Magnus is Arcane, unrelated to the taint; he is the red herring.",
+        "Sheltering the brothers makes the settlement a haven, which later makes it an enemy of the Church and the Inquisition."
+      ]
+    }
+  ],
+  "strataTitle": "How deep it goes",
+  "strataIntro": "The lore in layers, from what the player lives in down to what nobody in the world knows. Ordered by distance from the Lord, not by chronology. Click a layer to open it.",
+  "strata": [
+    {
+      "slug": "settlement",
+      "depth": "Surface",
+      "name": "The settlement and the people who hold it",
+      "paras": [
+        "Six founders, the Thornwood family, and later arrivals. Each founder carries an undisclosed history, and the Lord ends up holding what they choose to share. He has no hidden shame of his own. Every other layer reaches the player only through this one."
+      ]
+    },
+    {
+      "slug": "frontier",
+      "depth": "One down",
+      "name": "The frontier, and a Crown that forgot",
+      "paras": [
+        "Lammast a day east; Greyford; peddlers; bandits; eventually Crown taxation. About 150 years ago the Crown replaced frontier garrisons with land grants after several garrisons, Hale's among them, were lost. The land office has issued parcels from unchanged maps since. The Lord learns this from Hale's journal in Chapter 2."
+      ]
+    },
+    {
+      "slug": "thinning",
+      "depth": "Two down",
+      "name": "The thinning, the wards, and the old watch",
+      "paras": [
+        "South of the settlement the boundary between the living and the dead is worn thin: the dead are audible there. A person who dies in the thinning rarely crosses over. Beyond it lie the Hollow Wastes: dead ground where nothing grows and bodies do not rot. A belt of ancient ward-stones, kept by rangers, holds the edge; each stone protects only its own circle. The thinning advances about two days' walk per century. Hale's garrison camped in a gap in the belt and lasted 47 days.",
+        "Combat dispels a ghost; only ritual frees one. The player learns this from Niamh in Chapter 3 and until then believes they killed Hale."
+      ]
+    },
+    {
+      "slug": "halldora",
+      "depth": "Three down",
+      "name": "Halldora Frostvik and the Cult of the Hollow",
+      "paras": [
+        "Halldora Frostvik: the youngest Archmagus of the old Academy, and the only scholar of how the gods' functions worked. She was absent when the Academy was destroyed at the Sundering. Within a century she bound her lifespan to the flow of Aether, the world's life-force, so she could keep warning people. Nobody listened. Her research circle split over willing sacrifice; the faction that accepted it became, over two thousand years, the Cult of the Hollow, whose magic burns dead Aether and worsens the collapse.",
+        "Her binding is now failing because Aether is running out. She is looking for a successor. She communicates by robins, since ravens are intercepted. Act 1 ends with a cult assault on the settlement; Halldora makes contact afterwards."
+      ]
+    },
+    {
+      "slug": "peoples",
+      "depth": "Four down",
+      "name": "Varek and the peoples of the continent",
+      "paras": [
+        "Varek, a Khor'vani strategist's son, unified the continent's petty kingdoms and repelled a Nordveld invasion of the Hearthlands. The cultures the recruits come from (Ashwick and the Hearthlands, Nordveld, the Silvaneth forests, the Khazdurim mountain holds, the Zah'kari cities) still reflect his settlement. Little of this layer is built yet.",
+        "**Nordveld**: the northern island people, and Ashwick's historical enemy. They have invaded the Hearthlands several times and been repelled each time. They never adopted the Church and keep several old gods, Netheron among them. The Lord knows this as common history. Edda's grandmother was Nordveld and married into Ashwick. The border village Gareth refused to fire on kept the northern gods."
+      ]
+    },
+    {
+      "slug": "sundering",
+      "depth": "Five down",
+      "name": "The Sundering, two thousand years ago",
+      "paras": [
+        "Eight gods; the world remembers seven. Netheron ran the cycle of Aether through the world. About 2000 years ago he descended into the Ironspine Deeps to destroy something, and the Sundering followed. He is the only god who truly died; his body lies at the centre of the Wastes and has never been seen. Nobody has performed his function since. This is why corruption cannot be cleansed and why Aether has been draining ever since. The Wastes were static for nineteen centuries; the drain reached a tipping point about 150 years ago."
+      ]
+    },
+    {
+      "slug": "eighth",
+      "depth": "The floor",
+      "name": "The Eighth, sealed in the Ironspine Deeps",
+      "paras": [
+        "A god of malice, deception and fear. The other seven sealed him in physical form in the Ironspine Deeps and removed him from all records. He acted through agents outside the seal: steering the Khazdurim to dig deeper, altering scholarship, and finally steering Netheron into the descent that caused the Sundering. The seals are weakening; sensitive Khazdurim hear whispers in the stone. Nobody alive knows he exists, Halldora included.",
+        "This is the game's central secret and a late reveal."
+      ]
+    }
+  ],
+  "strataHint": "At the end of Act 1 the player stands on the surface, knows most of the frontier layer, and has touched the thinning layer.",
+  "closing": [
+    "Sources: the design documents and in-game text as of September 2026. Where the current build differs, this page describes the intended opening."
+  ]
+}
+</script>
+
+<script>
+  (function () {
+    // Capture the pristine document source before any rendering, so Save can
+    // regenerate the page from data instead of serializing the live DOM.
+    var SOURCE = '<!doctype html>\n' + document.documentElement.outerHTML;
+
+    var contentEl = document.getElementById('content');
+    var DATA = JSON.parse(contentEl.textContent);
+    var root = document.getElementById('root');
+    var body = document.body;
+
+    // ---------- inline formatting ----------
+    function esc(s) {
+      return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+    function inline(s) {
+      return esc(s)
+        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\[\[(.+?)\]\]/g, '<span class="k">$1</span>')
+        .replace(/\{\{(.+?)\|([a-z0-9-]+)\}\}/g, '<a class="ref" href="#$2">$1</a>');
+    }
+    function fromHtml(html) {
+      // strong -> **, .k chips -> [[ ]], drop other tags, decode entities
+      var t = html
+        .replace(/<br\s*\/?>/gi, '\n')
+        .replace(/<strong[^>]*>([\s\S]*?)<\/strong>/gi, '**$1**')
+        .replace(/<b[^>]*>([\s\S]*?)<\/b>/gi, '**$1**')
+        .replace(/<span class="k"[^>]*>([\s\S]*?)<\/span>/gi, '[[$1]]')
+        .replace(/<a class="ref" href="#([a-z0-9-]+)"[^>]*>([\s\S]*?)<\/a>/gi, '{{$2|$1}}')
+        .replace(/<[^>]+>/g, '');
+      var ta = document.createElement('textarea');
+      ta.innerHTML = t;
+      return ta.value.replace(/ /g, ' ').replace(/\s+\n\s+/g, ' ').replace(/\n+/g, ' ').trim();
+    }
+
+    // ---------- path helpers ----------
+    function getPath(obj, path) {
+      var parts = path.split('.');
+      for (var i = 0; i < parts.length; i++) obj = obj[parts[i]];
+      return obj;
+    }
+    function setPath(obj, path, val) {
+      var parts = path.split('.');
+      for (var i = 0; i < parts.length - 1; i++) obj = obj[parts[i]];
+      obj[parts[parts.length - 1]] = val;
+    }
+
+    // ---------- render ----------
+    function p(cls, path, text) {
+      return '<p' + (cls ? ' class="' + cls + '"' : '') + ' data-path="' + path + '">' + inline(text) + '</p>';
+    }
+    function render(d) {
+      var h = '';
+      h += '<h1 data-path="title">' + inline(d.title) + '</h1>';
+      h += p('deck', 'deck', d.deck);
+      h += '<div class="note">' + d.note.map(function (t, i) { return p('', 'note.' + i, t); }).join('') + '</div>';
+
+      h += '<h2 data-path="castTitle">' + inline(d.castTitle) + '</h2>';
+      d.castGroups.forEach(function (g, gi) {
+        h += '<div class="' + (gi ? 'cast-group' : '') + '">';
+        if (gi) h += p('when', 'castGroups.' + gi + '.when', g.when);
+        h += '<ul class="cast">';
+        g.people.forEach(function (c, ci) {
+          var base = 'castGroups.' + gi + '.people.' + ci + '.';
+          h += '<li><div class="who"><span data-path="' + base + 'name">' + inline(c.name) + '</span><span class="tag" data-path="' + base + 'tag">' + inline(c.tag) + '</span></div>';
+          h += p('seen', base + 'seen', c.seen);
+          h += p('secret', base + 'secret', c.secret);
+          h += '</li>';
+        });
+        h += '</ul></div>';
+      });
+
+      h += '<h2 data-path="scenesTitle">' + inline(d.scenesTitle) + '</h2>';
+      d.scenes.forEach(function (s, si) {
+        var base = 'scenes.' + si + '.';
+        h += '<section class="scene">';
+        h += p('when', base + 'when', s.when);
+        h += '<h3 data-path="' + base + 'title">' + inline(s.title) + '</h3>';
+        h += s.paras.map(function (t, i) { return p('', base + 'paras.' + i, t); }).join('');
+        if (s.chronicle) {
+          h += '<p class="chron"><span class="lbl">In the game</span> <span data-path="' + base + 'chronicle">' + inline(s.chronicle) + '</span></p>';
+        }
+        h += '<div class="beneath"><div class="beneath-in"><span class="lbl">Underneath</span>';
+        h += s.beneath.map(function (t, i) { return p('', base + 'beneath.' + i, t); }).join('');
+        h += '</div></div></section>';
+      });
+
+      h += '<h2 data-path="strataTitle">' + inline(d.strataTitle) + '</h2>';
+      h += p('intro', 'strataIntro', d.strataIntro);
+      h += '<ul class="strata" id="strata">';
+      d.strata.forEach(function (l, li) {
+        var base = 'strata.' + li + '.';
+        h += '<li id="' + esc(l.slug || ('layer-' + (li + 1))) + '" class="s' + (li + 1) + (li === 0 ? ' open' : '') + '"><button type="button" class="head" aria-expanded="' + (li === 0) + '"><span class="depth" data-path="' + base + 'depth">' + inline(l.depth) + '</span><span data-path="' + base + 'name">' + inline(l.name) + '</span></button>';
+        h += '<div class="body"><div class="body-in">' + l.paras.map(function (t, i) { return p('', base + 'paras.' + i, t); }).join('') + '</div></div></li>';
+      });
+      h += '</ul>';
+      h += p('strata-hint', 'strataHint', d.strataHint);
+
+      h += '<div class="closing">' + d.closing.map(function (t, i) { return p('', 'closing.' + i, t); }).join('') + '</div>';
+      root.innerHTML = h;
+    }
+    render(DATA);
+
+    // ---------- reading mode ----------
+    var bLord = document.getElementById('btn-lord');
+    var bUnder = document.getElementById('btn-under');
+    function setMode(under) {
+      body.classList.toggle('under', under);
+      bLord.setAttribute('aria-pressed', under ? 'false' : 'true');
+      bUnder.setAttribute('aria-pressed', under ? 'true' : 'false');
+      try { localStorage.setItem('parcel14.mode', under ? 'under' : 'lord'); } catch (e) {}
+    }
+    bLord.addEventListener('click', function () { setMode(false); });
+    bUnder.addEventListener('click', function () { setMode(true); });
+    try { if (localStorage.getItem('parcel14.mode') === 'under') setMode(true); } catch (e) {}
+
+    // ---------- strata ----------
+    function openLayer(id) {
+      var li = document.getElementById(id);
+      if (!li || !li.closest('.strata')) return;
+      li.classList.add('open');
+      var head = li.querySelector('.head');
+      if (head) head.setAttribute('aria-expanded', 'true');
+    }
+    root.addEventListener('click', function (ev) {
+      var ref = ev.target.closest('a.ref');
+      if (ref) {
+        if (body.classList.contains('editing')) { ev.preventDefault(); return; }
+        openLayer(ref.getAttribute('href').slice(1));
+        return; // let the browser jump to the anchor
+      }
+      var btn = ev.target.closest('.strata .head');
+      if (!btn || body.classList.contains('editing')) return;
+      var li = btn.parentElement;
+      var open = li.classList.toggle('open');
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+    function openFromHash() {
+      var id = (location.hash || '').slice(1);
+      if (id) openLayer(id);
+    }
+    window.addEventListener('hashchange', openFromHash);
+    openFromHash();
+
+    // ---------- editing (only when the page may publish itself) ----------
+    var editctl = document.getElementById('editctl');
+    var bEdit = document.getElementById('btn-edit');
+    var bCancel = document.getElementById('btn-cancel');
+    var bSave = document.getElementById('btn-save');
+    var statusEl = document.getElementById('status');
+    var artifactNs = null;
+
+    function status(msg) {
+      statusEl.hidden = !msg;
+      statusEl.textContent = msg || '';
+    }
+    function setEditing(on) {
+      body.classList.toggle('editing', on);
+      bEdit.hidden = on;
+      bCancel.hidden = !on;
+      bSave.hidden = !on;
+      var nodes = root.querySelectorAll('[data-path]');
+      for (var i = 0; i < nodes.length; i++) {
+        if (on) nodes[i].setAttribute('contenteditable', 'true');
+        else nodes[i].removeAttribute('contenteditable');
+      }
+      if (on) status('');
+    }
+    function collect() {
+      var next = JSON.parse(JSON.stringify(DATA));
+      var nodes = root.querySelectorAll('[data-path]');
+      for (var i = 0; i < nodes.length; i++) {
+        setPath(next, nodes[i].getAttribute('data-path'), fromHtml(nodes[i].innerHTML));
+      }
+      return next;
+    }
+    function buildDocument(data) {
+      var json = JSON.stringify(data, null, 2).replace(/<\//g, '<\\/');
+      var re = /(<script type="application\/json" id="content">)[\s\S]*?(<\/script>)/;
+      return SOURCE.replace(re, function (m, a, b) { return a + '\n' + json + '\n' + b; });
+    }
+
+    bEdit.addEventListener('click', function () { setEditing(true); });
+    bCancel.addEventListener('click', function () { render(DATA); setEditing(false); });
+    bSave.addEventListener('click', function () {
+      if (!artifactNs) return;
+      var next = collect();
+      bSave.disabled = true; bCancel.disabled = true;
+      status('saving…');
+      try { sessionStorage.setItem('parcel14.draft', JSON.stringify(next)); } catch (e) {}
+      artifactNs.publish(buildDocument(next)).then(function () {
+        try { sessionStorage.removeItem('parcel14.draft'); } catch (e) {}
+        status('saved, reloading');
+      }).catch(function (err) {
+        bSave.disabled = false; bCancel.disabled = false;
+        var code = err && err.code;
+        if (code === 'conflict') {
+          status('someone saved a newer version; reloading to it');
+        } else if (code === 'not_writer' || code === 'not_granted') {
+          status('you can read this page but not change it');
+          setEditing(false); editctl.hidden = true;
+        } else if (code === 'consent_required') {
+          status('saving needs your permission; press Save again');
+        } else {
+          status('could not save (' + (code || 'error') + '); your text is still here');
+        }
+      });
+    });
+
+    if (window.claude && typeof window.claude.use === 'function') {
+      window.claude.use('artifact').then(function (ns) {
+        if (!ns) return;
+        artifactNs = ns;
+        editctl.hidden = false;
+      }).catch(function () {});
+    }
+  })();
+</script>

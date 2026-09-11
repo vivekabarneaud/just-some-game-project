@@ -1,0 +1,2033 @@
+<title>Valenheart Tree</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=Alegreya:ital,wght@0,400;0,500;0,700;1,400&family=Courier+Prime:wght@0,400;0,700&display=swap">
+<style>
+  :root {
+    --paper: #E8E1D0; --paper-deep: #DDD5C2; --ink: #26221B; --ink-soft: #5B554A; --rule: #B9AE98;
+    --candle: #B47A22; --candle-soft: #D9B36A; --slate: #2B3534; --slate-edge: #3C4A47; --moss: #7E8C6C; --ward: #C9CFC2;
+    --blood: #8B3A2F;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body { margin: 0; background: var(--paper); color: var(--ink); font-family: "Alegreya", Georgia, serif; font-size: 16px; overflow: hidden; }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+
+  .bar { position: fixed; top: 0; left: 0; right: 0; z-index: 10; background: var(--paper); border-bottom: 1px solid var(--rule); }
+  .bar-inner { padding: 8px 16px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+  .wordmark { font-family: "IM Fell English", Georgia, serif; font-size: 20px; }
+  .wordmark em { font-style: italic; color: var(--ink-soft); font-size: 15px; margin-left: 8px; }
+  .spacer { flex: 1; }
+  .btns { display: inline-flex; border: 1px solid var(--ink); border-radius: 2px; overflow: hidden; font-family: "Courier Prime", monospace; font-size: 12.5px; letter-spacing: 0.04em; }
+  .btns button { appearance: none; border: 0; margin: 0; cursor: pointer; padding: 6px 12px; background: transparent; color: var(--ink); font: inherit; letter-spacing: inherit; text-transform: uppercase; }
+  .btns button + button { border-left: 1px solid var(--ink); }
+  .btns button:hover { background: var(--paper-deep); }
+  .btns button:focus-visible { outline: 2px solid var(--candle); outline-offset: -3px; }
+  .hint { font-family: "Courier Prime", monospace; font-size: 12px; color: var(--ink-soft); letter-spacing: 0.03em; }
+
+  .legend { position: fixed; left: 12px; bottom: 12px; z-index: 9; background: rgba(232,225,208,0.94); border: 1px solid var(--rule); border-radius: 2px; padding: 10px 12px; font-family: "Courier Prime", monospace; font-size: 12px; letter-spacing: 0.03em; color: var(--ink-soft); display: grid; grid-template-columns: auto auto; gap: 5px 18px; }
+  .legend .sw { display: inline-block; width: 14px; height: 14px; vertical-align: -3px; margin-right: 7px; border-radius: 2px; border: 1.5px solid var(--ink); }
+  .legend .sw.person { background: #F1DFB6; border-color: var(--candle); }
+  .legend .sw.faction { background: #D7DDCB; border-color: var(--moss); }
+  .legend .sw.event { background: #F3EEE2; border-color: var(--ink); }
+  .legend .sw.place { background: #CFD6D4; border-color: var(--slate); }
+  .legend .sw.thread { background: transparent; border-style: dashed; border-color: var(--blood); }
+  .legend .ln { display: inline-block; width: 22px; border-top: 2px solid var(--ink); vertical-align: 3px; margin-right: 7px; }
+  .legend .ln.family { border-top: 2px dashed var(--candle); }
+  .legend .ln.thread { border-top: 2px dotted var(--blood); }
+  .legend .ln.member { border-top: 2px solid var(--moss); }
+
+  svg#map { position: fixed; inset: 0; width: 100%; height: 100%; touch-action: none; cursor: grab; }
+  svg#map.dragging { cursor: grabbing; }
+  .era-label { font-family: "Courier Prime", monospace; font-size: 13px; letter-spacing: 0.12em; text-transform: uppercase; }
+  .era-sub { font-family: "IM Fell English", Georgia, serif; font-style: italic; font-size: 15px; }
+  .edge { fill: none; stroke-width: 1.6; opacity: 0.75; }
+  .edge.causes { stroke: var(--ink); }
+  .edge.member { stroke: var(--moss); }
+  .edge.family { stroke: var(--candle); stroke-dasharray: 6 5; }
+  .edge.thread { stroke: var(--blood); stroke-dasharray: 2 5; stroke-width: 2; }
+  .edge.hot { opacity: 1; stroke-width: 3; }
+  .edge.cold { opacity: 0.12; }
+  .node { cursor: pointer; }
+  .node rect { stroke-width: 1.6; rx: 3; }
+  .node.event rect { fill: #F3EEE2; stroke: var(--ink); }
+  .node.person rect { fill: #F1DFB6; stroke: var(--candle); }
+  .node.faction rect { fill: #D7DDCB; stroke: var(--moss); }
+  .node.place rect { fill: #CFD6D4; stroke: var(--slate); }
+  .node.thread rect { fill: #EFE6DE; stroke: var(--blood); stroke-dasharray: 5 4; }
+  .node.hub rect { stroke-width: 3; }
+  .node text { font-family: "Alegreya", Georgia, serif; font-size: 14px; fill: var(--ink); pointer-events: none; }
+  .node .sub { font-family: "Courier Prime", monospace; font-size: 10.5px; fill: var(--ink-soft); letter-spacing: 0.06em; text-transform: uppercase; }
+  .node.t1 rect { stroke-width: 3; rx: 4; }
+  .node.t1 text { font-family: "IM Fell English", "Alegreya", Georgia, serif; font-size: 23px; }
+  .node.t1 .sub { font-size: 12.5px; }
+  .node.t2 text { font-size: 15px; }
+  .node.t2 .sub { font-size: 11px; }
+  .node.t3 text { font-size: 12.5px; }
+  .node.t3 .sub { font-size: 10px; }
+  .node.t3 rect { stroke-width: 1.2; }
+  .essentials .node.t3, .essentials .edge.t3 { display: none; }
+  .node:hover rect, .node.active rect { stroke-width: 3.5; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.25)); }
+  .node.cold { opacity: 0.35; }
+  .node .known { fill: var(--moss); }
+  .node .known.lord { fill: var(--candle); }
+  .node .known.hidden { fill: var(--slate); }
+
+  /* modal */
+  .overlay { position: fixed; inset: 0; z-index: 20; background: rgba(38,34,27,0.45); display: flex; align-items: flex-start; justify-content: flex-end; }
+  .overlay[hidden] { display: none; }
+  .panel { width: min(520px, 100%); height: 100%; overflow-y: auto; background: var(--paper); border-left: 1px solid var(--rule); padding: 22px 26px 40px; box-shadow: -8px 0 30px rgba(0,0,0,0.18); }
+  .panel .eyebrow { font-family: "Courier Prime", monospace; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-soft); display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .panel h2 { font-family: "IM Fell English", Georgia, serif; font-weight: 400; font-size: 30px; line-height: 1.1; margin: 8px 0 14px; text-wrap: balance; }
+  .pill { display: inline-block; padding: 2px 8px; border-radius: 2px; font-family: "Courier Prime", monospace; font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: #fff; }
+  .pill.known { background: var(--moss); }
+  .pill.lord { background: var(--candle); }
+  .pill.hidden { background: var(--slate); }
+  .panel p { margin: 0 0 12px; line-height: 1.5; font-size: 16.5px; }
+  .panel .bullets { margin: 0 0 12px; padding: 0 0 0 18px; }
+  .panel .bullets li { margin: 0 0 7px; line-height: 1.4; font-size: 16px; }
+  .panel .bullets li::marker { color: var(--candle); }
+  .panel .bullets .sub { margin: 6px 0 4px; padding-left: 20px; }
+  .panel .bullets .sub li { font-size: 15.5px; margin: 0 0 5px; }
+  .panel .bullets .sub li::marker { color: var(--moss); }
+  .panel .bullets strong { font-weight: 700; color: var(--ink); }
+  .panel .bullets li.unsure { color: var(--ink-soft); opacity: 0.8; }
+  .panel .bullets li.unsure strong { color: var(--ink-soft); font-weight: 500; }
+  .panel .bullets li.unsure::marker { color: var(--rule); }
+  .panel .bullets .tag { font-family: "Courier Prime", monospace; font-size: 10.5px; letter-spacing: 0.08em; text-transform: uppercase; border: 1px solid var(--rule); border-radius: 2px; padding: 0 5px; margin-right: 4px; vertical-align: 1px; }
+  .panel h3 { font-family: "Courier Prime", monospace; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-soft); margin: 22px 0 8px; border-top: 1px solid var(--rule); padding-top: 12px; }
+  .conn { list-style: none; margin: 0; padding: 0; }
+  .conn li { padding: 6px 0; border-bottom: 1px solid var(--paper-deep); display: flex; gap: 10px; align-items: baseline; }
+  .conn .kind { font-family: "Courier Prime", monospace; font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-soft); min-width: 9ch; }
+  .conn button { appearance: none; border: 0; background: none; padding: 0; margin: 0; font: inherit; color: var(--ink); cursor: pointer; text-align: left; text-decoration: underline dotted; text-decoration-color: var(--candle); text-underline-offset: 3px; }
+  .conn button:hover { text-decoration-style: solid; }
+  .close { position: sticky; top: 0; float: right; appearance: none; border: 1px solid var(--ink); background: var(--paper); border-radius: 2px; padding: 4px 10px; font-family: "Courier Prime", monospace; font-size: 12px; letter-spacing: 0.04em; text-transform: uppercase; cursor: pointer; }
+  .close:focus-visible { outline: 2px solid var(--candle); outline-offset: 2px; }
+  .kn-note { font-family: "Courier Prime", monospace; font-size: 12px; color: var(--ink-soft); margin-top: 6px; }
+  @media (max-width: 640px) { .legend { display: none; } .hint { display: none; } }
+</style>
+
+<div class="bar">
+  <div class="bar-inner">
+    <div class="wordmark">Valenheart <em>the tree, top of time to the settlement</em></div>
+    <span class="hint">drag to pan · wheel to zoom · click a node</span>
+    <div class="spacer"></div>
+    <div class="btns">
+      <button type="button" id="b-ess" aria-pressed="false">Essentials</button>
+      <button type="button" id="b-top">Beginning</button>
+      <button type="button" id="b-now">Now</button>
+      <button type="button" id="b-fit">Fit all</button>
+      <button type="button" id="b-in">+</button>
+      <button type="button" id="b-out">−</button>
+    </div>
+  </div>
+</div>
+
+<svg id="map" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Valenheart lore tree">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#26221B"></path>
+    </marker>
+    <marker id="arrow-moss" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#7E8C6C"></path>
+    </marker>
+    <marker id="arrow-blood" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#8B3A2F"></path>
+    </marker>
+  </defs>
+  <g id="world">
+    <g id="eras"></g>
+    <g id="edges"></g>
+    <g id="nodes"></g>
+  </g>
+</svg>
+
+<div class="legend" aria-label="Legend">
+  <span><span class="sw person"></span>person</span><span><span class="ln causes"></span>leads to</span>
+  <span><span class="sw event"></span>event</span><span><span class="ln family"></span>family, bond</span>
+  <span><span class="sw faction"></span>people, faction</span><span><span class="ln member"></span>belongs to</span>
+  <span><span class="sw place"></span>place</span><span><span class="ln thread"></span>story thread</span>
+  <span><span class="sw thread"></span>chapter beat</span><span>● dot: <span style="color:#7E8C6C">player knows</span> · <span style="color:#B47A22">Lord knows</span> · <span style="color:#2B3534">hidden</span></span>
+</div>
+
+<div class="overlay" id="overlay" hidden>
+  <aside class="panel" id="panel" role="dialog" aria-modal="true" aria-labelledby="p-title">
+    <button type="button" class="close" id="p-close">Close</button>
+    <div class="eyebrow" id="p-eyebrow"></div>
+    <h2 id="p-title"></h2>
+    <div id="p-body"></div>
+    <h3>Connected</h3>
+    <ul class="conn" id="p-conn"></ul>
+  </aside>
+</div>
+
+<script type="application/json" id="data">
+{
+  "eras": [
+    {
+      "id": "creation",
+      "y0": 40,
+      "y1": 200,
+      "label": "Creation",
+      "sub": "eight celestial beings shape the world",
+      "fill": "#1C2222",
+      "text": "#E6EAE0"
+    },
+    {
+      "id": "before",
+      "y0": 200,
+      "y1": 470,
+      "label": "Before the Sundering",
+      "sub": "one Academy, and a lie under the mountains",
+      "fill": "#2B3534",
+      "text": "#C9CFC2"
+    },
+    {
+      "id": "sundering",
+      "y0": 470,
+      "y1": 760,
+      "label": "The Sundering, about 2000 years ago",
+      "sub": "the sky falls; the cycle of life-force stops",
+      "fill": "#3B4646",
+      "text": "#E6EAE0"
+    },
+    {
+      "id": "after",
+      "y0": 760,
+      "y1": 1010,
+      "label": "The first century after",
+      "sub": "one woman refuses to die; her circle splits",
+      "fill": "#5A6663",
+      "text": "#F0F2EA"
+    },
+    {
+      "id": "ages",
+      "y0": 1010,
+      "y1": 1340,
+      "label": "The ages",
+      "sub": "a continent is unified; a Church learns to burn",
+      "fill": "#7F8B7C",
+      "text": "#F0F2EA"
+    },
+    {
+      "id": "150",
+      "y0": 1340,
+      "y1": 1640,
+      "label": "About 150 years ago",
+      "sub": "the Wastes begin to move; a garrison lasts 47 days",
+      "fill": "#AEB2A4",
+      "text": "#26221B"
+    },
+    {
+      "id": "recent",
+      "y0": 1640,
+      "y1": 1940,
+      "label": "The last ten years",
+      "sub": "the losses that put each of them on the road",
+      "fill": "#CFC9B6",
+      "text": "#26221B"
+    },
+    {
+      "id": "now",
+      "y0": 1940,
+      "y1": 2760,
+      "label": "Now: Parcel 14",
+      "sub": "the settlement and its threads, Act 1",
+      "fill": "#E1D9C5",
+      "text": "#26221B"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "gods",
+      "type": "faction",
+      "x": 720,
+      "y": 120,
+      "label": "The Eight Gods",
+      "sub": "the creation of the world",
+      "known": "hidden",
+      "tier": 1,
+      "bullets": [
+        "Eight celestial beings shaped the world. Each has a function.",
+        "  Ferros the Smith: metal, crafting, earth.",
+        "  Sylvana the Green: nature, growth, the seasons.",
+        "  Nereia the Deep: sea, rivers, fortune.",
+        "  Solara the Bright: light, warmth, hope.",
+        "  Korrath the Shield: war, protection, valour.",
+        "  Lunara the Wise: knowledge, magic, the moon.",
+        "  **Netheron the Shepherd: death, transition, the cycle of Aether.**",
+        "  **The Eighth, unnamed: malice, deception, fear. Adversity, the bad that gives good its value.**",
+        "Most mortals fear Netheron. Death is part of his cycle, and they see only the death.",
+        "Aether is the world's life-force. It flows out through the living and returns through the dead. Netheron keeps it moving.",
+        "Each god exists twice: as a light in the sky, and as an essence spread through its domain."
+      ]
+    },
+    {
+      "id": "eighth",
+      "type": "person",
+      "x": 300,
+      "y": 330,
+      "label": "The Eighth",
+      "sub": "malice, deception, fear",
+      "known": "hidden",
+      "tier": 1,
+      "bullets": [
+        "A god of adversity. His job is the bad that gives good its value: fear, loss, hardship.",
+        "**He was truly evil.** He did far more harm than the job asked, and he enjoyed it.",
+        "**He let every cruelty of his be blamed on Netheron**, the only other god whose work hurts. He found it funny.",
+        "**The world tipped out of balance. The seven sealed him for it.**",
+        "They forced him into his physical form and sealed it in the deepest place in the world. Then they never spoke of him again.",
+        "He kept scheming from behind the seal. He shaped demons from his own essence, patiently, and waited.",
+        "He had agents outside. **Over generations they led the dwarves to dig deeper and deeper, until the seals cracked.**",
+        "**Nobody alive knows he exists. This is the game's central secret.**"
+      ]
+    },
+    {
+      "id": "netheron",
+      "type": "person",
+      "x": 720,
+      "y": 330,
+      "label": "Netheron",
+      "sub": "god of the Aether cycle",
+      "known": "hidden",
+      "tier": 2,
+      "bullets": [
+        "The Shepherd. He keeps the Aether moving: life flows out through the living and returns through the dead.",
+        "Death is part of his cycle, so mortals feared him already. **The Eighth's cruelties landed on him too.**",
+        "Long after the sealing, **he recognised the Eighth's patterns in how mortals died.** Because he touches death, only he could.",
+        "**He warned the other six. They did not believe him.** Some could not see it; some thought it was a grudge.",
+        "He went down to destroy the Eighth's body himself. The six stopped him by force, and he died of it.",
+        "**Church teaching, the Lord's: Netheron is the devil.**"
+      ]
+    },
+    {
+      "id": "khazdurim",
+      "type": "faction",
+      "x": 520,
+      "y": 430,
+      "label": "The Khazdurim",
+      "sub": "mountain dwarves of the Ironspine",
+      "known": "lord",
+      "tier": 2,
+      "bullets": [
+        "**Mountain dwarves of the Ironspine.** Miners, smiths, rune-carvers, engineers.",
+        "**Their holds lie directly above the Eighth's seal.**",
+        "**Before the Sundering, the Eighth's agents steered their ancestors to dig deeper, over generations.** A wise elder, a recurring prophet, dreams that pointed down, songs about the richer veins below.",
+        "Steered and deceived, they dug ever deeper. **When the Sundering weakened the seal's magic, they cracked it.**",
+        "**Demons poured out of the crack.** The Khazdurim resealed what they could, at great cost, and swore to keep a Watch over the seal ever since: repair it, hold it, protect the world from their mistake.",
+        "They do not know what they unleashed. They know it is pure evil, and they do not speak of it."
+      ]
+    },
+    {
+      "id": "academy",
+      "type": "faction",
+      "x": 1120,
+      "y": 250,
+      "label": "The Academy of the Aether",
+      "sub": "the school of Arcane magic",
+      "known": "hidden",
+      "tier": 2,
+      "bullets": [
+        "**The great school of Arcane magic before the Sundering:** power through understanding, formulas, incantations.",
+        "Its scholars studied how the Aether moves, and how the gods keep it moving.",
+        "It stood at the world's centre of cycle-research. **That is why, when a god's body fell, it fell there.**",
+        "**Destroyed at the Sundering.** Almost every scholar present died, and **the knowledge of how Aether works died with them, except for one absent Archmagus.**"
+      ]
+    },
+    {
+      "id": "halldora",
+      "type": "person",
+      "x": 1120,
+      "y": 380,
+      "label": "Halldora Frostvik",
+      "sub": "youngest Archmagus",
+      "known": "hidden",
+      "tier": 1,
+      "bullets": [
+        "**Human, of Nordveld birth.** Came south as a young woman to study at the Academy.",
+        "Became the youngest Archmagus in the Academy's history.",
+        "Her field: how the gods keep the Aether moving. Her Nordveld reverence for the cycle is what drew her to it.",
+        "She was away on a research trip the day the Academy fell. She watched the light come down from a distance.",
+        "**She is alive today, two thousand years later.** How, and at what cost, comes later in the tree."
+      ]
+    },
+    {
+      "id": "descends",
+      "type": "event",
+      "x": 720,
+      "y": 560,
+      "label": "Netheron moves against the Eighth",
+      "sub": "the Six strike him down",
+      "known": "hidden",
+      "tier": 3,
+      "bullets": [
+        "The other six would not act on Netheron's warning. **So he decided to go down and destroy the Eighth's body himself.**",
+        "A god can gather itself into a physical body, and let that body go again to return to its light. **Netheron took a body to do it. The six took bodies to stop him.**",
+        "They meant only to restrain him. But he would not let go, and six against one was more than a body can take. **He died in their hands before they understood.**",
+        "**This was the Eighth's doing** without his touch: a god nobody believed, pushed to act alone, and six siblings sure he was bitter. He had only to wait.",
+        "**When the body died, his light died with it. Netheron's star fell from the sky and struck the Academy. That is the Sundering.**"
+      ]
+    },
+    {
+      "id": "sundering",
+      "type": "event",
+      "x": 720,
+      "y": 690,
+      "label": "The Sundering",
+      "sub": "about 2000 years ago",
+      "known": "lord",
+      "tier": 1,
+      "bullets": [
+        "**Netheron, the god of death and the Aether cycle, died** in the hands of the other six gods, who had meant only to stop him. **When his body died, his star fell.**",
+        "What mortals saw: the night sky went strange. Several lights dimmed or vanished. **One light fell in a long arc and struck the Academy of the Aether.**",
+        "**Everyone at the Academy died. The land around the impact became the Hollow Wastes.**",
+        "The six who had fought him survived, but broken. Their lights dimmed and their essences fragmented. They have been asleep ever since, and their domains run on reflex.",
+        "**Church teaching, the Lord's: the Sundering was the Radiant One's anger at mortals who used magic.** That lesson is the root of the Church's ban on magic."
+      ]
+    },
+    {
+      "id": "cycle",
+      "type": "event",
+      "x": 340,
+      "y": 690,
+      "label": "The Aether cycle stops",
+      "sub": "what Netheron's death does to the world",
+      "known": "hidden",
+      "tier": 2,
+      "bullets": [
+        "**Netheron is the only god who truly died.** No one has performed his function since, not even on reflex.",
+        "**No fresh Aether returns to the world.** The reserves have been draining for two thousand years, too slowly for a mortal life to notice.",
+        "**The dead are no longer shepherded.** Near the Wastes the boundary between living and dead wears thin. The dead linger there and can be heard.",
+        "**The Eighth's seal is Aether magic. As the Aether drains, the seal weakens.**",
+        "**Left alone, this ends one way: no Aether, no life.** Only one person alive understands what this means: **Halldora Frostvik**, the Academy's last Archmagus.",
+        "She will spend two thousand years trying to make the world act on it. Her first followers will become something she never intended."
+      ]
+    },
+    {
+      "id": "wastes",
+      "type": "place",
+      "x": 1060,
+      "y": 690,
+      "label": "The Hollow Wastes",
+      "sub": "static for nineteen centuries",
+      "known": "lord",
+      "tier": 2,
+      "bullets": [
+        "**The dead ground around the impact, where Netheron's star fell.** Nothing grows there. Trees stand dead and grey. Bodies do not rot, and some walk.",
+        "**Here the cycle is not weakened but gone.** The rest of the world still runs on its reserves. The Wastes have none left. What remains is dead Aether, stagnant, which the world calls hollow.",
+        "**What fell lies at its centre: the remains of Netheron's star**, and his essence still leaking from it. Nobody has ever reached it or seen it. What lies there depends on who tells it: a dead god to some, and in Ashwick, the devil struck down by the Radiant One.",
+        "**For nineteen centuries the Wastes did not move.** People learned to keep away, and stayed afraid, and stayed curious."
+      ]
+    },
+    {
+      "id": "binding",
+      "type": "event",
+      "x": 1120,
+      "y": 860,
+      "label": "Halldora's binding",
+      "sub": "her life tied to the Aether's flow",
+      "known": "hidden",
+      "tier": 2,
+      "bullets": [
+        "**Halldora Frostvik had understood what nobody else had: the cycle had stopped, and the world was slowly dying.** She gathered the few who believed her. They called themselves the Vigil of the Shepherd.",
+        "Finding a solution would take longer than one life. So, within the first century after the Sundering, **she performed a forbidden ritual to make herself near immortal.**",
+        "**She bound her life to the Aether itself.** As long as it moves through the world, she lives. It is, mechanically, the first Hollow magic: dead Aether bound into living tissue.",
+        "By her own Nordveld faith, where death is sacred and the cycle is balance, it is a private moral wound. She did it anyway.",
+        "**It cost her.** A woman who had cheated death, preaching the sanctity of the cycle: many who had followed her stopped trusting her. To her own people she became a shame."
+      ]
+    },
+    {
+      "id": "vigil",
+      "type": "event",
+      "x": 1420,
+      "y": 860,
+      "label": "The Vigil of the Shepherd",
+      "sub": "Halldora's circle, and its split",
+      "known": "hidden",
+      "tier": 2,
+      "bullets": [
+        "**Halldora Frostvik's circle, founded in the years after the Sundering**, while she was still mortal. The few who believed her that the cycle had stopped.",
+        "**Their purpose: to restore the Shepherd's function.** They studied the broken cycle and searched for a way to restart it.",
+        "**They came to believe there was only one way: bring Netheron back.** Gather what was left of him, and reassemble the Shepherd.",
+        "~ **They went into the Wastes for it, again and again. None ever reached the centre.** The deeper in, the less a body or a mind holds together. Halldora Frostvik knows the star is there only from how the world fails around it.",
+        "**They split over one question: whether willing sacrifice was an acceptable way to feed the cycle.** Halldora Frostvik said no.",
+        "Those who said yes kept going without her. **Over two thousand years, they became the Cult of the Hollow.**"
+      ]
+    },
+    {
+      "id": "cult",
+      "type": "faction",
+      "x": 1420,
+      "y": 955,
+      "label": "The Cult of the Hollow",
+      "sub": "Hollow magic; forbidden",
+      "known": "hidden",
+      "facts": [
+        "Over two thousand years, the Vigil's remnant became the Cult. Their school is Hollow magic: power drawn from stagnant dead Aether. Each use destabilises the cycle further.",
+        "Their rituals have grown more frequent and ambitious in the last century. Cult expeditions enter the Outer Wastes.",
+        "Act 1 ends with a cult assault on the settlement."
+      ],
+      "tier": 2
+    },
+    {
+      "id": "contain",
+      "type": "event",
+      "x": 340,
+      "y": 900,
+      "label": "Aether and magic",
+      "sub": "how power works after the Sundering",
+      "known": "lord",
+      "tier": 2,
+      "bullets": [
+        "**Aether is everywhere.** It runs through every living thing, the ground, the water, the air. Magic is the art of moving it.",
+        "**Some people can move it.** They are rare, and they do it in different ways.",
+        "  **Arcane: through understanding.** Formulas, incantations, study. The Academy's school, and Halldora's.",
+        "  **Primal: through harmony with the living world.** The school that senses corruption and sets wards against it.",
+        "  **Light: through light itself, warmth and hope.** It heals the living, guides the lingering dead across, and drives back the dark. The direct opposite of Hollow. Priests do this without knowing it, and call it the Radiant One's blessing.",
+        "  **Hollow: through dead, stagnant Aether**, the residue Netheron no longer recycles. Forbidden. Each use destabilises the cycle further.",
+        "**Magic is not divine.** A caster carries their own power, so every school works anywhere, the Wastes included."
+      ]
+    },
+    {
+      "id": "varek",
+      "type": "person",
+      "x": 760,
+      "y": 1110,
+      "label": "Varek",
+      "sub": "unified the continent",
+      "known": "lord",
+      "facts": [
+        "A Khor'vani strategist's son, raised where three trade empires met. He unified the continent's petty kingdoms in a twelve-year campaign without raising the largest army.",
+        "He repelled a Nordveld invasion of the Hearthlands by outthinking it. He left the Silvaneth forests and the Khazdurim holds alone.",
+        "His ghost court and later politics are a lore thread, not yet built."
+      ],
+      "tier": 2
+    },
+    {
+      "id": "nordveld",
+      "type": "faction",
+      "x": 280,
+      "y": 1110,
+      "label": "Nordveld",
+      "sub": "northern islanders",
+      "known": "lord",
+      "facts": [
+        "The northern island people, Ashwick's enemy for as long as anyone has kept records. They have invaded the Hearthlands several times and been repelled each time; Varek broke the largest attempt.",
+        "They never took the Church. They keep the old gods under older names, and they are the one people who honour Netheron: death is sacred, the cycle is balance, the Shepherd is owed reverence. They pray to him for a good death. Their völvas tend the dead by ritual. The Inquisition flags their healers as heretics for it.",
+        "Today they are a significant source of frontier adventurers. The Lord knows the wars and the strange gods as common history; he does not know the Nordveld are the ones who got Netheron right."
+      ],
+      "tier": 2
+    },
+    {
+      "id": "oldfaith",
+      "type": "faction",
+      "x": 280,
+      "y": 1270,
+      "label": "Old Faith border villages",
+      "sub": "Nordveld-adjacent kin",
+      "known": "lord",
+      "facts": [
+        "Poor border folk who kept the northern gods, Netheron-revering, kin to Nordveld. Easy to brand as collaborators.",
+        "Edda's grandmother came from this stock by way of Nordveld itself. The village Gareth refused to fire on was one of these."
+      ],
+      "tier": 3
+    },
+    {
+      "id": "church",
+      "type": "faction",
+      "x": 560,
+      "y": 1230,
+      "label": "The Church of the Radiant One",
+      "sub": "Doctrine of Silence",
+      "known": "known",
+      "facts": [
+        "Church teaching, which is the Lord's education: there is one god, the Radiant One. The Sundering was his anger at mortals using magic. Netheron is the devil. Magic is therefore forbidden, and its practice is heresy.",
+        "The Dominion's church. Priests heal, comfort the dead and drive back the dark in the Radiant One's name.",
+        "What priests actually do is Light magic, Solara's domain, without knowing it. The Church hunts the overt magic of wizards while its priests channel the same force. The line between answered prayer and heresy is labeling, not substance.",
+        "Father Corin is one of these priests. He does not know."
+      ],
+      "tier": 2
+    },
+    {
+      "id": "inquisition",
+      "type": "faction",
+      "x": 760,
+      "y": 1300,
+      "label": "The Inquisition",
+      "sub": "hunts heterodox practice",
+      "known": "known",
+      "facts": [
+        "Hunts heterodox practitioners: wizards, Old Faith healers, witches. Old Faith villages have been burned.",
+        "Staffed by unwitting mages: its priests work Aether every time they bless.",
+        "Its reach does not yet extend to the frontier. Sheltering the Stonebridges will one day make the settlement its enemy."
+      ],
+      "tier": 2
+    },
+    {
+      "id": "crown",
+      "type": "faction",
+      "x": 960,
+      "y": 1230,
+      "label": "The Crown of the Reach",
+      "sub": "and its land office in Tessoria",
+      "known": "known",
+      "facts": [
+        "The Crown that issued the Lord's grant. Its land office stamps frontier parcels from ledgers whose lines have not been updated in a century and a half.",
+        "The settlement calls the Lord \"my lord\" because the grant says so. Crown tithe notices will arrive one day."
+      ],
+      "tier": 2
+    },
+    {
+      "id": "thornveil",
+      "type": "faction",
+      "x": 1280,
+      "y": 1230,
+      "label": "The Thornveil Rangers",
+      "sub": "keepers of the ward-stones",
+      "known": "known",
+      "facts": [
+        "Silvaneth rangers who keep the belt of ancient ward-stones along the edge of the thinning. Their Primal magic senses and places wards; it is the school that contains corruption.",
+        "The stones are older than the rangers; whoever set them is gone.",
+        "Niamh is their Warden today. She reaches the settlement in Chapter 3."
+      ],
+      "tier": 2
+    },
+    {
+      "id": "tipping",
+      "type": "event",
+      "x": 1020,
+      "y": 1440,
+      "label": "The tipping point",
+      "sub": "the thinning begins to expand",
+      "known": "hidden",
+      "facts": [
+        "About 150 to 200 years ago the local Aether reserves around the Wastes ran out and the boundary began to expand into inhabited land. Halldora calls it \"the world exhaling and not breathing back in.\"",
+        "The thinning advances first: ground where the boundary between living and dead is worn through, and the dead are audible. The physical Wastes follow later. It moves about two days' walk a century in this region.",
+        "Possibly accelerated by Cult activity."
+      ],
+      "tier": 2
+    },
+    {
+      "id": "hale",
+      "type": "event",
+      "x": 1280,
+      "y": 1500,
+      "label": "Hale's garrison: 47 days",
+      "sub": "the old watch",
+      "known": "known",
+      "facts": [
+        "Captain Vardin Hale was posted by the Crown to a forward watch on a hilltop, two days' march south of Parcel 14, to look into the southern march.",
+        "His men heard the voices of their dead from day one and walked south one by one. He recorded each. On day 44 he heard his daughter Ennara, who had died young in Tessoria. His last entry: \"I heard Ennara again today. I am going to her.\"",
+        "The journal survives under a collapsed beam. The player reads it at the Chapter 2 climax. Hale's stuck soul is freed in Chapter 3."
+      ],
+      "tier": 1
+    },
+    {
+      "id": "wardpair",
+      "type": "event",
+      "x": 1500,
+      "y": 1600,
+      "label": "The ward pair mended",
+      "sub": "after Hale fell",
+      "known": "known",
+      "facts": [
+        "The watch sits between two ward-stones, east and west. In Hale's day one had cracked because the line of keepers had died out, and the garrison stood outside the other's reach. That is why his men heard voices.",
+        "Niamh's grandmother's teacher reset the fallen stone after the garrison fell. Both stand whole today, one visibly seamed. The watch ground is quiet, which is why the Lord's scouts hear nothing there.",
+        "The belt is a retreating line: deeper stones further south were overrun long ago."
+      ],
+      "tier": 2
+    },
+    {
+      "id": "grants",
+      "type": "event",
+      "x": 960,
+      "y": 1600,
+      "label": "The Crown switches to land grants",
+      "sub": "and forgets",
+      "known": "known",
+      "facts": [
+        "After Hale's garrison and similar losses in the same century, garrisons became too expensive. Settlers take the risk; the Crown takes the tax.",
+        "The land office stopped updating frontier maps with any care. Clerks stamp grants from static ledgers. Nobody lied to the Lord; the Crown forgot."
+      ],
+      "tier": 2
+    },
+    {
+      "id": "school",
+      "type": "event",
+      "x": 190,
+      "y": 1740,
+      "label": "Ashwick school loses its stipend",
+      "sub": "the Lord applies for a grant",
+      "known": "known",
+      "facts": [
+        "The Lord taught children their letters in Ashwick for a decade. When the local lord cut the school's stipend, the Crown announced southern land grants. He applied and was accepted.",
+        "What he believes: he wanted to build something of his own. What is true: the five people he brought were each adrift, and the grant let him gather them."
+      ],
+      "tier": 3
+    },
+    {
+      "id": "ambush",
+      "type": "event",
+      "x": 470,
+      "y": 1740,
+      "label": "Tomas's squad ambushed",
+      "sub": "\"fall back east\"; Bren dies",
+      "known": "hidden",
+      "facts": [
+        "Conscripted at 38 for a border muster. Two years in, his squad was ambushed in a forest on the southern march. Tomas ordered the fall-back east; his friend Bren died covering it. Tomas took an arrow in the thigh going back for him.",
+        "He came home with the limp and Bren's cat. His fiancée had thought him dead and married another. He has not spoken since."
+      ],
+      "tier": 3
+    },
+    {
+      "id": "lyra",
+      "type": "event",
+      "x": 680,
+      "y": 1740,
+      "label": "Lyra dies of fever",
+      "sub": "Jory's wife, Nell's mother",
+      "known": "known",
+      "facts": [
+        "Four years ago, the hard winter fever. Nell was seven. Corin buried her.",
+        "Nell stopped drawing. Jory started joking and never stopped."
+      ],
+      "tier": 3
+    },
+    {
+      "id": "foreman",
+      "type": "event",
+      "x": 890,
+      "y": 1740,
+      "label": "Hester kills the foreman",
+      "sub": "the last one who touched her",
+      "known": "hidden",
+      "facts": [
+        "Hester hauled ironbark for years among men who harassed her. The last foreman who put his hands on her did not get up.",
+        "She tells herself she did not mean to. What frightens her is how easy it was. Hunted since by the law and by the dead man's crew."
+      ],
+      "tier": 3
+    },
+    {
+      "id": "winter",
+      "type": "event",
+      "x": 1100,
+      "y": 1740,
+      "label": "The killing winter",
+      "sub": "about five years ago",
+      "known": "hidden",
+      "facts": [
+        "An early, killing winter on the Thornwoods' tenant barley farm. Stores ran out; they ate the seed-grain; no spring crop; no rent. The rent did not soften for a dead season and the land was lost.",
+        "The father died that winter, having given his food to the children. A neighbour's boy, Jack, was orphaned by the same cold and taken in."
+      ],
+      "tier": 2
+    },
+    {
+      "id": "northwar",
+      "type": "event",
+      "x": 1360,
+      "y": 1740,
+      "label": "The northern war",
+      "sub": "against Nordveld",
+      "known": "lord",
+      "facts": [
+        "The recent war on the northern marches against Nordveld. Gareth served there as a professional soldier before the winter. Godric was levied into it at sixteen, right after the winter.",
+        "A military reprisal against a border village said to shelter Nordveld raiders is where Gareth's service ended."
+      ],
+      "tier": 3
+    },
+    {
+      "id": "parents",
+      "type": "person",
+      "x": 1100,
+      "y": 1870,
+      "label": "The Thornwood parents",
+      "sub": "both died giving",
+      "known": "hidden",
+      "facts": [
+        "The mother: poor and generous. Spent her strength and her last coins on honey and sweet things so her children would taste sweetness. Died bringing Godric into the world, when Nessa was twelve.",
+        "The father: quiet, decent, loved in deeds. Could never quite look at Godric, whose birth cost him his wife, so Nessa raised the boy. Died in the killing winter, having eaten last and least.",
+        "The family principle comes from them: they give what they do not have, and will not harm the helpless."
+      ],
+      "tier": 2
+    },
+    {
+      "id": "desert",
+      "type": "event",
+      "x": 1360,
+      "y": 1870,
+      "label": "Gareth and Godric desert",
+      "sub": "a capital crime",
+      "known": "hidden",
+      "facts": [
+        "Godric broke first, after two years of front-line killing, at about eighteen. Gareth held until he was ordered to ring a burning village and shoot the families who fled. He let them scatter and walked.",
+        "Both are wanted men. The frontier is where the Crown's reach ends. They found their way back to Nessa on the frontier roads."
+      ],
+      "tier": 3
+    },
+    {
+      "id": "fails",
+      "type": "event",
+      "x": 1580,
+      "y": 1740,
+      "label": "Halldora's binding fails",
+      "sub": "she seeks a successor",
+      "known": "hidden",
+      "facts": [
+        "Aether is thinning faster than her ritual can compensate. Her body is failing despite the binding.",
+        "She has begun reaching out to specific free settlements, looking for someone to carry her work if she falls. She uses robins; ravens are intercepted."
+      ],
+      "tier": 3
+    },
+    {
+      "id": "grant",
+      "type": "event",
+      "x": 300,
+      "y": 2010,
+      "label": "The Lord's land grant",
+      "sub": "Parcel 14",
+      "known": "known",
+      "facts": [
+        "A Crown grant on the southern frontier, stamped from an unchanged ledger. The clerk who drew the map never stood in it.",
+        "The Lord brought five people south with him. His parents stayed in Ashwick; letters go through Brother Aelric because they cannot read."
+      ],
+      "tier": 2
+    },
+    {
+      "id": "settlement",
+      "type": "place",
+      "x": 860,
+      "y": 2080,
+      "label": "Parcel 14: the settlement",
+      "sub": "a wild clearing in old forest",
+      "known": "known",
+      "hub": true,
+      "facts": [
+        "A river bending east, a stone ridge to the north, old forest all around. Wild ground; nobody has settled it before. A fortnight's road from Ashwick. Lammast is a day east.",
+        "The game: shelter, water, wood, food, before the first winter. Spring runs a deficit; harvest closes it. Growth is gated by buildings, not story.",
+        "Chapter 1 is survival and people, and confirms nothing supernatural until its climax. Chapter 2 confirms witchcraft and enters the old watch. Chapter 3 brings the first confirmed ghost. Act 1 ends with a cult assault."
+      ],
+      "tier": 1
+    },
+    {
+      "id": "lord",
+      "type": "person",
+      "x": 300,
+      "y": 2140,
+      "label": "The Lord",
+      "sub": "the player, ~37",
+      "known": "known",
+      "facts": [
+        "Former schoolmaster of Ashwick. Unmarried. Keeps the journal the player reads. Never fights and never leaves the settlement in Act 1; all missions are the team's and he writes down their reports.",
+        "Believes he came to build something of his own. Actually gathered five drifting people. Does not know it."
+      ],
+      "tier": 1
+    },
+    {
+      "id": "corin",
+      "type": "person",
+      "x": 110,
+      "y": 2140,
+      "label": "Father Corin",
+      "sub": "retired priest, 68",
+      "known": "known",
+      "facts": [
+        "Priest of the Radiant One in Ashwick for forty-five years. Baptized the Lord, married Jory and Lyra, buried Lyra. Reads scripture for mercy. Retired to follow the flock south.",
+        "Old friend of Edda: forty years of the same sickbeds, births and burials. Has always known about her rituals; curious and amused, never troubled, never practiced. Edda does not know he knows."
+      ],
+      "tier": 2
+    },
+    {
+      "id": "edda",
+      "type": "person",
+      "x": 500,
+      "y": 2140,
+      "label": "Edda",
+      "sub": "midwife, 71",
+      "known": "known",
+      "facts": [
+        "Midwife of Ashwick for forty years; delivered the Lord and calls him \"my boy\". Keeps herbs, cellar and hearth. Came south for Nell.",
+        "Her grandmother came from Nordveld and married into Ashwick. Edda attends church and also does her grandmother's small rituals privately. Lost a daughter, Mira, and a granddaughter, Mae, to fever before Nell was born."
+      ],
+      "tier": 2
+    },
+    {
+      "id": "jory",
+      "type": "person",
+      "x": 110,
+      "y": 2280,
+      "label": "Jory",
+      "sub": "carpenter, 36",
+      "known": "known",
+      "facts": [
+        "Carpenter and instrument maker; the Lord's oldest friend. Widower. Plays the lute at the fire. Runs the mill at first and dislikes it; moves to the Woodworker when Hester takes the mill.",
+        "The joking covers the grief. Plays the old northern songs Edda hums without asking what they are."
+      ],
+      "tier": 2
+    },
+    {
+      "id": "tomas",
+      "type": "person",
+      "x": 500,
+      "y": 2280,
+      "label": "Tomas",
+      "sub": "stonemason, 48",
+      "known": "known",
+      "facts": [
+        "Stonemason and quarry lead; former militia sergeant with a leg wound. Does not speak: his voice gave the order that killed Bren, and he fears it will kill again. Nods, grunts, the work.",
+        "Keeps Bren's cat, ten years old. Walks the perimeter at dusk. The Lord makes his quarry decisions for him and neither names it. If he speaks again it is on his own timeline."
+      ],
+      "tier": 2
+    },
+    {
+      "id": "nell",
+      "type": "person",
+      "x": 300,
+      "y": 2350,
+      "label": "Nell",
+      "sub": "Jory's daughter, 11",
+      "known": "known",
+      "facts": [
+        "Shy with strangers, talkative with family. Calls the Lord \"uncle\" and tells him what she sees; she is the narrative device for off-screen events. Spends her time with Edda, the animals and the herb garden; Edda is a grandmother to her.",
+        "Her mother Lyra died four years ago; she stopped drawing then. Keeps a small book the Lord gave her at ten. Names the needy animals. First to see the alpha wolf, and names him Greyfang."
+      ],
+      "tier": 2
+    },
+    {
+      "id": "nessa",
+      "type": "person",
+      "x": 1160,
+      "y": 2140,
+      "label": "Nessa Thornwood",
+      "sub": "archer, ~33",
+      "known": "known",
+      "facts": [
+        "Eldest sibling and the one who decides. Learned the bow keeping crows off the barley; never misses. Rations by habit and dislikes waste.",
+        "Mother since twelve: raised Godric, then Jack. Five landless years living by poaching. Never married. Carries a twist of barley seed from the old farm. Food preference: sweet, her mother's honey."
+      ],
+      "tier": 2
+    },
+    {
+      "id": "gareth",
+      "type": "person",
+      "x": 1360,
+      "y": 2140,
+      "label": "Gareth Thornwood",
+      "sub": "archer, ~31",
+      "known": "known",
+      "facts": [
+        "Second sibling. Talkative, laughs early, quick to defend anyone pushed around. Does not waste arrows. Holds the watchtower when the wolves come.",
+        "Professional soldier who was away when his father died; has not forgiven himself. Deserted rather than shoot fleeing families. Food preference: sweet."
+      ],
+      "tier": 2
+    },
+    {
+      "id": "godric",
+      "type": "person",
+      "x": 1560,
+      "y": 2140,
+      "label": "Godric Thornwood",
+      "sub": "warrior, ~21",
+      "known": "known",
+      "facts": [
+        "Youngest sibling. Very large, gentle. Gave his bowl to the children on the first night.",
+        "His birth cost his mother's life and his father could not look at him; Nessa raised him. Levied at sixteen, deserted at eighteen. Holds a line and will not kill the helpless; Nessa finishes what he pins. Food preference: spicy in the data, smoky under consideration."
+      ],
+      "tier": 2
+    },
+    {
+      "id": "jack",
+      "type": "person",
+      "x": 1160,
+      "y": 2280,
+      "label": "Jack",
+      "sub": "about 7",
+      "known": "known",
+      "facts": [
+        "Loud, bright, announces his own name before the adults manage a greeting. A settlement child, not recruitable.",
+        "Orphaned by the killing winter and taken in the same season. Nessa is his mother in all but blood. Deliberately untraumatized. He and Nell are the camp's two children."
+      ],
+      "tier": 3
+    },
+    {
+      "id": "sniffsalot",
+      "type": "person",
+      "x": 1360,
+      "y": 2280,
+      "label": "Ser Sniffsalot",
+      "sub": "Nessa's hound",
+      "known": "known",
+      "facts": [
+        "A scent hound. Comes out of the trees ahead of the family on the first night and goes round the circle. Works with the hunters from the next morning.",
+        "Bound to Nessa: not reassignable, exempt from kennel capacity. Introduces the dog-boost mechanic with no setup."
+      ],
+      "tier": 3
+    },
+    {
+      "id": "arrival",
+      "type": "thread",
+      "x": 1160,
+      "y": 2010,
+      "label": "The Thornwoods arrive",
+      "sub": "night, the first week; the Guild opens",
+      "known": "known",
+      "facts": [
+        "Night, the settlers around the fire. The hound first. Nessa with fresh game asks if there is room in the pot. Gareth, Godric and Jack behind her. The Lord takes them in.",
+        "Opens the Adventurers' Guild: two archers, one warrior, a hunting camp to staff, the first missions."
+      ],
+      "tier": 2
+    },
+    {
+      "id": "t_scout",
+      "type": "thread",
+      "x": 200,
+      "y": 2520,
+      "label": "Scouting south",
+      "sub": "the old watch sighted",
+      "known": "known",
+      "facts": [
+        "First mission. Nessa and Gareth map the land: game north, berries by the river, a quarry site east, water in three places. A wolf pack tries them and is driven off.",
+        "Two days south: the abandoned watchtower and a standing stone on each side of the hill. The Lord records them as old boundary stones. Survival takes priority; the ruins are not visited again in Chapter 1."
+      ],
+      "tier": 2
+    },
+    {
+      "id": "t_wolves",
+      "type": "thread",
+      "x": 460,
+      "y": 2520,
+      "label": "Wolves at the wall; Lammast",
+      "sub": "the first season",
+      "known": "known",
+      "facts": [
+        "Two more families arrive by Crown notice. Walls and a watchtower go up. The wolves attack an hour after dusk; Gareth holds the tower; the wall holds. The pack was starving: something has emptied the woods to the south.",
+        "The tower later spots farmers from Lammast, a village a day east and a year older. First neighbours."
+      ],
+      "tier": 2
+    },
+    {
+      "id": "t_hester",
+      "type": "thread",
+      "x": 720,
+      "y": 2520,
+      "label": "Hester",
+      "sub": "Run Down; the woodpile; the return",
+      "known": "known",
+      "facts": [
+        "Gareth's patrol finds a woman run down by a crew of men and intervenes. Crew subdued and released; the woman has fled; one calls her a murderer.",
+        "Days later timber appears on the mill stack overnight. After a real-time delay Hester shows herself; Gareth recognises her; the Lord takes her on her deeds. She takes the lumber mill and unlocks the Woodworker. First weapon-affinity character (axe)."
+      ],
+      "tier": 2
+    },
+    {
+      "id": "t_marsh",
+      "type": "thread",
+      "x": 980,
+      "y": 2520,
+      "label": "The marsh and Aldith",
+      "sub": "fenbalm; the bog witch",
+      "known": "known",
+      "facts": [
+        "A gathering mission into the marshes for fenbalm. Quietly opens the bog-witch chain. One adventurer comes back adder-venomed and stays laid up until a Herbal Antidote is brewed.",
+        "Aldith the bog witch is not what the Church would call her. Confirmation is deferred to Chapter 2."
+      ],
+      "tier": 2
+    },
+    {
+      "id": "t_truffle",
+      "type": "thread",
+      "x": 1240,
+      "y": 2520,
+      "label": "Truffle and Greyfang",
+      "sub": "the stray and the pale wolf",
+      "known": "known",
+      "facts": [
+        "A mongrel stray wanders in with nobody's name on him. Quest: build the Kennel; the player chooses his job. Nell names him Truffle.",
+        "Later a pale alpha wolf, Greyfang, watches the fold. Nell sees him first and names him. The Lord drives the pack off repeatedly, until Greyfang feints the camp, takes the fold and mauls Truffle. Then the hunt to the den. Truffle never dies."
+      ],
+      "tier": 2
+    },
+    {
+      "id": "t_cobb",
+      "type": "thread",
+      "x": 1500,
+      "y": 2520,
+      "label": "Cobb and the bandits",
+      "sub": "the road",
+      "known": "known",
+      "facts": [
+        "The peddler Cobb judges the road to the settlement worth the risk and opens trade. Then he arrives on foot: robbed on the downriver road, no wagon, no boots.",
+        "Someone is giving orders. The team breaks the bandit company and its captain, brings the goods home, buries none of them. The road is theirs."
+      ],
+      "tier": 2
+    },
+    {
+      "id": "t_stonebridge",
+      "type": "thread",
+      "x": 560,
+      "y": 2660,
+      "label": "The Stonebridges",
+      "sub": "Bad Blood; the confession; Ch1 climax",
+      "known": "known",
+      "facts": [
+        "Aldwin and Magnus Stonebridge, refugees, met on the road home from the marsh, given a roof. Aldwin heals by prayer. Magnus is silent and strange.",
+        "A boar with bad blood comes out of the south. Its wound will not close for Edda. Aldwin's Light drives it back. Magnus is suspected near the taint; he is Arcane, unrelated to Hollow, the red herring. The brothers confess. The settlement is knowingly harboring a wizard: the first confirmed magic."
+      ],
+      "tier": 2
+    },
+    {
+      "id": "t_ch2",
+      "type": "thread",
+      "x": 200,
+      "y": 2660,
+      "label": "Chapter 2: the old watch entered",
+      "sub": "Hale's journal read",
+      "known": "known",
+      "facts": [
+        "The team goes back to the hilltop with steel and finds Hale's tin-bound journal under a collapsed beam, with a Crown seal the Lord does not know. Forty-seven days.",
+        "Hale's line for where the trees go quiet was seven days' march. The scouts' line is three. The Lord decides the Crown forgot, and digs a deeper well. Confirmed witchcraft and maddened animals belong to this chapter."
+      ],
+      "tier": 2
+    },
+    {
+      "id": "t_niamh",
+      "type": "thread",
+      "x": 980,
+      "y": 2660,
+      "label": "Chapter 3: Niamh; Hale freed",
+      "sub": "the first confirmed ghost",
+      "known": "known",
+      "facts": [
+        "The team walks past the watch, counting steps. The trees go quiet under three days down. A voice calls \"Ennara\". They fight a thing of mist and survive because a Silvaneth ranger in dark green walks them home: Niamh, Warden of the Thornveil.",
+        "Combat only dispels a ghost; ritual frees one. Three days later the team holds the line while Niamh binds, and a boy holds up the cloth Ennara made. Hale rests. The Lord does not tell Corin who did it."
+      ],
+      "tier": 2
+    },
+    {
+      "id": "t_cult",
+      "type": "thread",
+      "x": 1370,
+      "y": 2660,
+      "label": "Act 1 end: the cult assault",
+      "sub": "story 14",
+      "known": "known",
+      "facts": [
+        "Act 1 closes with the Cult of the Hollow attacking the settlement.",
+        "Halldora has been watching. A robin arrives afterwards."
+      ],
+      "tier": 2
+    },
+    {
+      "id": "breach",
+      "type": "event",
+      "x": 640,
+      "y": 880,
+      "tier": 2,
+      "known": "hidden",
+      "label": "The First Breach",
+      "sub": "the Day of the Deep Breach",
+      "facts": [
+        "The Sundering destabilised Aether everywhere, and the Eighth's seals are Aether magic. Over the following centuries the outer wards cracked. A Khazdurim mining expedition, still following the push their ancestors had been nudged into before the Sundering, reached the outer seal at exactly the wrong moment.",
+        "What came out was not a leak. The Eighth had spent the sealed centuries patiently building demons; a prepared force poured out of the outer chamber. The Khazdurim resealed what they could at great cost, and many died.",
+        "The strongest of what the Eighth built is still down there. See Bahruun, Herald of the Deep, who broke the second Seal within living memory.",
+        "The Khazdurim tragedy is doubled: they were careless, and they were deceived. The Day of the Deep Breach is their founding trauma."
+      ]
+    },
+    {
+      "id": "watch",
+      "type": "faction",
+      "x": 1500,
+      "y": 1110,
+      "tier": 2,
+      "known": "lord",
+      "label": "The Khazdurim Watch",
+      "sub": "a self-imposed penance",
+      "facts": [
+        "Born from shame after the First Breach: their ancestors let something out. Not a divine appointment. Generations of guardians, vows of silence, a cultural suspicion of going deep. Every Khazdurim instinct about sealing and depth flows from it.",
+        "The demon-hunters split off from the Watch: Khazdurim who left to chase what their ancestors released. By now a separate sub-culture with its own oral history.",
+        "For most of the ages the Watch held, the seals were stable and the Eighth was silent. The Watch believes it guards a demon king. It guards a god."
+      ]
+    },
+    {
+      "id": "seals",
+      "type": "event",
+      "x": 1580,
+      "y": 1870,
+      "tier": 3,
+      "known": "hidden",
+      "label": "The seals weaken",
+      "sub": "whispers in the stone",
+      "facts": [
+        "In the last century the Watch has reported more frequent disturbances, whether from the Sundering's continuing shockwave or the Eighth's own accumulated effort. Sensitive Khazdurim hear whispers in the stone.",
+        "As the seals thin, the Eighth can once again whisper to sensitive mortals. Cult priests have visions that are not divine. This is the seal-decay signal, and late in the game it becomes urgent."
+      ]
+    },
+    {
+      "id": "thrain",
+      "type": "person",
+      "x": 200,
+      "y": 1870,
+      "tier": 3,
+      "known": "hidden",
+      "label": "Thrain Fireaxe",
+      "sub": "saw behind the third Seal",
+      "facts": [
+        "Khazdurim, assassin. He saw what is behind the third Seal, and the weight of that knowledge is why he drinks.",
+        "His wife could not reach him afterwards: he was there but not there, staring at something she could not see. She told him to leave until he came back to himself. He never did. He keeps a locket with a family portrait and does not open it.",
+        "He hunts demons now because it is the only thing that quiets his mind. Food preference: smoky. Not yet in the curated roster."
+      ]
+    },
+    {
+      "id": "hammerfall",
+      "type": "person",
+      "x": 470,
+      "y": 1870,
+      "tier": 3,
+      "known": "hidden",
+      "label": "Brunhild and Magna Hammerfall",
+      "sub": "kept the second Seal for thirty years",
+      "facts": [
+        "Sisters. Brunhild, a priest, held the prayer-wards; Magna, a wizard, held the rune-locks. Together they kept the second Seal for thirty years and nothing got through.",
+        "Then Bahruun broke through and killed their entire team. He yawned, looked at the two old women standing in the blood of their friends, and said: \"You smell like prayer and rust. Go home, grandmothers.\" Then he walked past them.",
+        "They hear it every day. They left the mountain to make sure he hears them back. Magna carries a list of every name they lost that night and intends to take something back for each, starting with him. Food preferences: Brunhild fresh, Magna smoky. Not yet in the curated roster."
+      ]
+    },
+    {
+      "id": "bahruun",
+      "type": "person",
+      "x": 780,
+      "y": 1870,
+      "tier": 3,
+      "known": "hidden",
+      "label": "Bahruun, Herald of the Deep",
+      "sub": "Warlord of the Third Depth",
+      "facts": [
+        "The most powerful demon to breach the outer seals in Khazdurim memory. One of the greater things the Eighth built and bound in the Deeps.",
+        "He broke the second Seal, slaughtered the Anvil Guard team holding it, and dismissed the two survivors as not worth killing.",
+        "Among demonkind he is called the Herald of the Deep. His message, that the deep is coming, is the seal-decay signal: not a rival power, but the Eighth's stirring."
+      ]
+    }
+  ],
+  "edges": [
+    [
+      "gods",
+      "eighth",
+      "member",
+      "one of the eight"
+    ],
+    [
+      "gods",
+      "netheron",
+      "member",
+      "one of the eight"
+    ],
+    [
+      "eighth",
+      "khazdurim",
+      "causes",
+      "agents steer the digging"
+    ],
+    [
+      "eighth",
+      "descends",
+      "causes",
+      "engineered"
+    ],
+    [
+      "netheron",
+      "descends",
+      "causes",
+      ""
+    ],
+    [
+      "descends",
+      "sundering",
+      "causes",
+      ""
+    ],
+    [
+      "academy",
+      "halldora",
+      "member",
+      "Archmagus"
+    ],
+    [
+      "halldora",
+      "binding",
+      "causes",
+      "survived, absent"
+    ],
+    [
+      "sundering",
+      "cycle",
+      "causes",
+      ""
+    ],
+    [
+      "netheron",
+      "cycle",
+      "causes",
+      "his function"
+    ],
+    [
+      "cycle",
+      "contain",
+      "causes",
+      ""
+    ],
+    [
+      "sundering",
+      "wastes",
+      "causes",
+      ""
+    ],
+    [
+      "binding",
+      "vigil",
+      "causes",
+      "her circle"
+    ],
+    [
+      "vigil",
+      "cult",
+      "causes",
+      "the remnant"
+    ],
+    [
+      "wastes",
+      "tipping",
+      "causes",
+      "reserves run out"
+    ],
+    [
+      "cult",
+      "tipping",
+      "causes",
+      "accelerates"
+    ],
+    [
+      "tipping",
+      "hale",
+      "causes",
+      ""
+    ],
+    [
+      "crown",
+      "hale",
+      "member",
+      "posted him"
+    ],
+    [
+      "thornveil",
+      "wardpair",
+      "causes",
+      "reset the stone"
+    ],
+    [
+      "hale",
+      "wardpair",
+      "causes",
+      ""
+    ],
+    [
+      "hale",
+      "grants",
+      "causes",
+      "garrisons too costly"
+    ],
+    [
+      "crown",
+      "grants",
+      "member",
+      ""
+    ],
+    [
+      "grants",
+      "grant",
+      "causes",
+      ""
+    ],
+    [
+      "school",
+      "grant",
+      "causes",
+      ""
+    ],
+    [
+      "grant",
+      "settlement",
+      "causes",
+      ""
+    ],
+    [
+      "varek",
+      "nordveld",
+      "causes",
+      "repelled an invasion"
+    ],
+    [
+      "nordveld",
+      "oldfaith",
+      "family",
+      "kin"
+    ],
+    [
+      "nordveld",
+      "northwar",
+      "causes",
+      ""
+    ],
+    [
+      "nordveld",
+      "netheron",
+      "member",
+      "worship him"
+    ],
+    [
+      "church",
+      "inquisition",
+      "member",
+      ""
+    ],
+    [
+      "inquisition",
+      "oldfaith",
+      "causes",
+      "burned villages"
+    ],
+    [
+      "inquisition",
+      "t_stonebridge",
+      "causes",
+      "they flee it"
+    ],
+    [
+      "church",
+      "corin",
+      "member",
+      "priest"
+    ],
+    [
+      "nordveld",
+      "edda",
+      "family",
+      "her grandmother"
+    ],
+    [
+      "northwar",
+      "desert",
+      "causes",
+      ""
+    ],
+    [
+      "northwar",
+      "oldfaith",
+      "causes",
+      "the reprisal"
+    ],
+    [
+      "winter",
+      "parents",
+      "causes",
+      "the father dies"
+    ],
+    [
+      "winter",
+      "jack",
+      "causes",
+      "orphaned"
+    ],
+    [
+      "winter",
+      "desert",
+      "causes",
+      "Godric levied after"
+    ],
+    [
+      "parents",
+      "nessa",
+      "family",
+      "daughter"
+    ],
+    [
+      "parents",
+      "gareth",
+      "family",
+      "son"
+    ],
+    [
+      "parents",
+      "godric",
+      "family",
+      "son"
+    ],
+    [
+      "desert",
+      "gareth",
+      "causes",
+      ""
+    ],
+    [
+      "desert",
+      "godric",
+      "causes",
+      ""
+    ],
+    [
+      "nessa",
+      "jack",
+      "family",
+      "mother in all but blood"
+    ],
+    [
+      "nessa",
+      "godric",
+      "family",
+      "raised him"
+    ],
+    [
+      "nessa",
+      "sniffsalot",
+      "family",
+      "her hound"
+    ],
+    [
+      "nessa",
+      "arrival",
+      "thread",
+      ""
+    ],
+    [
+      "arrival",
+      "settlement",
+      "thread",
+      "the Guild opens"
+    ],
+    [
+      "ambush",
+      "tomas",
+      "causes",
+      "the silence"
+    ],
+    [
+      "lyra",
+      "jory",
+      "family",
+      "his wife"
+    ],
+    [
+      "lyra",
+      "nell",
+      "family",
+      "her mother"
+    ],
+    [
+      "foreman",
+      "t_hester",
+      "causes",
+      ""
+    ],
+    [
+      "fails",
+      "t_cult",
+      "causes",
+      "a robin follows"
+    ],
+    [
+      "cult",
+      "t_cult",
+      "thread",
+      ""
+    ],
+    [
+      "lord",
+      "settlement",
+      "causes",
+      "founder"
+    ],
+    [
+      "lord",
+      "jory",
+      "family",
+      "oldest friend"
+    ],
+    [
+      "lord",
+      "nell",
+      "family",
+      "\"uncle\""
+    ],
+    [
+      "corin",
+      "lord",
+      "family",
+      "baptized him"
+    ],
+    [
+      "corin",
+      "edda",
+      "family",
+      "old friends"
+    ],
+    [
+      "edda",
+      "lord",
+      "family",
+      "delivered him"
+    ],
+    [
+      "edda",
+      "nell",
+      "family",
+      "grandmother-figure"
+    ],
+    [
+      "jory",
+      "nell",
+      "family",
+      "father"
+    ],
+    [
+      "settlement",
+      "t_scout",
+      "thread",
+      ""
+    ],
+    [
+      "settlement",
+      "t_wolves",
+      "thread",
+      ""
+    ],
+    [
+      "settlement",
+      "t_hester",
+      "thread",
+      ""
+    ],
+    [
+      "settlement",
+      "t_marsh",
+      "thread",
+      ""
+    ],
+    [
+      "settlement",
+      "t_truffle",
+      "thread",
+      ""
+    ],
+    [
+      "settlement",
+      "t_cobb",
+      "thread",
+      ""
+    ],
+    [
+      "t_scout",
+      "t_ch2",
+      "thread",
+      ""
+    ],
+    [
+      "hale",
+      "t_ch2",
+      "causes",
+      "the journal"
+    ],
+    [
+      "wardpair",
+      "t_scout",
+      "causes",
+      "the stones sighted"
+    ],
+    [
+      "tipping",
+      "t_wolves",
+      "causes",
+      "starving packs"
+    ],
+    [
+      "t_marsh",
+      "t_stonebridge",
+      "thread",
+      "met on the road home"
+    ],
+    [
+      "contain",
+      "t_stonebridge",
+      "causes",
+      "the tainted boar"
+    ],
+    [
+      "t_stonebridge",
+      "t_ch2",
+      "thread",
+      "Chapter 1 ends"
+    ],
+    [
+      "t_ch2",
+      "t_niamh",
+      "thread",
+      ""
+    ],
+    [
+      "thornveil",
+      "t_niamh",
+      "member",
+      "Niamh"
+    ],
+    [
+      "t_niamh",
+      "t_cult",
+      "thread",
+      ""
+    ],
+    [
+      "nell",
+      "t_truffle",
+      "thread",
+      "names both"
+    ],
+    [
+      "gareth",
+      "t_hester",
+      "thread",
+      "his patrol"
+    ],
+    [
+      "gareth",
+      "t_wolves",
+      "thread",
+      "holds the tower"
+    ],
+    [
+      "jory",
+      "t_hester",
+      "thread",
+      "the mill"
+    ],
+    [
+      "sundering",
+      "breach",
+      "causes",
+      "weakened the seals"
+    ],
+    [
+      "khazdurim",
+      "breach",
+      "causes",
+      "the expedition"
+    ],
+    [
+      "eighth",
+      "breach",
+      "causes",
+      "the demons he built"
+    ],
+    [
+      "breach",
+      "watch",
+      "causes",
+      "born from shame"
+    ],
+    [
+      "watch",
+      "seals",
+      "causes",
+      "reports them"
+    ],
+    [
+      "eighth",
+      "seals",
+      "causes",
+      ""
+    ],
+    [
+      "seals",
+      "cult",
+      "causes",
+      "visions that are not divine"
+    ],
+    [
+      "khazdurim",
+      "watch",
+      "member",
+      ""
+    ],
+    [
+      "watch",
+      "thrain",
+      "member",
+      "the Watch"
+    ],
+    [
+      "watch",
+      "hammerfall",
+      "member",
+      "kept the second Seal"
+    ],
+    [
+      "eighth",
+      "bahruun",
+      "causes",
+      "built him"
+    ],
+    [
+      "bahruun",
+      "hammerfall",
+      "causes",
+      "killed their team, spared them"
+    ],
+    [
+      "bahruun",
+      "seals",
+      "causes",
+      "the signal"
+    ],
+    [
+      "sundering",
+      "academy",
+      "causes",
+      "destroyed it"
+    ],
+    [
+      "academy",
+      "binding",
+      "causes",
+      "its last Archmagus"
+    ]
+  ]
+}
+</script>
+
+<script>
+(function () {
+  var DATA = JSON.parse(document.getElementById('data').textContent);
+  var svg = document.getElementById('map');
+  var world = document.getElementById('world');
+  var gEras = document.getElementById('eras');
+  var gEdges = document.getElementById('edges');
+  var gNodes = document.getElementById('nodes');
+  var NS = 'http://www.w3.org/2000/svg';
+  // The data is authored on a 1720 x 2780 grid; spread it out for air.
+  var SX = 1.45, SY = 1.18, W = Math.round(1720 * SX), H = Math.round(2780 * SY);
+  var byId = {};
+  DATA.nodes.forEach(function (n) { byId[n.id] = n; n.x = n.x * SX; n.y = n.y * SY; n.tier = n.tier || 2; });
+  DATA.eras.forEach(function (e) { e.y0 = e.y0 * SY; e.y1 = e.y1 * SY; });
+
+  function el(name, attrs, parent) {
+    var e = document.createElementNS(NS, name);
+    for (var k in attrs) e.setAttribute(k, attrs[k]);
+    if (parent) parent.appendChild(e);
+    return e;
+  }
+  function textWidth(s, size) { return s.length * size * 0.52; }
+
+  // ---- eras ----
+  DATA.eras.forEach(function (e) {
+    el('rect', { x: 0, y: e.y0, width: W, height: e.y1 - e.y0, fill: e.fill }, gEras);
+    var t = el('text', { x: 24, y: e.y0 + 28, fill: e.text, 'class': 'era-label' }, gEras);
+    t.textContent = e.label;
+    var s = el('text', { x: 24, y: e.y0 + 50, fill: e.text, 'class': 'era-sub', opacity: 0.85 }, gEras);
+    s.textContent = e.sub;
+  });
+
+  // ---- nodes: measure ----
+  var TIER = {
+    1: { font: 23, sub: 12.5, minW: 340, maxW: 520, pad: 64, h: 92 },
+    2: { font: 15, sub: 11, minW: 180, maxW: 320, pad: 38, h: 56 },
+    3: { font: 12.5, sub: 10, minW: 140, maxW: 260, pad: 30, h: 44 }
+  };
+  DATA.nodes.forEach(function (n) {
+    var t = TIER[n.tier];
+    var w = Math.max(t.minW, textWidth(n.label, t.font) + t.pad, textWidth(n.sub || '', t.sub) + t.pad);
+    n.w = Math.min(w, t.maxW); n.h = n.sub ? t.h : Math.round(t.h * 0.78);
+  });
+
+  function anchor(n, other) {
+    // exit from bottom/top when vertical distance dominates, else sides
+    var dx = other.x - n.x, dy = other.y - n.y;
+    if (Math.abs(dy) > Math.abs(dx) * 0.6) return { x: n.x, y: n.y + (dy > 0 ? n.h / 2 : -n.h / 2), v: true };
+    return { x: n.x + (dx > 0 ? n.w / 2 : -n.w / 2), y: n.y, v: false };
+  }
+  function edgePath(a, b) {
+    var p = anchor(a, b), q = anchor(b, a);
+    if (p.v && q.v) {
+      var my = (p.y + q.y) / 2;
+      return 'M' + p.x + ',' + p.y + ' C' + p.x + ',' + my + ' ' + q.x + ',' + my + ' ' + q.x + ',' + q.y;
+    }
+    var mx = (p.x + q.x) / 2;
+    return 'M' + p.x + ',' + p.y + ' C' + mx + ',' + p.y + ' ' + mx + ',' + q.y + ' ' + q.x + ',' + q.y;
+  }
+
+  // ---- edges ----
+  var edgeEls = [];
+  DATA.edges.forEach(function (ed) {
+    var a = byId[ed[0]], b = byId[ed[1]];
+    if (!a || !b) return;
+    var kind = ed[2];
+    var small = (a.tier === 3 || b.tier === 3) ? ' t3' : '';
+    var path = el('path', { d: edgePath(a, b), 'class': 'edge ' + kind + small, 'data-a': a.id, 'data-b': b.id }, gEdges);
+    if (kind === 'causes') path.setAttribute('marker-end', 'url(#arrow)');
+    if (kind === 'member') path.setAttribute('marker-end', 'url(#arrow-moss)');
+    if (kind === 'thread') path.setAttribute('marker-end', 'url(#arrow-blood)');
+    edgeEls.push({ el: path, a: a.id, b: b.id, kind: kind, label: ed[3] });
+  });
+
+  // ---- nodes ----
+  var nodeEls = {};
+  DATA.nodes.forEach(function (n) {
+    var g = el('g', { 'class': 'node ' + n.type + ' t' + n.tier + (n.hub ? ' hub' : ''), transform: 'translate(' + (n.x - n.w / 2) + ',' + (n.y - n.h / 2) + ')', tabindex: 0, role: 'button', 'aria-label': n.label }, gNodes);
+    el('rect', { width: n.w, height: n.h }, g);
+    var tf = TIER[n.tier];
+    var labelY = n.sub ? Math.round(n.h * 0.46) : Math.round(n.h * 0.5 + tf.font * 0.35);
+    var t = el('text', { x: n.w / 2, y: labelY, 'text-anchor': 'middle' }, g);
+    t.textContent = n.label;
+    if (n.sub) { var s = el('text', { x: n.w / 2, y: Math.round(n.h * 0.46 + tf.sub * 1.55), 'text-anchor': 'middle', 'class': 'sub' }, g); s.textContent = n.sub; }
+    el('circle', { cx: 11, cy: 11, r: n.tier === 1 ? 5.5 : 4, 'class': 'known ' + n.known }, g);
+    g.addEventListener('pointerup', function (ev) { if (dragMoved || ev.button !== 0) return; openNode(n.id); });
+    g.addEventListener('keydown', function (ev) { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); openNode(n.id); } });
+    g.addEventListener('mouseenter', function () { highlight(n.id); });
+    g.addEventListener('mouseleave', function () { highlight(null); });
+    nodeEls[n.id] = g;
+  });
+
+  function highlight(id) {
+    if (!id) {
+      edgeEls.forEach(function (e) { e.el.classList.remove('hot', 'cold'); });
+      Object.keys(nodeEls).forEach(function (k) { nodeEls[k].classList.remove('cold'); });
+      return;
+    }
+    var near = {}; near[id] = true;
+    edgeEls.forEach(function (e) {
+      var on = e.a === id || e.b === id;
+      e.el.classList.toggle('hot', on); e.el.classList.toggle('cold', !on);
+      if (on) { near[e.a] = true; near[e.b] = true; }
+    });
+    Object.keys(nodeEls).forEach(function (k) { nodeEls[k].classList.toggle('cold', !near[k]); });
+  }
+
+  // ---- pan / zoom ----
+  var tx = 0, ty = 0, k = 1;
+  function apply() { world.setAttribute('transform', 'translate(' + tx + ',' + ty + ') scale(' + k + ')'); }
+  function vp() { var r = svg.getBoundingClientRect(); return { w: r.width, h: r.height, top: 52 }; }
+  function fitAll() {
+    var v = vp();
+    k = Math.min(v.w / W, (v.h - v.top) / H) * 0.97;
+    tx = (v.w - W * k) / 2; ty = v.top + ((v.h - v.top) - H * k) / 2; apply();
+  }
+  function centerOn(x, y, zoom) {
+    var v = vp(); k = zoom; tx = v.w / 2 - x * k; ty = v.top + (v.h - v.top) / 2 - y * k; apply();
+  }
+  function zoomAt(f, cx, cy) {
+    var nk = Math.max(0.18, Math.min(3.5, k * f));
+    tx = cx - (cx - tx) * (nk / k); ty = cy - (cy - ty) * (nk / k); k = nk; apply();
+  }
+  svg.addEventListener('wheel', function (ev) {
+    ev.preventDefault();
+    var f = Math.exp(-ev.deltaY * 0.0015);
+    zoomAt(f, ev.clientX, ev.clientY);
+  }, { passive: false });
+
+  var dragging = false, dragMoved = false, sx = 0, sy = 0, ox = 0, oy = 0;
+  svg.addEventListener('pointerdown', function (ev) {
+    if (ev.button !== 0) return;
+    dragging = true; dragMoved = false; sx = ev.clientX; sy = ev.clientY; ox = tx; oy = ty;
+    svg.classList.add('dragging');
+  });
+  window.addEventListener('pointermove', function (ev) {
+    if (!dragging) return;
+    var dx = ev.clientX - sx, dy = ev.clientY - sy;
+    if (Math.abs(dx) + Math.abs(dy) > 4) dragMoved = true;
+    tx = ox + dx; ty = oy + dy; apply();
+  });
+  function endDrag() {
+    if (!dragging) return;
+    dragging = false; svg.classList.remove('dragging');
+    setTimeout(function () { dragMoved = false; }, 0);
+  }
+  window.addEventListener('pointerup', endDrag);
+  window.addEventListener('pointercancel', endDrag);
+
+  document.getElementById('b-fit').addEventListener('click', fitAll);
+  document.getElementById('b-in').addEventListener('click', function () { var v = vp(); zoomAt(1.3, v.w / 2, v.h / 2); });
+  document.getElementById('b-out').addEventListener('click', function () { var v = vp(); zoomAt(1 / 1.3, v.w / 2, v.h / 2); });
+  document.getElementById('b-top').addEventListener('click', function () { centerOn(W / 2, 330 * SY, 0.7); });
+  document.getElementById('b-now').addEventListener('click', function () { centerOn(W / 2, 2330 * SY, 0.5); });
+  var essentials = false;
+  var bEss = document.getElementById('b-ess');
+  bEss.addEventListener('click', function () {
+    essentials = !essentials;
+    document.body.classList.toggle('essentials', essentials);
+    bEss.setAttribute('aria-pressed', essentials ? 'true' : 'false');
+    bEss.textContent = essentials ? 'Everything' : 'Essentials';
+  });
+  window.addEventListener('resize', function () { /* keep current view */ });
+
+  // ---- panel ----
+  var overlay = document.getElementById('overlay');
+  var pE = document.getElementById('p-eyebrow'), pT = document.getElementById('p-title'), pB = document.getElementById('p-body'), pC = document.getElementById('p-conn');
+  var KNOWN = { known: 'the player learns this in Act 1', lord: 'the Lord knows this as common history', hidden: 'hidden from the player' };
+  var TYPE = { person: 'person', event: 'event', faction: 'people, faction', place: 'place', thread: 'story beat' };
+  var KIND = { causes: 'leads to', member: 'belongs to', family: 'family, bond', thread: 'thread' };
+  function eraOf(n) { for (var i = 0; i < DATA.eras.length; i++) { var e = DATA.eras[i]; if (n.y >= e.y0 && n.y < e.y1) return e.label; } return ''; }
+  var activeId = null;
+  function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+  function inline(s) { return esc(s).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>'); }
+  // Bullets: a string starting with two spaces is a sub-bullet of the previous top-level bullet.
+  // A bullet starting with "~ " is undecided: rendered grey with a tag.
+  function li(text) {
+    var t = text.trim();
+    if (t.charAt(0) === '~') return '<li class="unsure"><span class="tag">undecided</span> ' + inline(t.slice(1).trim()) + '</li>';
+    return '<li>' + inline(t) + '</li>';
+  }
+  function renderBullets(list) {
+    var isSub = function (b) { return /^\s\s/.test(b); };
+    var h = '<ul class="bullets">', i = 0;
+    while (i < list.length) {
+      if (isSub(list[i])) { i++; continue; } // a stray sub-bullet with no parent is skipped
+      var item = li(list[i]);
+      i++;
+      if (i < list.length && isSub(list[i])) {
+        var subs = '<ul class="sub">';
+        while (i < list.length && isSub(list[i])) { subs += li(list[i]); i++; }
+        item = item.slice(0, -5) + subs + '</ul></li>';
+      }
+      h += item;
+    }
+    return h + '</ul>';
+  }
+
+  function openNode(id, noMove) {
+    var n = byId[id]; if (!n) return;
+    if (activeId && nodeEls[activeId]) nodeEls[activeId].classList.remove('active');
+    activeId = id; nodeEls[id].classList.add('active');
+    pE.innerHTML = '<span>' + esc(TYPE[n.type] || n.type) + '</span><span>·</span><span>' + esc(eraOf(n)) + '</span><span class="pill ' + n.known + '">' + (n.known === 'known' ? 'player knows' : n.known === 'lord' ? 'Lord knows' : 'hidden') + '</span>';
+    pT.textContent = n.label;
+    var body = n.bullets ? renderBullets(n.bullets) : (n.facts || []).map(function (f) { return '<p>' + esc(f) + '</p>'; }).join('');
+    pB.innerHTML = body + '<p class="kn-note">' + esc(KNOWN[n.known]) + '</p>';
+    var rows = [];
+    edgeEls.forEach(function (e) {
+      if (e.a === id) rows.push({ other: e.b, kind: e.kind, label: e.label, dir: '→' });
+      else if (e.b === id) rows.push({ other: e.a, kind: e.kind, label: e.label, dir: '←' });
+    });
+    pC.innerHTML = rows.map(function (r) {
+      var o = byId[r.other];
+      return '<li><span class="kind">' + esc(r.dir + ' ' + (KIND[r.kind] || r.kind)) + '</span><button type="button" data-go="' + esc(o.id) + '">' + esc(o.label) + (r.label ? ' <span style="color:var(--ink-soft)">(' + esc(r.label) + ')</span>' : '') + '</button></li>';
+    }).join('') || '<li><span class="kind">none</span></li>';
+    overlay.hidden = false;
+    highlight(id);
+    // The map does not move when the panel opens; the view is the reader's.
+    document.getElementById('p-close').focus();
+  }
+  function closePanel() {
+    overlay.hidden = true;
+    if (activeId && nodeEls[activeId]) { nodeEls[activeId].classList.remove('active'); nodeEls[activeId].focus(); }
+    activeId = null; highlight(null);
+  }
+  document.getElementById('p-close').addEventListener('click', closePanel);
+  overlay.addEventListener('click', function (ev) { if (ev.target === overlay) closePanel(); });
+  pC.addEventListener('click', function (ev) { var b = ev.target.closest('button[data-go]'); if (b) openNode(b.getAttribute('data-go')); });
+  document.addEventListener('keydown', function (ev) { if (ev.key === 'Escape' && !overlay.hidden) closePanel(); });
+
+  fitAll();
+})();
+</script>
