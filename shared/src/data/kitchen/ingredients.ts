@@ -119,6 +119,11 @@ export const FOOD_INGREDIENTS: FoodIngredient[] = [
   { id: "strawberries", name: "Strawberries", icon: "🍓", role: "fruit", signature: "chop", nourish: 1, comfort: 4, fresh: 3, flavors: ["sweet"], techniques: SOFT_FRUIT, note: "Fleeting early-summer sweetness." },
   // Wild berries (foraged) — strawberries above stay a CULTIVATED fruit and are
   // deliberately not in the `berry` group.
+  // No `chop`: "not for eating raw" is the one thing Edda says about a hip, so
+  // the whitelist makes it impossible, the same as nettle and the fungi.
+  // Its stock is s.herbs (it is a HERB), and getResourceQty checks herbs first,
+  // so the pot and the bench draw on the same picking.
+  { id: "rosehip", name: "Rosehip", icon: "🌹", role: "fruit", signature: "boil", nourish: 1, comfort: 3, flavors: ["sweet"], techniques: ["boil", "preserve"], note: "Cooked down, it makes a warming jam. Raw it is all seed and bristle." },
   { id: "blackberry", name: "Blackberry", icon: "🫐", role: "fruit", signature: "chop", nourish: 1, comfort: 3, fresh: 2, flavors: ["sweet"], techniques: SOFT_FRUIT, note: "Hedgerow-dark and seedy, paid for in scratched arms." },
   { id: "blueberry", name: "Blueberry", icon: "🫐", role: "fruit", signature: "chop", nourish: 1, comfort: 3, fresh: 3, flavors: ["sweet"], techniques: SOFT_FRUIT, note: "Small, sweet, and blue to the fingers." },
   { id: "raspberry", name: "Raspberry", icon: "🫐", role: "fruit", signature: "chop", nourish: 1, comfort: 4, fresh: 3, flavors: ["sweet"], techniques: SOFT_FRUIT, note: "Soft and tart, and gone in a day." },

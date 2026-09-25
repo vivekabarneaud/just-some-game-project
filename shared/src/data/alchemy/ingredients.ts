@@ -33,6 +33,16 @@ export const INGREDIENTS: Ingredient[] = [
     },
   },
   {
+    // Winter's base, against dandelion's spring. ease_fever has three sources
+    // already, but not one of them is a plant you can gather in the season you
+    // actually need it: a hip hangs on the bush through the frost.
+    id: "rosehip", name: "Rosehip", icon: "🌹", role: "base", rarity: "common", signature: "boil",
+    note: "The winter cup. It keeps the cold months from getting into a house.",
+    techniques: {
+      boil: [{ channel: "ease_fever", amount: 2 }],
+    },
+  },
+  {
     id: "lavender", name: "Lavender", icon: "🪻", role: "base", rarity: "uncommon", signature: "steep",
     note: "A calming base — steadies and clears the mind.",
     techniques: {
