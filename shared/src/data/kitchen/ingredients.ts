@@ -95,6 +95,18 @@ export const FOOD_INGREDIENTS: FoodIngredient[] = [
   { id: "cepe", name: "King Bolete", icon: "🍄", role: "veg", signature: "fry", nourish: 3, comfort: 4, flavors: ["hearty"], techniques: FUNGI, note: "The king of the wood. Thick, nutty, and hoarded." },
 
   // ── Veg · wild greens + roots (foraged, mostly spring and summer) ──
+  // Boil ONLY, and that restriction IS the rule: a nettle stings until it is
+  // cooked, so the whitelist makes serving it raw impossible, the same way no
+  // mushroom allows `chop`.
+  // Deliberately NOT a forage plant. Nettles follow PEOPLE, not woods: they want
+  // disturbed, nitrogen-rich ground (middens, yards, ruins), and Parcel 14 is
+  // wild land nobody has worked. It arrives through the forager's hut, which is
+  // your own people working your own trampled edges, so the nettle is the first
+  // plant that is there BECAUSE you are. It grows wild at the Old Watch, for
+  // whenever foraging gets a second region.
+  // Its stock is s.herbs, and getResourceQty checks herbs before foods, so the
+  // pot and the bench draw on the same patch: soup, or poison.
+  { id: "nettle", name: "Nettle", icon: "🍃", role: "veg", signature: "boil", nourish: 2, comfort: 1, flavors: ["hearty"], techniques: ["boil"], note: "Boiled hard, the sting cooks out and it feeds you. Any other way it bites." },
   { id: "dandelion", name: "Dandelion", icon: "🌼", role: "veg", signature: "chop", nourish: 1, comfort: 1, fresh: 3, flavors: ["fresh"], techniques: LEAF, note: "Bitter leaves from the yard's edge. Better than it sounds, and better than nothing." },
   { id: "sorrel", name: "Sorrel", icon: "🌿", role: "veg", signature: "chop", nourish: 1, comfort: 1, fresh: 3, flavors: ["fresh"], techniques: LEAF, note: "Sharp and lemony. It wakes up a dull pot." },
   { id: "ramsons", name: "Ramsons", icon: "🧄", role: "veg", signature: "chop", nourish: 1, comfort: 2, fresh: 2, amplify: 0.1, flavors: ["fresh"], techniques: LEAF, note: "Wild garlic from the spring woods, one broad leaf to each stem. It lifts whatever it touches." },
