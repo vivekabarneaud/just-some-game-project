@@ -4,6 +4,7 @@ import { FORAGE_PLANTS, isDecoy } from "@medieval-realm/shared/data/foraging/pla
 import { INGREDIENTS } from "@medieval-realm/shared/data/alchemy/ingredients";
 import { LIVE_TECHNIQUES } from "@medieval-realm/shared/data/alchemy/types";
 import { describeCooked } from "@medieval-realm/shared/data/kitchen/cook";
+import { FOOD_INGREDIENTS } from "@medieval-realm/shared/data/kitchen/ingredients";
 
 // The Herbier covers what the Lord FINDS, not what he sows. These assert the
 // shape of that list, never a count that would break every time a plant is
@@ -144,5 +145,26 @@ describe("the two crafts cannot collide on a technique name", () => {
     const ramsons = getHerbierPlant("ramsons")!;
     expect(ramsons.kitchen?.techniques).toContain("boil");
     expect(ramsons.alchemy).toBeUndefined(); // and it is not on the shelf at all
+  });
+});
+
+describe("a page never hides a use the plant really has", () => {
+  it("every plant that can be cooked shows its kitchen half", () => {
+    // The registry used to attach the larder entry only inside the forage loop,
+    // so nettle (an alchemy ingredient that is also cookable) had its cooking
+    // half hidden on its own page.
+    for (const ing of FOOD_INGREDIENTS) {
+      const plant = getHerbierPlant(ing.id);
+      if (!plant) continue; // not a wild plant; it has no page at all
+      expect(plant.kitchen?.id, `${ing.id} can be cooked but its page does not say so`).toBe(ing.id);
+    }
+  });
+
+  it("every plant that can be brewed shows its alchemy half", () => {
+    for (const ing of INGREDIENTS) {
+      const plant = getHerbierPlant(ing.id);
+      if (!plant) continue;
+      expect(plant.alchemy?.id, `${ing.id} can be brewed but its page does not say so`).toBe(ing.id);
+    }
   });
 });

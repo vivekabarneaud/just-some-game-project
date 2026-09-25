@@ -91,6 +91,14 @@ function build(): HerbierPlant[] {
     add(h.id, h.name, h.icon, { group: groupOf(h.id) });
   }
 
+  // Attach the larder entry by id, for EVERY plant rather than only the ones the
+  // woods gave us. Nettle is an alchemy ingredient that is also cookable, and it
+  // arrived through the ingredient loop, so the forage pass never saw it and its
+  // page hid a use it really has.
+  for (const p of by.values()) {
+    if (!p.kitchen) p.kitchen = kitchenById.get(p.id);
+  }
+
   // Reverse the mimic index, so the real plant knows who wears its face. Built
   // here rather than authored, so the two halves can never disagree.
   for (const p of by.values()) {
