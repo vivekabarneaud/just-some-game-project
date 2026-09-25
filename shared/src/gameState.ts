@@ -431,6 +431,13 @@ export interface GameState {
   buildingTools: Record<string, string[]>;
   /** Enemy IDs the player has encountered on missions */
   discoveredEnemies: string[];
+  /** The Herbier — the Lord's own book of plants. See
+   *  shared/src/data/alchemy/herbier.ts. Flat string[] so the save stays JSON:
+   *  pages he has drawn, "<ingredientId>:<technique>" pairs he has tried, and
+   *  the laws of the craft he has felt go wrong. */
+  herbierPages?: string[];
+  herbierTried?: string[];
+  herbierLaws?: string[];
   // Event log
   eventLog: GameEvent[];
   // Ale & Happiness

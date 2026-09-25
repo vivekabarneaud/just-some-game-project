@@ -17,7 +17,19 @@ its line — the code becomes the documentation.
 
 ## Alchemy
 
-- ⭐ **Herbalist discovery** — a plant starts "unstudied": you learn its best technique and full effect table by *using* it, rather than being shown from the start. Almost certainly the same system as the foraging **herbier** — worth designing them together.
+- ✅ **Herbalist discovery — BUILT 2026-09-25** (`feat/herbier`). The Herbier: the
+  Lord's own book of plants, under the desk on `/alchemy`. A page is drawn the day a
+  plant is in hand; a line is added each time he actually performs a technique,
+  including when nothing comes of it ("nothing to be had this way"), which is a
+  finding too. The page lists ONLY what he has tried, which is what keeps it honest
+  while five techniques have no station. The `signature` is withheld until every
+  live technique has been tried — so no page can be finished until steep and distil
+  exist, deliberately. Roles stay visible (they are the grammar of a mixture, not a
+  secret about a plant); what is discovered is the LAW behind them, learned by
+  feeling it go wrong. Code: `shared/src/data/alchemy/herbier.ts` (pure),
+  `frontend/src/components/{HerbierBook,PaintedBook}.tsx`, state `herbierPages` /
+  `herbierTried` / `herbierLaws`.
+  **Still open: the FORAGING half.** See "The herbier" below.
 - **Techniques beyond crush + boil** — `steep`, `dry`, `distil`, `char`, `ferment` all exist in ingredient data but the desk only offers two, so five techniques are unreachable in game. The design was "stations unlock by settlement tier"; that gate was never wired.
 - **Offensive brews** — poison coatings and throwables. The channels (`poison`, `weaken`, `slow`, `confuse`, `aoe_fire/frost`) are defined and *priced* in the brew engine, and combat ignores them entirely. Either build it or delete the channels; inert-but-priced is the worst state. Pairs with the puffball-as-carrier idea (any brew becomes an area effect).
 - **Deliberate plant gating** — introduce the plant roster gradually via foraging and tier, instead of the whole shelf being available at once.
@@ -229,10 +241,16 @@ than any number of new dishes.
 - **Push further within a trip** — "next map" during a single trip walks you
   further out. Better finds, and eventually the reason to want the escort. The
   region you start from is set by the story's map unlocks (§3d).
-- **The herbier** — plants start unstudied; you learn each one's identity and uses
-  by picking it, rather than being shown from the start. Almost certainly the same
-  system as the alchemy **herbalist discovery** idea above, and what finally makes
-  the lethal decoys (funeral bell vs velvet shank) pay off across many trips.
+- **The herbier, foraging half** — the USES half shipped 2026-09-25 (see Herbalist
+  discovery above), but it is driven by the 19 alchemy ingredients, and the ~23
+  foraged plants share **not one id** with them. So picking ramsons still writes
+  nothing down, and the identification knowledge the minigame is built around
+  ("ramsons smell of garlic and grow one leaf per stem; lily of the valley has
+  paired leaves and no scent") still has nowhere to live.
+  The remaining work is a sibling book over `FORAGE_PLANTS`, showing `mimics` and a
+  how-to-tell-them-apart line instead of a technique table. It is now cheap: the
+  painted-book shell is extracted (`PaintedBook.tsx`) and the discovery-state shape
+  is established. This is what finally makes the lethal decoys pay off across trips.
 - **Homes for the orphan yields** — foraging yields `judas_ear`, `velvet_shank`,
   `parasol` and `rosehip`, and none of them is a kitchen or alchemy ingredient
   yet, so picking them does nothing. `hemlock` is correctly non-food (it is a

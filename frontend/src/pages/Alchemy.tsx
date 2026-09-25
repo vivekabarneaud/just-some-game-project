@@ -5,6 +5,7 @@ import { HERBS } from "@medieval-realm/shared/data/herbs";
 import { BUILDINGS, getRepairCost } from "~/data/buildings";
 import { playSound } from "~/engine/sounds";
 import AlchemyDesk from "~/components/AlchemyDesk";
+import HerbierBook from "~/components/HerbierBook";
 
 export default function Alchemy() {
   const { state, actions } = useGame();
@@ -103,6 +104,8 @@ export default function Alchemy() {
               fixed-recipe list + daily research were retired in favour of it. */}
           <Show when={labLevel() > 0}>
             <AlchemyDesk />
+            {/* The Lord's own book of plants, under the desk he fills it from. */}
+            <HerbierBook />
           </Show>
 
         </Show>

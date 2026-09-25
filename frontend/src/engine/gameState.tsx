@@ -287,6 +287,7 @@ import { HERBS } from "@medieval-realm/shared/data/herbs";
 import { AILMENTS, getAilment, getAnimalAilment, type BuildingAilment } from "@medieval-realm/shared/data/ailments";
 import { brew as brewAlchemy, recipeIdFor, brewRarity, clampPlacements } from "@medieval-realm/shared/data/alchemy/brew";
 import { getIngredient as getAlchemyIngredient } from "@medieval-realm/shared/data/alchemy/ingredients";
+import { triedKey, HERBIER_LAWS } from "@medieval-realm/shared/data/alchemy/herbier";
 import { matchNamedRecipe } from "@medieval-realm/shared/data/alchemy/named_recipes";
 import { summarizeRecovery, easeHoursFor } from "@medieval-realm/shared/data/alchemy/apply";
 import type { Placement as AlchemyPlacement, StoredAlchemyRecipe } from "@medieval-realm/shared/data/alchemy/types";
@@ -872,6 +873,14 @@ export interface GameState {
    *  deterministic recipeIdFor). A brewed potion in inventory uses this id as
    *  its itemId; this store is what the potion DOES. See docs/IDEAS.md (Alchemy). */
   alchemyRecipes?: Record<string, StoredAlchemyRecipe>;
+  /** The Herbier — the Lord's own book of plants (shared/data/alchemy/herbier.ts).
+   *  `herbierPages`: plants he has had in hand and drawn a page for.
+   *  `herbierTried`: "<ingredientId>:<technique>" pairs he has actually performed.
+   *  `herbierLaws`: laws of the craft he has felt go wrong and written down.
+   *  Flat string[] like `discoveredEnemies`, because a save must stay JSON. */
+  herbierPages?: string[];
+  herbierTried?: string[];
+  herbierLaws?: string[];
   /** Free-form cooking: discovered dishes (the cookbook) + how many of each the
    *  player has prepared (the pantry stock a later economy pass will draw on). */
   kitchenDishes?: Record<string, StoredDish>;
@@ -1545,6 +1554,9 @@ export function createInitialState(): GameState {
     autoCook: {},
     buildingTools: {},
     discoveredEnemies: [],
+    herbierPages: [],
+    herbierTried: [],
+    herbierLaws: [],
     eventLog: [],
     ale: 0,
     mead: 0,
@@ -3132,6 +3144,19 @@ function addInventoryItem(s: GameState, itemId: string, amount: number): number 
  *  by quest-claim and mission-claim paths so they stay in sync (previously
  *  the quest path only handled gold/wood/stone/wool/astralShards and
  *  silently dropped food/herb/material/inventory rewards into NaN). */
+/** The Herbier's first hook: a plant he now HAS gets a page, because that is when
+ *  he would sit down and draw it. The lines come later, when he tries something.
+ *  Called from every place herbs are added (the reward path, the forager's own
+ *  finds, and the coop claim), so foraging, missions, merchants and the garden
+ *  are all covered without hooking each of them.
+ *  Only real alchemy ingredients get a page — `HERBS` and the alchemy shelf are
+ *  not quite the same list, and a page for something you cannot brew is a lie. */
+function noteHerbInHand(s: GameState, herbId: string): void {
+  if (!getAlchemyIngredient(herbId)) return;
+  if (!s.herbierPages) s.herbierPages = [];
+  if (!s.herbierPages.includes(herbId)) s.herbierPages.push(herbId);
+}
+
 function grantReward(
   s: GameState,
   reward: { resource: string; amount: number },
@@ -3143,6 +3168,7 @@ function grantReward(
   } else if (_HERB_IDS.has(res)) {
     if (!s.herbs) s.herbs = {};
     s.herbs[res] = (s.herbs[res] ?? 0) + reward.amount;
+    noteHerbInHand(s, res);
   } else if (_EXOTIC_IDS.has(res)) {
     if (!s.exotics) s.exotics = {};
     s.exotics[res] = (s.exotics[res] ?? 0) + reward.amount;
@@ -4337,6 +4363,7 @@ export function GameProvider(props: ParentProps) {
             const herbChance = foodForaged * herb.dropRate;
             if (Math.random() < herbChance) {
               s.herbs[herb.id] = (s.herbs[herb.id] ?? 0) + 1;
+              noteHerbInHand(s, herb.id);
               if (herb.rarity === "rare" || herb.rarity === "legendary") {
                 pushEvent(s, "building_completed", herb.icon, `Your foragers found a rare ${herb.name}!`);
               }
@@ -6960,6 +6987,24 @@ export function GameProvider(props: ParentProps) {
       const id = recipeIdFor(filled);
       setState(produce((s) => {
         for (const [ingId, n] of cost) spendResource(s, ingId, n);
+        // The Herbier's second hook: what he actually DID goes in the book, even
+        // when it came to nothing — "feverfew was never made for charring" is a
+        // finding too. This is the commit path on purpose; brew() itself runs on
+        // every live preview, so hooking there would record what he only hovered.
+        if (!s.herbierTried) s.herbierTried = [];
+        for (const pl of filled) {
+          const key = triedKey(pl.ingredientId, pl.technique);
+          if (!s.herbierTried.includes(key)) s.herbierTried.push(key);
+          noteHerbInHand(s, pl.ingredientId);
+        }
+        // And the laws of the craft, written down the moment one is felt.
+        if (!s.herbierLaws) s.herbierLaws = [];
+        for (const law of result.laws) {
+          if (s.herbierLaws.includes(law)) continue;
+          s.herbierLaws.push(law);
+          const entry = HERBIER_LAWS.find((l) => l.id === law);
+          if (entry) pushEvent(s, "building_completed", "📖", `You set down a law of the craft: ${entry.title}.`);
+        }
         s.alchemyRecipes ??= {};
         if (!s.alchemyRecipes[id]) {
           s.alchemyRecipes[id] = {
@@ -8635,6 +8680,7 @@ export function GameProvider(props: ParentProps) {
           } else if (herbIds.has(reward.resource)) {
             if (!s.herbs) s.herbs = {};
             s.herbs[reward.resource] = (s.herbs[reward.resource] ?? 0) + reward.amount;
+            noteHerbInHand(s, reward.resource);
           } else if (exoticIds.has(reward.resource)) {
             if (!s.exotics) s.exotics = {};
             s.exotics[reward.resource] = (s.exotics[reward.resource] ?? 0) + reward.amount;

@@ -1,6 +1,6 @@
 # Foraging Minigame — Design + Plant Register
 
-- **Status (2026-09-08):** WIRED INTO THE GAME on `feat/foraging-wiring`. The trip is a daily mission card on the board (§3d) that routes straight into the wood, and the basket now reaches the larder via `completeForagingTrip` (honest about what did not fit: larder full, or no pantry home yet). `<ForagingScene>` is shared by the real trip and the dev sandbox. **Built:** stocking/decay/seasonal handover/rain flush, ~23 plants with decoys, terrain mask + scene anchors, board entry + routing + distinct card/pin styling, yield->larder, the trip economy (free via the board's 3AM refresh and its existing 10*2^n shard reroll). **NOT built:** the herbier, multiple regions beyond the near fold, the "next map" push-further step, escort/dog (IDEAS), and most art.
+- **Status (2026-09-08):** WIRED INTO THE GAME on `feat/foraging-wiring`. The trip is a daily mission card on the board (§3d) that routes straight into the wood, and the basket now reaches the larder via `completeForagingTrip` (honest about what did not fit: larder full, or no pantry home yet). `<ForagingScene>` is shared by the real trip and the dev sandbox. **Built:** stocking/decay/seasonal handover/rain flush, ~23 plants with decoys, terrain mask + scene anchors, board entry + routing + distinct card/pin styling, yield->larder, the trip economy (free via the board's 3AM refresh and its existing 10*2^n shard reroll). **NOT built:** the herbier's identification half (the Lord's book itself shipped 2026-09-25 on `feat/herbier`, but it is driven by the 19 ALCHEMY ingredients, which share no ids with the foraged plants -- so picking ramsons still writes nothing down; the remaining work is a sibling book over `FORAGE_PLANTS` showing `mimics` and a how-to-tell-them-apart line, now cheap because `PaintedBook.tsx` exists), multiple regions beyond the near fold, the "next map" push-further step, escort/dog (IDEAS), and most art.
 - **Purpose:** the "nothing left to do" valve for idle downtime, and the home for plant *variety* that a passive building can't carry.
 - **Cross-refs:** [[project_foraging_minigame]], `docs/IDEAS.md` (Alchemy), the retired Farming Expansion doc (in git), the retired seasonal-gathers doc (in git), the retired Tavern doc (in git).
 
@@ -379,4 +379,8 @@ Two kinds, at wildly different build costs:
 - Tuning: regrow rates per plant, seasonal caps, basket size (~10?).
 - Does a trip cost anything at all (time? the Lord's presence?), or is walking into the woods free with depletion as the only limit?
 - Should the "go deeper" scenes be richer but further (tying to walking-the-bounds / escort), or just more of the same?
-- Herbier: standalone page, or a Chronicle tab?
+- ~~Herbier: standalone page, or a Chronicle tab?~~ **Answered 2026-09-25: neither.**
+  It is a painted book under the desk on `/alchemy`, a sibling of the recipe book,
+  because that is where the knowledge is used. A Chronicle "what we know" volume
+  merging plants, dishes, brews and beasts is still an idea, and should probably
+  absorb the planned monster encyclopedia rather than sit beside it.

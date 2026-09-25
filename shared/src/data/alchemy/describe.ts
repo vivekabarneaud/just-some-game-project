@@ -55,6 +55,11 @@ export function describeEffectParts(e: Effect): { label: string; detail?: string
     case "confuse": return { label: "Confuses the foe", detail: `${n}% chance` };
     case "aoe_fire": return { label: `${n} fire damage to the enemy group` };
     case "aoe_frost": return { label: `${n} frost damage to the enemy group`, detail: "and slows them" };
+    // ── Modifiers — they shape the OTHER ingredients rather than doing anything
+    //    themselves, so they never appear as an output effect. Without these two
+    //    cases honey's whole entry reads "+0.2 amplify for the whole fight".
+    case "amplify": return { label: "Lifts the whole brew", detail: `about +${Math.round(e.amount * 100)}% to everything else in the pot` };
+    case "extend": return { label: "Makes the effects last", detail: `+${e.amount} round${e.amount === 1 ? "" : "s"} on anything timed` };
     // ── Combat buffs — the whole line reads as one label (with its duration) ──
     default: {
       if (e.channel.startsWith("resist_")) {

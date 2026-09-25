@@ -4,7 +4,7 @@
 // into the ingredient data (a wildcard contributes its own downside), so the
 // engine stays deterministic while combos still surprise.
 
-import type { Effect, EffectChannel, Placement, BrewResult, Technique, IngredientRarity } from "./types.js";
+import type { Effect, EffectChannel, Placement, BrewResult, Technique, IngredientRarity, LawId } from "./types.js";
 import { getIngredient } from "./ingredients.js";
 import { diminish, clampPlacements as clampCraftPlacements, MAX_PER_PLACEMENT } from "../craft/placements.js";
 
@@ -82,7 +82,7 @@ export function brew(placements: Placement[]): BrewResult {
   const notes: string[] = [];
   const filled = clampPlacements(placements);
   if (filled.length === 0) {
-    return { effects: [], name: "Empty Vessel", quality: "dubious", notes: ["Nothing in the pot."] };
+    return { effects: [], name: "Empty Vessel", quality: "dubious", notes: ["Nothing in the pot."], laws: [] };
   }
 
   // Collect raw effects + track roles/techniques present.
@@ -91,6 +91,10 @@ export function brew(placements: Placement[]): BrewResult {
   const roles = new Set<string>();
   const techniques = new Set<Technique>();
   let hasWildcard = false;
+  // Laws of the craft demonstrated by THIS brew (types.ts LawId). Collected from
+  // what the engine works out anyway, so the herbier can write a law down the
+  // moment the player feels it.
+  const laws = new Set<LawId>();
 
   for (const p of filled) {
     const ing = getIngredient(p.ingredientId);
@@ -113,8 +117,8 @@ export function brew(placements: Placement[]): BrewResult {
   const wantsBase = roles.has("hero") || roles.has("toxin") || roles.has("wildcard");
   const harsh = wantsBase && !roles.has("base");
   const scale = (harsh ? HARSH_PENALTY : 1) * (1 + amplify);
-  if (harsh) notes.push("Harsh and thin — it wants a base (chamomile, lavender) to carry it.");
-  if (amplify > 0) notes.push(`Honey amplifies the brew (+${Math.round(amplify * 100)}%).`);
+  if (harsh) { notes.push("Harsh and thin — it wants a base (chamomile, lavender) to carry it."); laws.add("base"); }
+  if (amplify > 0) { notes.push(`Honey amplifies the brew (+${Math.round(amplify * 100)}%).`); laws.add("catalyst"); }
   if (extend > 0) notes.push(`Honey-syrup extends the timed effects (+${extend} rounds).`);
 
   // Merge by (channel, shape): diminish the stack, scale, cap, extend rounds.
@@ -126,6 +130,9 @@ export function brew(placements: Placement[]): BrewResult {
   const effects: Effect[] = [];
   for (const [key, list] of groups) {
     const [channel, shape] = key.split("|") as [EffectChannel, Effect["shape"]];
+    // Two of the same virtue is not twice the virtue. The player is never told
+    // this today; feeling it is how the stacking law gets written down.
+    if (list.length > 1) laws.add("stacking");
     let amount = diminish(list.map((e) => e.amount)) * scale;
     const cap = CAP[channel] ?? DEFAULT_CAP;
     amount = Math.min(cap, Math.round(amount * 10) / 10);
@@ -141,9 +148,9 @@ export function brew(placements: Placement[]): BrewResult {
 
   // Quality + name.
   const quality: BrewResult["quality"] = effects.length === 0 ? "dubious" : harsh ? "rough" : "fine";
-  if (hasWildcard) notes.push("A wildcard is in the mix — potent, and its own risk rides along.");
+  if (hasWildcard) { notes.push("A wildcard is in the mix — potent, and its own risk rides along."); laws.add("wildcard"); }
 
-  return { effects, name: nameBrew(effects, techniques, quality), quality, notes };
+  return { effects, name: nameBrew(effects, techniques, quality), quality, notes, laws: [...laws] };
 }
 
 function nameBrew(effects: Effect[], techniques: Set<Technique>, quality: BrewResult["quality"]): string {

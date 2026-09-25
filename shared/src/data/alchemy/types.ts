@@ -8,6 +8,28 @@
  *  come out, and (via the effect's shape) whether the result is sustained/burst. */
 export type Technique = "crush" | "boil" | "steep" | "dry" | "distil" | "char" | "ferment";
 
+/** The techniques actually in play. `dry`, `char` and `ferment` are PARKED
+ *  (2026-09-25): between them they hold three authored cells and ferment has
+ *  none, so a herbier page that counted them could never be finished honestly.
+ *  Their cells stay in the ingredient data, unread, until someone authors enough
+ *  of them to be worth a station.
+ *
+ *  This is the one place the decision lives. The herbier counts a page complete
+ *  against this list, and the station work reads it too. Adding a technique back
+ *  RE-OPENS every completed page, so decide before the signatures start landing. */
+export const LIVE_TECHNIQUES: readonly Technique[] = ["crush", "boil", "steep", "distil"];
+
+/** A law of the craft — how a MIXTURE behaves, as opposed to what one plant does.
+ *  The Lord works these out by getting them wrong, and writes them in the front
+ *  of his herbier. Each one is detected inside brew() from values it already has.
+ *    base     : heroes/toxins/wildcards want a base to carry them, or it comes
+ *               out harsh (the wantsBase lever)
+ *    catalyst : honey and its like lift the whole brew
+ *    stacking : two of the same virtue is not twice the virtue (the anti-"five
+ *               heroes" diminish, invisible in game until now)
+ *    wildcard : potent, and its own risk rides along */
+export type LawId = "base" | "catalyst" | "stacking" | "wildcard";
+
 /** Pantry shelf — organization + soft balance (a brew wants a base). */
 export type Role = "base" | "hero" | "catalyst" | "toxin" | "wildcard";
 
@@ -81,6 +103,10 @@ export interface BrewResult {
   name: string;             // generated (or a matched named recipe, later)
   quality: "fine" | "rough" | "dubious";  // dubious = heroes with no base, etc.
   notes: string[];          // human hints ("harsh — needs a base", "honey amplified…")
+  /** Which laws of the craft this brew just demonstrated. Read by the herbier so
+   *  a law is written down the moment it is felt, rather than taught up front.
+   *  Derived from what the engine already computed — never by reading `notes`. */
+  laws: LawId[];
 }
 
 /** A discovered recipe saved to the player's book. Its `id` is the deterministic
