@@ -7,7 +7,17 @@ backup, re-exported after each working session.
 | File | What it is | Live page |
 |---|---|---|
 | `parcel-14.html` | The first hour of the game as plain facts, with a switch between what the player knows and what is true. Editable in place when opened as its owner. | https://claude.ai/code/artifact/5fb29820-7a48-4fc2-a1d1-0336f4086206 |
-| `valenheart-tree.html` | The lore as a zoomable vertical tree, from the eight gods down to the settlement's threads. Node text is being rewritten as approved bullets, node by node; nodes not yet rewritten still carry the older paragraph text. | https://claude.ai/code/artifact/71057c6f-0e4e-4b63-bd61-94b12dcd7c14 |
+| `valenheart-tree.html` | The lore as a zoomable tree, from the eight gods down to the end of Act 1. Every node is approved bullets now except three (the cult assault, the northern war, Halldora's failing binding), which still carry the older paragraph text. | https://claude.ai/artifact/ExUDsjUzBphKzfNahEnDbR |
+
+Both open directly in a browser from disk, with no server and nothing to install, which
+is how to give the tree to someone outside the organization when link-sharing is blocked.
+
+In the tree: **drag a node** to move it, **drag the gold square** at its lower-right corner
+to resize it, and drag the background to pan. An arrangement is saved per browser and can
+be handed back with **Copy layout** to be baked into the published page for everyone.
+Edges are drawn faintly and light up for whichever node is hovered or open. The band at the
+bottom, **Not written yet**, is deliberate: it holds the parts of the story that do not
+exist on paper.
 
 Both open directly in a browser from disk. The tree's data (eras, nodes, edges, bullets)
 is the JSON block inside `valenheart-tree.html`. A bullet starting with two spaces is a

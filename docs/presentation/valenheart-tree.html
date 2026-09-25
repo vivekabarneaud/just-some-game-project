@@ -1,3 +1,4 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1"><style>:root{color-scheme:light}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found]){display:none!important}</style></head><body>
 <title>Valenheart Tree</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=Alegreya:ital,wght@0,400;0,500;0,700;1,400&family=Courier+Prime:wght@0,400;0,700&display=swap">
 <style>
@@ -39,13 +40,13 @@
   svg#map.dragging { cursor: grabbing; }
   .era-label { font-family: "Courier Prime", monospace; font-size: 13px; letter-spacing: 0.12em; text-transform: uppercase; }
   .era-sub { font-family: "IM Fell English", Georgia, serif; font-style: italic; font-size: 15px; }
-  .edge { fill: none; stroke-width: 1.6; opacity: 0.75; }
+  .edge { fill: none; stroke-width: 1.6; opacity: 0.16; transition: opacity .12s; }
   .edge.causes { stroke: var(--ink); }
   .edge.member { stroke: var(--moss); }
   .edge.family { stroke: var(--candle); stroke-dasharray: 6 5; }
   .edge.thread { stroke: var(--blood); stroke-dasharray: 2 5; stroke-width: 2; }
   .edge.hot { opacity: 1; stroke-width: 3; }
-  .edge.cold { opacity: 0.12; }
+  .edge.cold { opacity: 0.05; }
   .node { cursor: pointer; }
   .node rect { stroke-width: 1.6; rx: 3; }
   .node.event rect { fill: #F3EEE2; stroke: var(--ink); }
@@ -65,6 +66,9 @@
   .node.t3 .sub { font-size: 10px; }
   .node.t3 rect { stroke-width: 1.2; }
   .essentials .node.t3, .essentials .edge.t3 { display: none; }
+  .rhandle { fill: var(--candle); opacity: 0; pointer-events: none; cursor: nwse-resize; }
+  .node:hover .rhandle { opacity: 0.85; pointer-events: auto; }
+  .node { cursor: move; }
   .node:hover rect, .node.active rect { stroke-width: 3.5; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.25)); }
   .node.cold { opacity: 0.35; }
   .node .known { fill: var(--moss); }
@@ -115,6 +119,8 @@
       <button type="button" id="b-top">Beginning</button>
       <button type="button" id="b-now">Now</button>
       <button type="button" id="b-fit">Fit all</button>
+      <button type="button" id="b-reset">Reset layout</button>
+      <button type="button" id="b-copy">Copy layout</button>
       <button type="button" id="b-in">+</button>
       <button type="button" id="b-out">−</button>
     </div>
@@ -228,19 +234,28 @@
     {
       "id": "now",
       "y0": 1940,
-      "y1": 2760,
-      "label": "Now: Parcel 14",
-      "sub": "the settlement and its threads, Act 1",
+      "y1": 3140,
+      "label": "Now",
+      "sub": "the settlement, and everything else standing today",
       "fill": "#E1D9C5",
       "text": "#26221B"
+    },
+    {
+      "id": "unwritten",
+      "y0": 3140,
+      "y1": 3420,
+      "label": "Not written yet",
+      "sub": "corners of the story that do not exist on paper",
+      "fill": "#CFCCC4",
+      "text": "#3A382F"
     }
   ],
   "nodes": [
     {
       "id": "gods",
       "type": "faction",
-      "x": 720,
-      "y": 120,
+      "x": 829,
+      "y": 84,
       "label": "The Eight Gods",
       "sub": "the creation of the world",
       "known": "hidden",
@@ -258,13 +273,15 @@
         "Most mortals fear Netheron. Death is part of his cycle, and they see only the death.",
         "Aether is the world's life-force. It flows out through the living and returns through the dead. Netheron keeps it moving.",
         "Each god exists twice: as a light in the sky, and as an essence spread through its domain."
-      ]
+      ],
+      "w": 539,
+      "h": 195
     },
     {
       "id": "eighth",
       "type": "person",
-      "x": 300,
-      "y": 330,
+      "x": 657,
+      "y": 285,
       "label": "The Eighth",
       "sub": "malice, deception, fear",
       "known": "hidden",
@@ -278,13 +295,15 @@
         "He kept scheming from behind the seal. He shaped demons from his own essence, patiently, and waited.",
         "He had agents outside. **Over generations they led the dwarves to dig deeper and deeper, until the seals cracked.**",
         "**Nobody alive knows he exists. This is the game's central secret.**"
-      ]
+      ],
+      "w": 405,
+      "h": 158
     },
     {
       "id": "netheron",
       "type": "person",
-      "x": 720,
-      "y": 330,
+      "x": 964,
+      "y": 285,
       "label": "Netheron",
       "sub": "god of the Aether cycle",
       "known": "hidden",
@@ -296,13 +315,15 @@
         "**He warned the other six. They did not believe him.** Some could not see it; some thought it was a grudge.",
         "He went down to destroy the Eighth's body himself. The six stopped him by force, and he died of it.",
         "**Church teaching, the Lord's: Netheron is the devil.**"
-      ]
+      ],
+      "w": 355,
+      "h": 158
     },
     {
       "id": "khazdurim",
       "type": "faction",
-      "x": 520,
-      "y": 430,
+      "x": 374,
+      "y": 389,
       "label": "The Khazdurim",
       "sub": "mountain dwarves of the Ironspine",
       "known": "lord",
@@ -310,17 +331,19 @@
       "bullets": [
         "**Mountain dwarves of the Ironspine.** Miners, smiths, rune-carvers, engineers.",
         "**Their holds lie directly above the Eighth's seal.**",
-        "**Before the Sundering, the Eighth's agents steered their ancestors to dig deeper, over generations.** A wise elder, a recurring prophet, dreams that pointed down, songs about the richer veins below.",
+        "**Before the Sundering, the Eighth's agents steered their ancestors to dig deeper, over generations.** A wise elder, a recurring prophet, dreams that pointed down, and a legend they came to hold sacred: **the first city of their ancestors, lost somewhere far below.**",
         "Steered and deceived, they dug ever deeper. **When the Sundering weakened the seal's magic, they cracked it.**",
         "**Demons poured out of the crack.** The Khazdurim resealed what they could, at great cost, and swore to keep a Watch over the seal ever since: repair it, hold it, protect the world from their mistake.",
         "They do not know what they unleashed. They know it is pure evil, and they do not speak of it."
-      ]
+      ],
+      "w": 309,
+      "h": 115
     },
     {
       "id": "academy",
       "type": "faction",
-      "x": 1120,
-      "y": 250,
+      "x": 1329,
+      "y": 224,
       "label": "The Academy of the Aether",
       "sub": "the school of Arcane magic",
       "known": "hidden",
@@ -330,13 +353,15 @@
         "Its scholars studied how the Aether moves, and how the gods keep it moving.",
         "It stood at the world's centre of cycle-research. **That is why, when a god's body fell, it fell there.**",
         "**Destroyed at the Sundering.** Almost every scholar present died, and **the knowledge of how Aether works died with them, except for one absent Archmagus.**"
-      ]
+      ],
+      "w": 403,
+      "h": 140
     },
     {
       "id": "halldora",
       "type": "person",
-      "x": 1120,
-      "y": 380,
+      "x": 1334,
+      "y": 413,
       "label": "Halldora Frostvik",
       "sub": "youngest Archmagus",
       "known": "hidden",
@@ -347,13 +372,15 @@
         "Her field: how the gods keep the Aether moving. Her Nordveld reverence for the cycle is what drew her to it.",
         "She was away on a research trip the day the Academy fell. She watched the light come down from a distance.",
         "**She is alive today, two thousand years later.** How, and at what cost, comes later in the tree."
-      ]
+      ],
+      "w": 377,
+      "h": 136
     },
     {
       "id": "descends",
       "type": "event",
-      "x": 720,
-      "y": 560,
+      "x": 805,
+      "y": 463,
       "label": "Netheron moves against the Eighth",
       "sub": "the Six strike him down",
       "known": "hidden",
@@ -364,13 +391,15 @@
         "They meant only to restrain him. But he would not let go, and six against one was more than a body can take. **He died in their hands before they understood.**",
         "**This was the Eighth's doing** without his touch: a god nobody believed, pushed to act alone, and six siblings sure he was bitter. He had only to wait.",
         "**When the body died, his light died with it. Netheron's star fell from the sky and struck the Academy. That is the Sundering.**"
-      ]
+      ],
+      "w": 353,
+      "h": 135
     },
     {
       "id": "sundering",
       "type": "event",
-      "x": 720,
-      "y": 690,
+      "x": 807,
+      "y": 616,
       "label": "The Sundering",
       "sub": "about 2000 years ago",
       "known": "lord",
@@ -381,13 +410,15 @@
         "**Everyone at the Academy died. The land around the impact became the Hollow Wastes.**",
         "The six who had fought him survived, but broken. Their lights dimmed and their essences fragmented. They have been asleep ever since, and their domains run on reflex.",
         "**Church teaching, the Lord's: the Sundering was the Radiant One's anger at mortals who used magic.** That lesson is the root of the Church's ban on magic."
-      ]
+      ],
+      "w": 566,
+      "h": 220
     },
     {
       "id": "cycle",
       "type": "event",
-      "x": 340,
-      "y": 690,
+      "x": 1177,
+      "y": 676,
       "label": "The Aether cycle stops",
       "sub": "what Netheron's death does to the world",
       "known": "hidden",
@@ -399,13 +430,15 @@
         "**The Eighth's seal is Aether magic. As the Aether drains, the seal weakens.**",
         "**Left alone, this ends one way: no Aether, no life.** Only one person alive understands what this means: **Halldora Frostvik**, the Academy's last Archmagus.",
         "She will spend two thousand years trying to make the world act on it. Her first followers will become something she never intended."
-      ]
+      ],
+      "w": 348,
+      "h": 119
     },
     {
       "id": "wastes",
       "type": "place",
-      "x": 1060,
-      "y": 690,
+      "x": 651,
+      "y": 873,
       "label": "The Hollow Wastes",
       "sub": "static for nineteen centuries",
       "known": "lord",
@@ -415,13 +448,32 @@
         "**Here the cycle is not weakened but gone.** The rest of the world still runs on its reserves. The Wastes have none left. What remains is dead Aether, stagnant, which the world calls hollow.",
         "**What fell lies at its centre: the remains of Netheron's star**, and his essence still leaking from it. Nobody has ever reached it or seen it. What lies there depends on who tells it: a dead god to some, and in Ashwick, the devil struck down by the Radiant One.",
         "**For nineteen centuries the Wastes did not move.** People learned to keep away, and stayed afraid, and stayed curious."
-      ]
+      ],
+      "w": 356,
+      "h": 232
+    },
+    {
+      "id": "thinning",
+      "type": "place",
+      "x": 927,
+      "y": 871,
+      "label": "The thinning",
+      "sub": "where the dead can be heard",
+      "known": "hidden",
+      "tier": 2,
+      "bullets": [
+        "**The thinning is the edge of the Wastes.** Ground where the boundary between the living and the dead has worn through. It still looks like ordinary land.",
+        "What it does to a place: the dead who should have crossed stay. They linger there, and they can be heard, in their own voices. Game leaves. The woods go quiet.",
+        "**It is not a separate thing from the Wastes.** It is the Wastes reaching outward, the way contamination surrounds a source: dead ground at the centre, the thinning around it, whole land beyond. The further out, the weaker it is."
+      ],
+      "w": 351,
+      "h": 209
     },
     {
       "id": "binding",
       "type": "event",
-      "x": 1120,
-      "y": 860,
+      "x": 1234,
+      "y": 871,
       "label": "Halldora's binding",
       "sub": "her life tied to the Aether's flow",
       "known": "hidden",
@@ -432,13 +484,15 @@
         "**She bound her life to the Aether itself.** As long as it moves through the world, she lives. It is, mechanically, the first Hollow magic: dead Aether bound into living tissue.",
         "By her own Nordveld faith, where death is sacred and the cycle is balance, it is a private moral wound. She did it anyway.",
         "**It cost her.** A woman who had cheated death, preaching the sanctity of the cycle: many who had followed her stopped trusting her. To her own people she became a shame."
-      ]
+      ],
+      "w": 276,
+      "h": 134
     },
     {
       "id": "vigil",
       "type": "event",
-      "x": 1420,
-      "y": 860,
+      "x": 1486,
+      "y": 879,
       "label": "The Vigil of the Shepherd",
       "sub": "Halldora's circle, and its split",
       "known": "hidden",
@@ -450,160 +504,282 @@
         "~ **They went into the Wastes for it, again and again. None ever reached the centre.** The deeper in, the less a body or a mind holds together. Halldora Frostvik knows the star is there only from how the world fails around it.",
         "**They split over one question: whether willing sacrifice was an acceptable way to feed the cycle.** Halldora Frostvik said no.",
         "Those who said yes kept going without her. **Over two thousand years, they became the Cult of the Hollow.**"
-      ]
+      ],
+      "w": 372,
+      "h": 129
     },
     {
       "id": "cult",
       "type": "faction",
-      "x": 1420,
-      "y": 955,
+      "x": 1487,
+      "y": 1077,
       "label": "The Cult of the Hollow",
       "sub": "Hollow magic; forbidden",
       "known": "hidden",
-      "facts": [
-        "Over two thousand years, the Vigil's remnant became the Cult. Their school is Hollow magic: power drawn from stagnant dead Aether. Each use destabilises the cycle further.",
-        "Their rituals have grown more frequent and ambitious in the last century. Cult expeditions enter the Outer Wastes.",
-        "Act 1 ends with a cult assault on the settlement."
+      "tier": 2,
+      "bullets": [
+        "**What the Vigil of the Shepherd became**, over two thousand years, after Halldora Frostvik left it: the half that accepted willing sacrifice.",
+        "**Their goal has not changed: bring Netheron back and restart the cycle.** They are trying to save the world.",
+        "**Their method is Hollow magic**: power drawn from the dead, stagnant Aether. Each ritual destabilises the cycle a little more. They are hastening the very end they fear.",
+        "**The Cult has rotted over the centuries.** Splinter branches sacrifice the unwilling. Some seek only power and forbidden magic. Most cultists today are fanatics. The inner circle disowns them and cannot control them.",
+        "**Their rituals have grown more frequent and more ambitious in the last century.** Their expeditions go into the Wastes. Their priests have visions that are not divine."
       ],
-      "tier": 2
+      "w": 326,
+      "h": 144
     },
     {
       "id": "contain",
       "type": "event",
-      "x": 340,
-      "y": 900,
+      "x": 1490,
+      "y": 719,
       "label": "Aether and magic",
       "sub": "how power works after the Sundering",
       "known": "lord",
       "tier": 2,
       "bullets": [
         "**Aether is everywhere.** It runs through every living thing, the ground, the water, the air. Magic is the art of moving it.",
-        "**Some people can move it.** They are rare, and they do it in different ways.",
+        "**Everything alive carries some.** Moving it on purpose is another matter: most people manage almost nothing, and only under great feeling, a prayer said hard enough that once it seemed to answer. A few carry so much they cannot help it, and those are the ones the Church has a word for.",
         "  **Arcane: through understanding.** Formulas, incantations, study. The Academy's school, and Halldora's.",
         "  **Primal: through harmony with the living world.** The school that senses corruption and sets wards against it.",
         "  **Light: through light itself, warmth and hope.** It heals the living, guides the lingering dead across, and drives back the dark. The direct opposite of Hollow. Priests do this without knowing it, and call it the Radiant One's blessing.",
         "  **Hollow: through dead, stagnant Aether**, the residue Netheron no longer recycles. Forbidden. Each use destabilises the cycle further.",
         "**Magic is not divine.** A caster carries their own power, so every school works anywhere, the Wastes included."
-      ]
+      ],
+      "w": 411,
+      "h": 152
     },
     {
       "id": "varek",
       "type": "person",
-      "x": 760,
-      "y": 1110,
+      "x": 916,
+      "y": 1055,
       "label": "Varek",
       "sub": "unified the continent",
       "known": "lord",
-      "facts": [
-        "A Khor'vani strategist's son, raised where three trade empires met. He unified the continent's petty kingdoms in a twelve-year campaign without raising the largest army.",
-        "He repelled a Nordveld invasion of the Hearthlands by outthinking it. He left the Silvaneth forests and the Khazdurim holds alone.",
-        "His ghost court and later politics are a lore thread, not yet built."
+      "tier": 2,
+      "bullets": [
+        "**Varek al-Rashid, a Khor'vani general's son**, raised at the Amber Crossroads where three trade empires met. Brilliant, ruthless, obsessed with one idea.",
+        "**The idea: only a unified continent could survive whatever the Sundering had left behind.** He was right about the threat and wrong about the methods.",
+        "**He conquered by strategy.** He played a dozen petty kings of the Hearthlands against each other, and reached cities faster than their reinforcements could.",
+        "**He conquered by cleverness and ruled by terror.** Forced conscription, crushed rebellions, burned villages. His own generals whispered of madness.",
+        "+ **A coalition of noble houses and his own commanders, led by the Ashford family, assassinated him in his own throne room**, and took the crown. That crown is the one the Lord's grant came from.",
+        "**He died furious, with his work unfinished**, certain the continent would fall apart without him. It did not, quite. It became the Dominion.",
+        "**He did not fully cross over.** His ghost has lingered for five hundred years, and the weaker the boundary gets, the stronger he becomes. He has remembered who he was.",
+        "+ **His shadow falls lightly on his people today**: an old saying, a Church that watches Khor'vani a little more closely. It fell harder on his own line.",
+        "+ What the Khor'vani believe in is not written anywhere. Mystics, alchemists, star-watchers. Their alchemy does not touch Aether, so the Church's ban does not reach them."
       ],
-      "tier": 2
+      "w": 336,
+      "h": 165
     },
     {
       "id": "nordveld",
       "type": "faction",
-      "x": 280,
-      "y": 1110,
+      "x": 669,
+      "y": 1066,
       "label": "Nordveld",
       "sub": "northern islanders",
       "known": "lord",
-      "facts": [
-        "The northern island people, Ashwick's enemy for as long as anyone has kept records. They have invaded the Hearthlands several times and been repelled each time; Varek broke the largest attempt.",
-        "They never took the Church. They keep the old gods under older names, and they are the one people who honour Netheron: death is sacred, the cycle is balance, the Shepherd is owed reverence. They pray to him for a good death. Their völvas tend the dead by ritual. The Inquisition flags their healers as heretics for it.",
-        "Today they are a significant source of frontier adventurers. The Lord knows the wars and the strange gods as common history; he does not know the Nordveld are the ones who got Netheron right."
+      "tier": 2,
+      "bullets": [
+        "**The northern island people. Ashwick's enemy for as long as anyone has kept records.**",
+        "**They have invaded the Hearthlands many times, and been thrown back every time.** The islands are hard ground, and the Hearthlands are not. Varek broke their largest attempt. Smaller raids never stopped.",
+        "**They never took the Church.** They keep the old gods under older names.",
+        "**They are the one people who honour Netheron. Death is sacred, the cycle is balance, the Shepherd is owed reverence.**",
+        "**They pray to him for a good death.** The Church calls that devil-worship. To the Inquisition, every Nordveld is a heretic.",
+        "+ **Their völvas, seeresses who speak for the dead, tend them by ritual**, doing by hand what Netheron once did for everyone. How that works, and what it implies, needs its own session."
       ],
-      "tier": 2
+      "w": 212,
+      "h": 101
     },
     {
       "id": "oldfaith",
       "type": "faction",
-      "x": 280,
-      "y": 1270,
+      "x": 1193,
+      "y": 1342,
       "label": "Old Faith border villages",
       "sub": "Nordveld-adjacent kin",
       "known": "lord",
-      "facts": [
-        "Poor border folk who kept the northern gods, Netheron-revering, kin to Nordveld. Easy to brand as collaborators.",
-        "Edda's grandmother came from this stock by way of Nordveld itself. The village Gareth refused to fire on was one of these."
+      "tier": 3,
+      "bullets": [
+        "**Poor border folk who kept the northern gods.** Kin to Nordveld by blood and by faith, on the Hearthlands side of the line.",
+        "**Easy to brand as traitors.** When the army needs a village to make an example of, one that prays to the enemy's gods is the one it picks.",
+        "**The Inquisition burns them for the same reason and calls it heresy instead of treason.** The army makes an example and moves on. The Inquisition comes back."
       ],
-      "tier": 3
+      "w": 234,
+      "h": 78
     },
     {
       "id": "church",
       "type": "faction",
-      "x": 560,
-      "y": 1230,
+      "x": 804,
+      "y": 1267,
       "label": "The Church of the Radiant One",
       "sub": "Doctrine of Silence",
       "known": "known",
-      "facts": [
-        "Church teaching, which is the Lord's education: there is one god, the Radiant One. The Sundering was his anger at mortals using magic. Netheron is the devil. Magic is therefore forbidden, and its practice is heresy.",
-        "The Dominion's church. Priests heal, comfort the dead and drive back the dark in the Radiant One's name.",
-        "What priests actually do is Light magic, Solara's domain, without knowing it. The Church hunts the overt magic of wizards while its priests channel the same force. The line between answered prayer and heresy is labeling, not substance.",
-        "Father Corin is one of these priests. He does not know."
+      "tier": 2,
+      "bullets": [
+        "**One god: the Radiant One.** An old idea, dismissed as simplistic before the Sundering, and the only one that could explain it afterwards. Centuries turned it into the faith of the Hearthlands.",
+        "**The doctrine: the six were aspects of one god. The Sundering was his punishment. He will return when mortals prove worthy.**",
+        "**Death in its proper time belongs to the Radiant One.** It is his order, even his mercy.",
+        "**Netheron keeps the rest.** The child taken early, the plague, the death out of season. To them he is the devil, and they curse him for exactly what they always did.",
+        "**The Sundering was punishment for reaching into what is god's.** That is why magic is forbidden, and why the Academy is remembered as a warning rather than a loss.",
+        "**Priests heal, comfort the dying, and drive back the dark.** They are working Aether every time, and they do not know it. They call it the Radiant One's blessing.",
+        "**The Church has hands: the Radiant Order's knights, and the Inquisition.** They burn and cleanse with light and fire, call it the Radiant One's anger, and hunt magic while working it."
       ],
-      "tier": 2
+      "w": 296,
+      "h": 110
     },
     {
       "id": "inquisition",
       "type": "faction",
-      "x": 760,
-      "y": 1300,
+      "x": 1015,
+      "y": 1268,
       "label": "The Inquisition",
       "sub": "hunts heterodox practice",
       "known": "known",
-      "facts": [
-        "Hunts heterodox practitioners: wizards, Old Faith healers, witches. Old Faith villages have been burned.",
-        "Staffed by unwitting mages: its priests work Aether every time they bless.",
-        "Its reach does not yet extend to the frontier. Sheltering the Stonebridges will one day make the settlement its enemy."
+      "tier": 2,
+      "bullets": [
+        "**The Church's hunters of forbidden practice.** Wizards, Old Faith healers, witches, anyone working Aether where it can be seen.",
+        "**The Doctrine of Silence.** The Radiant One struck the devil down and dropped his body on the Academy of the Aether, where magic was studied hardest. The lesson: work magic and god will punish you.",
+        "**They are unwitting mages themselves.** An inquisitor heals with the same force he burns people for using. To him there is no comparison: through a priest it is the Radiant One acting, and through anyone else it is theft of what belongs to god.",
+        "**The hunt is itself a holy act.** They are not policing a rule; they believe the Radiant One's anger moves through them when they burn a heretic, exactly as his mercy moves through them when they heal."
       ],
-      "tier": 2
+      "w": 268,
+      "h": 121
     },
     {
       "id": "crown",
       "type": "faction",
-      "x": 960,
-      "y": 1230,
-      "label": "The Crown of the Reach",
-      "sub": "and its land office in Tessoria",
+      "x": 914,
+      "y": 1167,
+      "label": "The Ashenmark Dominion",
+      "sub": "the Ashford dynasty, capital Tessoria",
       "known": "known",
-      "facts": [
-        "The Crown that issued the Lord's grant. Its land office stamps frontier parcels from ledgers whose lines have not been updated in a century and a half.",
-        "The settlement calls the Lord \"my lord\" because the grant says so. Crown tithe notices will arrive one day."
+      "bullets": [
+        "The Ashenmark Dominion. Five hundred years old, founded when the Ashford family assassinated Varek and took his throne. Its capital is Tessoria.",
+        "The kingdom the Lord comes from, and the Crown that stamped his grant.",
+        "High King Aldren Ashford, twenty-eight. His father died in the northern war against Nordveld when he was a child.",
+        "A Church-aligned regency raised him. He is sincerely devout. He empowers the Inquisition because he trusts the Church is right, not because he is cruel.",
+        "**Throne and Church are one root.** The Ashfords made the Church of the Radiant One the state faith at the founding.",
+        "Five centuries of bureaucracy, nobility and institutions. It rules by administration rather than fear, which is its virtue and its flaw."
       ],
-      "tier": 2
+      "tier": 2,
+      "w": 293,
+      "h": 101
+    },
+    {
+      "id": "wardstones",
+      "type": "place",
+      "x": 1363,
+      "y": 1236,
+      "label": "The ward-stones",
+      "sub": "kept by the Thornveil Pact",
+      "known": "known",
+      "tier": 2,
+      "bullets": [
+        "Standing stones two to three metres high, cut, set and infused by the Thornveil.",
+        "**A stone pushes life into the ground around it and heals the thinning within its reach**, enough that the land there can be lived in and walked safely.",
+        "**They do not last.** A stone spends itself into the ground and empties, so keeping a belt means walking it and filling each stone again.",
+        "Where they stand: a few very ancient ones inside the Wastes, which failed. A first belt further out in the thinning, all of it broken. And the outer belt, still kept, with Hale's old watch standing between two of its stones."
+      ],
+      "w": 306,
+      "h": 150
     },
     {
       "id": "thornveil",
       "type": "faction",
-      "x": 1280,
-      "y": 1230,
-      "label": "The Thornveil Rangers",
+      "x": 1233,
+      "y": 1079,
+      "label": "The Thornveil Pact",
       "sub": "keepers of the ward-stones",
       "known": "known",
-      "facts": [
-        "Silvaneth rangers who keep the belt of ancient ward-stones along the edge of the thinning. Their Primal magic senses and places wards; it is the school that contains corruption.",
-        "The stones are older than the rangers; whoever set them is gone.",
-        "Niamh is their Warden today. She reaches the settlement in Chapter 3."
+      "bullets": [
+        "A coalition of forest clans and druid circles in the northwest, governed by a Circle of Elders. Silvaneth elves and human hedge-folk together.",
+        "Masters of Primal magic, the school of harmony with the living world.",
+        "**They keep the ward-stones**, and that is most of what a ranger's life is: walking the line, filling the stones, and carrying word between forest communities that are days apart.",
+        "They do not ask what god you pray to. In practice the Pact has always been mostly old faith: Silvaneth, druid circles, hedge-folk. Anyone who will do the work is welcome."
       ],
-      "tier": 2
+      "tier": 2,
+      "w": 290,
+      "h": 151
+    },
+    {
+      "id": "rowena",
+      "type": "person",
+      "x": 1400,
+      "y": 1990,
+      "label": "Rowena Ashford",
+      "sub": "the Wildling Princess, alive at seventy-two",
+      "known": "lord",
+      "tier": 2,
+      "bullets": [
+        "**Born a princess of the Ashenmark Dominion, with a mind that never fitted the palace.**",
+        "She loved the outdoors in a way nobody at court did: animals, insects, mud, weather. She hunted, which was not a thing princesses did, and she was better at it than the men who told her so.",
+        "She gave her cloak to beggars, argued with priests at fifteen, and slipped out of the palace to read books she was not allowed. The common people loved her for it. The Church watched her.",
+        "At twenty-two she put her title down, walked out of the palace gates with a satchel of books and a walking stick, and went north to join the forest clans.",
+        "The Crown said only that she had withdrawn from court, and stopped saying her name. The talk that she had gone mad filled the silence on its own.",
+        "She joined the Thornveil as a nobody and rose by being useful, full of new ideas and trained from birth in how a court organises things. **The Circle seated her as the youngest Elder it ever had.**",
+        "Plenty of the Thornveil were against having an Ashford in the Circle of Elders. Most came round over the years, some to the point of devotion. A few never did.",
+        "**She changed the Pact from the inside.** Scattered circles each keeping their own stones became one organisation, with patrols, records, and **enough standing that kingdoms take it seriously.**"
+      ],
+      "w": 350,
+      "h": 109
+    },
+    {
+      "id": "thornveil_today",
+      "type": "faction",
+      "x": 1616,
+      "y": 1990,
+      "label": "The Thornveil today",
+      "sub": "the Pact in the Lord's lifetime",
+      "known": "known",
+      "tier": 2,
+      "bullets": [
+        "**Led today by Elder Rowena Ashford, great-aunt of High King Aldren, who rules the Ashenmark Dominion.**",
+        "**Officially, they do not know the Wastes are spreading.** Their stones were set to reclaim ground, not to hold a line, and no record of theirs says the edge has moved. Some rangers must suspect it. None of them has written it down.",
+        "They keep to themselves. The Pact tends the land and the dead, and has no interest in kingdoms, villages or the Church, nor any wish to be part of them."
+      ],
+      "w": 248,
+      "h": 133
+    },
+    {
+      "id": "niamh",
+      "type": "person",
+      "x": 1445,
+      "y": 2449,
+      "label": "Warden Niamh",
+      "sub": "Thornveil ranger",
+      "known": "known",
+      "tier": 2,
+      "bullets": [
+        "A Thornveil ranger, and Silvaneth. About a hundred and fifty, which is young for one of them.",
+        "She is called Warden. Whether that means she leads the rangers or keeps one stretch of the line has never been settled.",
+        "Her work is the line: walking it, mending the stones, and putting the dead to rest where they have got stuck.",
+        "While she stands and works, other people's weapons can touch what should not be touchable. That is what she brings that nobody else has.",
+        "She is not unfriendly. She is there to work, and has no interest in making friends of the people she works with. She likes her own company and is good at it.",
+        "She was against Rowena at first, when an Ashford was seated in the Circle. She came round, and there is nobody she respects more now."
+      ],
+      "w": 217,
+      "h": 91
     },
     {
       "id": "tipping",
       "type": "event",
-      "x": 1020,
-      "y": 1440,
+      "x": 1017,
+      "y": 1447,
       "label": "The tipping point",
       "sub": "the thinning begins to expand",
       "known": "hidden",
-      "facts": [
-        "About 150 to 200 years ago the local Aether reserves around the Wastes ran out and the boundary began to expand into inhabited land. Halldora calls it \"the world exhaling and not breathing back in.\"",
-        "The thinning advances first: ground where the boundary between living and dead is worn through, and the dead are audible. The physical Wastes follow later. It moves about two days' walk a century in this region.",
-        "Possibly accelerated by Cult activity."
+      "tier": 2,
+      "bullets": [
+        "The Aether around the Wastes finally ran out, **and the edge began to move into land where people lived.**",
+        "It moves about two days' walk in a century, in this region. Slow enough that nobody alive watches it happen.",
+        "Halldora Frostvik, the last Archmagus of the Academy and the only person alive who understands the cycle, knows it is happening. Nobody else does.",
+        "The Crown did not know the Wastes were moving. What reached Tessoria was ordinary frontier trouble: villages emptying, people walking off south, talk of heretics in the woods. It sent captains to look. Hale was one of them.",
+        "~ Cult rituals may be part of why the reserves ran out when they did. Each one spends dead Aether and pushes the cycle further off balance."
       ],
-      "tier": 2
+      "w": 276,
+      "h": 176
     },
     {
       "id": "hale",
@@ -611,119 +787,30 @@
       "x": 1280,
       "y": 1500,
       "label": "Hale's garrison: 47 days",
-      "sub": "the old watch",
+      "sub": "the old watch, 47 days",
       "known": "known",
-      "facts": [
-        "Captain Vardin Hale was posted by the Crown to a forward watch on a hilltop, two days' march south of Parcel 14, to look into the southern march.",
-        "His men heard the voices of their dead from day one and walked south one by one. He recorded each. On day 44 he heard his daughter Ennara, who had died young in Tessoria. His last entry: \"I heard Ennara again today. I am going to her.\"",
-        "The journal survives under a collapsed beam. The player reads it at the Chapter 2 climax. Hale's stuck soul is freed in Chapter 3."
+      "tier": 1,
+      "bullets": [
+        "The Crown posted Captain Vardin Hale to a forward watch on a hilltop, to find out what was happening on the southern march.",
+        "**That hilltop is two days' walk south of Parcel 14.**",
+        "The watch stands south of a pair of ward-stones, at the edge of what they reach. By Hale's day one of them had gone out, **and the garrison sat outside the reach of the other.**",
+        "**His men began hearing the voices of their dead.** They walked south, one at a time, and did not come back. Hale wrote down every name.",
+        "He sent a courier north for orders. The courier turned south.",
+        "No report ever reached Tessoria. The Crown learned only that an expensive posting had failed.",
+        "Leaving without orders would have made him a deserter, and the orders never came. He held the hill and kept writing, so that whoever came next would know what happened here.",
+        "On the forty-fourth day he heard his daughter Ennara, who had died of fever in Tessoria years before he was posted.",
+        "He held three more days. His last entry: **\"I heard Ennara again today. I am going to her.\"**",
+        "The journal survived under a collapsed beam. The Lord's team finds it at the Chapter 2 climax, and Hale is freed in Chapter 3.",
+        "The hilltop is quiet now. A Thornveil keeper filled the dead stone again after the garrison fell, and **both stones stand whole today**, one visibly seamed."
       ],
-      "tier": 1
-    },
-    {
-      "id": "wardpair",
-      "type": "event",
-      "x": 1500,
-      "y": 1600,
-      "label": "The ward pair mended",
-      "sub": "after Hale fell",
-      "known": "known",
-      "facts": [
-        "The watch sits between two ward-stones, east and west. In Hale's day one had cracked because the line of keepers had died out, and the garrison stood outside the other's reach. That is why his men heard voices.",
-        "Niamh's grandmother's teacher reset the fallen stone after the garrison fell. Both stand whole today, one visibly seamed. The watch ground is quiet, which is why the Lord's scouts hear nothing there.",
-        "The belt is a retreating line: deeper stones further south were overrun long ago."
-      ],
-      "tier": 2
-    },
-    {
-      "id": "grants",
-      "type": "event",
-      "x": 960,
-      "y": 1600,
-      "label": "The Crown switches to land grants",
-      "sub": "and forgets",
-      "known": "known",
-      "facts": [
-        "After Hale's garrison and similar losses in the same century, garrisons became too expensive. Settlers take the risk; the Crown takes the tax.",
-        "The land office stopped updating frontier maps with any care. Clerks stamp grants from static ledgers. Nobody lied to the Lord; the Crown forgot."
-      ],
-      "tier": 2
-    },
-    {
-      "id": "school",
-      "type": "event",
-      "x": 190,
-      "y": 1740,
-      "label": "Ashwick school loses its stipend",
-      "sub": "the Lord applies for a grant",
-      "known": "known",
-      "facts": [
-        "The Lord taught children their letters in Ashwick for a decade. When the local lord cut the school's stipend, the Crown announced southern land grants. He applied and was accepted.",
-        "What he believes: he wanted to build something of his own. What is true: the five people he brought were each adrift, and the grant let him gather them."
-      ],
-      "tier": 3
-    },
-    {
-      "id": "ambush",
-      "type": "event",
-      "x": 470,
-      "y": 1740,
-      "label": "Tomas's squad ambushed",
-      "sub": "\"fall back east\"; Bren dies",
-      "known": "hidden",
-      "facts": [
-        "Conscripted at 38 for a border muster. Two years in, his squad was ambushed in a forest on the southern march. Tomas ordered the fall-back east; his friend Bren died covering it. Tomas took an arrow in the thigh going back for him.",
-        "He came home with the limp and Bren's cat. His fiancée had thought him dead and married another. He has not spoken since."
-      ],
-      "tier": 3
-    },
-    {
-      "id": "lyra",
-      "type": "event",
-      "x": 680,
-      "y": 1740,
-      "label": "Lyra dies of fever",
-      "sub": "Jory's wife, Nell's mother",
-      "known": "known",
-      "facts": [
-        "Four years ago, the hard winter fever. Nell was seven. Corin buried her.",
-        "Nell stopped drawing. Jory started joking and never stopped."
-      ],
-      "tier": 3
-    },
-    {
-      "id": "foreman",
-      "type": "event",
-      "x": 890,
-      "y": 1740,
-      "label": "Hester kills the foreman",
-      "sub": "the last one who touched her",
-      "known": "hidden",
-      "facts": [
-        "Hester hauled ironbark for years among men who harassed her. The last foreman who put his hands on her did not get up.",
-        "She tells herself she did not mean to. What frightens her is how easy it was. Hunted since by the law and by the dead man's crew."
-      ],
-      "tier": 3
-    },
-    {
-      "id": "winter",
-      "type": "event",
-      "x": 1100,
-      "y": 1740,
-      "label": "The killing winter",
-      "sub": "about five years ago",
-      "known": "hidden",
-      "facts": [
-        "An early, killing winter on the Thornwoods' tenant barley farm. Stores ran out; they ate the seed-grain; no spring crop; no rent. The rent did not soften for a dead season and the land was lost.",
-        "The father died that winter, having given his food to the children. A neighbour's boy, Jack, was orphaned by the same cold and taken in."
-      ],
-      "tier": 2
+      "w": 351,
+      "h": 92
     },
     {
       "id": "northwar",
       "type": "event",
-      "x": 1360,
-      "y": 1740,
+      "x": 1009,
+      "y": 1580,
       "label": "The northern war",
       "sub": "against Nordveld",
       "known": "lord",
@@ -731,42 +818,42 @@
         "The recent war on the northern marches against Nordveld. Gareth served there as a professional soldier before the winter. Godric was levied into it at sixteen, right after the winter.",
         "A military reprisal against a border village said to shelter Nordveld raiders is where Gareth's service ended."
       ],
-      "tier": 3
+      "tier": 3,
+      "w": 218,
+      "h": 68
     },
     {
       "id": "parents",
-      "type": "person",
-      "x": 1100,
-      "y": 1870,
-      "label": "The Thornwood parents",
-      "sub": "both died giving",
+      "type": "faction",
+      "x": 1105,
+      "y": 1730,
+      "label": "The Thornwoods",
+      "sub": "the farm, the winter, the war",
       "known": "hidden",
-      "facts": [
-        "The mother: poor and generous. Spent her strength and her last coins on honey and sweet things so her children would taste sweetness. Died bringing Godric into the world, when Nessa was twelve.",
-        "The father: quiet, decent, loved in deeds. Could never quite look at Godric, whose birth cost him his wife, so Nessa raised the boy. Died in the killing winter, having eaten last and least.",
-        "The family principle comes from them: they give what they do not have, and will not harm the helpless."
+      "tier": 2,
+      "bullets": [
+        "A family of tenant farmers. Barley, on land they rented and never owned.",
+        "Their mother worked beyond her strength and spent her last coins on honey and sweets for her children.",
+        "She died bringing Godric into the world. Nessa was twelve, Gareth was ten.",
+        "Their father was quiet and decent, and showed what he felt by what he did rather than by what he said. He could never quite look at Godric, whose birth had cost him his wife.",
+        "Nessa became his mother instead, and gave him the warmth he would not otherwise have had. She was twelve.",
+        "Gareth enlisted as a soldier for the pay, and sent it home.",
+        "About five years ago an early winter killed the harvest. They ate the seed-grain, so there was no spring crop and no rent to pay with. The rent did not soften for a dead season, and they lost the land.",
+        "Their father died that winter, having eaten last and least. A neighbour's boy, Jack, was orphaned by the same cold, and they took him in.",
+        "Godric was levied at sixteen, the year after the winter.",
+        "They took to the roads and lived by poaching. For the first two years it was Nessa and Jack alone.",
+        "Godric deserted first and came straight back to Nessa. Gareth deserted later, and wandered alone a good while before he found them.",
+        "Desertion is a capital crime. After that they moved to stay ahead of the law as much as to eat, and went south, where the Crown's reach ends.",
+        "What their parents left them: they give what they do not have, and they will not harm the helpless."
       ],
-      "tier": 2
-    },
-    {
-      "id": "desert",
-      "type": "event",
-      "x": 1360,
-      "y": 1870,
-      "label": "Gareth and Godric desert",
-      "sub": "a capital crime",
-      "known": "hidden",
-      "facts": [
-        "Godric broke first, after two years of front-line killing, at about eighteen. Gareth held until he was ordered to ring a burning village and shoot the families who fled. He let them scatter and walked.",
-        "Both are wanted men. The frontier is where the Crown's reach ends. They found their way back to Nessa on the frontier roads."
-      ],
-      "tier": 3
+      "w": 284,
+      "h": 97
     },
     {
       "id": "fails",
       "type": "event",
-      "x": 1580,
-      "y": 1740,
+      "x": 760,
+      "y": 3280,
       "label": "Halldora's binding fails",
       "sub": "she seeks a successor",
       "known": "hidden",
@@ -774,37 +861,54 @@
         "Aether is thinning faster than her ritual can compensate. Her body is failing despite the binding.",
         "She has begun reaching out to specific free settlements, looking for someone to carry her work if she falls. She uses robins; ravens are intercepted."
       ],
-      "tier": 3
+      "tier": 3,
+      "w": 186,
+      "h": 44
     },
     {
       "id": "grant",
       "type": "event",
-      "x": 300,
-      "y": 2010,
+      "x": 299,
+      "y": 2047,
       "label": "The Lord's land grant",
-      "sub": "Parcel 14",
+      "sub": "how six people came south",
       "known": "known",
-      "facts": [
-        "A Crown grant on the southern frontier, stamped from an unchanged ledger. The clerk who drew the map never stood in it.",
-        "The Lord brought five people south with him. His parents stayed in Ashwick; letters go through Brother Aelric because they cannot read."
+      "tier": 2,
+      "bullets": [
+        "After Hale's garrison and others like it, the Crown stopped paying to hold the frontier and offered it to anyone who would settle it. A man with no land and no prospects could own ground he could never have bought.",
+        "As far as Tessoria knew, it was good ground. The maps had been right for centuries.",
+        "The Wastes kept moving the whole time. Ground the ledgers still call good has been inside the thinning for decades, where the dead can be heard.",
+        "The land office never went back to check. Clerks stamp frontier parcels from ledgers a century and a half old. Nobody lied to the Lord. Nobody in Tessoria remembers there was ever a garrison down there.",
+        "The Lord had taught children their letters in Ashwick for ten years. When the local lord cut the school's stipend, the grants were announced. He applied, and was accepted.",
+        "Five others went with him:",
+        "  **Jory** came because the Lord is his oldest friend, and Ashwick had become the town where his wife died.",
+        "  **Nell** came with Jory, her father.",
+        "  **Edda** came for Nell.",
+        "  **Tomas** had nothing left in Ashwick to stay for, and wanted to be useful again.",
+        "  **Father Corin** retired and followed his flock, Edda above all."
       ],
-      "tier": 2
+      "w": 232,
+      "h": 80
     },
     {
       "id": "settlement",
       "type": "place",
-      "x": 860,
-      "y": 2080,
+      "x": 881,
+      "y": 2032,
       "label": "Parcel 14: the settlement",
       "sub": "a wild clearing in old forest",
       "known": "known",
       "hub": true,
-      "facts": [
-        "A river bending east, a stone ridge to the north, old forest all around. Wild ground; nobody has settled it before. A fortnight's road from Ashwick. Lammast is a day east.",
-        "The game: shelter, water, wood, food, before the first winter. Spring runs a deficit; harvest closes it. Growth is gated by buildings, not story.",
-        "Chapter 1 is survival and people, and confirms nothing supernatural until its climax. Chapter 2 confirms witchcraft and enters the old watch. Chapter 3 brings the first confirmed ghost. Act 1 ends with a cult assault."
+      "tier": 1,
+      "bullets": [
+        "Two weeks' travel south of Ashwick, the Lord's home town, at the far edge of the Dominion's settled land.",
+        "The nearest neighbour is Lammast, a village a day east. Hale's old watch is two days south.",
+        "A river bending east, a stone ridge to the north, old forest all around. Wild ground: nobody has ever settled it.",
+        "The point, for now, is surviving and building: shelter, water, wood, food.",
+        "Beyond that, it is finding out what is around them and who they came with: the land gets mapped, strangers arrive, and the six of them learn each other's histories."
       ],
-      "tier": 1
+      "w": 488,
+      "h": 186
     },
     {
       "id": "lord",
@@ -814,11 +918,18 @@
       "label": "The Lord",
       "sub": "the player, ~37",
       "known": "known",
-      "facts": [
-        "Former schoolmaster of Ashwick. Unmarried. Keeps the journal the player reads. Never fights and never leaves the settlement in Act 1; all missions are the team's and he writes down their reports.",
-        "Believes he came to build something of his own. Actually gathered five drifting people. Does not know it."
+      "tier": 1,
+      "bullets": [
+        "A schoolmaster from Ashwick, about thirty-seven, unmarried.",
+        "He is not a noble. The settlement calls him \"my lord\" because the grant says so.",
+        "He keeps a journal. It is what the player reads.",
+        "He is not a fighter. The missions are the team's, and he writes down what they tell him when they come back.",
+        "He has a deep respect for living things and no appetite for killing. He eats what is on the table, but a starving animal at the fold, or a bear settled in good timber, gets driven off rather than killed.",
+        "His parents are still in Ashwick. They are too old for a road like that, and it is the only place they have ever lived. He writes to them, and Brother Aelric reads the letters aloud, because they cannot read.",
+        "He tells himself he came south to build something of his own. What he did was give five people with nothing left in Ashwick a place to start again, and he does not know it."
       ],
-      "tier": 1
+      "w": 340,
+      "h": 92
     },
     {
       "id": "corin",
@@ -828,11 +939,19 @@
       "label": "Father Corin",
       "sub": "retired priest, 68",
       "known": "known",
-      "facts": [
-        "Priest of the Radiant One in Ashwick for forty-five years. Baptized the Lord, married Jory and Lyra, buried Lyra. Reads scripture for mercy. Retired to follow the flock south.",
-        "Old friend of Edda: forty years of the same sickbeds, births and burials. Has always known about her rituals; curious and amused, never troubled, never practiced. Edda does not know he knows."
+      "tier": 2,
+      "bullets": [
+        "A priest of the Radiant One, sixty-eight, retired. He served Ashwick for forty-five years.",
+        "He baptised the Lord, married Jory and Lyra, and buried Lyra.",
+        "He reads scripture for mercy rather than for rules.",
+        "He is a kind man. He thinks the Inquisition is right about magic and wrong about fire: the danger is real, the burning is not the answer.",
+        "He and Edda have worked the same sickbeds, births and burials for forty years.",
+        "He has known the whole time that she keeps her grandmother's rituals, prayers to the old gods of the north. It amuses him, and he is genuinely curious about it. He has never said a word to anyone, and she does not know that he knows.",
+        "He believes the old gods of the north are the Radiant One under other names, and does not mind that others see six persons where he sees one. Six, not seven: Netheron is still the devil to him.",
+        "Edda never curses Netheron the way everyone else does. He has noticed, and it has him wondering about a god he was taught only to fear."
       ],
-      "tier": 2
+      "w": 180,
+      "h": 56
     },
     {
       "id": "edda",
@@ -842,165 +961,355 @@
       "label": "Edda",
       "sub": "midwife, 71",
       "known": "known",
-      "facts": [
-        "Midwife of Ashwick for forty years; delivered the Lord and calls him \"my boy\". Keeps herbs, cellar and hearth. Came south for Nell.",
-        "Her grandmother came from Nordveld and married into Ashwick. Edda attends church and also does her grandmother's small rituals privately. Lost a daughter, Mira, and a granddaughter, Mae, to fever before Nell was born."
+      "tier": 2,
+      "bullets": [
+        "A midwife, seventy-one. Midwife of Ashwick for forty years, and she delivered the Lord herself.",
+        "She has always called him \"my boy\", and still does, title or no title. He prefers it to \"my lord\".",
+        "She keeps the herbs, the cellar and the hearth, and she is who people come to when someone is ill.",
+        "She lost a daughter, Mira, and a granddaughter, Mae, to fever, before Nell was born.",
+        "Her grandmother came from Nordveld, the northern islands, and married into Ashwick. The two peoples have been enemies for as long as anyone remembers, and they do not keep the same gods.",
+        "She goes to church like everyone else, and she also keeps her grandmother's small rituals, privately.",
+        "She fears Netheron too. She had the same Church schooling as everyone else, and it did not come off. But not the way her neighbours fear him: she does not worship him, and she does not curse him either.",
+        "Nell is the only one she has shown the rituals to, the way a grandmother shows a curious child what she knows. She believes nobody else has any idea.",
+        "She came south for Nell."
       ],
-      "tier": 2
+      "w": 180,
+      "h": 56
     },
     {
       "id": "jory",
       "type": "person",
-      "x": 110,
-      "y": 2280,
+      "x": 131,
+      "y": 2215,
       "label": "Jory",
       "sub": "carpenter, 36",
       "known": "known",
-      "facts": [
-        "Carpenter and instrument maker; the Lord's oldest friend. Widower. Plays the lute at the fire. Runs the mill at first and dislikes it; moves to the Woodworker when Hester takes the mill.",
-        "The joking covers the grief. Plays the old northern songs Edda hums without asking what they are."
+      "tier": 2,
+      "bullets": [
+        "A carpenter, thirty-six, and the Lord's oldest friend.",
+        "He makes instruments as well as buildings, plays the lute at the fire in the evenings, and laughs and jokes a great deal.",
+        "His wife Lyra died four years ago of the winter fever. The jokes are what he holds on to.",
+        "Nell is his daughter. She is eleven, and she came south with him.",
+        "He plays the old northern songs Edda hums, without ever asking her what they are."
       ],
-      "tier": 2
+      "w": 180,
+      "h": 56
     },
     {
       "id": "tomas",
       "type": "person",
-      "x": 500,
-      "y": 2280,
+      "x": 484,
+      "y": 2224,
       "label": "Tomas",
       "sub": "stonemason, 48",
       "known": "known",
-      "facts": [
-        "Stonemason and quarry lead; former militia sergeant with a leg wound. Does not speak: his voice gave the order that killed Bren, and he fears it will kill again. Nods, grunts, the work.",
-        "Keeps Bren's cat, ten years old. Walks the perimeter at dusk. The Lord makes his quarry decisions for him and neither names it. If he speaks again it is on his own timeline."
+      "tier": 2,
+      "bullets": [
+        "A stonemason, forty-eight, and a discharged sergeant. He does not speak.",
+        "He was conscripted at thirty-eight, for the war against Nordveld in the north. Two years later his squad was ambushed in a forest on the northern marches.",
+        "He split the squad to get them out: he took one half and sent Bren the other way. His half made it. Bren's half walked into the Nordveld.",
+        "He has not spoken since. His voice chose the direction, and he will not risk it choosing another.",
+        "He came home with a limp and Bren's cat. The woman he had an understanding with had thought him dead, and married someone else.",
+        "At the settlement he is the stonemason, and he runs the quarry. He takes the work seriously, walks the perimeter at dusk without being asked, and he would die for these people."
       ],
-      "tier": 2
+      "w": 180,
+      "h": 56
+    },
+    {
+      "id": "hester",
+      "type": "person",
+      "x": 561,
+      "y": 2325,
+      "label": "Hester Ironbark",
+      "sub": "timber-feller",
+      "known": "known",
+      "tier": 2,
+      "bullets": [
+        "Hester Ironbark. The name is the trade: her family were timber people.",
+        "Her mother kept a house in a village; her father and brothers followed the timber, and came home between jobs. Hester went with the men as a child, because she would not be left behind, and because she had looked at her mother's life and known it was not for her.",
+        "She was good at the work, and the crews harassed her anyway. She hauled ironbark for years among men who never let her forget she was not one of them.",
+        "She never told her father or her brothers. Telling meant a fight that cost them the work, or being sent back to the village, and she had fought to be in that wood. So she said nothing, and got very good at saying nothing.",
+        "The last foreman who put his hands on her did not get up.",
+        "She tells herself she did not mean to. What frightens her is how easy it was.",
+        "She has not gone home since. Going home would bring the law and the dead man's crew to her mother's door, and her family do not know why she stopped coming.",
+        "She whittles little birds out of offcuts, keeps the axe that did both jobs sharp, and does not talk about either."
+      ],
+      "w": 180,
+      "h": 56
+    },
+    {
+      "id": "aldwin",
+      "type": "person",
+      "x": 391,
+      "y": 2421,
+      "label": "Aldwin Stonebridge",
+      "sub": "priest",
+      "known": "known",
+      "tier": 2,
+      "bullets": [
+        "A wandering priest, about thirty-five, and Magnus's elder brother.",
+        "He keeps a chapel-keeper's habits: he takes in the hungry and the hunted, asks no questions, and sits with the dying.",
+        "The account he gives of himself is plain, and mostly true: a lost parish, and a search for safer ground.",
+        "He watches the door, and he is careful whenever anyone asks about his brother.",
+        "Magnus is a wizard, and the Inquisition wants him.",
+        "He has given up one home after another to keep him safe. Magnus has offered to leave and take the danger with him, and Aldwin has refused every time.",
+        "Magnus's safety comes before anything Aldwin might want for himself. He loves his brother."
+      ],
+      "w": 224,
+      "h": 89
+    },
+    {
+      "id": "magnus",
+      "type": "person",
+      "x": 562,
+      "y": 2416,
+      "label": "Magnus Stonebridge",
+      "sub": "wizard",
+      "known": "known",
+      "tier": 2,
+      "bullets": [
+        "Aldwin's younger brother, about twenty, and a wizard.",
+        "His gift came early and strong. It could not be hidden, and in the Hearthlands that is enough to be burned for.",
+        "Aldwin found him a teacher, an old hedge-mage called Bede.",
+        "He was fifteen when his gift slipped during a lesson at Bede's house, and someone passing saw the light in the window.",
+        "Bede took it. He never mentioned a pupil, and Magnus was never accused: he was a boy who had sometimes been seen near the old man's door.",
+        "They burned Bede in public, and the brothers ran. They have been moving for five years.",
+        "Bede taught him to be a sparrow. He makes himself small, keeps to the edge of things, and is easy to forget.",
+        "He knows exactly what he costs his brother. He never asked for the power, and Aldwin has paid for it his whole life.",
+        "He is younger than his gift makes people expect, and more frightened than he lets Aldwin see."
+      ],
+      "w": 242,
+      "h": 109
+    },
+    {
+      "id": "bede",
+      "type": "person",
+      "x": 424,
+      "y": 2353,
+      "label": "Old Bede",
+      "sub": "hedge-mage, and teacher",
+      "known": "hidden",
+      "tier": 3,
+      "bullets": [
+        "An old hedge-mage. He survived to be old by never being noticed.",
+        "He spent sixty years being nobody, and taught hidden children the whole of it. Dozens of them, across the years.",
+        "He kept them apart, so that no child who was caught could name another.",
+        "What he taught was not power. It was concealment: how to hold a gift still, how to be forgettable, how to be no one.",
+        "The village had wondered about him for years. An old man living alone, no family, and no trade anyone could name.",
+        "When the Inquisition came for him he did not run, and he did not deny it. Running would mean a search, and a search would mean the children.",
+        "He told them he was an old man who did a little magic on his own.",
+        "They burned him, and not one of his children was ever named."
+      ],
+      "w": 150,
+      "h": 44
     },
     {
       "id": "nell",
       "type": "person",
-      "x": 300,
-      "y": 2350,
+      "x": 306,
+      "y": 2233,
       "label": "Nell",
       "sub": "Jory's daughter, 11",
       "known": "known",
-      "facts": [
-        "Shy with strangers, talkative with family. Calls the Lord \"uncle\" and tells him what she sees; she is the narrative device for off-screen events. Spends her time with Edda, the animals and the herb garden; Edda is a grandmother to her.",
-        "Her mother Lyra died four years ago; she stopped drawing then. Keeps a small book the Lord gave her at ten. Names the needy animals. First to see the alpha wolf, and names him Greyfang."
+      "tier": 2,
+      "bullets": [
+        "Jory's daughter, eleven. Shy with strangers, and talkative with the people she knows.",
+        "The Lord taught her letters and drawing, and stood godfather at her baptism.",
+        "She calls the Lord \"uncle\" and tells him everything she sees. A good deal of what he writes down about the settlement, he heard from her.",
+        "Her mother Lyra died four years ago. She stopped drawing then.",
+        "She spends her days with Edda, the animals and the herb garden. Edda is a grandmother to her in everything but blood."
       ],
-      "tier": 2
+      "w": 180,
+      "h": 56
     },
     {
       "id": "nessa",
       "type": "person",
-      "x": 1160,
-      "y": 2140,
+      "x": 1283,
+      "y": 2185,
       "label": "Nessa Thornwood",
       "sub": "archer, ~33",
       "known": "known",
-      "facts": [
-        "Eldest sibling and the one who decides. Learned the bow keeping crows off the barley; never misses. Rations by habit and dislikes waste.",
-        "Mother since twelve: raised Godric, then Jack. Five landless years living by poaching. Never married. Carries a twist of barley seed from the old farm. Food preference: sweet, her mother's honey."
+      "tier": 2,
+      "bullets": [
+        "The eldest, about thirty-three. The one who decides.",
+        "She learned the bow keeping crows off the barley. She does not miss.",
+        "She has been a mother since she was twelve: Godric first, then Jack. She never married.",
+        "For the five years after the winter she lived on the roads, hunting, with Jack to feed.",
+        "She has never once taken a full pot for granted, and she keeps whatever can be kept, against a hard season.",
+        "She still carries a twist of barley seed from the farm they lost.",
+        "She is clever, and quick to joke."
       ],
-      "tier": 2
+      "w": 180,
+      "h": 56
     },
     {
       "id": "gareth",
       "type": "person",
-      "x": 1360,
-      "y": 2140,
+      "x": 1301,
+      "y": 2108,
       "label": "Gareth Thornwood",
       "sub": "archer, ~31",
       "known": "known",
-      "facts": [
-        "Second sibling. Talkative, laughs early, quick to defend anyone pushed around. Does not waste arrows. Holds the watchtower when the wolves come.",
-        "Professional soldier who was away when his father died; has not forgiven himself. Deserted rather than shoot fleeing families. Food preference: sweet."
+      "tier": 2,
+      "bullets": [
+        "The second sibling, about thirty-one. Talkative, quick to laugh.",
+        "He is the family's soldier. He enlisted young, for the pay, and sent it home.",
+        "He was reckoned the best marksman in his unit.",
+        "He was in the north when his father died. He has not forgiven himself for it.",
+        "His last order was to ring a border village said to be sheltering Nordveld raiders, and to shoot the families who ran out of it as it burned.",
+        "He let them scatter, and walked.",
+        "He stayed away on purpose. He had not been there when the winter took his father, and now he was a deserter on top of it. It was a long while before he went looking for Nessa and Godric.",
+        "He is quick to step in when he sees someone being pushed around.",
+        "He asked for the watchtower himself, and he is the one who holds it when something comes at the wall."
       ],
-      "tier": 2
+      "w": 180,
+      "h": 56
     },
     {
       "id": "godric",
       "type": "person",
-      "x": 1560,
-      "y": 2140,
+      "x": 1435,
+      "y": 2155,
       "label": "Godric Thornwood",
       "sub": "warrior, ~21",
       "known": "known",
-      "facts": [
-        "Youngest sibling. Very large, gentle. Gave his bowl to the children on the first night.",
-        "His birth cost his mother's life and his father could not look at him; Nessa raised him. Levied at sixteen, deserted at eighteen. Holds a line and will not kill the helpless; Nessa finishes what he pins. Food preference: spicy in the data, smoky under consideration."
+      "tier": 2,
+      "bullets": [
+        "The youngest, about twenty-one. Very large, and gentle with it.",
+        "He was levied at sixteen, the year after the winter, and spent two years at the front.",
+        "He was too kind for the work. He broke at about eighteen, after two years of it, and walked.",
+        "He went back to Nessa. She hid him, and they kept moving south with Jack, ahead of the law.",
+        "He fights by holding a line rather than by breaking one. He will not strike anything helpless, and Nessa finishes what he pins.",
+        "He notices who is going without, and gives them what he has. It does not occur to him to keep it."
       ],
-      "tier": 2
+      "w": 180,
+      "h": 56
     },
     {
       "id": "jack",
       "type": "person",
-      "x": 1160,
-      "y": 2280,
+      "x": 1199,
+      "y": 2247,
       "label": "Jack",
       "sub": "about 7",
       "known": "known",
-      "facts": [
-        "Loud, bright, announces his own name before the adults manage a greeting. A settlement child, not recruitable.",
-        "Orphaned by the killing winter and taken in the same season. Nessa is his mother in all but blood. Deliberately untraumatized. He and Nell are the camp's two children."
+      "tier": 3,
+      "bullets": [
+        "About seven. Loud, bright, and announces his own name before the adults manage a greeting.",
+        "The winter that took the Thornwoods' father orphaned him too. They took him in that season.",
+        "Nessa is his mother in everything but blood.",
+        "He and Nell are the two children at Parcel 14. He was too small to remember his parents. He misses them anyway.",
+        "The wound is there, and well covered. He is loud and happy, and he always knows exactly where Nessa is."
       ],
-      "tier": 3
+      "w": 140,
+      "h": 44
     },
     {
       "id": "sniffsalot",
       "type": "person",
-      "x": 1360,
-      "y": 2280,
+      "x": 1321,
+      "y": 2252,
       "label": "Ser Sniffsalot",
       "sub": "Nessa's hound",
       "known": "known",
-      "facts": [
-        "A scent hound. Comes out of the trees ahead of the family on the first night and goes round the circle. Works with the hunters from the next morning.",
-        "Bound to Nessa: not reassignable, exempt from kennel capacity. Introduces the dog-boost mechanic with no setup."
+      "tier": 3,
+      "bullets": [
+        "He was the farm's dog. When the land went, he was the one thing they kept.",
+        "He is why they ate. A scent hound is how a family without land finds meat, and he did it for five years.",
+        "On the settlement's first night he came out of the trees ahead of the family and went round the fire, greeting everyone.",
+        "He hunts with Nessa now, the way he always has."
       ],
-      "tier": 3
+      "w": 140,
+      "h": 44
+    },
+    {
+      "id": "truffle",
+      "type": "person",
+      "x": 1423,
+      "y": 2213,
+      "label": "Truffle",
+      "sub": "the stray",
+      "known": "known",
+      "tier": 3,
+      "bullets": [
+        "A mongrel stray wanders into the settlement with nobody's name on him.",
+        "Nell names him Truffle.",
+        "They build him a kennel, and he picks his own work. He guards the fold."
+      ],
+      "w": 140,
+      "h": 44
+    },
+    {
+      "id": "cobb",
+      "type": "person",
+      "x": 632,
+      "y": 2244,
+      "label": "Cobb",
+      "sub": "road-trader",
+      "known": "known",
+      "tier": 3,
+      "bullets": [
+        "A Dominion road-trader. Short, well fed, and carrying more opinions than cargo.",
+        "He had come this way before, back when there was nothing here worth stopping for.",
+        "He told the settlement what it lacked, and came back with a wagon once they had built it."
+      ],
+      "w": 140,
+      "h": 44
     },
     {
       "id": "arrival",
       "type": "thread",
-      "x": 1160,
-      "y": 2010,
+      "x": 1141,
+      "y": 2080,
       "label": "The Thornwoods arrive",
-      "sub": "night, the first week; the Guild opens",
+      "sub": "the first week, at night",
       "known": "known",
-      "facts": [
-        "Night, the settlers around the fire. The hound first. Nessa with fresh game asks if there is room in the pot. Gareth, Godric and Jack behind her. The Lord takes them in.",
-        "Opens the Adventurers' Guild: two archers, one warrior, a hunting camp to staff, the first missions."
+      "tier": 2,
+      "bullets": [
+        "They walk out of the trees at night in the settlement's first week, carrying fresh game, and offer to share it.",
+        "Nessa, her brothers Gareth and Godric, the boy Jack, and a hound.",
+        "The Lord takes them in. They were welcomed as any family would be.",
+        "They make themselves useful before anyone asks them to: Gareth takes the watch, Nessa hunts, Godric takes the children fishing. The standing they have now, they earned.",
+        "Two archers and a warrior, and willing to go out: patrolling, scouting, walking the ground around the settlement. It needs doing, and the settlers have no hours to spare for it."
       ],
-      "tier": 2
+      "w": 202,
+      "h": 56
     },
     {
       "id": "t_scout",
       "type": "thread",
-      "x": 200,
-      "y": 2520,
+      "x": 1036,
+      "y": 2232,
       "label": "Scouting south",
       "sub": "the old watch sighted",
       "known": "known",
-      "facts": [
-        "First mission. Nessa and Gareth map the land: game north, berries by the river, a quarry site east, water in three places. A wolf pack tries them and is driven off.",
-        "Two days south: the abandoned watchtower and a standing stone on each side of the hill. The Lord records them as old boundary stones. Survival takes priority; the ruins are not visited again in Chapter 1."
+      "tier": 2,
+      "bullets": [
+        "The first mission. The Lord sends two of the Thornwoods out to map what is around the settlement.",
+        "The land is good. Game, water, berries, timber, stone. Nothing they cannot live on.",
+        "West of them the ground turns to marsh.",
+        "Two days south they find an abandoned watchtower on a hilltop, and two standing stones out in the country near it.",
+        "The Lord writes them down as old boundary stones. There is a settlement to build, and nobody goes back to that hill in Chapter 1."
       ],
-      "tier": 2
+      "w": 180,
+      "h": 56
     },
     {
       "id": "t_wolves",
       "type": "thread",
       "x": 460,
       "y": 2520,
-      "label": "Wolves at the wall; Lammast",
+      "label": "Walls, and neighbours",
       "sub": "the first season",
       "known": "known",
-      "facts": [
-        "Two more families arrive by Crown notice. Walls and a watchtower go up. The wolves attack an hour after dusk; Gareth holds the tower; the wall holds. The pack was starving: something has emptied the woods to the south.",
-        "The tower later spots farmers from Lammast, a village a day east and a year older. First neighbours."
+      "tier": 2,
+      "bullets": [
+        "Two more families arrive on the Crown's notice. The settlement puts up walls and a watchtower.",
+        "From the tower they spot farmers from Lammast, a village a day east and a year older than Parcel 14. First neighbours."
       ],
-      "tier": 2
+      "w": 202,
+      "h": 56
     },
     {
       "id": "t_hester",
@@ -1008,13 +1317,21 @@
       "x": 720,
       "y": 2520,
       "label": "Hester",
-      "sub": "Run Down; the woodpile; the return",
+      "sub": "the rescue, the woodpile, the return",
       "known": "known",
-      "facts": [
-        "Gareth's patrol finds a woman run down by a crew of men and intervenes. Crew subdued and released; the woman has fled; one calls her a murderer.",
-        "Days later timber appears on the mill stack overnight. After a real-time delay Hester shows herself; Gareth recognises her; the Lord takes her on her deeds. She takes the lumber mill and unlocks the Woodworker. First weapon-affinity character (axe)."
+      "tier": 2,
+      "bullets": [
+        "Gareth's patrol finds a woman being run down by a crew of men, and steps in.",
+        "They put the crew on their knees and let them go. One of them calls her a murderer. By then she has already run.",
+        "Days later, cut timber starts appearing on the mill stack overnight. A little more each day, and nobody sees who leaves it.",
+        "Jory marvels at the cuts. The Lord jokes that it must be a ghost, months before anyone learns there are real ones to the south.",
+        "When she finally lets herself be seen, Jory brings her to the Lord as a marvel of a woodcutter he has found. Gareth is already there, and recognises her.",
+        "She braces for the word. It does not come. The Lord weighs a stranger's rumour against the timber left in the dark, and takes her on her deeds.",
+        "The wood was the thank-you. She had been saying it for days, in the only way she says anything.",
+        "She takes the lumber mill. Jory moves to the woodworker's bench, which he always preferred, and her ironbark starts becoming the bows and shields the Thornwoods carry."
       ],
-      "tier": 2
+      "w": 244,
+      "h": 56
     },
     {
       "id": "t_marsh",
@@ -1022,89 +1339,596 @@
       "x": 980,
       "y": 2520,
       "label": "The marsh and Aldith",
-      "sub": "fenbalm; the bog witch",
+      "sub": "fenbalm, and the old woman in the reeds",
       "known": "known",
-      "facts": [
-        "A gathering mission into the marshes for fenbalm. Quietly opens the bog-witch chain. One adventurer comes back adder-venomed and stays laid up until a Herbal Antidote is brewed.",
-        "Aldith the bog witch is not what the Church would call her. Confirmation is deferred to Chapter 2."
+      "tier": 2,
+      "bullets": [
+        "Edda's draught for the deep cough needs fenbalm, and fenbalm only grows in the marsh west of the settlement. The team goes to cut it.",
+        "On their way out an old woman is standing at the edge of the reeds, watching them. She looks at the bundle they are carrying and says they will want more of it before winter is done. Then she says the adders are bad this year.",
+        "Then she offers a trade. Leave something for her next time they come, and the adders will leave the cutters alone.",
+        "Days later one of them cannot stand. Adder venom, and Edda brewing the antidote through the night.",
+        "After that they carry the grain out to her hut. The adders stop troubling the cutters, the fenbalm keeps coming, and before long she has the kettle on and is telling them stories."
       ],
-      "tier": 2
+      "w": 261,
+      "h": 56
+    },
+    {
+      "id": "t_barter",
+      "type": "thread",
+      "x": 1134,
+      "y": 2636,
+      "label": "Aldith's askings",
+      "sub": "three, then two, then one",
+      "known": "known",
+      "tier": 2,
+      "bullets": [
+        "The trade with the old woman in the marsh settles into a routine: grain carried out to her hut, fenbalm carried back.",
+        "They start staying for tea. She is good company, and glad of the company.",
+        "On one of the visits somebody notices a portrait in the hut: Aldith, much younger, with a little girl. And says the girl looks exactly like our Nell.",
+        "The visits go on, and she asks after Nell every time.",
+        "Then an asking comes back with the fenbalm that is not grain. Three boar tusks, no more and no fewer.",
+        "The next is two cloven hooves, off a boar.",
+        "Then one boar's skull, picked clean.",
+        "Three, then two, then one, and each thing worse than the last.",
+        "The Lord keeps sending them. Edda says the old have their cures and their charms, and it is not for anyone else to know the reason of them. The things cost nothing. And the fenbalm is what keeps his people through the winter.",
+        "The skull is where the Lord stops. He sends it, that once, and sends word with it: grain from here, and only grain.",
+        "Then she asks for Nell. The warmth is gone out of her voice, and there are black tears on her face. Bring Nell. I want Nell.",
+        "She was not pretending. She has lived at the edge of the thinning a very long time, and it has been reaching her the whole while."
+      ],
+      "w": 181,
+      "h": 56
+    },
+    {
+      "id": "t_herd",
+      "type": "thread",
+      "x": 760,
+      "y": 2660,
+      "label": "The Maddened Herd",
+      "sub": "bad blood, and the spring",
+      "known": "known",
+      "tier": 2,
+      "bullets": [
+        "A boar comes out of the treeline at dusk, foaming and wild, and tears through the vegetable rows. A sick beast, nothing more, but a sick beast with tusks. They put it down.",
+        "Then another, and another. It is not one sick animal. The herd is turning.",
+        "Then the ones the scouts meet are worse. They weep black, and they keep coming after wounds that should have stopped them.",
+        "Father Corin and Aldwin open one of the carcasses. Neither has seen anything like it, and they want to know what it is and how far it has gone into the beast.",
+        "It is worst in the gut. Whatever is doing this, the boars are drinking it.",
+        "Nessa tracks the herd back to its water.",
+        "A spring in the deep wood, glowing faint and wrong, smelling of cold metal, the ground around it grey and dead.",
+        "The worst of the herd has denned beside it: a great patriarch, more than half turned.",
+        "They cannot make the water clean again, not with what they have. So they put down what the spring has ruined, cap it, and mark the ground wide, so that nothing drinks there again."
+      ],
+      "w": 181,
+      "h": 56
+    },
+    {
+      "id": "aldith",
+      "type": "person",
+      "x": 1130,
+      "y": 2389,
+      "label": "Aldith",
+      "sub": "the old woman in the reeds",
+      "known": "hidden",
+      "tier": 2,
+      "bullets": [
+        "A hedge-witch. She lived at the edge of a village up north, where people traded with her and kept their distance.",
+        "Her gift is animals. She never studied it. She asks things of them and they listen.",
+        "To her granddaughter Ada that made her the best thing in the world. Ada was the only one who ever wanted to be shown the tricks.",
+        "She was married forty years. Her husband died, and she never got out of the habit of cooking for two. She still bakes twice what she needs, and the birds come for the rest.",
+        "Then Ada died, an ordinary death. She never got past it.",
+        "She went south into the fen to be alone with it, and to be out of sight, because a gift like hers is the kind the Inquisition burns people for.",
+        "The adders let her be, because she asks them to.",
+        "She has lived at the edge of the thinning for years, grieving, and it got into her the way it gets into the animals, only slower. The kindness was never an act. There is simply less of her every year.",
+        "It went nowhere until the Lord's people mentioned a girl at the settlement who looks exactly like Ada. After that it went faster.",
+        "What she wants is a Hollow working: Ada's spirit put into a living child's body, and the child in it gone. The child she has in mind is Nell."
+      ],
+      "w": 187,
+      "h": 56
     },
     {
       "id": "t_truffle",
       "type": "thread",
       "x": 1240,
       "y": 2520,
-      "label": "Truffle and Greyfang",
-      "sub": "the stray and the pale wolf",
+      "label": "Greyfang",
+      "sub": "the pale wolf, and the night the fold scattered",
       "known": "known",
-      "facts": [
-        "A mongrel stray wanders in with nobody's name on him. Quest: build the Kennel; the player chooses his job. Nell names him Truffle.",
-        "Later a pale alpha wolf, Greyfang, watches the fold. Nell sees him first and names him. The Lord drives the pack off repeatedly, until Greyfang feints the camp, takes the fold and mauls Truffle. Then the hunt to the den. Truffle never dies."
+      "tier": 2,
+      "bullets": [
+        "A pale wolf starts watching the fold from the treeline. Nell sees him first, and names him Greyfang.",
+        "The pack comes back, and keeps coming back. There is a fold full of sheep and they are wolves.",
+        "Greyfang leads them, and he does not try the same thing twice.",
+        "Truffle wakes the settlement every time, and they are driven off rather than hunted down.",
+        "Then he sends the pack at the gate. While the settlement is there, he goes for Truffle.",
+        "The dog's cry is the signal. The pack leaves the gate, the fold scatters into the dark, and the wolves spend the night running sheep down in the open.",
+        "The Lord writes it down plainly: he was outthought by a wolf, and the sheep paid for it.",
+        "Truffle lives. He is a long time mending.",
+        "Then the Lord gives the order to hunt Greyfang down. He is too dangerous to leave out there, and it is the first killing the Lord has ever ordered.",
+        "They track him to the den. The wolves do not run this time: they fight to the end, together, Greyfang leading, going for the throat of whoever can least take it.",
+        "Greyfang dies at the den."
       ],
-      "tier": 2
+      "w": 307,
+      "h": 56
     },
     {
       "id": "t_cobb",
       "type": "thread",
-      "x": 1500,
-      "y": 2520,
-      "label": "Cobb and the bandits",
-      "sub": "the road",
+      "x": 716,
+      "y": 2325,
+      "label": "The Tollman's Road",
+      "sub": "the road turns organised",
       "known": "known",
-      "facts": [
-        "The peddler Cobb judges the road to the settlement worth the risk and opens trade. Then he arrives on foot: robbed on the downriver road, no wagon, no boots.",
-        "Someone is giving orders. The team breaks the bandit company and its captain, brings the goods home, buries none of them. The road is theirs."
+      "tier": 2,
+      "bullets": [
+        "Cobb starts trading with the settlement, and tells other traders the road is worth it.",
+        "The road turns dangerous. The settlement begins escorting merchants along it.",
+        "Cobb is robbed on the downriver road. He arrives on foot, stripped to his linen.",
+        "The team patrols the road themselves.",
+        "The robberies are organised: the same ground, the same method, every trader turned back. These men take orders.",
+        "The Lord sends the team to stop them, not to kill them.",
+        "Nessa finds their camp in a gully half a day down the road.",
+        "They break the Tollman in front of his company, and the company scatters."
       ],
-      "tier": 2
+      "w": 180,
+      "h": 56
+    },
+    {
+      "id": "t_market",
+      "type": "thread",
+      "x": 836,
+      "y": 2732,
+      "label": "The market and the tavern",
+      "sub": "a place people stop at",
+      "known": "known",
+      "tier": 2,
+      "bullets": [
+        "Cobb had told them plainly what the place lacked: a proper market, because nobody unloads in the mud, and a roof a traveller could sleep under.",
+        "They build both, out of timber and stone they can barely spare.",
+        "Cobb comes back with a wagon, as promised, and says he has told others.",
+        "The tavern turns out to matter more than the market. It is where people sit in the evening, where travellers bring their news, and where strangers first turn up."
+      ],
+      "w": 233,
+      "h": 56
+    },
+    {
+      "id": "t_errand",
+      "type": "thread",
+      "x": 1375,
+      "y": 2748,
+      "label": "A Mother's Errand",
+      "sub": "the tavern's first consequence",
+      "known": "known",
+      "tier": 2,
+      "bullets": [
+        "A woman comes to the Lord and asks for help. Her son has been taken.",
+        "They had stopped at the tavern the night before, and he found the table before he found a bed.",
+        "He won, and the men he won from decided he had cheated.",
+        "They took him.",
+        "The team goes after them and brings him back.",
+        "They both stay. She takes over the alchemy lab, he joins the guild."
+      ],
+      "w": 210,
+      "h": 56
+    },
+    {
+      "id": "elspeth",
+      "type": "person",
+      "x": 1542,
+      "y": 2751,
+      "label": "Elspeth Ravencroft",
+      "sub": "herbalist, and Edmund's mother",
+      "known": "known",
+      "tier": 2,
+      "bullets": [
+        "Edmund's mother. She was never a fighter, and never wanted to be anything of the kind.",
+        "She was a herbalist. She grew things, sold simples at market, and knew what every plant on her table did.",
+        "She married into money. Edmund's father was a Blackwood: a rich family with an estate and servants, and the marriage was not her idea.",
+        "He was violent. She poisoned him, and left that night with Edmund on her hip.",
+        "His family said she had done it for the inheritance. She left with nothing, and has been poor ever since.",
+        "She took her own name back. The boy kept his father's.",
+        "She did not make a life of it. She kept the knowledge, and what she brews now she brews for Edmund: for the blades he carries, and for the trouble he walks into.",
+        "She taught him to defend himself the way she had had to. She cannot forgive herself that he loves it.",
+        "She does not fight and does not go out with the guild. She runs the alchemy lab, and brews the things that might bring the others home.",
+        "Between that she crochets small soft things for the settlement's children."
+      ],
+      "w": 210,
+      "h": 56
+    },
+    {
+      "id": "edmund",
+      "type": "person",
+      "x": 1473,
+      "y": 2668,
+      "label": "Edmund Blackwood",
+      "sub": "his mother's son, and a gambler",
+      "known": "known",
+      "tier": 2,
+      "bullets": [
+        "Elspeth's son. He grew up learning what she taught him: blades, patience, quiet.",
+        "What she never taught him is that he loves it. The danger, the table, the long odds, the moment it is all on the line.",
+        "He bets coin he does not have, and his own skin along with it, and grins the whole way down.",
+        "He is his father's heir, and the estate is real. He can never touch it: claiming it means a court, and a court means his mother. He knows exactly what she did.",
+        "So at a table he says he is good for it, and that he is a Blackwood, and neither part is a lie. It simply is not money.",
+        "He wins. Often enough that men stop believing it is luck.",
+        "He has been beaten for that more than once, and it has never stopped him.",
+        "And when he loses, he loses badly. He owes money to bad men in more towns than his mother knows about."
+      ],
+      "w": 215,
+      "h": 56
+    },
+    {
+      "id": "sable",
+      "type": "person",
+      "x": 1401,
+      "y": 2587,
+      "label": "Sable",
+      "sub": "fourteen or fifteen",
+      "known": "known",
+      "tier": 3,
+      "bullets": [
+        "Fourteen or fifteen. Nobody is sure, including her.",
+        "No family, and no name worth keeping. Nobody knows whether Sable is a name she chose or one she was given.",
+        "She raised herself in a city, stealing to eat and killing anyone who tried to take the little she had.",
+        "When there was nothing left to stay for, she walked out and sold the only skills she owns.",
+        "She keeps a small brass stamp with a frog on it, stolen years ago. It is worth nothing, and she has never once thought of selling it.",
+        "~ How she reaches Parcel 14 is not written yet."
+      ],
+      "w": 140,
+      "h": 44
     },
     {
       "id": "t_stonebridge",
       "type": "thread",
-      "x": 560,
-      "y": 2660,
+      "x": 493,
+      "y": 2618,
       "label": "The Stonebridges",
-      "sub": "Bad Blood; the confession; Ch1 climax",
+      "sub": "a priest, his brother, and a confession",
       "known": "known",
-      "facts": [
-        "Aldwin and Magnus Stonebridge, refugees, met on the road home from the marsh, given a roof. Aldwin heals by prayer. Magnus is silent and strange.",
-        "A boar with bad blood comes out of the south. Its wound will not close for Edda. Aldwin's Light drives it back. Magnus is suspected near the taint; he is Arcane, unrelated to Hollow, the red herring. The brothers confess. The settlement is knowingly harboring a wizard: the first confirmed magic."
+      "tier": 2,
+      "bullets": [
+        "Two brothers come to the settlement: Aldwin, a priest, and Magnus, who says almost nothing.",
+        "Aldwin offers his hands. He is a healer, Father Corin vouches for him priest to priest, and he is taken in at once.",
+        "Magnus stays at the edge of things. A quiet young man, not unfriendly, and nobody gets far with him.",
+        "Aldwin heals by prayer, and it works. Nobody thinks twice, because that is what a priest is for.",
+        "Aldwin and the Lord become close friends. There is plainly something the brothers are not saying, and the Lord lets it lie. He knows the man by now.",
+        "Aldwin is happy here, and Magnus can see it. His brother will never have a normal life or an ordinary friendship while the secret lasts.",
+        "So Magnus asks the Lord for a word, and tells him he is a wizard.",
+        "The Lord is frightened. He decides to trust him anyway.",
+        "He goes out to find the brothers, and hears Aldwin scolding Magnus: they must leave, now, there is no time to pack.",
+        "Then Aldwin sees him, drops to his knees and begs him to spare them.",
+        "The Lord tells him to rise. They are both welcome here.",
+        "The Lord is hiding a wizard now, and he knows exactly what he is hiding. It is a thing the Inquisition burns people for."
       ],
-      "tier": 2
+      "w": 358,
+      "h": 109
     },
     {
       "id": "t_ch2",
       "type": "thread",
-      "x": 200,
-      "y": 2660,
-      "label": "Chapter 2: the old watch entered",
-      "sub": "Hale's journal read",
+      "x": 1033,
+      "y": 2448,
+      "label": "The old watch",
+      "sub": "Hale's journal",
       "known": "known",
-      "facts": [
-        "The team goes back to the hilltop with steel and finds Hale's tin-bound journal under a collapsed beam, with a Crown seal the Lord does not know. Forty-seven days.",
-        "Hale's line for where the trees go quiet was seven days' march. The scouts' line is three. The Lord decides the Crown forgot, and digs a deeper well. Confirmed witchcraft and maddened animals belong to this chapter."
+      "tier": 2,
+      "bullets": [
+        "They go back to the hilltop, this time with steel and time to look.",
+        "Under a collapsed beam they find a journal, tin-bound, with a Crown seal on it that the Lord does not recognise.",
+        "Forty-seven days of a captain writing down his men walking south, one at a time.",
+        "It gets worse as it goes. One man at first, then two in a night, then the courier he sent north for orders, who turned south instead.",
+        "The last entry says he heard his daughter calling from the trees, and that he was going to her.",
+        "Hale wrote that the trees went quiet seven days' march south of the watch. The Lord's scouts said three.",
+        "He does not know what to make of it. What he cannot put down is the number: seven days then, three days now."
       ],
-      "tier": 2
+      "w": 180,
+      "h": 56
     },
     {
       "id": "t_niamh",
       "type": "thread",
       "x": 980,
       "y": 2660,
-      "label": "Chapter 3: Niamh; Hale freed",
-      "sub": "the first confirmed ghost",
+      "label": "Past the Ruins",
+      "sub": "the voice in the trees",
       "known": "known",
-      "facts": [
-        "The team walks past the watch, counting steps. The trees go quiet under three days down. A voice calls \"Ennara\". They fight a thing of mist and survive because a Silvaneth ranger in dark green walks them home: Niamh, Warden of the Thornveil.",
-        "Combat only dispels a ghost; ritual frees one. Three days later the team holds the line while Niamh binds, and a boy holds up the cloth Ennara made. Hale rests. The Lord does not tell Corin who did it."
+      "tier": 2,
+      "bullets": [
+        "The Lord cannot leave the number alone. He sends them south past the watch, counting their steps as they go.",
+        "The trees go quiet before they have walked three days.",
+        "Somewhere off in the trees, a man's voice is calling a name. It means nothing to any of them, so they carry it home.",
+        "Something comes at them out of the mist. What they do to it does not work, and it hurts them badly.",
+        "They live because a stranger in dark green walks out of the trees and takes them out of there.",
+        "She walks them all the way home, and gives her name at the gate: Warden Niamh, of the Thornveil. She is Silvaneth, and the first that any of them has seen.",
+        "The Lord knows the name they brought back. It is in the journal: Ennara, Captain Hale's daughter.",
+        "A hundred and fifty years on, the man is still out there calling for her."
       ],
-      "tier": 2
+      "w": 180,
+      "h": 56
+    },
+    {
+      "id": "t_rest",
+      "type": "thread",
+      "x": 1000,
+      "y": 2860,
+      "label": "The Captain's Rest",
+      "sub": "the binding",
+      "known": "known",
+      "tier": 2,
+      "bullets": [
+        "Niamh tells them what they met. Steel does not bite on it at all, and driving it off only scatters it. It comes back.",
+        "Freeing it takes a ritual.",
+        "A familiar thing helps: a spirit given something it knew settles more easily. They take a piece of cloth Ennara made, from among the captain's things at the watch.",
+        "Niamh marks a circle and begins. He comes at them hard, and other spirits draw in around the working.",
+        "While she is standing, their weapons can touch it. The team holds the line around her.",
+        "When he is on his knees, one of them holds the cloth open. He looks at it.",
+        "Niamh closes the binding, and he is gone."
+      ],
+      "w": 180,
+      "h": 56
+    },
+    {
+      "id": "t_robin",
+      "type": "thread",
+      "x": 1320,
+      "y": 2860,
+      "label": "What the robin brought",
+      "sub": "a salve, and no name",
+      "known": "known",
+      "tier": 2,
+      "bullets": [
+        "A robin lands on the watchtower at first light, with a folded note and a small parcel tied to its leg.",
+        "The note reads: what you did for him mattered. Use this when the wounds will not heal.",
+        "The parcel is a salve, and with it a recipe card in the same hand.",
+        "The handwriting is precise and trembling, the hand of someone who has been writing for a very long time.",
+        "Edda knows the herbs. She does not know the way they are put together, and says whoever made this knows more than she does.",
+        "The cuts ghosts make do not close the way other cuts do. The skin heals and the edge stays cold, and the wounds weep slow. Edda had been changing the dressings every morning and hoping.",
+        "No name, no sigil. The Lord assumes it came from the Thornveil."
+      ],
+      "w": 210,
+      "h": 56
+    },
+    {
+      "id": "t_greymantle",
+      "type": "thread",
+      "x": 620,
+      "y": 2860,
+      "label": "The Old Tongue",
+      "sub": "the Feldgrund hills",
+      "known": "known",
+      "tier": 2,
+      "bullets": [
+        "The salve works. Edda wants more of the herb it was made from, because there are ghosts in the country now, and the wounds they leave do not close on their own.",
+        "She knows the plant. Her grandmother knew it, and the name Edda has for it is in the old tongue.",
+        "She draws a careful picture of it for the team to carry.",
+        "It grows in the Feldgrund hills, north and east, off the road. Fourteen days there and back.",
+        "The Feldgrund are hill-dwarves. Farmers, brewers and innkeepers, with small farms hidden from the road.",
+        "An elder receives them at her door and does not invite them in. She looks at the drawing, and sends a younger woman for a folded cloth: a bundle of the plant tied with twine, and a pouch of seeds.",
+        "She says her people use it for sleep and for old grief, that it grows along stone walls where the soil is right, and that the seeds prefer to be sown in autumn.",
+        "She does not ask why southerners want it. They tell her anyway: there are ghosts in the south, and the wounds they leave do not close. It seems wrong to take the plant and say nothing.",
+        "She lets them finish, and does not answer any of it. She says she is glad the plant can be of use, and hopes they have a quiet road home.",
+        "They are being given a thing, and not a beginning."
+      ],
+      "w": 180,
+      "h": 56
+    },
+    {
+      "id": "t_feldgrund",
+      "type": "thread",
+      "x": 200,
+      "y": 2860,
+      "label": "The broken stone",
+      "sub": "four young Feldgrund come south",
+      "known": "known",
+      "tier": 2,
+      "bullets": [
+        "Four young Feldgrund come south, looking for the Wastes the southerners talked about. They had not believed the story, and they had not been able to stop thinking about it.",
+        "Marigold Hawthorn reaches the settlement alone and in a bad way. She left the others to run for help, and she needs it now.",
+        "She tells them where to go: a standing stone, taller than a dwarf, carved on three sides with lines none of them could read, and broken.",
+        "Beyond it the air was wrong, and the cold in it was the cold of a thing watching them.",
+        "The team leaves that day.",
+        "They are gone five days, and they bring back two of the three. Reed fell on the second night.",
+        "They bury him under stones east of the broken stone, with his face toward the hills, because Sorrel asked.",
+        "The stone had been keeping the thinning off that ground. Broken, it keeps nothing, and the thinning is simply back where it was before anyone set a stone there.",
+        "There are other stones along the ridge. Nobody had time to look at them.",
+        "Sorrel and Clover stay.",
+        "Nettle Meadbrook, Clover's grandmother, arrives later. She had heard in the hill-towns that four went south and three came back."
+      ],
+      "w": 215,
+      "h": 56
+    },
+    {
+      "id": "t_walktheline",
+      "type": "thread",
+      "x": 1240,
+      "y": 2940,
+      "label": "Walk the Line",
+      "sub": "mapping the stones",
+      "known": "known",
+      "tier": 2,
+      "bullets": [
+        "The Lord asks the team to walk the line: map the stones, and mark which are standing and which have fallen.",
+        "They go out with bread, ink, and a roll of parchment.",
+        "There is a stone a day east of the settlement, standing and whole.",
+        "The two stones flanking the old watch are both whole. One of them has been mended before.",
+        "There is another standing stone west, further out than anyone here has walked.",
+        "Deeper west there is a broken one. The ground around it is bad, and they have to fight their way out.",
+        "The break does not look like weather. There are shallow chiselled lines crossing the old carving. They cannot say what made them.",
+        "The parchment comes home showing a settlement, a ruin, four standing stones and two broken ones.",
+        "Nobody at the settlement knows what the stones are. What the map shows is that the ground is quiet where one stands and bad where one has fallen."
+      ],
+      "w": 180,
+      "h": 56
+    },
+    {
+      "id": "t_birches",
+      "type": "thread",
+      "x": 1640,
+      "y": 2940,
+      "label": "The Silver Birches",
+      "sub": "the robin points east",
+      "known": "known",
+      "tier": 2,
+      "bullets": [
+        "A robin brings word: Niamh is at the silver birches, three days east, and will not be there long.",
+        "The Lord sends two riders east, polite and quiet, to ask her to come.",
+        "She is under no obligation. The order is to bring her home if she will come."
+      ],
+      "w": 180,
+      "h": 56
+    },
+    {
+      "id": "t_firstinch",
+      "type": "thread",
+      "x": 1640,
+      "y": 2860,
+      "label": "The First Inch",
+      "sub": "mending the dwarves' stone",
+      "known": "known",
+      "tier": 2,
+      "bullets": [
+        "Niamh reads the parchment in the hall without speaking, and puts her finger on each mark in turn.",
+        "She cannot do it alone. The ground around a broken stone is thinning again, and there are things in it.",
+        "The work is the same shape as the captain's: she stands and works, they stand around her, and while she is standing their weapons can touch what comes.",
+        "They ride east. The fight is hard, and the stone is made whole.",
+        "The country east of the settlement is clear again.",
+        "She says more stones are breaking than the years can account for, and that her people do not know why."
+      ],
+      "w": 187,
+      "h": 56
+    },
+    {
+      "id": "t_posttheline",
+      "type": "thread",
+      "x": 200,
+      "y": 2940,
+      "label": "Post the Line",
+      "sub": "stakes, rope and red paint",
+      "known": "known",
+      "tier": 2,
+      "bullets": [
+        "Stones break and nobody can stop that. What they can do is mark the line above them, so that whoever walks this country afterwards can read it.",
+        "They go out with stakes cut from young oak, rope, and a clay pot of red paint Edda makes from beet root and oak gall.",
+        "They start at the old watch and work outward, marking the ground above every stone they know of, whole or broken.",
+        "At the westernmost broken stone the voices are closer than they should be. They fall back half a mile and plant the line there instead.",
+        "They write it on the map plainly: we cannot say whether we drew it wrong the first time, or whether the ground moves."
+      ],
+      "w": 187,
+      "h": 56
+    },
+    {
+      "id": "t_secondinch",
+      "type": "thread",
+      "x": 620,
+      "y": 2940,
+      "label": "The Second Inch",
+      "sub": "the western stone",
+      "known": "known",
+      "tier": 2,
+      "bullets": [
+        "She had said she would come back for the western stone when she had what she needed. She does, with a fresh wooden case and two of her own rangers.",
+        "~ What is in the case has never been decided, and the reason it was put in the story has been forgotten too. She opens it only at the stone, nobody asks, and it is a fresh one every time: one case, one stone, and then it is gone.",
+        "They ride west and stop at the stakes their own team planted. Nobody goes past the markers.",
+        "Niamh sends her two rangers in closer, to hold a small circle around the broken pieces. The team holds the outer line at the stakes.",
+        "More come up than at the eastern stone, and faster. Both her rangers are hurt, and both walk out.",
+        "The stone is made whole.",
+        "She will send word. Stones are being broken faster than the Thornveil can mend them, and that is past what a warden decides on her own."
+      ],
+      "w": 180,
+      "h": 56
+    },
+    {
+      "id": "t_walls",
+      "type": "thread",
+      "x": 1000,
+      "y": 2940,
+      "label": "Watch the Walls",
+      "sub": "a stone too neatly broken",
+      "known": "known",
+      "tier": 2,
+      "bullets": [
+        "A patrol comes back from the markers east. A stone that stood a season ago is lying in pieces in the grass.",
+        "The break is clean. The team will not commit to weather or to a hand: the cracks are too neat for weather, the pieces have not been moved, and they did not fall the way an old thing falls.",
+        "Nobody can look closer. The ground around it is bad, and without Niamh their weapons are no use in it.",
+        "She said she would send word, and rode out. The Lord does not know where she is and cannot ride after her.",
+        "So he turns his hand to the work inside his own gate, and gives the orders to strengthen the settlement's defences. The wall goes up, and a watchtower with it.",
+        "Then a raven comes in, with a dark green seal none of them has seen before: the mark of a tree's open leaf.",
+        "Three lines. Elder Rowena Ashford of the Thornveil intends to call at the settlement, within the next moon, with two of her people."
+      ],
+      "w": 181,
+      "h": 56
+    },
+    {
+      "id": "t_rowena_visit",
+      "type": "thread",
+      "x": 1000,
+      "y": 3098,
+      "label": "Hands Beside Ours",
+      "sub": "Rowena comes to the settlement",
+      "known": "known",
+      "tier": 2,
+      "bullets": [
+        "Rowena Ashford comes to Parcel 14 with two of her rangers.",
+        "She arrives knowing who everyone is. Niamh's reports have been thorough.",
+        "The Lord kneels without thinking about it. She is still an Ashford, and he is a Crown man. She waves it off: she put that down fifty years ago and has not picked it up since.",
+        "She comes in, breaks bread and eats it slowly, the way someone eats who is paying attention. She thanks Edda by name.",
+        "Edda has admired her for forty years and never said so to anyone. Her ear goes red. Father Corin, who has known about it the whole time, has trouble keeping his face straight.",
+        "She reads the map, and puts her finger on each stone in turn: the two standing, the two mended, and the new one where nothing is written yet.",
+        "Two stones in a year, she says. With one ranger, and a settlement that did not know what a ward was a year ago. She has not seen work this fast in fifty years.",
+        "What she wants is plain: her people work the line, the settlement extends it. Her rangers do the ritual work, and his team scouts, marks and protects.",
+        "He asks her who is breaking the stones. She says she can name them, and that she will not, yet.",
+        "The names would do him no good without the context to hold them, and the context is long and difficult.",
+        "She will not give him the name. If she says it, he will hear what the Church taught him about them, and stop looking.",
+        "She would rather he found it himself, and held it as a question.",
+        "She stays two nights. She walks the new wall with Tomas and asks him questions about angles of sight. She sits a long afternoon in the kitchen with Edda.",
+        "She rides out on the third morning, and says she is sending three of her own south: two grandchildren who want work that matters, and a cousin who needs to be somewhere the Crown's reach does not go."
+      ],
+      "w": 210,
+      "h": 56
+    },
+    {
+      "id": "t_hand",
+      "type": "thread",
+      "x": 200,
+      "y": 3020,
+      "label": "The Hand That Broke It",
+      "sub": "chisel marks and burn patterns",
+      "known": "known",
+      "tier": 2,
+      "bullets": [
+        "Niamh comes back a week before she said she would, riding in alone with another fresh case. She has heard about the stone the patrol found.",
+        "They ride east the next morning.",
+        "This break is not ambiguous. There are chisel marks, and there are burn patterns.",
+        "What comes up while she works is faster than at the western stone, and better coordinated.",
+        "The stone is mended.",
+        "The team brings home rubbings of the marks. The Lord recognises the symbols from books his father did not want him reading as a boy.",
+        "He writes it in the margin, small, the way Rowena told him to: the Cult of the Hollow. He tells nobody."
+      ],
+      "w": 210,
+      "h": 56
+    },
+    {
+      "id": "t_threenights",
+      "type": "thread",
+      "x": 620,
+      "y": 3020,
+      "label": "Three Nights",
+      "sub": "the warning",
+      "known": "known",
+      "tier": 2,
+      "bullets": [
+        "A robin comes in at dusk, blue wax, the same hand as the other two.",
+        "Five lines. The Cult knows the settlement's name. They will be at the gate in three nights, from the south road: two score in robes, and their dead walking at twice that number.",
+        "The last line: they are not who your Church says they are, but they are still coming for you.",
+        "It does not tell him what to do. It tells him what not to assume."
+      ],
+      "w": 180,
+      "h": 56
     },
     {
       "id": "t_cult",
       "type": "thread",
-      "x": 1370,
-      "y": 2660,
+      "x": 300,
+      "y": 3280,
       "label": "Act 1 end: the cult assault",
       "sub": "story 14",
       "known": "known",
@@ -1112,97 +1936,142 @@
         "Act 1 closes with the Cult of the Hollow attacking the settlement.",
         "Halldora has been watching. A robin arrives afterwards."
       ],
-      "tier": 2
+      "tier": 2,
+      "w": 249,
+      "h": 56
     },
     {
       "id": "breach",
       "type": "event",
-      "x": 640,
-      "y": 880,
+      "x": 394,
+      "y": 834,
       "tier": 2,
       "known": "hidden",
-      "label": "The First Breach",
+      "label": "The Deep Breach",
       "sub": "the Day of the Deep Breach",
-      "facts": [
-        "The Sundering destabilised Aether everywhere, and the Eighth's seals are Aether magic. Over the following centuries the outer wards cracked. A Khazdurim mining expedition, still following the push their ancestors had been nudged into before the Sundering, reached the outer seal at exactly the wrong moment.",
-        "What came out was not a leak. The Eighth had spent the sealed centuries patiently building demons; a prepared force poured out of the outer chamber. The Khazdurim resealed what they could at great cost, and many died.",
-        "The strongest of what the Eighth built is still down there. See Bahruun, Herald of the Deep, who broke the second Seal within living memory.",
-        "The Khazdurim tragedy is doubled: they were careless, and they were deceived. The Day of the Deep Breach is their founding trauma."
-      ]
+      "bullets": [
+        "**The Sundering shook the Aether, and the Eighth's seal is Aether magic.** Over the following centuries its outer wards began to crack.",
+        "**Generations of digging finally brought the Khazdurim to the outer seal.** By then its magic had faded enough that it could be damaged.",
+        "**They broke the outer seal, and then the second.** Nothing lay behind either but deeper dark, and a voice they trusted said the **lost city lay behind the third.**",
+        "**The Eighth would have let them dig all the way to him. His demons were not so patient.** The instant a pick touched the third seal, they poured out.",
+        "**The Khazdurim fought them back and resealed what they could. Many died.** Those who lived founded the Watch: an order sworn to guard the seals for as long as there are Khazdurim, and to let nothing out again.",
+        "**Not everything was driven back.** Some of what came out got past them into the world. Khazdurim demon-hunters have chased it ever since."
+      ],
+      "w": 295,
+      "h": 146
     },
     {
       "id": "watch",
       "type": "faction",
-      "x": 1500,
-      "y": 1110,
+      "x": 443,
+      "y": 1076,
       "tier": 2,
       "known": "lord",
       "label": "The Khazdurim Watch",
       "sub": "a self-imposed penance",
-      "facts": [
-        "Born from shame after the First Breach: their ancestors let something out. Not a divine appointment. Generations of guardians, vows of silence, a cultural suspicion of going deep. Every Khazdurim instinct about sealing and depth flows from it.",
-        "The demon-hunters split off from the Watch: Khazdurim who left to chase what their ancestors released. By now a separate sub-culture with its own oral history.",
-        "For most of the ages the Watch held, the seals were stable and the Eighth was silent. The Watch believes it guards a demon king. It guards a god."
-      ]
+      "bullets": [
+        "**Born from shame: their ancestors let something out.** Not a divine appointment. A penance the Khazdurim gave themselves.",
+        "Generations of guardians at the seals. Vows of silence. A whole culture's suspicion of going deep.",
+        "**The demon-hunters are Watch by another road**: Khazdurim who left the seals to hunt what got out. Same vow, same shame, carried into the open.",
+        "**The Watch faces both ways.** Nothing comes up, and nobody goes down. Its enforcers, the Anvil Guard, deal with Khazdurim who try to break the seals from the outside.",
+        "**The Hall of Names**: a cavern where every fallen Khazdurim is carved into the stone. The Watch keeps it.",
+        "~ Something is reaching into the Watch from within: kill lists that name loyal people, a living woman's name carved among the dead. The Watch may be turning into a weapon against its own."
+      ],
+      "w": 206,
+      "h": 77
     },
     {
       "id": "seals",
       "type": "event",
-      "x": 1580,
-      "y": 1870,
+      "x": 558,
+      "y": 1540,
       "tier": 3,
       "known": "hidden",
       "label": "The seals weaken",
       "sub": "whispers in the stone",
-      "facts": [
-        "In the last century the Watch has reported more frequent disturbances, whether from the Sundering's continuing shockwave or the Eighth's own accumulated effort. Sensitive Khazdurim hear whispers in the stone.",
-        "As the seals thin, the Eighth can once again whisper to sensitive mortals. Cult priests have visions that are not divine. This is the seal-decay signal, and late in the game it becomes urgent."
-      ]
+      "bullets": [
+        "In the last century the Watch has reported more disturbances at the seals than it used to.",
+        "Khazdurim who are sensitive to such things hear whispers in the stone.",
+        "As the seals thin, the thing behind them can reach sensitive minds again. That is what the whispers are."
+      ],
+      "w": 190,
+      "h": 79
     },
     {
       "id": "thrain",
       "type": "person",
-      "x": 200,
-      "y": 1870,
+      "x": 429,
+      "y": 1745,
       "tier": 3,
       "known": "hidden",
       "label": "Thrain Fireaxe",
-      "sub": "saw behind the third Seal",
-      "facts": [
-        "Khazdurim, assassin. He saw what is behind the third Seal, and the weight of that knowledge is why he drinks.",
-        "His wife could not reach him afterwards: he was there but not there, staring at something she could not see. She told him to leave until he came back to himself. He never did. He keeps a locket with a family portrait and does not open it.",
-        "He hunts demons now because it is the only thing that quiets his mind. Food preference: smoky. Not yet in the curated roster."
-      ]
+      "sub": "the list he was given",
+      "bullets": [
+        "A Khazdurim assassin, and one of the Watch.",
+        "He was given names. Agents of the thing behind the seals, he was told, working at them from the outside. He did the work.",
+        "Then the list began naming people it should not have. Loyal people. People he knew.",
+        "He cannot know how many of the ones he had already done were innocent, and he never will.",
+        "He drank, and his wife could not reach him. He was there and not there, staring at something she could not see. She told him to leave until he came back to himself, and he never did."
+      ],
+      "w": 140,
+      "h": 44
     },
     {
       "id": "hammerfall",
       "type": "person",
-      "x": 470,
-      "y": 1870,
+      "x": 501,
+      "y": 1802,
       "tier": 3,
       "known": "hidden",
       "label": "Brunhild and Magna Hammerfall",
-      "sub": "kept the second Seal for thirty years",
-      "facts": [
-        "Sisters. Brunhild, a priest, held the prayer-wards; Magna, a wizard, held the rune-locks. Together they kept the second Seal for thirty years and nothing got through.",
-        "Then Bahruun broke through and killed their entire team. He yawned, looked at the two old women standing in the blood of their friends, and said: \"You smell like prayer and rust. Go home, grandmothers.\" Then he walked past them.",
-        "They hear it every day. They left the mountain to make sure he hears them back. Magna carries a list of every name they lost that night and intends to take something back for each, starting with him. Food preferences: Brunhild fresh, Magna smoky. Not yet in the curated roster."
-      ]
+      "sub": "they kept the second Seal for sixty years",
+      "bullets": [
+        "Sisters. Brunhild held the prayer-wards, Magna held the rune-locks, and between them they kept the second Seal for sixty years.",
+        "In sixty years nothing got through.",
+        "Then Bahruun came through, and killed their whole team.",
+        "He looked at the two old women standing in their friends' blood, yawned, and told them they smelled of prayer and rust. Go home, grandmothers. Then he walked past them.",
+        "They hear it every day. They left the mountain to make sure he hears them back."
+      ],
+      "w": 243,
+      "h": 44
     },
     {
       "id": "bahruun",
       "type": "person",
-      "x": 780,
-      "y": 1870,
+      "x": 740,
+      "y": 1737,
       "tier": 3,
       "known": "hidden",
       "label": "Bahruun, Herald of the Deep",
       "sub": "Warlord of the Third Depth",
-      "facts": [
-        "The most powerful demon to breach the outer seals in Khazdurim memory. One of the greater things the Eighth built and bound in the Deeps.",
-        "He broke the second Seal, slaughtered the Anvil Guard team holding it, and dismissed the two survivors as not worth killing.",
-        "Among demonkind he is called the Herald of the Deep. His message, that the deep is coming, is the seal-decay signal: not a rival power, but the Eighth's stirring."
-      ]
+      "bullets": [
+        "The most powerful demon to come through the outer seals in Khazdurim memory.",
+        "One of the greater things the Eighth made and bound in the Deeps. He was built, not born.",
+        "He broke the second Seal and killed the team holding it. He left the two survivors alive because they were not worth the effort of killing.",
+        "Demonkind call him the Herald of the Deep. A herald announces; he is not the thing coming, he is the notice of it."
+      ],
+      "w": 306,
+      "h": 173
+    },
+    {
+      "id": "varek_court",
+      "type": "faction",
+      "x": 1220,
+      "y": 3280,
+      "label": "Varek's ghost court",
+      "sub": "not written yet",
+      "known": "hidden",
+      "tier": 2,
+      "bullets": [
+        "Varek never fully crossed over. He has been on the other side of the boundary for five hundred years, and he has remembered who he was.",
+        "He has begun organising the dead on the other side. Four of his generals are with him.",
+        "What he wants has not changed: the continent unified, and his work finished.",
+        "He is a spirit, and a spirit runs on what it felt rather than what it thought. The wanting is older and simpler than the man ever was.",
+        "He has taken most of the dead realm already, the ones who never crossed. The living are what is left.",
+        "~ What is not written: how the court reaches the living, when it first does, and what it costs him to do it."
+      ],
+      "w": 186,
+      "h": 56
     }
   ],
   "edges": [
@@ -1316,38 +2185,20 @@
     ],
     [
       "thornveil",
-      "wardpair",
+      "hale",
       "causes",
       "reset the stone"
     ],
     [
       "hale",
-      "wardpair",
-      "causes",
-      ""
-    ],
-    [
-      "hale",
-      "grants",
+      "grant",
       "causes",
       "garrisons too costly"
     ],
     [
       "crown",
-      "grants",
+      "grant",
       "member",
-      ""
-    ],
-    [
-      "grants",
-      "grant",
-      "causes",
-      ""
-    ],
-    [
-      "school",
-      "grant",
-      "causes",
       ""
     ],
     [
@@ -1412,7 +2263,7 @@
     ],
     [
       "northwar",
-      "desert",
+      "parents",
       "causes",
       ""
     ],
@@ -1423,52 +2274,28 @@
       "the reprisal"
     ],
     [
-      "winter",
       "parents",
-      "causes",
-      "the father dies"
-    ],
-    [
-      "winter",
       "jack",
       "causes",
       "orphaned"
     ],
     [
-      "winter",
-      "desert",
-      "causes",
-      "Godric levied after"
-    ],
-    [
       "parents",
       "nessa",
       "family",
-      "daughter"
+      "eldest"
     ],
     [
       "parents",
       "gareth",
       "family",
-      "son"
+      "second"
     ],
     [
       "parents",
       "godric",
       "family",
-      "son"
-    ],
-    [
-      "desert",
-      "gareth",
-      "causes",
-      ""
-    ],
-    [
-      "desert",
-      "godric",
-      "causes",
-      ""
+      "youngest"
     ],
     [
       "nessa",
@@ -1501,28 +2328,10 @@
       "the Guild opens"
     ],
     [
-      "ambush",
-      "tomas",
-      "causes",
-      "the silence"
-    ],
-    [
-      "lyra",
-      "jory",
-      "family",
-      "his wife"
-    ],
-    [
-      "lyra",
-      "nell",
-      "family",
-      "her mother"
-    ],
-    [
-      "foreman",
+      "hester",
       "t_hester",
       "causes",
-      ""
+      "why she was running"
     ],
     [
       "fails",
@@ -1633,16 +2442,10 @@
       "the journal"
     ],
     [
-      "wardpair",
+      "hale",
       "t_scout",
       "causes",
       "the stones sighted"
-    ],
-    [
-      "tipping",
-      "t_wolves",
-      "causes",
-      "starving packs"
     ],
     [
       "t_marsh",
@@ -1793,6 +2596,414 @@
       "binding",
       "causes",
       "its last Archmagus"
+    ],
+    [
+      "wastes",
+      "thinning",
+      "causes",
+      "its edge"
+    ],
+    [
+      "thinning",
+      "tipping",
+      "causes",
+      "it begins to move"
+    ],
+    [
+      "thornveil",
+      "wardstones",
+      "member",
+      "they keep them"
+    ],
+    [
+      "wardstones",
+      "thinning",
+      "causes",
+      "holds it back"
+    ],
+    [
+      "wardstones",
+      "hale",
+      "causes",
+      "the pair at the old watch"
+    ],
+    [
+      "thornveil",
+      "thornveil_today",
+      "causes",
+      "today"
+    ],
+    [
+      "crown",
+      "rowena",
+      "family",
+      "born an Ashford"
+    ],
+    [
+      "rowena",
+      "thornveil",
+      "causes",
+      "organised it"
+    ],
+    [
+      "rowena",
+      "thornveil_today",
+      "member",
+      "its Elder"
+    ],
+    [
+      "northwar",
+      "tomas",
+      "causes",
+      "his squad ambushed"
+    ],
+    [
+      "tomas",
+      "settlement",
+      "member",
+      "the quarry"
+    ],
+    [
+      "nell",
+      "truffle",
+      "family",
+      "names him"
+    ],
+    [
+      "truffle",
+      "t_truffle",
+      "thread",
+      "guards the fold"
+    ],
+    [
+      "cobb",
+      "t_cobb",
+      "thread",
+      "his road"
+    ],
+    [
+      "aldwin",
+      "t_stonebridge",
+      "thread",
+      ""
+    ],
+    [
+      "church",
+      "aldwin",
+      "member",
+      "a priest of it"
+    ],
+    [
+      "magnus",
+      "t_stonebridge",
+      "thread",
+      "the confession"
+    ],
+    [
+      "aldwin",
+      "magnus",
+      "family",
+      "brothers"
+    ],
+    [
+      "inquisition",
+      "magnus",
+      "causes",
+      "hunts him"
+    ],
+    [
+      "bede",
+      "magnus",
+      "family",
+      "taught him"
+    ],
+    [
+      "inquisition",
+      "bede",
+      "causes",
+      "burned him"
+    ],
+    [
+      "t_marsh",
+      "t_barter",
+      "thread",
+      "the trade"
+    ],
+    [
+      "t_barter",
+      "nell",
+      "thread",
+      "she asks after her"
+    ],
+    [
+      "thinning",
+      "t_barter",
+      "causes",
+      "what it has done to her"
+    ],
+    [
+      "aldith",
+      "t_marsh",
+      "thread",
+      ""
+    ],
+    [
+      "aldith",
+      "t_barter",
+      "thread",
+      "her askings"
+    ],
+    [
+      "thinning",
+      "aldith",
+      "causes",
+      "what it has done to her"
+    ],
+    [
+      "settlement",
+      "t_herd",
+      "thread",
+      ""
+    ],
+    [
+      "thinning",
+      "t_herd",
+      "causes",
+      "the bad water"
+    ],
+    [
+      "aldwin",
+      "t_herd",
+      "thread",
+      "opens the carcass"
+    ],
+    [
+      "settlement",
+      "t_market",
+      "thread",
+      ""
+    ],
+    [
+      "t_market",
+      "t_cobb",
+      "thread",
+      "he comes back"
+    ],
+    [
+      "t_market",
+      "t_errand",
+      "thread",
+      "the tavern"
+    ],
+    [
+      "elspeth",
+      "t_errand",
+      "thread",
+      "the errand is hers"
+    ],
+    [
+      "elspeth",
+      "edmund",
+      "family",
+      "mother and son"
+    ],
+    [
+      "edmund",
+      "t_errand",
+      "thread",
+      "the son they fetch back"
+    ],
+    [
+      "t_niamh",
+      "t_rest",
+      "thread",
+      ""
+    ],
+    [
+      "hale",
+      "t_rest",
+      "causes",
+      "he is freed"
+    ],
+    [
+      "t_rest",
+      "t_robin",
+      "thread",
+      ""
+    ],
+    [
+      "halldora",
+      "t_robin",
+      "causes",
+      "she sent it"
+    ],
+    [
+      "t_robin",
+      "t_greymantle",
+      "thread",
+      "more of the herb"
+    ],
+    [
+      "edda",
+      "t_greymantle",
+      "thread",
+      "she knows the plant"
+    ],
+    [
+      "t_greymantle",
+      "t_feldgrund",
+      "thread",
+      "word travels north"
+    ],
+    [
+      "wardstones",
+      "t_feldgrund",
+      "causes",
+      "one of them is broken"
+    ],
+    [
+      "t_feldgrund",
+      "t_firstinch",
+      "thread",
+      "the stone they found"
+    ],
+    [
+      "thornveil",
+      "t_firstinch",
+      "member",
+      "Niamh"
+    ],
+    [
+      "t_feldgrund",
+      "t_walktheline",
+      "thread",
+      ""
+    ],
+    [
+      "wardstones",
+      "t_walktheline",
+      "causes",
+      "the line they map"
+    ],
+    [
+      "t_walktheline",
+      "t_birches",
+      "thread",
+      ""
+    ],
+    [
+      "halldora",
+      "t_birches",
+      "causes",
+      "the robin again"
+    ],
+    [
+      "t_birches",
+      "t_firstinch",
+      "thread",
+      "she comes"
+    ],
+    [
+      "t_firstinch",
+      "t_posttheline",
+      "thread",
+      ""
+    ],
+    [
+      "t_posttheline",
+      "t_secondinch",
+      "thread",
+      ""
+    ],
+    [
+      "t_secondinch",
+      "t_walls",
+      "thread",
+      ""
+    ],
+    [
+      "rowena",
+      "t_walls",
+      "thread",
+      "her letter"
+    ],
+    [
+      "t_walls",
+      "t_rowena_visit",
+      "thread",
+      ""
+    ],
+    [
+      "rowena",
+      "t_rowena_visit",
+      "thread",
+      "she comes herself"
+    ],
+    [
+      "t_rowena_visit",
+      "t_hand",
+      "thread",
+      ""
+    ],
+    [
+      "cult",
+      "t_hand",
+      "causes",
+      "their work"
+    ],
+    [
+      "t_hand",
+      "t_threenights",
+      "thread",
+      ""
+    ],
+    [
+      "halldora",
+      "t_threenights",
+      "causes",
+      "the third robin"
+    ],
+    [
+      "t_threenights",
+      "t_cult",
+      "thread",
+      ""
+    ],
+    [
+      "thornveil_today",
+      "niamh",
+      "member",
+      ""
+    ],
+    [
+      "niamh",
+      "t_niamh",
+      "thread",
+      "she walks them home"
+    ],
+    [
+      "niamh",
+      "t_rest",
+      "thread",
+      "the binding"
+    ],
+    [
+      "rowena",
+      "niamh",
+      "family",
+      "she came round to her"
+    ],
+    [
+      "watch",
+      "thrain",
+      "causes",
+      "the list"
+    ],
+    [
+      "varek",
+      "varek_court",
+      "causes",
+      "he never crossed over"
     ]
   ]
 }
@@ -1808,7 +3019,7 @@
   var gNodes = document.getElementById('nodes');
   var NS = 'http://www.w3.org/2000/svg';
   // The data is authored on a 1720 x 2780 grid; spread it out for air.
-  var SX = 1.45, SY = 1.18, W = Math.round(1720 * SX), H = Math.round(2780 * SY);
+  var SX = 1.45, SY = 1.18, W = Math.round(1720 * SX), H = Math.round(3420 * SY);
   var byId = {};
   DATA.nodes.forEach(function (n) { byId[n.id] = n; n.x = n.x * SX; n.y = n.y * SY; n.tier = n.tier || 2; });
   DATA.eras.forEach(function (e) { e.y0 = e.y0 * SY; e.y1 = e.y1 * SY; });
@@ -1837,9 +3048,23 @@
     3: { font: 12.5, sub: 10, minW: 140, maxW: 260, pad: 30, h: 44 }
   };
   DATA.nodes.forEach(function (n) {
+    if (typeof n.w === 'number' && typeof n.h === 'number') return;  // authored size
     var t = TIER[n.tier];
     var w = Math.max(t.minW, textWidth(n.label, t.font) + t.pad, textWidth(n.sub || '', t.sub) + t.pad);
     n.w = Math.min(w, t.maxW); n.h = n.sub ? t.h : Math.round(t.h * 0.78);
+  });
+
+  // A hand-made layout, if this browser has one, overrides the authored grid.
+  var LKEY = 'valenheart-tree-layout-v1';
+  var saved = {};
+  try { saved = JSON.parse(localStorage.getItem(LKEY) || '{}') || {}; } catch (e) { saved = {}; }
+  DATA.nodes.forEach(function (n) {
+    var o = saved[n.id];
+    if (!o) return;
+    if (typeof o.x === 'number') n.x = o.x * SX;
+    if (typeof o.y === 'number') n.y = o.y * SY;
+    if (typeof o.w === 'number') n.w = o.w;
+    if (typeof o.h === 'number') n.h = o.h;
   });
 
   function anchor(n, other) {
@@ -1873,21 +3098,90 @@
   });
 
   // ---- nodes ----
-  var nodeEls = {};
+  var nodeEls = {}, nodeParts = {};
   DATA.nodes.forEach(function (n) {
     var g = el('g', { 'class': 'node ' + n.type + ' t' + n.tier + (n.hub ? ' hub' : ''), transform: 'translate(' + (n.x - n.w / 2) + ',' + (n.y - n.h / 2) + ')', tabindex: 0, role: 'button', 'aria-label': n.label }, gNodes);
-    el('rect', { width: n.w, height: n.h }, g);
+    var box = el('rect', { width: n.w, height: n.h }, g);
     var tf = TIER[n.tier];
     var labelY = n.sub ? Math.round(n.h * 0.46) : Math.round(n.h * 0.5 + tf.font * 0.35);
     var t = el('text', { x: n.w / 2, y: labelY, 'text-anchor': 'middle' }, g);
     t.textContent = n.label;
-    if (n.sub) { var s = el('text', { x: n.w / 2, y: Math.round(n.h * 0.46 + tf.sub * 1.55), 'text-anchor': 'middle', 'class': 'sub' }, g); s.textContent = n.sub; }
+    var sEl = null;
+    if (n.sub) { sEl = el('text', { x: n.w / 2, y: Math.round(n.h * 0.46 + tf.sub * 1.55), 'text-anchor': 'middle', 'class': 'sub' }, g); sEl.textContent = n.sub; }
     el('circle', { cx: 11, cy: 11, r: n.tier === 1 ? 5.5 : 4, 'class': 'known ' + n.known }, g);
-    g.addEventListener('pointerup', function (ev) { if (dragMoved || ev.button !== 0) return; openNode(n.id); });
+    var handle = el('rect', { x: n.w - 12, y: n.h - 12, width: 12, height: 12, 'class': 'rhandle' }, g);
+    nodeParts[n.id] = { g: g, rect: box, label: t, sub: sEl, handle: handle };
+    handle.addEventListener('pointerdown', function (ev) { startEdit(ev, n, 'size'); });
+    g.addEventListener('pointerdown', function (ev) { startEdit(ev, n, 'move'); });
+    g.addEventListener('pointerup', function (ev) { if (dragMoved || ev.button !== 0) return; if (edit && edit.moved) return; openNode(n.id); });
     g.addEventListener('keydown', function (ev) { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); openNode(n.id); } });
     g.addEventListener('mouseenter', function () { highlight(n.id); });
     g.addEventListener('mouseleave', function () { highlight(null); });
     nodeEls[n.id] = g;
+  });
+
+  // ---- layout editing: drag to move, corner to resize ----
+  var edit = null;
+
+  function placeNode(n) {
+    var p = nodeParts[n.id]; if (!p) return;
+    p.g.setAttribute('transform', 'translate(' + (n.x - n.w / 2) + ',' + (n.y - n.h / 2) + ')');
+    p.rect.setAttribute('width', n.w); p.rect.setAttribute('height', n.h);
+    var tf = TIER[n.tier];
+    var labelY = n.sub ? Math.round(n.h * 0.46) : Math.round(n.h * 0.5 + tf.font * 0.35);
+    p.label.setAttribute('x', n.w / 2); p.label.setAttribute('y', labelY);
+    if (p.sub) { p.sub.setAttribute('x', n.w / 2); p.sub.setAttribute('y', Math.round(n.h * 0.46 + tf.sub * 1.55)); }
+    p.handle.setAttribute('x', n.w - 12); p.handle.setAttribute('y', n.h - 12);
+    edgeEls.forEach(function (e) {
+      if (e.a === n.id || e.b === n.id) e.el.setAttribute('d', edgePath(byId[e.a], byId[e.b]));
+    });
+  }
+
+  function startEdit(ev, n, mode) {
+    if (ev.button !== 0) return;
+    ev.preventDefault(); ev.stopPropagation();
+    edit = { n: n, mode: mode, moved: false, sx: ev.clientX, sy: ev.clientY, ox: n.x, oy: n.y, ow: n.w, oh: n.h };
+  }
+
+  window.addEventListener('pointermove', function (ev) {
+    if (!edit) return;
+    if (Math.abs(ev.clientX - edit.sx) + Math.abs(ev.clientY - edit.sy) > 4) edit.moved = true;
+    var dx = (ev.clientX - edit.sx) / k, dy = (ev.clientY - edit.sy) / k;
+    if (edit.mode === 'move') { edit.n.x = edit.ox + dx; edit.n.y = edit.oy + dy; }
+    else { edit.n.w = Math.max(90, edit.ow + dx); edit.n.h = Math.max(34, edit.oh + dy); }
+    placeNode(edit.n);
+  });
+  window.addEventListener('pointerup', function () { if (edit) { edit = null; saveLayout(); } });
+
+  function layoutData() {
+    var out = {};
+    DATA.nodes.forEach(function (n) {
+      out[n.id] = { x: Math.round(n.x / SX), y: Math.round(n.y / SY), w: Math.round(n.w), h: Math.round(n.h) };
+    });
+    return out;
+  }
+  function saveLayout() {
+    try { localStorage.setItem(LKEY, JSON.stringify(layoutData())); } catch (e) { /* private window */ }
+  }
+
+  document.getElementById('b-reset').addEventListener('click', function (ev) {
+    try { localStorage.removeItem(LKEY); } catch (e) { /* ignore */ }
+    ev.currentTarget.textContent = 'Reload to reset';
+  });
+  document.getElementById('b-copy').addEventListener('click', function (ev) {
+    var txt = JSON.stringify(layoutData());
+    var btn = ev.currentTarget;
+    function done(ok) { btn.textContent = ok ? 'Copied' : 'Press ctrl+C'; setTimeout(function () { btn.textContent = 'Copy layout'; }, 2500); }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(txt).then(function () { done(true); }, function () { fallback(); });
+    } else fallback();
+    function fallback() {
+      var ta = document.createElement('textarea');
+      ta.value = txt; ta.style.position = 'fixed'; ta.style.top = '-1000px';
+      document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy'); done(true); } catch (e) { done(false); }
+      document.body.removeChild(ta);
+    }
   });
 
   function highlight(id) {
@@ -1929,12 +3223,12 @@
 
   var dragging = false, dragMoved = false, sx = 0, sy = 0, ox = 0, oy = 0;
   svg.addEventListener('pointerdown', function (ev) {
-    if (ev.button !== 0) return;
+    if (ev.button !== 0 || edit) return;
     dragging = true; dragMoved = false; sx = ev.clientX; sy = ev.clientY; ox = tx; oy = ty;
     svg.classList.add('dragging');
   });
   window.addEventListener('pointermove', function (ev) {
-    if (!dragging) return;
+    if (!dragging || edit) return;
     var dx = ev.clientX - sx, dy = ev.clientY - sy;
     if (Math.abs(dx) + Math.abs(dy) > 4) dragMoved = true;
     tx = ox + dx; ty = oy + dy; apply();
@@ -1977,6 +3271,7 @@
   function li(text) {
     var t = text.trim();
     if (t.charAt(0) === '~') return '<li class="unsure"><span class="tag">undecided</span> ' + inline(t.slice(1).trim()) + '</li>';
+    if (t.charAt(0) === '+') return '<li class="unsure"><span class="tag">to deepen</span> ' + inline(t.slice(1).trim()) + '</li>';
     return '<li>' + inline(t) + '</li>';
   }
   function renderBullets(list) {
@@ -2031,3 +3326,5 @@
   fitAll();
 })();
 </script>
+
+</body></html>
