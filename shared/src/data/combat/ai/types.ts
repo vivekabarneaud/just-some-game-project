@@ -13,8 +13,11 @@ import type { CombatContext, CombatUnit } from "../types.js";
  *   - Adventurer danger mode: state=healthy → wounded → critical (healing priority)
  *   - Enraged berserker: hp_below_30 → enraged (damage mult, ignore targeting)
  *
- * Today only a "default" behavior exists, wrapping the current hand-coded logic
- * so the migration is a no-op. New behaviors are cheap to add.
+ * The first real citizen is FLIGHT (./flight.ts): breaking is a transition, and
+ * `fleeing` / `yielded` are states that own their own turn. That is what lets a
+ * broken creature do more than run in a straight line -- a withdrawing mage can
+ * cast frost over its shoulder, where the old hand-coded block allowed nothing
+ * but a basic attack.
  */
 export interface AIBehavior {
   id: string;
@@ -24,18 +27,23 @@ export interface AIBehavior {
 }
 
 /**
- * Per-round behavior hook for a state. All three are optional:
- *   - onTurn: custom action for this turn (if returns true, turn is consumed)
+ * Per-round behavior hook for a state. All are optional:
+ *   - onEnter: one-shot work when a transition lands here (stamp flags, push the
+ *     log beat, raise a stat). Runs once, from evaluateTransitions, NOT per turn.
+ *   - onTurn: custom action for this turn (if returns true, the turn is consumed
+ *     INCLUDING its movement — the state owns the whole beat)
  *   - preferredAbilities: ordered list of ability ids to try first (before default list)
- *   - shouldUsePotion: override the default "drink at round 1" / "drink when low HP" policy
+ *   - allowAbilities: false = basic attacks only in this state (default true)
  *
  * When onTurn is absent, the default round pipeline handles the unit normally.
  * This lets most states be tiny, with only exotic behaviors overriding the full turn.
  */
 export interface AIState {
   id: string;
+  onEnter?: (unit: CombatUnit, ctx: CombatContext) => void;
   onTurn?: (unit: CombatUnit, ctx: CombatContext) => boolean;
   preferredAbilities?: string[];
+  allowAbilities?: boolean;
 }
 
 /** A guard from one state to another, checked once per round before the action phase. */

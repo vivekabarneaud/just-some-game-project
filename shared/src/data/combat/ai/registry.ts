@@ -31,7 +31,12 @@ export function getCurrentState(unit: CombatUnit): { behavior: AIBehavior; state
 
 /**
  * Evaluate transitions for a unit in its current state. If a transition fires,
- * update the unit's state. Called once per round per unit before actions.
+ * move the unit to the new state and run that state's `onEnter` once.
+ *
+ * Called for EVERY enemy at the top of every unit's turn (round/actions.ts), not
+ * once per round: a man whose nerve goes on the first hero's swing has to have
+ * dropped his weapon before the second hero picks a target, or he dies in the
+ * gap. Guards are pure; all the work of arriving lives in `onEnter`.
  */
 export function evaluateTransitions(unit: CombatUnit, ctx: CombatContext): void {
   const { behavior } = getCurrentState(unit);
@@ -40,6 +45,7 @@ export function evaluateTransitions(unit: CombatUnit, ctx: CombatContext): void 
     if (t.from !== unit.aiState) continue;
     if (t.when(unit, ctx)) {
       unit.aiState = t.to;
+      behavior.states[t.to]?.onEnter?.(unit, ctx);
       return;
     }
   }

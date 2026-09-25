@@ -5,6 +5,8 @@ import { getEnemy } from "../../enemies.js";
 import { reachOf, paceGap } from "../positional.js";
 import { resolveAI } from "../ai/profile.js";
 import type { CombatContext, CombatUnit } from "../types.js";
+import type { AIState } from "../ai/types.js";
+import { preferFirst } from "./index.js";
 
 /** Damage-ability effect types that must respect reach (a bite/spit can't cross
  *  the field). Utility/ally effects (heals, buffs, summons, mind-control) don't. */
@@ -15,14 +17,14 @@ const RANGE_GATED = new Set(["bleed", "poison", "infect", "damage_mult", "aoe_da
  * First ability whose trigger + cooldown + effect all land stops evaluation
  * and consumes the unit's action. Returns true if an ability fired.
  */
-export function tryEnemyAbility(unit: CombatUnit, ctx: CombatContext): boolean {
+export function tryEnemyAbility(unit: CombatUnit, ctx: CombatContext, state?: AIState): boolean {
   if (!unit.enemyAbilities?.length) return false;
 
   const aliveAllies = ctx.enemies.filter((u) => u.id !== unit.id && u.hp > 0);
   const deadAllies = ctx.enemies.filter((u) => u.id !== unit.id && u.hp <= 0);
   const aliveTargets = ctx.adventurers.filter((u) => u.hp > 0);
 
-  for (const ability of unit.enemyAbilities) {
+  for (const ability of preferFirst(unit.enemyAbilities, state)) {
     if ((unit.cooldowns[ability.id] ?? 0) > 0) continue;
 
     const hpPct = unit.hp / unit.maxHp;

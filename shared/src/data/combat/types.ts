@@ -43,6 +43,11 @@ export interface AIProfile {
   targeting: TargetWeights;
   tauntable: AITauntable;
   fear: AIFear;
+  /** How fast this creature runs once broken, as a multiple of its mobility.
+   *  Omit and it is defaulted from `fear` (bolts = flat out, withdraws = a
+   *  backstep at normal pace). Author it when a creature should tear away
+   *  faster than it ever fought — a deer has no business fleeing at wolf pace. */
+  flightSpeed?: number;
 }
 
 /**
@@ -259,6 +264,12 @@ export interface CombatUnit {
    *  of fighting. Still on the field, still hittable — reaching the edge sets
    *  `fled`. Transient combat state, never persisted. */
   fleeing?: boolean;
+  /** Surrendered: weapon on the ground, still standing where they knelt. Takes no
+   *  turn ever again. Distinct from `fleeing` on purpose — yielding is "do what
+   *  you want with me", fleeing is "I don't want to get caught" — and distinct
+   *  from `fled`, because whether a surrendered man leaves the field alive is the
+   *  player's Quarter choice, not the simulator's. Transient, never persisted. */
+  yielded?: boolean;
   /** Perception (TARGETING.md). Two flags because the asymmetry is the point:
    *  `concealed` = nobody sees THEM (invisibility, or standing in smoke);
    *  `blinded` = THEY see nothing (a blinding effect, or standing in smoke).

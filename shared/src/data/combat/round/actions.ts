@@ -6,9 +6,8 @@ import { pickTarget, pickTargetForAdventurer } from "../targeting.js";
 import { tryClassAbility, tryEnemyAbility } from "../abilities/index.js";
 import { evaluateTransitions, getCurrentState } from "../ai/index.js";
 import { addDamageThreat } from "../threat.js";
-import { shouldFlee, attemptFlee, moraleBreaks } from "../retreat.js";
-import { canBreak, resolveAI } from "../ai/profile.js";
-import { POS, CHARGE, FLIGHT, mobilityOf, moveUnit, computeHolds, chargePlan, pinningFoe, inReach, isBehind, weaponAt, paceGap, hasPackmateOn, PACK_TACTICS_BONUS, livingPackmates, PACK_NERVE_ACCURACY } from "../positional.js";
+import { shouldFlee, attemptFlee } from "../retreat.js";
+import { POS, CHARGE, moveUnit, computeHolds, chargePlan, pinningFoe, inReach, isBehind, weaponAt, paceGap, hasPackmateOn, PACK_TACTICS_BONUS, livingPackmates, PACK_NERVE_ACCURACY } from "../positional.js";
 
 /**
  * The main action phase of a round.
@@ -41,6 +40,13 @@ export function runActions(ctx: CombatContext): void {
   const held = computeHolds(ctx);
 
   for (const unit of alive) {
+    // Nerves break the moment the blow lands, not on the breaker's own turn.
+    // Evaluating every enemy at the TOP of each turn is what closes the window
+    // in which a man whose nerve had already gone was cut down before he could
+    // drop his weapon — the bug behind "they don't flee well any more". Cheap:
+    // a guard per enemy per turn, and the first matching transition wins.
+    sweepBreaks(ctx);
+
     if (unit.hp <= 0 || unit.fled) continue;
     // Walls, ritualists, ward stones — units explicitly flagged as non-acting.
     // Still take damage, still healable, just skip the turn.
@@ -61,41 +67,45 @@ export function runActions(ctx: CombatContext): void {
     // spend their turn trying to break contact instead of fighting.
     if (shouldFlee(unit, ctx)) { attemptFlee(unit, ctx); continue; }
 
-    // Nerve break: a beast worn to/below its routsAt (fear of pain), OR a
-    // human whose morale snaps (mates fallen, leader down, outnumbered — see
-    // moraleBreaks). HOW it leaves is its fear style (ROUT_AND_FLIGHT):
-    // `yields` throws down its weapon where it stands (out of the fight now —
-    // counts as defeated, keepOnRout loot only); `bolts`/`withdraws` actually
-    // RUN, and can be chased down or shot before they make the treeline.
-    if (unit.isEnemy && !unit.fleeing && canBreak(unit) && (enemyBreaksAndRuns(unit) || moraleBreaks(unit, ctx))) {
-      const fear = resolveAI(unit).fear;
-      if (fear === "yields" || unit.x == null) { yieldEnemy(unit, ctx, fear); continue; }
-      startFlight(unit, ctx, fear);
-    }
-    if (unit.isEnemy && unit.fleeing) {
-      if (fleeMove(unit, ctx)) continue;              // reached the edge — gone
-      if (resolveAI(unit).fear === "bolts") continue; // flat out: never acts
-      // `withdraws`: backing off facing the line — may still bite something in
-      // reach. Falls through to the action phase (the withdrawal WAS its move).
+    // The state gets first refusal on the WHOLE beat, movement included — which
+    // is why this sits ahead of moveUnit. A state that returns true has spent
+    // the turn its own way (ai/flight.ts: the runner's move IS its turn). One
+    // that returns false has either done nothing or only moved, and the normal
+    // pipeline below finishes the beat — that is how a withdrawing creature
+    // backs off AND still bites, or casts, on the way out.
+    const { state } = getCurrentState(unit);
+    if (state.onTurn) {
+      if (state.onTurn(unit, ctx)) continue;
     } else {
       // Move on this unit's own turn (charge/advance/kite), THEN act below.
       moveUnit(unit, ctx, held);
     }
 
-    evaluateTransitions(unit, ctx);
-    const { state } = getCurrentState(unit);
-    if (state.onTurn?.(unit, ctx)) continue;
-
     if (mindControlAttack(unit, ctx)) continue;
     if (unit.mindControlled && unit.mindControlled > 0) continue;
 
-    if (!unit.isEnemy && tryClassAbility(unit, ctx)) continue;
+    // A state may bar tactics outright (ai/flight.ts: a routed animal is past
+    // them); otherwise it only reorders what gets reached for first.
+    const tactics = state.allowAbilities !== false;
+    if (tactics && !unit.isEnemy && tryClassAbility(unit, ctx, state)) continue;
     // A unit that charged this round drives home a goring basic attack (the
     // charge bonus + knockback ride the swing) rather than using another ability.
-    // A withdrawing unit is past tactics — basic attacks only while it backs off.
-    if (unit.isEnemy && !unit.chargedThisRound && !unit.fleeing && tryEnemyAbility(unit, ctx)) continue;
+    if (tactics && unit.isEnemy && !unit.chargedThisRound && tryEnemyAbility(unit, ctx, state)) continue;
 
     basicAttack(unit, ctx);
+  }
+  // A nerve that goes on the last blow of the round still goes THIS round, so
+  // the fight can be judged over before the next one opens.
+  sweepBreaks(ctx);
+}
+
+/** Re-evaluate every enemy's AI transitions. Enemy-side only: heroes break
+ *  through the separate Model C retreat path (shouldFlee/attemptFlee), which is
+ *  a team decision rather than a per-unit state. */
+function sweepBreaks(ctx: CombatContext): void {
+  for (const e of ctx.enemies) {
+    if (e.hp <= 0 || e.fled) continue;
+    evaluateTransitions(e, ctx);
   }
 }
 
@@ -103,72 +113,6 @@ export function runActions(ctx: CombatContext): void {
  * Mind-controlled adventurers hit their own team and decrement the counter.
  * Returns true if the unit's turn was consumed here.
  */
-/** A beast at/below its rout threshold breaks off (already-fled units excluded).
- *  Fearlessness is gated by the caller's `canBreak`, which covers this and the
- *  morale path together. */
-function enemyBreaksAndRuns(unit: CombatUnit): boolean {
-  if (unit.routsAt == null || unit.fled || unit.hp <= 0) return false;
-  return unit.hp <= unit.routsAt * unit.maxHp;
-}
-
-/** A person who breaks throws down their weapon and stays — out of the fight
- *  where they stand. Instant (no movement, nothing to chase); still `fled` for
- *  the victory/loot semantics: defeated, sheddable (`keepOnRout`) drops only —
- *  the bandit hands over his purse. Also the fallback for a unit with no
- *  position (defensive: positionless sims can't run a chase). */
-function yieldEnemy(unit: CombatUnit, ctx: CombatContext, fear: string): void {
-  unit.fled = true;
-  const yielded = fear === "yields";
-  ctx.log.push({
-    round: ctx.round, attackerName: unit.name, attackerIcon: yielded ? "🏳️" : "🏃",
-    targetName: unit.name, damage: 0, dodged: false, crit: false, killed: false,
-    targetHp: Math.max(0, unit.hp), targetMaxHp: unit.maxHp, isEnemy: true,
-    beat: yielded ? "yields" : "flee_success",
-    note: yielded ? `${unit.name} throws down their weapon` : `${unit.name} breaks and runs`,
-  });
-}
-
-/** The nerve breaks and the creature RUNS — `fleeing` until it makes its own
- *  field edge. A bolting animal weaves flat out: it borrows the Skirmisher
- *  elusion (distance-scaled dodge vs ranged), so the farther it gets, the worse
- *  the shot. A withdrawing one backs off at a walk, facing the line. */
-function startFlight(unit: CombatUnit, ctx: CombatContext, fear: string): void {
-  unit.fleeing = true;
-  if (fear === "bolts") {
-    unit.elusiveAtRange = Math.max(unit.elusiveAtRange ?? 0, FLIGHT.boltElusion);
-  }
-  ctx.log.push({
-    round: ctx.round, attackerName: unit.name, attackerIcon: "🏃",
-    targetName: unit.name, damage: 0, dodged: false, crit: false, killed: false,
-    targetHp: Math.max(0, unit.hp), targetMaxHp: unit.maxHp, isEnemy: true,
-    beat: "turns_tail",
-    note: fear === "bolts" ? `${unit.name} turns tail and bolts` : `${unit.name} falls back, still facing the line`,
-  });
-}
-
-/** One turn of flight: run toward this side's field edge. Enemies flee toward
- *  fieldMax — back into the woods, never through the party. Returns true when
- *  the unit makes the edge (off the field, `fled`, defeated-with-sheddable-loot
- *  like any rout). Slain mid-flight = a full loot table, which is the point. */
-function fleeMove(unit: CombatUnit, ctx: CombatContext): boolean {
-  const mult = resolveAI(unit).fear === "bolts" ? FLIGHT.boltMult : FLIGHT.withdrawMult;
-  const speed = Math.max(4, Math.round(mobilityOf(unit) * mult));
-  const newX = (unit.x ?? POS.enemyFront) + speed;
-  if (newX >= POS.fieldMax) {
-    unit.x = POS.fieldMax;
-    unit.fled = true;
-    ctx.log.push({
-      round: ctx.round, attackerName: unit.name, attackerIcon: "🏃",
-      targetName: unit.name, damage: 0, dodged: false, crit: false, killed: false,
-      targetHp: Math.max(0, unit.hp), targetMaxHp: unit.maxHp, isEnemy: true,
-      beat: "flee_success", note: `${unit.name} escapes into the wilds`,
-    });
-    return true;
-  }
-  unit.x = newX;
-  return false;
-}
-
 function mindControlAttack(unit: CombatUnit, ctx: CombatContext): boolean {
   if (unit.isEnemy || !unit.mindControlled || unit.mindControlled <= 0) return false;
   const allyTarget = ctx.adventurers.find((a) => a.hp > 0 && a.id !== unit.id);
