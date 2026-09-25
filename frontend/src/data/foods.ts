@@ -79,6 +79,7 @@ export const FOOD_ITEMS: FoodItemMeta[] = [
   { id: "chanterelle",   label: "Chanterelle", icon: "🍄", order: 10, category: "wild" },
   { id: "cepe",          label: "King Bolete", icon: "🍄", order: 11, category: "wild" },
   { id: "oyster_mushroom", label: "Oyster Mushroom", icon: "🍄", order: 12, category: "wild" },
+  { id: "judas_ear",     label: "Dead Man's Ear", icon: "🍄", order: 12.5, category: "wild" },
   { id: "nuts",          label: "Nuts",        icon: "🌰", order: 13, category: "wild" },
   // Cooked meals — made at the Kitchen; stretch raw food into more portions and
   // count toward food diversity (a hot meal). See crafting.ts kitchen recipes.

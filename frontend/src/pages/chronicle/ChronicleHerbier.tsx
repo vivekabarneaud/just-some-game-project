@@ -119,10 +119,10 @@ export default function ChronicleHerbier() {
                       }}>
                         {isSeen(p) ? p.name : "???"}
                       </div>
-                      {/* A found plant that kills you says so on the card. The
-                          warning is worth more than the surprise. */}
+                      {/* A plant that yields nothing says so, plainly. How BADLY
+                          it is not food is Edda's line's job, in the modal. */}
                       <Show when={isSeen(p) && p.forage && !p.forage.yields}>
-                        <div style={{ "font-size": "0.66rem", color: "var(--accent-red)", "margin-top": "2px" }}>☠️ Not food</div>
+                        <div style={{ "font-size": "0.66rem", color: "var(--accent-red)", "margin-top": "2px" }}>Not food</div>
                       </Show>
                     </div>
                   )}
@@ -173,7 +173,7 @@ export default function ChronicleHerbier() {
                               <div style={{ "font-weight": 600, "margin-bottom": "3px" }}>
                                 {other()!.name}
                                 <Show when={!other()!.forage?.yields}>
-                                  <span style={{ color: "var(--accent-red)" }}> ☠️</span>
+                                  <span style={{ color: "var(--accent-red)", "font-weight": 400, "font-size": "0.72rem" }}> · not food</span>
                                 </Show>
                               </div>
                               <div style={{ color: "var(--text-muted)", "font-style": "italic" }}>{other()!.forage?.note}</div>

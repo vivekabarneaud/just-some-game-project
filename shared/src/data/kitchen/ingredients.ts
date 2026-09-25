@@ -79,7 +79,11 @@ export const FOOD_INGREDIENTS: FoodIngredient[] = [
   // ── Veg · mushrooms (the forager's seasonal picks + the rain flush) ──
   { id: "field_mushroom", name: "Field Mushroom", icon: "🍄", role: "veg", signature: "fry", nourish: 2, comfort: 2, flavors: ["hearty"], techniques: FUNGI, note: "Common as grass, and still good in the pan." },
   { id: "morel", name: "Morel", icon: "🍄", role: "veg", signature: "fry", nourish: 2, comfort: 3, flavors: ["hearty"], techniques: FUNGI, note: "Spring's honeycomb prize. Never eaten raw." },
-  { id: "chanterelle", name: "Chanterelle", icon: "🍄", role: "veg", signature: "fry", nourish: 2, comfort: 3, fresh: 1, flavors: ["hearty", "fresh"], techniques: FUNGI, note: "Golden, and faintly of apricots. The forager's reward." },
+  { id: "chanterelle", name: "Chanterelle", icon: "🍄", role: "veg", signature: "fry", nourish: 2, comfort: 3, flavors: ["hearty", "sweet"], techniques: FUNGI, note: "Golden, and faintly of apricots. The forager's reward." },
+  // No `flavors` on purpose: a wood ear tastes of almost nothing and gives the
+  // pot body and texture instead. Every other mushroom is "hearty"; this one
+  // contributes bulk, which is a real difference without being a special power.
+  { id: "judas_ear", name: "Dead Man's Ear", icon: "🍄", role: "veg", signature: "boil", nourish: 2, comfort: 1, techniques: FUNGI, note: "Soft, ear-shaped, and tasting of very little. It takes on whatever it is cooked in." },
   { id: "oyster_mushroom", name: "Oyster Mushroom", icon: "🍄", role: "veg", signature: "fry", nourish: 3, comfort: 2, flavors: ["hearty"], techniques: FUNGI, note: "Grey fans off a dead trunk, and the only mushroom still growing in the frost. Tears into strips like meat." },
   { id: "cepe", name: "King Bolete", icon: "🍄", role: "veg", signature: "fry", nourish: 3, comfort: 4, flavors: ["hearty"], techniques: FUNGI, note: "The king of the wood. Thick, nutty, and hoarded." },
 

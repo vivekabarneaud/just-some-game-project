@@ -76,7 +76,7 @@ export const FORAGE_PLANTS: ForagePlant[] = [
     clump: 3, rainFlush: 4,
     size: [0.85, 1.3],
     weight: { autumn: 6, winter: 30 }, decay: 0.012 },
-  { id: "judas_ear", name: "Judas Ear", icon: "🍄", yields: "judas_ear",
+  { id: "judas_ear", name: "Dead Man's Ear", icon: "🍄", yields: "judas_ear",
     anchored: true, anchorKind: "wood_fungus",
     note: "Brown, soft and unmistakably ear-shaped, growing on elder. Strange enough that nobody forgets it.",
     clump: 3, rainFlush: 3,

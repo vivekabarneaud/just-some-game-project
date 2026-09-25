@@ -10,6 +10,18 @@ export interface HerbDefinition {
 
 export const HERBS: HerbDefinition[] = [
   {
+    id: "fly_agaric",
+    name: "Fly Agaric",
+    icon: "🍄",
+    rarity: "common",
+    description: "The red-and-white toadstool out of every story. Common under birch and pine, and never to be eaten.",
+    // The foragers bring one back for Edda rather than for the pot. Not in the
+    // foraging scene yet: with no sprite it would render as an emoji among
+    // painted mushrooms, and be identifiable by BEING an emoji, which is a tell
+    // that has nothing to do with the mushroom. It joins the wood when drawn.
+    dropRate: 0.04,
+  },
+  {
     id: "chamomile",
     name: "Chamomile",
     icon: "🌼",
