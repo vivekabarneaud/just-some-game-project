@@ -24,7 +24,7 @@ Working agreement: Claude executes, you decide, react and play. Nothing is
 scheduled that requires you to grind.
 
 **Milestones, in order**
-1. Land the cleanup — merge the open branches.
+1. ~~Land the cleanup — merge the open branches.~~ **Done.** Verified in code 2026-09-25: enemies are at 22, `SAVE_VERSION` is 3, CI runs typecheck + tests. Both chore branches are merged and deleted. Tech-debt **batch D** (merge the two raid resolvers, then the quick dedups) is what is left of that thread.
 2. **Author Chapter 2** — the witchcraft/maddened arc + the Old Watch. Close the Bog Witch back half. Decide what of Stories 2–13 survives.
 3. **Progression & anti-softlock pass** — gates, costs and durations through Act 1. Get fresh-player signal; don't tune off dev self-play.
 4. **Content quality pass** — the systems that are 90% built (see *Nearly done*).
@@ -37,9 +37,7 @@ scheduled that requires you to grind.
 
 | Thread | Branch | Next concrete action |
 |---|---|---|
-| **The big cleanup** | `chore/big-cleanup` | Review and merge. 2,500 lines cut: enemies 64→22, missions 124→60, materials 44→15, raids 13→6. `SAVE_VERSION` bumped to 2, so your save resets on load. |
-| **Tech debt B + C** | `chore/tech-debt-b-c` | **Needs one eyeball** — the CSS purge cut 1,468 lines with zero visual change *intended*. Check the login page, Farming, Defenses, Inventory and the quest panels, then merge. |
-| **Foraging minigame** | `feat/foraging-minigame` (local only) | Data + sandbox built. Remaining: the trip economy (one a day + Orison Shard renewal), yield→larder wiring, home-page placement. The herbier is DONE in both halves (2026-09-25): the Lord's book under the alchemy desk, and the Chronicle → Herbier tab with the decoy comparisons. Art in ``FORAGING_PROMPTS.md` (on the foraging branch)`. |
+| **Foraging minigame** | merged to preprod | Data + sandbox built. **Remaining: home-page placement only** (no way into the wood from `Overview.tsx`). Everything else shipped: the trip economy (a daily mission card, free via the board's 3AM refresh + the 10x2^n shard reroll) and yield→larder both landed 2026-09-08; the herbier landed 2026-09-25 in both halves (the Lord's book under the alchemy desk, and the Chronicle → Herbier tab with the decoy comparisons). Verified against the code 2026-09-25, because this row had been stale on the first two since the wiring branch merged. Art in ``FORAGING_PROMPTS.md` (on the foraging branch)`. |
 
 ---
 
