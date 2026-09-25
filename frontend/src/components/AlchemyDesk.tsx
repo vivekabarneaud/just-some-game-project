@@ -73,10 +73,15 @@ export default function AlchemyDesk() {
 
   // Recipe book — only recipes makeable with the current stations.
   const makeable = (pl: Placement[]) => pl.every((p) => STATIONS.some((s) => s.technique === p.technique));
-  const knownCards = NAMED_RECIPES.filter((r) => makeable(r.placements))
-    .map((r) => ({ id: namedRecipeId(r), name: r.name, icon: r.icon, placements: r.placements, quality: "fine" as const, rarity: brewRarity(r.placements), effects: brew(r.placements).effects }));
   const namedIds = new Set(NAMED_RECIPES.map((r) => namedRecipeId(r)));
   const book = createMemo(() => {
+    // A named recipe is on the shelf if the settlement already knew it, or if the
+    // player has actually brewed it. Until 2026-09-25 all ten were handed over
+    // for free, which made them worthless to find — the kitchen had always used
+    // `preknown` for exactly this and alchemy simply never got the flag.
+    const knownCards = NAMED_RECIPES
+      .filter((r) => makeable(r.placements) && (r.preknown || !!state.alchemyRecipes?.[namedRecipeId(r)]))
+      .map((r) => ({ id: namedRecipeId(r), name: r.name, icon: r.icon, placements: r.placements, quality: "fine" as const, rarity: brewRarity(r.placements), effects: brew(r.placements).effects }));
     const discovered = Object.values(state.alchemyRecipes ?? {})
       .filter((r) => !namedIds.has(r.id) && makeable(r.placements))
       .map((r) => ({ id: r.id, name: r.name, icon: getIngredient(r.placements[0]?.ingredientId)?.icon ?? "🧪", placements: r.placements, quality: r.quality, rarity: r.rarity ?? brewRarity(r.placements), effects: r.effects }));

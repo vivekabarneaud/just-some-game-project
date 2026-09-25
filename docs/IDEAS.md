@@ -17,6 +17,22 @@ its line — the code becomes the documentation.
 
 ## Alchemy
 
+- ✅ **Recipe census — BUILT 2026-09-25.** Chronicle →
+  Recipes: the 73 named dishes filed by the prep they turn on (the pot, the oven,
+  the pan, the fire, the board, the store) and the 10 named brews, with `???`
+  cards for what has not been worked out yet.
+  **The rule, and the reason it is safe:** an undiscovered card shows that a thing
+  EXISTS and not one word more — no name, no ingredients, no hint. Both crafts are
+  free-form by design, and a mystery card listing its ingredients would turn
+  inventing into following a shopping list.
+  Only NAMED recipes are censused; a player's own combos are open-ended and stay
+  in the desk books.
+  **This also fixed a real asymmetry:** the kitchen had always used `preknown` to
+  hand over only its staples, while alchemy handed over all ten named brews for
+  free — so there was nothing to find at the bench. `NamedRecipe` now has the same
+  flag, with the two camp-tier cures pre-known as the worked examples a newcomer
+  needs, and the other eight earned.
+
 - ✅ **Herbalist discovery — BUILT 2026-09-25** (`feat/herbier`). The Herbier: the
   Lord's own book of plants, under the desk on `/alchemy`. A page is drawn the day a
   plant is in hand; a line is added each time he actually performs a technique,

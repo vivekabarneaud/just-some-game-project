@@ -14,6 +14,13 @@ export interface NamedRecipe {
   icon: string;
   placements: Placement[];
   note: string;
+  /** Shown in the recipe book from the start — the settlement already knows it,
+   *  and the card doubles as the worked example that teaches a newcomer what a
+   *  combo even looks like. Everything else is a DISCOVERY: it appears once the
+   *  player has actually brewed it. Mirrors NamedDish.preknown in the kitchen,
+   *  which had this from the start while alchemy handed all ten over for free
+   *  (fixed 2026-09-25, when the recipe census made the difference visible). */
+  preknown?: boolean;
 }
 
 const P = (ingredientId: string, technique: Placement["technique"]): Placement => ({ ingredientId, technique });
@@ -21,11 +28,11 @@ const P = (ingredientId: string, technique: Placement["technique"]): Placement =
 export const NAMED_RECIPES: NamedRecipe[] = [
   // Camp-tier (boil + crush only) — the early cures.
   {
-    name: "Bitterroot Tonic", icon: "🍶", note: "Cools a fever from aching bones.",
+    name: "Bitterroot Tonic", preknown: true, icon: "🍶", note: "Cools a fever from aching bones.",
     placements: [P("willowbark", "boil"), P("chamomile", "crush")],
   },
   {
-    name: "Woundwort Salve", icon: "🩹", note: "Staunches a bad cut.",
+    name: "Woundwort Salve", preknown: true, icon: "🩹", note: "Staunches a bad cut.",
     placements: [P("yarrow", "crush"), P("chamomile", "crush")],
   },
   {
