@@ -48,6 +48,17 @@ export function playerGone(ctx: CombatContext): boolean {
 }
 
 /** All enemies defeated. */
+/** Quarter: with mercy given, a field of runners and surrendered men is a won
+ *  field -- there is nobody left who is still fighting, and the team is not going
+ *  to chase or execute them. Kept separate from `enemiesGone` on purpose:
+ *  `aliveEnemies` also feeds losingTheRace and escapeChance, where widening it
+ *  would quietly move the hero-side flee odds. */
+export function enemiesBeaten(ctx: CombatContext): boolean {
+  if (enemiesGone(ctx)) return true;
+  if (ctx.quarter === "none") return false;
+  return aliveEnemies(ctx).every((u) => u.fleeing || u.yielded);
+}
+
 export function enemiesGone(ctx: CombatContext): boolean {
   return aliveEnemies(ctx).length === 0;
 }

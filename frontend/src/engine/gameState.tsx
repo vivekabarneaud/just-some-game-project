@@ -230,6 +230,7 @@ import { type ActiveMission,
   isExpedition,
   getMissionPhase,
   type AdventurerMissionSupplies,
+  type Quarter,
 } from "@medieval-realm/shared/data/missions";
 import { getEnemy } from "@medieval-realm/shared/data/enemies";
 import { forageBloomNow } from "~/data/weather";
@@ -1188,7 +1189,7 @@ interface GameActions {
    *  the cookbook (state.kitchenDishes) + the prepared-dish stock, and discovers
    *  it if new. Returns false if any ingredient is short. */
   cookDish: (placements: CookPlacement[]) => boolean;
-  deployMission: (missionId: string, adventurerIds: string[], adventurerSupplies?: Record<string, { potion?: string; food?: string; recovery?: string }>, precomputedSuccess?: number) => boolean;
+  deployMission: (missionId: string, adventurerIds: string[], adventurerSupplies?: Record<string, { potion?: string; food?: string; recovery?: string }>, precomputedSuccess?: number, quarter?: Quarter) => boolean;
   /** Current quantity of any resource/item/herb/material (for deploy-item costs). */
   resourceQty: (res: string) => number;
   collectCompletedMissions: () => CompletedMission[];
@@ -5143,7 +5144,7 @@ export function GameProvider(props: ParentProps) {
               // without prerolledCombat fall back to compute-at-completion.
               const combatResult = (isExped || !template)
                 ? null
-                : (am.prerolledCombat ?? (template.encounters?.length ? simulateCombat(template, team, am.adventurerSupplies) : null));
+                : (am.prerolledCombat ?? (template.encounters?.length ? simulateCombat(template, team, am.adventurerSupplies, undefined, { quarter: am.quarter }) : null));
               // Discovery missions succeed on the objective (what the team learns)
               // even if the fight is lost — the combat still ran, so survivors
               // come home wounded via the HP block below, but the mission completes
@@ -7090,7 +7091,7 @@ export function GameProvider(props: ParentProps) {
     resourceQty(res: string) {
       return getResourceQty(state, res);
     },
-    deployMission(missionId, adventurerIds, adventurerSupplies = {}, precomputedSuccess?: number) {
+    deployMission(missionId, adventurerIds, adventurerSupplies = {}, precomputedSuccess?: number, quarter: Quarter = "given") {
       const guildLvl = this.getGuildLevel();
       if (guildLvl === 0) return false;
 
@@ -7182,6 +7183,7 @@ export function GameProvider(props: ParentProps) {
           remaining: effectiveDuration,
           successChance,
           adventurerSupplies: { ...adventurerSupplies },
+          quarter,
           initialDuration: effectiveDuration,
         };
 
@@ -7195,7 +7197,7 @@ export function GameProvider(props: ParentProps) {
           // HP-aware preview the player just saw.
           const deployHpOverride: Record<string, number> = {};
           for (const a of team) deployHpOverride[a.id] = a.currentHp ?? calcAdventurerMaxHp(a);
-          const combat = simulateCombat(template, team, adventurerSupplies, undefined, { hpOverride: deployHpOverride });
+          const combat = simulateCombat(template, team, adventurerSupplies, undefined, { hpOverride: deployHpOverride, quarter });
           if (!combat) {
             // Shouldn't happen — encounters non-empty and team non-empty —
             // but guard the type narrowing so TS lets us use combat below.

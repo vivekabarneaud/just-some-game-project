@@ -33,6 +33,15 @@ export type AITauntable = "obeys" | "ignores-generic" | "ignores";
  *                still bites in reach. Wolves, the bear.
  *    yields    : does not run at all. A person who breaks throws down their
  *                weapon and stays. Out of the fight where they stand. */
+/** What the team does with an enemy who breaks — the player's Quarter order,
+ *  chosen per deployment and sometimes locked by the mission's own fiction.
+ *    given : broken enemies are let be. The fight ends once nobody is still
+ *            fighting, and whatever ran off keeps what it was carrying.
+ *    none  : runners are chased to the treeline and a man who surrendered can be
+ *            killed where he knelt. Fuller loot, and the Lord has to live with it.
+ *  See docs/design/combat/ROUT_AND_FLIGHT.md. */
+export type Quarter = "given" | "none";
+
 export type AIFear = "fearless" | "bolts" | "withdraws" | "yields";
 
 export interface AIProfile {
@@ -366,7 +375,11 @@ export interface CombatLogEntry {
   /** Retreat/recovery narrative beat (Model C). Interim flat-schema marker until
    *  the combat-log discriminated-union refactor lands; the renderer can special-
    *  case these as highlighted lines. */
-  beat?: "broken" | "turns_tail" | "yields" | "flee_success" | "flee_fail" | "order_hold" | "order_fallback" | "abandoned" | "move" | "stunned";
+  beat?: "broken" | "turns_tail" | "yields" | "flee_success" | "flee_fail" | "order_hold" | "order_fallback" | "abandoned" | "move" | "stunned" | "quarter_given" | "no_quarter";
+  /** `quarter_given` only: the ids of the enemies who LEAVE the field on this
+   *  beat (the runners). Men who surrendered are spared in the same sweep but
+   *  stay where they knelt, so they are deliberately not in here. */
+  leaves?: string[];
   /** Human-readable narrative line for a `beat` entry. */
   note?: string;
   /** Battlefield position updates applied WHEN this entry plays (id → new pace on
@@ -475,4 +488,10 @@ export interface CombatContext {
   /** When true, the whole retreat/reflex layer is off (expeditions, special
    *  missions — lethal by design). */
   disableRetreat?: boolean;
+  /** The Quarter order this team was given. `given` (the default) = broken
+   *  enemies are let be, and the fight is over once nobody is still fighting.
+   *  `none` = runners are chased and a man who surrendered can be killed where
+   *  he knelt. Set per deployment from the player's toggle, never authored on a
+   *  unit. See docs/design/combat/ROUT_AND_FLIGHT.md. */
+  quarter?: Quarter;
 }

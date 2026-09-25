@@ -141,7 +141,7 @@ function basicAttack(unit: CombatUnit, ctx: CombatContext): void {
   const chargeTarget = chargeInfo
     ? targetPool.find((t) => t.id === chargeInfo.targetId && t.hp > 0)
     : undefined;
-  const target = chargeTarget ?? pin ?? (unit.isEnemy ? pickTarget(unit, targetPool, ctx.enemies) : pickTargetForAdventurer(unit, targetPool));
+  const target = chargeTarget ?? pin ?? (unit.isEnemy ? pickTarget(unit, targetPool, ctx.enemies) : pickTargetForAdventurer(unit, targetPool, ctx.quarter));
   if (!target || target.hp <= 0) return;
   const charged = !!chargeTarget && target.id === chargeTarget.id;
 
@@ -243,6 +243,10 @@ function basicAttack(unit: CombatUnit, ctx: CombatContext): void {
     }
   }
 
+  // Killing a man who had already thrown down his weapon is its own thing, and
+  // the log says so. Nothing reads this beat yet; the Lord's faith arc and the
+  // dynamic chronicle are what it is here for.
+  const executed = target.yielded && target.hp - damage <= 0;
   target.hp -= damage;
   if (!unit.isEnemy) addDamageThreat(target, unit, damage);
   const chargeMoves = [chargeSlide, knockMove].filter(Boolean) as { id: string; x: number }[];
@@ -252,6 +256,7 @@ function basicAttack(unit: CombatUnit, ctx: CombatContext): void {
     dodged: false, crit, killed: target.hp <= 0,
     targetHp: Math.max(0, target.hp), targetMaxHp: target.maxHp,
     isEnemy: unit.isEnemy,
+    ...(executed ? { beat: "no_quarter" as const, note: `${target.name} is cut down where he knelt` } : {}),
     ...(charged ? { abilityName: "Goring Charge", note: `${unit.name} charges ${chargePaces} paces at ${target.name} and gores for ${damage} damage` } : {}),
     ...(chargeMoves.length ? { moves: chargeMoves } : {}),
   });

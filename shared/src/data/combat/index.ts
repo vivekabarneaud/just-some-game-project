@@ -1,6 +1,6 @@
 import type { Adventurer } from "../adventurers.js";
 import type { MissionTemplate, MissionEncounter, AdventurerMissionSupplies } from "../missions/index.js";
-import type { CombatContext, CombatResult } from "./types.js";
+import type { CombatContext, CombatResult, CombatUnit, Quarter } from "./types.js";
 import { setCombatSeed } from "./prng.js";
 import { buildAdventurerUnit, buildEnemyUnits, buildNpcAllyUnit } from "./units.js";
 import { snapshotRoster, stampLogIds } from "./snapshot.js";
@@ -48,6 +48,9 @@ export function simulateCombat(
     /** Turn off the whole retreat/reflex layer (expeditions + special missions,
      *  which are lethal by design). Model C — see docs/IDEAS.md (Adventurer recovery). */
     disableRetreat?: boolean;
+    /** The Quarter order the player gave this team at deploy. Omit = mercy, which
+     *  is what a preview, an expedition and an old save all get. */
+    quarter?: Quarter;
   },
 ): CombatResult | null {
   const encountersToUse = overrides?.encounters ?? mission.encounters;
@@ -84,6 +87,9 @@ export function simulateCombat(
     round: 0, adventurers, enemies, log: [],
     modifiers: mission.modifiers,
     disableRetreat: overrides?.disableRetreat,
+    // Mercy unless the player said otherwise: an unauthored mission, a preview,
+    // an old save and an expedition all get the settlement's default.
+    quarter: overrides?.quarter ?? "given",
   };
   // Stamp initial modifier flags. Re-evaluated each round in case gate
   // conditions (whileAllyAlive) flip mid-combat (e.g. Niamh dies → physical
@@ -109,20 +115,31 @@ export function simulateCombat(
     if (!cont) break;
   }
 
-  // Round-cap escape hatch (ROUT_AND_FLIGHT): anything still mid-flight when
-  // the cap lands got away — the fight is over and nobody chases forever. Marks
-  // them fled so the result counts them defeated-with-sheddable-loot, exactly
-  // as if they had made the edge, and so a runner can never strand a fight.
-  for (const e of enemies) {
-    if (e.fleeing && !e.fled && e.hp > 0) {
-      e.fled = true;
-      ctx.log.push({
-        round: ctx.round, attackerName: e.name, attackerIcon: "🏃",
-        targetName: e.name, damage: 0, dodged: false, crit: false, killed: false,
-        targetHp: Math.max(0, e.hp), targetMaxHp: e.maxHp, isEnemy: true,
-        beat: "flee_success", note: `${e.name} is gone into the wilds`,
-      });
-    }
+  // Closing sweep (ROUT_AND_FLIGHT): whatever is still broken when the fight
+  // stops is done with. Runners that never made the edge got away; men who
+  // surrendered are let go. Both are marked `fled`, which result.ts already
+  // reads as defeated-with-sheddable-loot — so a routed enemy counts toward the
+  // win and keeps what it was carrying, and no runner can strand a fight at the
+  // round cap.
+  const leaves: string[] = [];
+  const spared = enemies.filter((e) => !e.fled && e.hp > 0 && (e.fleeing || e.yielded));
+  for (const e of spared) {
+    e.fled = true;
+    // A man who knelt stays where he knelt; only the runners leave the field.
+    if (e.fleeing) leaves.push(e.id);
+  }
+  if (spared.length > 0) {
+    const ran = leaves.length;
+    const knelt = spared.length - ran;
+    const parts: string[] = [];
+    if (ran > 0) parts.push(ran === 1 ? "one gets away into the wilds" : `${ran} get away into the wilds`);
+    if (knelt > 0) parts.push(knelt === 1 ? "one is left kneeling" : `${knelt} are left kneeling`);
+    ctx.log.push({
+      round: ctx.round, attackerName: spared[0].name, attackerIcon: "🕊️",
+      targetName: spared[0].name, damage: 0, dodged: false, crit: false, killed: false,
+      isEnemy: true, beat: "quarter_given", leaves,
+      note: `The fight is over: ${parts.join(", and ")}.`,
+    });
   }
 
   stampLogIds(ctx.log, roster);

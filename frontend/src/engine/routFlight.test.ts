@@ -18,10 +18,13 @@ const warrior = buildRecruitFromPremadeId("test_warrior", "char_018", 1)!;
 // motivating scene of the whole feature.
 const archer = buildRecruitFromPremadeId("test_nessa", "char_000", 1)!;
 
-const run = (enemyId: string, seed: number) =>
-  simulateCombat(mission, [warrior, archer], undefined, seed, { encounters: [{ enemyId, count: 1 }] });
+const run = (enemyId: string, seed: number, quarter: "given" | "none" = "none") =>
+  simulateCombat(mission, [warrior, archer], undefined, seed, { encounters: [{ enemyId, count: 1 }], quarter });
 
 describe("bolts — the boar runs and the fight chases it off the field", () => {
+  // Run them down: the chase is only a fight when the team was told to make it
+  // one. Under the merciful default the same boar is simply let go — that case
+  // is the "quarter" block below.
   it("a broken boar turns tail, then either escapes into the wilds or dies running", () => {
     let broke = 0, escaped = 0, slainAfterBreaking = 0;
     for (let seed = 0; seed < 60; seed++) {
@@ -54,7 +57,7 @@ describe("yields — a broken human stops fighting where they stand", () => {
   it("the brigand throws down their weapon: no flight, out of the fight, a win", () => {
     let yielded = 0;
     for (let seed = 0; seed < 60; seed++) {
-      const res = run("displaced_brigand", seed);
+      const res = run("displaced_brigand", seed, "none");
       if (!res) continue;
       const y = res.log.find((e) => e.beat === "yields");
       if (!y) continue;
@@ -71,6 +74,8 @@ describe("yields — a broken human stops fighting where they stand", () => {
 describe("flight tuning invariants", () => {
   it("bolting is strictly faster than withdrawing, and the elusion peak is real", () => {
     expect(FLIGHT.boltMult).toBeGreaterThan(FLIGHT.withdrawMult);
+    // Denied quarter, a creature runs for its life rather than breaking off.
+    expect(FLIGHT.deniedBoost).toBeGreaterThan(1);
     expect(FLIGHT.boltElusion).toBeGreaterThan(0);
   });
 
@@ -126,6 +131,85 @@ describe("threats first, runners after", () => {
 
   it("once only runners remain, the chase is the fight", () => {
     const runner = foe("runner", { fleeing: true });
-    expect(pickTargetForAdventurer(archer, [runner])?.id).toBe("runner");
+    expect(pickTargetForAdventurer(archer, [runner], "none")?.id).toBe("runner");
+  });
+
+  it("given quarter, a field of runners is nobody to swing at", () => {
+    const runner = foe("runner", { fleeing: true });
+    expect(pickTargetForAdventurer(archer, [runner], "given")).toBeNull();
+  });
+
+  it("a man who threw down his weapon is not a target unless no quarter was given", () => {
+    const kneeling = foe("kneeling", { yielded: true });
+    expect(pickTargetForAdventurer(archer, [kneeling], "given")).toBeNull();
+    expect(pickTargetForAdventurer(archer, [kneeling], "none")?.id).toBe("kneeling");
+  });
+});
+
+// The Quarter order is the player's, and it is the whole point of the feature:
+// the settlement drives enemies off rather than slaughtering them, unless the
+// Lord says otherwise. These assert the RULE, never a balance number.
+describe("quarter — what the team does with an enemy who breaks", () => {
+  it("given quarter, a boar that breaks is let go: alive, unhurt further, and still a win", () => {
+    let spared = 0;
+    for (let seed = 0; seed < 60; seed++) {
+      const res = run("wild_boar", seed, "given");
+      if (!res) continue;
+      const turned = res.log.findIndex((e) => e.beat === "turns_tail");
+      if (turned < 0) continue; // killed before its nerve broke
+      spared++;
+      // Nothing lands on it after it breaks. This is the bug the feature fixes.
+      const struckAfter = res.log.slice(turned + 1).some((e) => e.isEnemy === false && e.damage > 0);
+      expect(struckAfter, `seed ${seed}: the team kept hitting a boar that had already broken`).toBe(false);
+      expect(res.log.some((e) => e.beat === "quarter_given")).toBe(true);
+      // A cleared field is a win either way, and the runner still counts defeated.
+      expect(res.victory).toBe(true);
+    }
+    expect(spared).toBeGreaterThan(0);
+  });
+
+  it("given quarter, a brigand who surrenders lives", () => {
+    let knelt = 0;
+    for (let seed = 0; seed < 60; seed++) {
+      const res = run("displaced_brigand", seed, "given");
+      if (!res) continue;
+      const y = res.log.findIndex((e) => e.beat === "yields");
+      if (y < 0) continue;
+      knelt++;
+      expect(res.log.slice(y + 1).some((e) => e.beat === "no_quarter")).toBe(false);
+      expect(res.log.slice(y + 1).some((e) => e.isEnemy === false && e.killed)).toBe(false);
+      expect(res.victory).toBe(true);
+    }
+    expect(knelt).toBeGreaterThan(0);
+  });
+
+  it("no quarter, the same brigand can be cut down where he knelt", () => {
+    let executed = 0;
+    for (let seed = 0; seed < 60; seed++) {
+      const res = run("displaced_brigand", seed, "none");
+      if (!res) continue;
+      if (res.log.some((e) => e.beat === "no_quarter")) executed++;
+    }
+    expect(executed).toBeGreaterThan(0);
+  });
+
+  it("only the runners leave the field; a man who knelt stays where he is", () => {
+    for (let seed = 0; seed < 30; seed++) {
+      const res = run("displaced_brigand", seed, "given");
+      if (!res) continue;
+      const sweep = res.log.find((e) => e.beat === "quarter_given");
+      if (!sweep) continue;
+      const kneelerId = res.log.find((e) => e.beat === "yields")?.attackerId;
+      if (kneelerId) expect(sweep.leaves ?? []).not.toContain(kneelerId);
+    }
+  });
+
+  it("breaking is a state, and the two exits are different states", () => {
+    const boar = run("wild_boar", 3, "given");
+    const brigand = run("displaced_brigand", 3, "given");
+    // A beast never surrenders and a man of this kind never bolts: which exit a
+    // creature takes is its authored `fear`, not a runtime coin-flip.
+    expect(boar?.log.some((e) => e.beat === "yields")).toBe(false);
+    expect(brigand?.log.some((e) => e.beat === "turns_tail")).toBe(false);
   });
 });

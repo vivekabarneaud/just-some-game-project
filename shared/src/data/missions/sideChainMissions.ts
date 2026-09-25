@@ -80,6 +80,9 @@ export const SIDE_CHAIN_MISSIONS: MissionTemplate[] = [
     minGuildLevel: 1,
     tags: ["combat", "outdoor", "survival"],
     encounters: [{ enemyId: "wild_boar", count: 2 }],
+    // The card already gave its word: "a fair hunt, not a cull". A boar that
+    // breaks is let go, and the player does not get to take that back here.
+    quarter: { default: "given", locked: "A fair hunt, not a cull. We take what the larder needs and let the rest run." },
     urgent: true, // distinct outline — the food crisis needs an answer now
     requires: { missionDone: "__forced_only__" }, // sentinel: never met → forced-only
   },

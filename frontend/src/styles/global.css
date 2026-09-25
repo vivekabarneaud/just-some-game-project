@@ -1874,6 +1874,17 @@ input, textarea, select {
   background: var(--accent-blue, #6fa8dc);
   color: var(--bg-primary);
 }
+/* A two-state toggle the fiction has already decided (a mission that locks its
+   Quarter order). Reads as settled rather than broken: no hover, no pointer, and
+   the reason arrives in the tooltip. */
+.sluice-toggle:disabled,
+.sluice-toggle:disabled:hover {
+  cursor: default;
+  opacity: 0.65;
+  background: var(--bg-primary);
+  color: var(--text-muted);
+  border-color: var(--border-subtle, rgba(180, 160, 110, 0.35));
+}
 .sluice-hint {
   margin-top: 4px;
   font-size: 0.68rem;

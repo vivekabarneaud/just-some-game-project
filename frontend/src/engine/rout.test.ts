@@ -42,7 +42,11 @@ describe("enemy rout — beasts break and run", () => {
       });
       if (!res) continue;
       fought++;
-      if (res.log.some((e) => e.beat === "flee_success" && e.isEnemy === true)) {
+      // A wolf leaves a merciful fight one of two ways: it makes the treeline
+      // under its own legs (flee_success), or the team lets it be once nobody
+      // is still fighting (quarter_given). Both are the mechanic firing; which
+      // one happens is a matter of how far it got, not of the rule.
+      if (res.log.some((e) => (e.beat === "flee_success" || e.beat === "quarter_given") && e.isEnemy === true)) {
         routs++;
         // The point of the mechanic: the fight can END without the wolf dying.
         if (res.victory) endedWithWolfAlive++;

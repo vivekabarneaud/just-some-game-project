@@ -6,6 +6,7 @@ import type { Season } from "../../gameState.js";
 
 export type { RewardType } from "../rewards.js";
 import type { RewardType } from "../rewards.js";
+import type { Quarter } from "../combat/types.js";
 
 export interface MissionReward {
   resource: RewardType;
@@ -128,7 +129,19 @@ export interface MissionTemplate {
   npcAlly?: MissionNpcAlly;
   /** Per-mission combat-rule modifiers (e.g. physical can hit ghosts during the binding). */
   modifiers?: MissionModifier[];
+  /** Quarter: what the team does with an enemy who breaks. `given` = broken
+   *  enemies are let go (less loot, they keep what they carry); `none` = nobody
+   *  who breaks leaves the field. Omit and the player chooses at deploy, starting
+   *  from mercy, which is what the settlement does by default.
+   *
+   *  `locked` is both the lock and the reason: set it and the toggle is disabled
+   *  and shows that string as its tooltip. For the missions whose fiction has
+   *  already decided, either way -- the boar hunt is a fair hunt and not a cull,
+   *  and nothing that came out of the tainted spring can be allowed to walk away.
+   *  (ROUT_AND_FLIGHT, 2026-09-25.) */
+  quarter?: { default: Quarter; locked?: string };
 }
+
 
 /**
  * Mission-specific NPC ally configuration.
@@ -227,6 +240,9 @@ export interface ActiveMission {
   successChance: number; // 0-100, locked in at deploy
   /** Per-adventurer supplies: map of adventurerId → { potion?, food?, recovery? } */
   adventurerSupplies?: Record<string, AdventurerMissionSupplies>;
+  /** The Quarter order the player gave this team at deploy. Old saves without it
+   *  fall back to mercy, same as an unauthored mission. */
+  quarter?: Quarter;
   // ── Expedition-only fields ──────────────────────────────────
   /** Number of events completed so far (expedition only). Determines which event fires next. */
   expeditionEventIndex?: number;
@@ -483,3 +499,5 @@ export function getMissionPhase(am: ActiveMission): MissionPhase | null {
   if (elapsed - halfway > COMBAT_PHASE_MAX_SECONDS) return "homeward";
   return "combat";
 }
+
+export type { Quarter };

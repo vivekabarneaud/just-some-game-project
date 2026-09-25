@@ -18,7 +18,7 @@ import { describeEffect } from "@medieval-realm/shared/data/alchemy/describe";
 // Channels a brewed potion applies as a COMBAT buff (see setup.applyBrewBuffs).
 const BREW_COMBAT_CHANNELS = new Set(["str", "dex", "int", "vit", "wis", "crit", "accuracy", "dodge", "parry", "initiative", "mobility", "presence", "luck", "damage_pct", "defense_pct", "heal_hp"]);
 const isBrewCombatUseful = (effects: { channel: string }[]) => effects.some((e) => BREW_COMBAT_CHANNELS.has(e.channel) || e.channel.startsWith("resist_"));
-import type { AdventurerMissionSupplies } from "@medieval-realm/shared/data/missions";
+import type { AdventurerMissionSupplies, Quarter } from "@medieval-realm/shared/data/missions";
 import SupplySlot from "./SupplySlot";
 import { type MissionTemplate,
   calcSuccessChance,
@@ -60,7 +60,7 @@ function getMissionImage(missionId: string): string | undefined {
 interface Props {
   mission: MissionTemplate;
   onCancel: () => void;
-  onDeploy: (missionId: string, teamIds: string[], adventurerSupplies: Record<string, AdventurerMissionSupplies>, successPct: number) => boolean;
+  onDeploy: (missionId: string, teamIds: string[], adventurerSupplies: Record<string, AdventurerMissionSupplies>, successPct: number, quarter: Quarter) => boolean;
   /** Adventurer IDs locked into a coop expedition — shouldn't appear in solo deployment */
   coopLockedAdvIds?: Set<string>;
   /** When set, the panel is in coop mode — roster/supplies are persisted to the coop API instead of local state */
@@ -79,6 +79,22 @@ export default function MissionAssemblyPanel(props: Props) {
   const [teamIds, setTeamIds] = createSignal<string[]>([]);
   const [adventurerSupplies, setAdventurerSupplies] = createSignal<Record<string, AdventurerMissionSupplies>>({});
   const mission = () => props.mission;
+  // ─── Quarter: the order this team carries ─────────────────────
+  // Mercy unless the mission's own fiction has already decided. `locked` is both
+  // the lock and the reason the player reads on the disabled toggle.
+  const quarterRule = () => freshMission().quarter;
+  // Nothing to decide when nothing out there can break: the rabid boar, the
+  // tainted herd and Greyfang all fight to the death (no routsAt), so offering
+  // the order there would be dead UI.
+  const quarterMatters = () =>
+    (freshMission().encounters ?? []).some((e) => getEnemy(e.enemyId)?.routsAt != null);
+  const quarterLock = () => quarterRule()?.locked;
+  const [quarterChoice, setQuarterChoice] = createSignal<Quarter | null>(null);
+  const quarter = (): Quarter => {
+    const rule = quarterRule();
+    if (rule?.locked) return rule.default;
+    return quarterChoice() ?? rule?.default ?? "given";
+  };
   const freshMission = () => getMission(mission().id) ?? mission();
   // The whole panel wears a frame keyed to the mission's RANK (novice=common …
   // veteran=epic, story=legendary), signalling the stakes of the mission.
@@ -478,7 +494,7 @@ export default function MissionAssemblyPanel(props: Props) {
 
       let wins = 0;
       for (let i = 0; i < SIMS; i++) {
-        const combat = simulateCombat(fm, snapshot, sups, seed + i, { hpOverride });
+        const combat = simulateCombat(fm, snapshot, sups, seed + i, { hpOverride, quarter: quarter() });
         if (!combat) continue;
         if (combat.victory) wins++;
         const { dead } = rollPermanentDeaths(combat.fallenAdventurerIds, snapshot, fm, sups);
@@ -575,7 +591,7 @@ export default function MissionAssemblyPanel(props: Props) {
     // UNMOUNTS us. So do NOT write local signals afterward — that fires memos
     // (effectiveDuration, …) that read the now-stale mission() accessor and throw
     // a "stale value from <Show>" error, which also breaks the clean unmount.
-    props.onDeploy(mission().id, teamIds(), adventurerSupplies(), successPct());
+    props.onDeploy(mission().id, teamIds(), adventurerSupplies(), successPct(), quarter());
   };
   const handleDeploy = () => {
     if (atRiskMembers().length > 0) {
@@ -1586,11 +1602,34 @@ export default function MissionAssemblyPanel(props: Props) {
           </button>
         </Show>
 
+        {/* Quarter: what this team does with an enemy who breaks. Shown even when
+            the mission has already decided, so the player learns the rule exists
+            and reads WHY it is fixed here. */}
+        <Show when={!isCoop() && quarterMatters()}>
+          <Tooltip text={quarterLock() ?? undefined} position="top" block>
+            <button
+              class="sluice-toggle"
+              classList={{ "sluice-toggle--open": quarter() === "given" }}
+              disabled={!!quarterLock()}
+              style={{ width: "100%", "margin-top": "12px" }}
+              onClick={() => setQuarterChoice(quarter() === "given" ? "none" : "given")}
+            >
+              {quarter() === "given" ? "🕊️ Let them run" : "⚔️ Run them down"}
+              <Show when={quarterLock()}> 🔒</Show>
+            </button>
+          </Tooltip>
+          <div class="sluice-hint">
+            {quarter() === "given"
+              ? "Anyone who breaks is let go. We take less from the ones that get away."
+              : "Nobody who breaks leaves the field. We take everything they carried."}
+          </div>
+        </Show>
+
         {/* Solo mode: Deploy Team button */}
         <Show when={!isCoop()}>
           <button
             class="upgrade-btn"
-            style={{ width: "100%", "margin-top": "12px" }}
+            style={{ width: "100%", "margin-top": "8px" }}
             disabled={teamIds().length === 0 || state.resources.gold < deployCost() || deployItemsShort().length > 0 || !areRequiredSlotsFilled(freshMission(), team())}
             onClick={handleDeploy}
             data-no-click-sound

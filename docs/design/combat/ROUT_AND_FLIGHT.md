@@ -1,16 +1,21 @@
 # Rout and flight
 
-- **Status:** v1 BUILT 2026-09-04 (`feat/rout-and-flight`) — the fear styles,
-  flight as movement, threats-first targeting, the round-cap escape hatch, and
-  Lean Times paying in carcasses. `aiTier` is deleted. Still open: the
-  transformation/modifier bundle, `preferredAbilities` wiring, Nessa's tree, HP
-  regen — see "Deliberately NOT in v1".
-  Came out of playtesting Lean Times, where the boars routed and the larder
-  filled anyway.
-- **Cross-refs:** `shared/src/data/combat/ai/profile.ts` (the knobs),
-  `ai/types.ts` (the state machine, built and unused), `retreat.ts` (morale +
-  the hero-side flee), `round/actions.ts:98` (the beast rout check),
-  `positional.ts` (`mobilityOf`, the 0-100 field).
+- **Status:** v2 BUILT 2026-09-25 (`fix/surrender`) — flight is a STATE and
+  Quarter is the player's order. See "v2" below. v1 BUILT 2026-09-04
+  (`feat/rout-and-flight`) — the fear styles, flight as movement, threats-first
+  targeting, the round-cap escape hatch, and Lean Times paying in carcasses.
+  `aiTier` is deleted, and `preferredAbilities` is wired as of v2. Still open:
+  the transformation/modifier bundle, Nessa's tree, HP regen — see
+  "Deliberately NOT in v1".
+  v1 came out of playtesting Lean Times, where the boars routed and the larder
+  filled anyway. v2 came out of a dominion tough who surrendered and was killed
+  for it.
+- **Cross-refs:** `shared/src/data/combat/ai/flight.ts` (the states and the
+  break transitions), `ai/profile.ts` (the knobs), `ai/registry.ts` +
+  `ai/types.ts` (the state machine), `retreat.ts` (morale, the hero-side flee,
+  `enemiesBeaten`), `round/actions.ts` (the turn loop and the break sweep),
+  `targeting.ts` (the Quarter read), `positional.ts` (`mobilityOf`, `FLIGHT`,
+  the 0-100 field).
 
 ## The test this design is held to
 
@@ -286,3 +291,105 @@ So:
    That is the mechanical meaning of "backs off facing you" vs "turns and runs".
 3. **`"routs"` is deleted, not kept as an alias** — every routing enemy gets an
    explicit style, and unauthored `routsAt` holders default to `withdraws`.
+
+---
+
+# v2 — flight is a state, and Quarter is the player's order (2026-09-25)
+
+Three playtest notes turned out to be one shape:
+
+> "A dominion tough who surrended was killed by my team"
+> "When an enemy surrenders i'd like to see their frame greyed"
+> "I think my team killed the wolves because they don't flee well anymore"
+
+v1 had promised, in this very document, that "a surrendered human is a *choice*
+-- spare or kill". There was no choice. The team always killed.
+
+## The two exits are different states
+
+The distinction v1 blurred, and v2 holds:
+
+- **yielding** = *"do whatever you want with me."* The weapon is on the ground.
+- **fleeing** = *"I don't want to get caught."* Still a participant, still running.
+
+They are not two flavours of one exit, which is why `yielded` is now its own flag
+rather than an early `fled`. Whether a man who knelt leaves the field alive is
+not the simulator's call any more.
+
+## Flight moved into the state machine
+
+The structural cause under all three notes: `round/actions.ts` had a hardcoded
+block of flight logic that ran BEFORE `evaluateTransitions`, so a broken creature
+never got an AI state, never got an `onTurn` hook, and was hard-limited to basic
+attacks. Meanwhile the state machine was a placeholder — one behaviour, one empty
+state, no transitions, `preferredAbilities` declared and never read.
+
+Flight is now its first real citizen (`ai/flight.ts`): breaking is a transition,
+`fleeing` and `yielded` are states, and `FLIGHT_STATES` / `FLIGHT_TRANSITIONS`
+are spread into `DEFAULT_BEHAVIOR` so a boss behaviour composes them rather than
+reimplementing breaking. Supporting changes:
+
+- `AIState` gains `onEnter` (one-shot arrival work: stamp the flag, push the
+  beat, raise elusion) and `allowAbilities`. Transition guards stay pure.
+- `onTurn` runs AHEAD of `moveUnit`, so a state that returns true has spent the
+  whole beat including its movement. The runner's move IS its turn.
+- Flight speed is authored per creature (`ai.flightSpeed`), defaulted from the
+  fear style. A deer has no business fleeing at wolf pace.
+- `preferredAbilities` is wired (`abilities/index.ts preferFirst`). Nothing
+  authors it yet; it is what a bespoke fleeing-caster state will use, which is
+  the thing v1's "the knob stays about movement only" note deferred. The default
+  `fleeing` state still sets `allowAbilities: false`, so a routed animal is past
+  tactics exactly as before — casting while you retreat is now a *choice a
+  creature can be authored to make*, not something every runner gets.
+
+**Nerves break when the blow lands.** The v1 check ran on the breaking unit's own
+turn, so a man whose nerve had gone died in the window before his initiative came
+round. `evaluateTransitions` is now swept over every enemy at the top of each
+turn, plus once at the end of the round.
+
+## Quarter
+
+`MissionTemplate.quarter?: { default: Quarter; locked?: string }`, resolved per
+deployment on the assembly panel and stored on `ActiveMission.quarter`. The
+presence of `locked` IS the lock; its string is the tooltip. Omitted = the player
+chooses, starting from mercy.
+
+- **given** (default): broken enemies are let be. `pickTargetForAdventurer`
+  returns null rather than falling back to the runners, and `enemiesBeaten`
+  reads a field of runners and kneeling men as won. The closing sweep in
+  `index.ts` marks them `fled`, which `result.ts` already counts as defeated
+  with `keepOnRout` loot only. **Mercy costs loot, and that is the trade.**
+- **none**: the v1 behaviour, plus a man who surrendered stays targetable and can
+  be killed where he knelt (logged as its own `no_quarter` beat, for the faith
+  arc and the dynamic chronicle to find later). Runners get `FLIGHT.deniedBoost`
+  so the chase is a real race rather than a formality.
+
+The toggle only appears when something in the encounter can actually break
+(`routsAt != null`), so it never shows on the rabid boar, the tainted herd or
+Greyfang, all of which fight to the death. Exactly one mission is authored with a
+lock so far: **Lean Times**, to `given`, because its own card already gave the
+settlement's word — *"a fair hunt, not a cull"*.
+
+## The visuals were built and never triggered
+
+`CombatantCard` already had a rout flash and a grey-out; `CombatBattlefield`
+only ever replayed `flee_success`, so `yields` and `turns_tail` were invisible.
+It now derives `running` and `yielded` too. A runner is shown routing but stays
+on the field (it is still hittable); a man who knelt greys out and stays where he
+knelt; only a unit that actually left slides off. Flight movement is also logged
+now, so a runner visibly runs instead of standing still until it vanishes.
+
+## Decisions taken in v2 (flag at review if wrong)
+
+1. **Mercy is the default everywhere** — an unauthored mission, a preview, an
+   expedition and an old save all get `given`. The settlement drives enemies off;
+   the player has to ask for the other thing.
+2. **A man who surrendered can be killed, but only on the player's order.** That
+   is what makes Quarter a moral choice rather than a loot setting.
+3. **`enemiesBeaten` is a sibling of `enemiesGone`, not a widening of it** —
+   `aliveEnemies` also feeds `losingTheRace` and `escapeChance`, where a wider
+   definition would quietly move the hero-side flee odds.
+4. **The default `fleeing` state still bars abilities.** Casting while retreating
+   belongs to a creature authored to do it, not to every routed animal.
+5. **The toggle hides rather than locks when nothing can break.** A lock implies
+   the fiction decided; hiding says there is nothing to decide.

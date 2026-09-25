@@ -26,7 +26,7 @@ export type {
   ResolvedExpeditionEvent,
 } from "./types.js";
 export { isExpedition, getMissionPhase } from "./types.js";
-export type { MissionPhase } from "./types.js";
+export type { MissionPhase, Quarter } from "./types.js";
 
 // ─── Mission pools ─────────────────────────────────────────────
 import { NOVICE_MISSIONS } from "./noviceMissions.js";

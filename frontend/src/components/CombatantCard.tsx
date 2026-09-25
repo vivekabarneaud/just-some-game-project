@@ -64,6 +64,12 @@ export default function CombatantCard(props: {
   actDelay?: number;
   /** Fled the field — slide off-side and fade. */
   fleeing?: boolean;
+  /** Broken and running, but still on the field: shown routing, no slide. */
+  running?: boolean;
+  /** Threw down their weapon — greyed where they knelt, and staying there.
+   *  Whether they live through it is the player's Quarter order, not this card's
+   *  business, so the treatment is "out of the fight", never "dead". */
+  yielded?: boolean;
   /** Down (hp<=0) — dim and desaturate. */
   fallen?: boolean;
   /** Card display width in px. Height derives from the art aspect. */
@@ -102,7 +108,7 @@ export default function CombatantCard(props: {
       {/* Rout flash — a brief "Routs!" over the card as it breaks off, so a morale
           break reads as a decision, not a card vanishing "for no reason". Sits
           outside the sliding motion layer so it stays put, and fades itself out. */}
-      <Show when={props.fleeing}>
+      <Show when={props.fleeing || props.running || props.yielded}>
         <div style={{
           position: "absolute", inset: "0", "z-index": 6,
           display: "flex", "align-items": "center", "justify-content": "center",
@@ -110,11 +116,13 @@ export default function CombatantCard(props: {
           animation: "combat-rout-flash 1.6s ease-out forwards",
         }}>
           <span style={{
-            background: "rgba(20,20,35,0.92)", color: "#e74c3c",
+            background: "rgba(20,20,35,0.92)",
+            color: props.yielded ? "#e8dcc0" : "#e74c3c",
             "font-size": `${H() * 0.13}px`, "font-weight": 700,
             padding: "2px 8px", "border-radius": "4px",
-            border: "1px solid rgba(231,76,60,0.6)", "white-space": "nowrap",
-          }}>🏃 Routs!</span>
+            border: `1px solid ${props.yielded ? "rgba(232,220,192,0.6)" : "rgba(231,76,60,0.6)"}`,
+            "white-space": "nowrap",
+          }}>{props.yielded ? "🏳️ Surrenders" : "🏃 Routs!"}</span>
         </div>
       </Show>
       {/* Motion layer — lunge (one-shot keyframe) + flee (slide off) + fade. */}
@@ -122,11 +130,15 @@ export default function CombatantCard(props: {
         style={{
           position: "absolute", inset: "0",
           "--lunge-y": `${props.lungeY ?? 0}px`,
+          // Only a unit that actually LEFT slides off. A runner is still on the
+          // field and a man who knelt is still standing there — both stay put,
+          // and the grey is what says they are out of the fight.
           transform: props.fleeing ? "translateX(-120%)" : undefined,
-          transition: "transform 0.35s ease-in, opacity 0.35s ease",
-          opacity: props.fleeing ? 0 : props.fallen ? 0.4 : 1,
-          filter: props.fallen ? "grayscale(0.8)" : undefined,
-          animation: props.acting && !props.fleeing ? `combat-lunge 0.32s ease-out ${props.actDelay ?? 0}s` : undefined,
+          transition: "transform 0.35s ease-in, opacity 0.35s ease, filter 0.35s ease",
+          opacity: props.fleeing ? 0 : props.fallen ? 0.4 : props.yielded ? 0.5 : 1,
+          filter: props.fallen || props.yielded ? "grayscale(0.8)" : undefined,
+          animation: props.acting && !props.fleeing && !props.yielded
+            ? `combat-lunge 0.32s ease-out ${props.actDelay ?? 0}s` : undefined,
         }}
         // Key on actKey so a repeat act on the same unit replays the jab.
         data-act={props.actKey ?? 0}

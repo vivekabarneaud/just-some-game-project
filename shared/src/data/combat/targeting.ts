@@ -1,4 +1,4 @@
-import type { CombatUnit } from "./types.js";
+import type { CombatUnit, Quarter } from "./types.js";
 import { combatRandom } from "./prng.js";
 import { getDefenseReduction, getMagicResistReduction, dealsMagicalDamage } from "./stats.js";
 import { inReach } from "./positional.js";
@@ -121,18 +121,30 @@ function bestBy(pool: CombatUnit[], score: (u: CombatUnit) => number): CombatUni
  * with a 15% chance to pick the second-best target (feels less optimal/robotic).
  * Threat doesn't apply on this side — adventurers/allies pick their own targets.
  */
-export function pickTargetForAdventurer(attacker: CombatUnit, targets: CombatUnit[]): CombatUnit | null {
+export function pickTargetForAdventurer(
+  attacker: CombatUnit,
+  targets: CombatUnit[],
+  quarter: Quarter = "given",
+): CombatUnit | null {
   // Perception is SYMMETRIC (TARGETING.md): without this the player's heroes
   // would have godlike sight while enemies groped in the dark. Their scoring
   // weights stay fixed in v1 — only what they can SEE changes.
-  const alive = perceive(attacker, targets.filter((u) => u.hp > 0 && !u.fled));
+  // A man who has thrown down his weapon is not a candidate at all unless the
+  // team was told to give no quarter; then he is, kneeling and in reach.
+  const visible = targets.filter((u) => u.hp > 0 && !u.fled && (quarter === "none" || !u.yielded));
+  const alive = perceive(attacker, visible);
   if (alive.length === 0) return null;
   // Threats first, runners after (ROUT_AND_FLIGHT): a fleeing enemy is ignored
   // while anything is still fighting — nobody shoots the running boar while its
-  // mate is goring the line. Once only runners remain, the chase is the fight.
-  // (Nessa's future Pursuit talent = lifting this exclusion for her.)
+  // mate is goring the line.
   const standing = alive.filter((u) => !u.fleeing);
-  const pool = standing.length > 0 ? standing : alive;
+  // What happens once only runners remain is the Quarter order. Told to run them
+  // down, the chase IS the fight and the pool falls back to the runners. Given
+  // mercy, there is no target left: the swing never happens, and the round loop
+  // reads the same field as won (retreat.ts enemiesBeaten).
+  // (Nessa's future Pursuit talent = lifting this for her regardless of orders.)
+  const pool = standing.length > 0 ? standing : quarter === "none" ? alive : [];
+  if (pool.length === 0) return null;
   if (pool.length === 1) return pool[0];
   return heroScoredPick(attacker, reachable(attacker, pool));
 }

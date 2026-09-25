@@ -28,7 +28,8 @@ export const POS = {
 export const FLIGHT = {
   boltMult: 2,      // bolting: flat-out run, double mobility per turn
   withdrawMult: 1,  // withdrawing: a backstep at normal pace
-  boltElusion: 35,  // peak bonus dodge % vs ranged while bolting (the zigzag)
+  boltElusion: 35,
+  deniedBoost: 1.5, // running for its life, not breaking off: the multiplier when no quarter is given  // peak bonus dodge % vs ranged while bolting (the zigzag)
 };
 
 /** Charge tuning (Charger archetype). A charge covers ground in the Move phase;

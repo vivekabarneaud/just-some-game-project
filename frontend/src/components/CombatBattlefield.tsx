@@ -36,11 +36,13 @@ export default function CombatBattlefield(props: {
   const revealed = () => props.log.slice(0, props.shownCount);
   const H = () => props.maxHeight ?? 320;
 
-  // ── Live HP / statuses / fallen / fled, replayed from the revealed log ──
+  // ── Live HP / statuses / fallen / broken / fled, replayed from the revealed log ──
   const derived = createMemo(() => {
     const hp = new Map<string, number>();
     const fallen = new Set<string>();
     const fled = new Set<string>();
+    const running = new Set<string>();
+    const yielded = new Set<string>();
     const statuses = new Map<string, Map<string, CombatStatus>>();
     for (const c of props.roster) hp.set(c.id, c.hp);
     const setHp = (id: string | undefined, v: number | undefined) => { if (id != null && v != null) hp.set(id, v); };
@@ -49,7 +51,13 @@ export default function CombatBattlefield(props: {
       if (e.targets) for (const t of e.targets) setHp(t.id, t.hp);
       if (e.killed && e.targetId) { fallen.add(e.targetId); hp.set(e.targetId, 0); }
       if (e.targets) for (const t of e.targets) if (t.killed && t.id) { fallen.add(t.id); hp.set(t.id, 0); }
+      // Three ways off the board, and they look different. Running: still there,
+      // still hittable, shown routing. Yielded: kneeling, greyed, going nowhere.
+      // Fled/spared: actually gone, so the card leaves.
+      if (e.beat === "turns_tail" && e.attackerId) running.add(e.attackerId);
+      if (e.beat === "yields" && e.attackerId) yielded.add(e.attackerId);
       if (e.beat === "flee_success" && e.attackerId) fled.add(e.attackerId);
+      if (e.beat === "quarter_given") for (const id of e.leaves ?? []) fled.add(id);
       if (e.statusApplied && e.targetId && !e.statusApplied.type.startsWith("buff:")) {
         const m = statuses.get(e.targetId) ?? new Map<string, CombatStatus>();
         const lbl = statusLabel(e.statusApplied.type);
@@ -57,7 +65,7 @@ export default function CombatBattlefield(props: {
         statuses.set(e.targetId, m);
       }
     }
-    return { hp, fallen, fled, statuses };
+    return { hp, fallen, fled, running, yielded, statuses };
   });
 
   const actingId = () => {
@@ -225,6 +233,8 @@ export default function CombatBattlefield(props: {
               lungeY={lungeYOf(c)}
               actDelay={actDelayOf(c)}
               fleeing={derived().fled.has(c.id)}
+              running={derived().running.has(c.id) && !derived().fled.has(c.id)}
+              yielded={derived().yielded.has(c.id) && !derived().fled.has(c.id)}
               fallen={cardFallen(c)}
               width={cardW()}
             />

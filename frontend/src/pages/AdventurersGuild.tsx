@@ -389,8 +389,8 @@ export default function AdventurersGuild() {
                   setSelectedSupplies([]);
                   setTab("roster");
                 }}
-                onDeploy={(missionId, teamIds, adventurerSupplies, successPct) => {
-                  if (actions.deployMission(missionId, teamIds, adventurerSupplies, successPct)) {
+                onDeploy={(missionId, teamIds, adventurerSupplies, successPct, quarter) => {
+                  if (actions.deployMission(missionId, teamIds, adventurerSupplies, successPct, quarter)) {
                     playSound("metal");
                     setSelectedMission(null);
                     setSelectedTeam([]);

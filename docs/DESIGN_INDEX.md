@@ -49,7 +49,7 @@ authoring) and **lore canon** (creative source material, not specs).
 | Doc | What it's for |
 |---|---|
 | design/combat/TARGETING.md | The weighted score (role / condition / isolation / softness / threat, times a mobility-normalised reach gate), plus the perception stage that makes smoke and blind possible. Replaces the 7 single modes. |
-| design/combat/ROUT_AND_FLIGHT.md | Flight as movement, the four `fear` styles, static knobs vs transformations-as-stamped-modifiers, and deleting `aiTier`. Holds the **outside-combat-decision test** for judging any future combat system. |
+| design/combat/ROUT_AND_FLIGHT.md | Flight as movement, the four `fear` styles, static knobs vs transformations-as-stamped-modifiers, and deleting `aiTier`. **v2 (2026-09-25):** flight is an AI STATE, and Quarter (let them run / run them down) is the player's order per deployment. Holds the **outside-combat-decision test** for judging any future combat system. |
 | design/combat/MARSH.md | The snake family, Blind, grapple-at-range-0, venom carried home. The fenbalm/reeds economy around it already exists — read before redesigning. |
 | design/combat/SPIDERS.md | Web-root, ambush, brood mother. `silk` still doesn't exist as a material. The quarry spider-gate is built. |
 | design/combat/ENCHANTED_SCROLLS.md | Five recipes, complete to the numbers. **Parked** — every one needs Mage Tower 2+ and Act 1 has no reachable magic. |

@@ -3,7 +3,7 @@ import { tickStatusEffects, tickPotionBuffs } from "./status.js";
 import { drinkCombatPotions } from "./potions.js";
 import { runActions } from "./actions.js";
 import { applyMissionModifiers } from "../modifiers.js";
-import { applySurvivalReflex, evaluateRetreat, playerGone, enemiesGone } from "../retreat.js";
+import { applySurvivalReflex, evaluateRetreat, playerGone, enemiesBeaten } from "../retreat.js";
 import { applySmoke } from "../perception.js";
 
 /**
@@ -21,7 +21,7 @@ import { applySmoke } from "../perception.js";
  * Adding a new phase = writing a phase function + slotting it in.
  */
 export function runRound(ctx: CombatContext): boolean {
-  if (playerGone(ctx) || enemiesGone(ctx)) return false;
+  if (playerGone(ctx) || enemiesBeaten(ctx)) return false;
 
   // Re-evaluate mission modifier gates each round. If the gate-ally fell since
   // last round (e.g. Niamh died), this is what removes the physical-pierce flag
@@ -45,7 +45,7 @@ export function runRound(ctx: CombatContext): boolean {
   // a saved hero isn't counted as down.
   applySurvivalReflex(ctx);
 
-  if (playerGone(ctx) || enemiesGone(ctx)) return false;
+  if (playerGone(ctx) || enemiesBeaten(ctx)) return false;
 
   // Morale check: decide Hold vs Fall back for this round (sets ctx.retreating).
   evaluateRetreat(ctx);
@@ -61,7 +61,7 @@ export function runRound(ctx: CombatContext): boolean {
   applySurvivalReflex(ctx);
 
   if (playerGone(ctx)) return false;
-  if (enemiesGone(ctx)) return false;
+  if (enemiesBeaten(ctx)) return false;
   // A mission-objective ally falling ends combat immediately — surviving
   // adventurers retreat. The result builder reports vipFallen so the mission
   // engine can take the distinct-failure path (no rewards, no team-wipe permadeath cascade).

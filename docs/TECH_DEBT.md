@@ -42,15 +42,15 @@ tiers below.
 
 - [ ] scouting the surroundings: my team killed the 3 gaunt wolves, it doesn't really make sense that "the pack has returned"
 
-- [ ] I think my team killed the wolves because they don't flee well anymore after the rout refont
+- [x] ~~I think my team killed the wolves because they don't flee well anymore after the rout refont~~ **Fixed 2026-09-25.** Two causes. The nerve-break check ran on the breaking unit's OWN turn (`round/actions.ts`), so a wolf whose nerve went on the first hero's swing did not break until its initiative came round again, and the rest of the team killed it in that window; breaking is now a state-machine transition swept over every enemy at the top of each turn. And the team was *allowed* to chase: `targeting.ts` fell back to the runners once nobody was still fighting, which is now the player's Quarter order rather than the default.
 
 - [ ] I'd like to be able to dismiss the raid outcome on the overview panel
 
 - [ ] Kitchen always has the notification spark
 
-- [ ] When an enemy surrenders i'd like to see their frame greyed
+- [x] ~~When an enemy surrenders i'd like to see their frame greyed~~ **Fixed 2026-09-25.** The card had the vocabulary all along (a `combat-rout-flash` overlay and the `fallen` grey) but nothing ever triggered it: `CombatBattlefield` only replayed the `flee_success` beat, so `yields` and `turns_tail` were invisible. It now derives `running` and `yielded` sets too, and a man who kneels greys out and stays where he knelt with a "🏳️ Surrenders" flash, while only units that actually left slide off.
 
-- [ ] A dominion tough who surrended was killed by my team
+- [x] ~~A dominion tough who surrended was killed by my team~~ **Fixed 2026-09-25.** Surrender used to remove a man from the field outright (`fled`), which meant the *simulator* decided his fate and, worse, `targeting.ts` had already let the team swing at him in the window before he could yield. Quarter is now the player's order, set on the assembly panel per deployment and lockable per mission: given (the default) and he lives, none and he can be cut down where he knelt, which the log records as its own `no_quarter` beat for the Lord's faith arc to find later. See `docs/design/combat/ROUT_AND_FLIGHT.md`.
 
 ## Tier 1 — Live bugs
 

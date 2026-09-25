@@ -262,6 +262,12 @@ would be improvised at implementation time.
   heroes plink a fleeing boar while its mate gores the line whenever the
   numbers said so. It remains a pool filter ahead of the scorer, and Nessa's
   Pursuit talent lifts the filter, not a weight.
+  **Updated 2026-09-25 (ROUT_AND_FLIGHT v2):** what happens once ONLY runners
+  remain is now the player's Quarter order, passed to `pickTargetForAdventurer`
+  as a third argument. Given quarter the pool goes empty and the swing never
+  happens; told to run them down, the fallback to the runners is the v1
+  behaviour. A man who has thrown down his weapon (`yielded`) is filtered the
+  same way. The exclusion is still a filter, never a weight.
 - **Hero-side scoring stays fixed in v1.** Perception is symmetric (decided
   above), but the *weights* are not: `pickTargetForAdventurer` keeps its current
   scoredPick behaviour. Authorable hero weights arrive with talents (Pursuit,

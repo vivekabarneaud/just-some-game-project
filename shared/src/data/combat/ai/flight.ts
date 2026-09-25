@@ -39,10 +39,6 @@ function nerveGoes(unit: CombatUnit, ctx: CombatContext): boolean {
  *  a positionless sim has no field to run across). */
 function enterYield(unit: CombatUnit, ctx: CombatContext): void {
   unit.yielded = true;
-  // Phase 1 keeps surrender an exit, exactly as it always was. Whether a man who
-  // has surrendered leaves the field alive becomes the player's Quarter choice
-  // in phase 2, and THIS line is what goes: he stays, and can be spared or not.
-  unit.fled = true;
   ctx.log.push({
     round: ctx.round, attackerId: unit.id, attackerName: unit.name, attackerIcon: "🏳️",
     targetName: unit.name, damage: 0, dodged: false, crit: false, killed: false,
@@ -81,7 +77,7 @@ function enterFlight(unit: CombatUnit, ctx: CombatContext): void {
  *
  *  Slain mid-flight = a full loot table, which is the point of the chase. */
 function fleeTurn(unit: CombatUnit, ctx: CombatContext): boolean {
-  const speed = Math.max(4, Math.round(mobilityOf(unit) * flightSpeedOf(unit)));
+  const speed = Math.max(4, Math.round(mobilityOf(unit) * flightSpeedOf(unit, ctx)));
   const newX = (unit.x ?? POS.enemyFront) + speed;
   if (newX >= POS.fieldMax) {
     unit.x = POS.fieldMax;
@@ -110,8 +106,12 @@ function fleeTurn(unit: CombatUnit, ctx: CombatContext): boolean {
 
 /** How fast this creature runs when broken, as a multiple of its mobility.
  *  Authored per creature (`ai.flightSpeed`), defaulted from the fear style. */
-function flightSpeedOf(unit: CombatUnit): number {
-  return resolveAI(unit).flightSpeed;
+function flightSpeedOf(unit: CombatUnit, ctx: CombatContext): number {
+  const base = resolveAI(unit).flightSpeed;
+  // No quarter: it is running for its life rather than breaking off, and it knows
+  // the difference. Without this the chase is a formality and "run them down"
+  // would just be a loot button.
+  return ctx.quarter === "none" ? base * FLIGHT.deniedBoost : base;
 }
 
 /** Flight states, composable: a boss behaviour spreads these into its own
