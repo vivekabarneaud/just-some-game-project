@@ -81,7 +81,7 @@ export const CHRONICLE_ENTRIES: ChronicleEntry[] = [
     teaser: "A schoolmaster opens a new book. The first night is colder than the map suggested.",
     fullText:
       "I brought this book because a schoolmaster brings books. I will use it now because I have nowhere else to put the weight.\n\n" +
-      "The map calls this Parcel 14. The clerk who drew the map never stood in it. It has a river bending east, a ridge of stone to the north, and a forest older than anything any of us has ever seen. There are old stumps in the clearing, grey and grown over: someone was here long before us, and then was not. I will not ask why tonight.\n\n" +
+      "The map calls this Parcel 14. The clerk who drew the map never stood in it. It has a river bending east, a ridge of stone to the north, and a forest older than anything any of us has ever seen.\n\n" +
       "The others are sleeping. The fire is low. I am writing because I do not know what else a man does with the first night of the rest of his life.",
     cinematicId: "intro",
   },

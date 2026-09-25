@@ -42,7 +42,7 @@
 ## Open threads / TBD
 - Assign a backstory trait (something matching "steady provider / protector").
 - Whether her drifting-with-the-boy years surface as a tavern conversation.
-
+N
 ## Cross-refs
 - [cast/thornwood-family.md](cast/thornwood-family.md); `premade-characters.ts` char_000.
 

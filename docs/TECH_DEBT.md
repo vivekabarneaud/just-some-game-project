@@ -38,6 +38,20 @@ tiers below.
 
 - [ ] **1.17 `statReq` on items is declared and authored by nothing (found 2026-09-04).** `ItemDefinition.statReq` exists, and **zero** items in `equipment/*.ts` set it — so "levels let you equip better gear" is not a mechanic. The other half of what levelling is meant to buy (see 1.16). Cheap to start: gate the rung-3 weapons on the stat their class actually grows. *S.*
 
+- [ ] combat: lunge animation disappeared i think
+
+- [ ] scouting the surroundings: my team killed the 3 gaunt wolves, it doesn't really make sense that "the pack has returned"
+
+- [ ] I think my team killed the wolves because they don't flee well anymore after the rout refont
+
+- [ ] I'd like to be able to dismiss the raid outcome on the overview panel
+
+- [ ] Kitchen always has the notification spark
+
+- [ ] When an enemy surrenders i'd like to see their frame greyed
+
+- [ ] A dominion tough who surrended was killed by my team
+
 ## Tier 1 — Live bugs
 
 - [ ] **1.20 Two tier-1 missions are unwinnable at their slot count (measured 2026-09-05, re-measured after the family pass 2026-09-06).** `a_bad_season_for_boars` (3x `rabid_boar`, 2 slots) and `the_salmon_run` (2x `forest_bear`, 2 slots) are both **0% win** in common gear. Neither is a stats problem — three never-routing boars or two bears against two adventurers is the action-economy wall, and realistically should be. Both want a third slot: 3x `rabid_boar` measures 72% at 3 slots. Deferred to playtesting by the dev's call (2026-09-06) — tune creatures globally, tune individual missions when they are actually played. ~~`clear_the_diggings`~~ was on this list at 11% and the family pass took it to **100%** (a tide of hand-sized bugs had 50 hp each); it is a forced urgent mission, so that one mattered.
