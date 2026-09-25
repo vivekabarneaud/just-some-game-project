@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { buildPage, triedKey, recipesFor, HERBIER_LAWS } from "@medieval-realm/shared/data/alchemy/herbier";
+import { buildPage, triedKey, recipesFor, HERBIER_LAWS } from "@medieval-realm/shared/data/herbier/alchemyPage";
 import { LIVE_TECHNIQUES } from "@medieval-realm/shared/data/alchemy/types";
 import { getIngredient, INGREDIENTS } from "@medieval-realm/shared/data/alchemy/ingredients";
 import { brew, recipeIdFor } from "@medieval-realm/shared/data/alchemy/brew";

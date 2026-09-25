@@ -66,7 +66,8 @@ export default function Foraging() {
           </button>
         </div>
       }>
-        <ForagingScene season={state.season} onWalkHome={walkHome} />
+        <ForagingScene season={state.season} onWalkHome={walkHome}
+        onIdentified={(plantIds) => actions.notePlantsIdentified(plantIds)} />
       </Show>
     </div>
   );

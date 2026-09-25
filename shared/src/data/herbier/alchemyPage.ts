@@ -12,11 +12,11 @@
 // Pure and state-free on purpose: it takes the two flat string[] the save holds
 // and answers questions about them, so all of it is testable without a DOM.
 
-import type { Ingredient, LawId, Technique } from "./types.js";
-import { LIVE_TECHNIQUES } from "./types.js";
-import { describeEffectParts } from "./describe.js";
-import { NAMED_RECIPES, type NamedRecipe } from "./named_recipes.js";
-import { recipeIdFor } from "./brew.js";
+import type { Ingredient, LawId, Technique } from "../alchemy/types.js";
+import { LIVE_TECHNIQUES } from "../alchemy/types.js";
+import { describeEffectParts } from "../alchemy/describe.js";
+import { NAMED_RECIPES, type NamedRecipe } from "../alchemy/named_recipes.js";
+import { recipeIdFor } from "../alchemy/brew.js";
 
 /** The save stores tried pairs as flat strings, the same shape as
  *  `discoveredEnemies`, because a save must stay JSON (no Set, no Map). */

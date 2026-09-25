@@ -72,6 +72,13 @@ export interface ForagingSceneProps {
    *  has been through the basket. Absent in the sandbox, where walking home is
    *  just a reveal and nothing is stored. */
   onWalkHome?: (plantIds: string[]) => void;
+  /** Real trip: called the moment Edda goes through the basket, with EVERY plant
+   *  in it — the decoys too. That is the point: `onWalkHome` hands up only what
+   *  yields something, so a funeral bell she pulled out and named would never
+   *  reach the game at all, and the herbier would never learn the one thing the
+   *  woods actually taught you. Fired once, on the reveal, before the player can
+   *  walk away from the screen. */
+  onIdentified?: (plantIds: string[]) => void;
   /** Label for the walk-home button once the basket has been read. */
   walkHomeLabel?: string;
 }
@@ -387,7 +394,11 @@ export default function ForagingScene(props: ForagingSceneProps) {
                   )}
                 </For>
               </div>
-              <button style={{ ...BTN, border: "1px solid var(--accent-gold)" }} onClick={() => setResolved(true)}>
+              <button style={{ ...BTN, border: "1px solid var(--accent-gold)" }} onClick={() => {
+                setResolved(true);
+                // Everything she names goes in the book, the bin half included.
+                props.onIdentified?.(basket().map((b) => b.plantId));
+              }}>
                 Head home and show Edda
               </button>
             </Show>

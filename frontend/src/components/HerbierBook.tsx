@@ -1,7 +1,7 @@
 import { For, Show, createMemo, createSignal } from "solid-js";
 import { useGame } from "~/engine/gameState";
 import { INGREDIENTS } from "@medieval-realm/shared/data/alchemy/ingredients";
-import { buildPage, triedKey, HERBIER_LAWS, type HerbierPage } from "@medieval-realm/shared/data/alchemy/herbier";
+import { buildPage, triedKey, HERBIER_LAWS, type HerbierPage } from "@medieval-realm/shared/data/herbier/alchemyPage";
 import { LIVE_TECHNIQUES, type Ingredient, type Technique } from "@medieval-realm/shared/data/alchemy/types";
 import PaintedBook from "./PaintedBook";
 

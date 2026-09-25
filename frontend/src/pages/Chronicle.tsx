@@ -4,14 +4,16 @@ import ChronicleJournal from "./chronicle/ChronicleJournal";
 import ChronicleCast from "./chronicle/ChronicleCast";
 import ChronicleCharacters from "./chronicle/ChronicleCharacters";
 import ChronicleBestiary from "./chronicle/ChronicleBestiary";
+import ChronicleHerbier from "./chronicle/ChronicleHerbier";
 
-type Tab = "journal" | "cast" | "adventurers" | "bestiary";
+type Tab = "journal" | "cast" | "adventurers" | "bestiary" | "herbier";
 
 const TABS: { id: Tab; label: string; icon: string }[] = [
   { id: "journal", label: "Journal", icon: "📖" },
   { id: "cast", label: "Cast", icon: "👥" },
   { id: "adventurers", label: "Adventurers", icon: "⚔️" },
   { id: "bestiary", label: "Bestiary", icon: "🐉" },
+  { id: "herbier", label: "Herbier", icon: "🌿" },
 ];
 
 export default function Chronicle() {
@@ -82,6 +84,9 @@ export default function Chronicle() {
       </Show>
       <Show when={tab() === "bestiary"}>
         <ChronicleBestiary />
+      </Show>
+      <Show when={tab() === "herbier"}>
+        <ChronicleHerbier />
       </Show>
     </div>
   );

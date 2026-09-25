@@ -8,6 +8,13 @@
 
 ## Spotted in play — unsorted inbox
 
+- [ ] **Picking a rosehip does not stock a rosehip.** `rosehip` is both a `HERBS`
+  entry and a `FORAGE_PLANT` (`yields: "rosehip"`), but it is not a `FoodItemType`,
+  so `completeForagingTrip` drops it into `noHome` and it never reaches `s.herbs`.
+  Same shape for `parasol`, `judas_ear`, `velvet_shank` and `hemlock`, which have
+  no larder home at all — see the "Homes for the orphan yields" entry in IDEAS.
+  Found 2026-09-25 while building the Chronicle herbier.
+
 Dump one-liners here while playtesting. No format, no tier, no triage: getting it
 out of your head is the whole job. Anything that survives gets sorted into the
 tiers below.

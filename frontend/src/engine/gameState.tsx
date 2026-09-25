@@ -287,7 +287,8 @@ import { HERBS } from "@medieval-realm/shared/data/herbs";
 import { AILMENTS, getAilment, getAnimalAilment, type BuildingAilment } from "@medieval-realm/shared/data/ailments";
 import { brew as brewAlchemy, recipeIdFor, brewRarity, clampPlacements } from "@medieval-realm/shared/data/alchemy/brew";
 import { getIngredient as getAlchemyIngredient } from "@medieval-realm/shared/data/alchemy/ingredients";
-import { triedKey, HERBIER_LAWS } from "@medieval-realm/shared/data/alchemy/herbier";
+import { triedKey, HERBIER_LAWS } from "@medieval-realm/shared/data/herbier/alchemyPage";
+import { isHerbierPlant } from "@medieval-realm/shared/data/herbier/registry";
 import { matchNamedRecipe } from "@medieval-realm/shared/data/alchemy/named_recipes";
 import { summarizeRecovery, easeHoursFor } from "@medieval-realm/shared/data/alchemy/apply";
 import type { Placement as AlchemyPlacement, StoredAlchemyRecipe } from "@medieval-realm/shared/data/alchemy/types";
@@ -880,6 +881,10 @@ export interface GameState {
    *  Flat string[] like `discoveredEnemies`, because a save must stay JSON. */
   herbierPages?: string[];
   herbierTried?: string[];
+  /** "<ingredientId>:<cookTechnique>" pairs he has cooked. A SEPARATE field from
+   *  herbierTried on purpose: `boil` exists in both craft's technique sets, so
+   *  one list would make "ramsons:boil" ambiguous. */
+  herbierCooked?: string[];
   herbierLaws?: string[];
   /** Free-form cooking: discovered dishes (the cookbook) + how many of each the
    *  player has prepared (the pantry stock a later economy pass will draw on). */
@@ -1275,6 +1280,11 @@ interface GameActions {
   countUnseenJournalEntries: () => number;
   countUnseenMemories: () => number;
   rerollMissions: () => boolean;
+  /** Edda has been through the basket and named everything in it, the decoys
+   *  included. Draws a herbier page for each. Separate from completeForagingTrip
+   *  because that one only ever sees what YIELDS something, and the plant that
+   *  would have killed you is the one most worth writing down. */
+  notePlantsIdentified: (plantIds: string[]) => void;
   completeForagingTrip: (missionId: string, basket: string[]) => {
     stored: Record<string, number>;
     spoiled: Record<string, number>;
@@ -1556,6 +1566,7 @@ export function createInitialState(): GameState {
     discoveredEnemies: [],
     herbierPages: [],
     herbierTried: [],
+    herbierCooked: [],
     herbierLaws: [],
     eventLog: [],
     ale: 0,
@@ -3144,17 +3155,20 @@ function addInventoryItem(s: GameState, itemId: string, amount: number): number 
  *  by quest-claim and mission-claim paths so they stay in sync (previously
  *  the quest path only handled gold/wood/stone/wool/astralShards and
  *  silently dropped food/herb/material/inventory rewards into NaN). */
-/** The Herbier's first hook: a plant he now HAS gets a page, because that is when
- *  he would sit down and draw it. The lines come later, when he tries something.
- *  Called from every place herbs are added (the reward path, the forager's own
- *  finds, and the coop claim), so foraging, missions, merchants and the garden
- *  are all covered without hooking each of them.
- *  Only real alchemy ingredients get a page — `HERBS` and the alchemy shelf are
- *  not quite the same list, and a page for something you cannot brew is a lie. */
-function noteHerbInHand(s: GameState, herbId: string): void {
-  if (!getAlchemyIngredient(herbId)) return;
+/** The Herbier's first hook: a plant he now HAS, or has had named for him, gets a
+ *  page — that is when he would sit down and draw it. The lines come later, when
+ *  he tries something with it.
+ *  Called from every place a plant arrives: the reward path, the forager's own
+ *  finds, the coop claim, the brewing bench, and Edda going through the basket.
+ *  So foraging, missions, merchants and the garden are all covered without
+ *  hooking each of them separately.
+ *  The guard is the herbier registry rather than the alchemy shelf: the book is
+ *  about what he FINDS, so a foraged mushroom belongs in it and a tusk shard
+ *  does not. */
+function notePlantSeen(s: GameState, plantId: string): void {
+  if (!isHerbierPlant(plantId)) return;
   if (!s.herbierPages) s.herbierPages = [];
-  if (!s.herbierPages.includes(herbId)) s.herbierPages.push(herbId);
+  if (!s.herbierPages.includes(plantId)) s.herbierPages.push(plantId);
 }
 
 function grantReward(
@@ -3168,7 +3182,7 @@ function grantReward(
   } else if (_HERB_IDS.has(res)) {
     if (!s.herbs) s.herbs = {};
     s.herbs[res] = (s.herbs[res] ?? 0) + reward.amount;
-    noteHerbInHand(s, res);
+    notePlantSeen(s, res);
   } else if (_EXOTIC_IDS.has(res)) {
     if (!s.exotics) s.exotics = {};
     s.exotics[res] = (s.exotics[res] ?? 0) + reward.amount;
@@ -4363,7 +4377,7 @@ export function GameProvider(props: ParentProps) {
             const herbChance = foodForaged * herb.dropRate;
             if (Math.random() < herbChance) {
               s.herbs[herb.id] = (s.herbs[herb.id] ?? 0) + 1;
-              noteHerbInHand(s, herb.id);
+              notePlantSeen(s, herb.id);
               if (herb.rarity === "rare" || herb.rarity === "legendary") {
                 pushEvent(s, "building_completed", herb.icon, `Your foragers found a rare ${herb.name}!`);
               }
@@ -6955,6 +6969,15 @@ export function GameProvider(props: ParentProps) {
       const id = matchNamedDish(filled)?.id ?? dishIdFor(filled);
       setState(produce((s) => {
         for (const [ingId, n] of cost) spendResource(s, ingId, n);
+        // The Herbier again: what he cooked with, and how. Same shape as the
+        // brewing hook, its own field so the two crafts' techniques cannot
+        // collide on the word "boil".
+        if (!s.herbierCooked) s.herbierCooked = [];
+        for (const pl of filled) {
+          const key = `${pl.ingredientId}:${pl.technique}`;
+          if (!s.herbierCooked.includes(key)) s.herbierCooked.push(key);
+          notePlantSeen(s, pl.ingredientId);
+        }
         s.kitchenDishes ??= {};
         if (!s.kitchenDishes[id]) {
           s.kitchenDishes[id] = {
@@ -6995,7 +7018,7 @@ export function GameProvider(props: ParentProps) {
         for (const pl of filled) {
           const key = triedKey(pl.ingredientId, pl.technique);
           if (!s.herbierTried.includes(key)) s.herbierTried.push(key);
-          noteHerbInHand(s, pl.ingredientId);
+          notePlantSeen(s, pl.ingredientId);
         }
         // And the laws of the craft, written down the moment one is felt.
         if (!s.herbierLaws) s.herbierLaws = [];
@@ -8275,6 +8298,14 @@ export function GameProvider(props: ParentProps) {
      *
      *  The trip is marked done for this board cycle, so the card leaves the
      *  board until the 3AM refresh or a shard reroll. */
+    notePlantsIdentified(plantIds: string[]) {
+      const fresh = plantIds.filter((id) => isHerbierPlant(id) && !(state.herbierPages ?? []).includes(id));
+      if (fresh.length === 0) return;
+      setState(produce((s) => {
+        for (const id of fresh) notePlantSeen(s, id);
+      }));
+      scheduleSave();
+    },
     completeForagingTrip(missionId: string, basket: string[]) {
       const stored: Record<string, number> = {};
       const spoiled: Record<string, number> = {};
@@ -8680,7 +8711,7 @@ export function GameProvider(props: ParentProps) {
           } else if (herbIds.has(reward.resource)) {
             if (!s.herbs) s.herbs = {};
             s.herbs[reward.resource] = (s.herbs[reward.resource] ?? 0) + reward.amount;
-            noteHerbInHand(s, reward.resource);
+            notePlantSeen(s, reward.resource);
           } else if (exoticIds.has(reward.resource)) {
             if (!s.exotics) s.exotics = {};
             s.exotics[reward.resource] = (s.exotics[reward.resource] ?? 0) + reward.amount;

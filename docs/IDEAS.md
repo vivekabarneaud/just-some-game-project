@@ -29,7 +29,10 @@ its line — the code becomes the documentation.
   feeling it go wrong. Code: `shared/src/data/alchemy/herbier.ts` (pure),
   `frontend/src/components/{HerbierBook,PaintedBook}.tsx`, state `herbierPages` /
   `herbierTried` / `herbierLaws`.
-  **Still open: the FORAGING half.** See "The herbier" below.
+  The foraging half followed the same day; see "The herbier, foraging half" below.
+  Both books exist and are not duplicates: this one is the working reference at
+  the desk, over what you can brew; that one is the complete record over what you
+  can find.
 - **Techniques beyond crush + boil** — `steep`, `dry`, `distil`, `char`, `ferment` all exist in ingredient data but the desk only offers two, so five techniques are unreachable in game. The design was "stations unlock by settlement tier"; that gate was never wired.
 - **Offensive brews** — poison coatings and throwables. The channels (`poison`, `weaken`, `slow`, `confuse`, `aoe_fire/frost`) are defined and *priced* in the brew engine, and combat ignores them entirely. Either build it or delete the channels; inert-but-priced is the worst state. Pairs with the puffball-as-carrier idea (any brew becomes an area effect).
 - **Deliberate plant gating** — introduce the plant roster gradually via foraging and tier, instead of the whole shelf being available at once.
@@ -241,16 +244,18 @@ than any number of new dishes.
 - **Push further within a trip** — "next map" during a single trip walks you
   further out. Better finds, and eventually the reason to want the escort. The
   region you start from is set by the story's map unlocks (§3d).
-- **The herbier, foraging half** — the USES half shipped 2026-09-25 (see Herbalist
-  discovery above), but it is driven by the 19 alchemy ingredients, and the ~23
-  foraged plants share **not one id** with them. So picking ramsons still writes
-  nothing down, and the identification knowledge the minigame is built around
-  ("ramsons smell of garlic and grow one leaf per stem; lily of the valley has
-  paired leaves and no scent") still has nowhere to live.
-  The remaining work is a sibling book over `FORAGE_PLANTS`, showing `mimics` and a
-  how-to-tell-them-apart line instead of a technique table. It is now cheap: the
-  painted-book shell is extracted (`PaintedBook.tsx`) and the discovery-state shape
-  is established. This is what finally makes the lethal decoys pay off across trips.
+- ✅ **The herbier, foraging half — BUILT 2026-09-25** (`feat/herbier-chronicle`).
+  A **Chronicle → Herbier tab**: every WILD plant (the 23 foraged, the 14 alchemy
+  plants, and greymantle), `???` cards for the unmet, and a detail modal that puts
+  a decoy beside the plant it apes with both tells. The discovery hook is Edda
+  going through the basket -- `ForagingScene` fires `onIdentified` with the WHOLE
+  basket, decoys included, because `onWalkHome` strips everything that does not
+  yield and the plant that would have killed you is the one most worth writing
+  down. The line the book is drawn on: **what you find, not what you sow**.
+  Turns out the seven tells were already written, in each decoy's `note`.
+  Code: `shared/src/data/herbier/registry.ts`,
+  `frontend/src/pages/chronicle/ChronicleHerbier.tsx`, state `herbierPages` /
+  `herbierTried` / `herbierCooked` / `herbierLaws`.
 - **Homes for the orphan yields** — foraging yields `judas_ear`, `velvet_shank`,
   `parasol` and `rosehip`, and none of them is a kitchen or alchemy ingredient
   yet, so picking them does nothing. `hemlock` is correctly non-food (it is a

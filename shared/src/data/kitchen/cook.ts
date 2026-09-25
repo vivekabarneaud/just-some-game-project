@@ -4,7 +4,7 @@
 // brew engine — the technique shapes what that ingredient contributes. Spices
 // amplify; a meal wants a staple or it comes out thin. See docs/IDEAS.md (Kitchen).
 
-import type { CookTechnique, DishChannel, DishEffect, DishResult, CookPlacement, FoodFlavor } from "./types.js";
+import type { CookTechnique, DishChannel, DishEffect, DishResult, CookPlacement, FoodFlavor, FoodIngredient } from "./types.js";
 import { getFoodIngredient } from "./ingredients.js";
 import { diminish, clampPlacements as clampCraftPlacements, MAX_PER_PLACEMENT } from "../craft/placements.js";
 
@@ -32,6 +32,39 @@ const TECH: Record<CookTechnique, { nourish: number; comfort: number; warmth: nu
   chop:     { nourish: 0.6, comfort: 1.0, warmth: 0,   fresh: 1.2 },
   preserve: { nourish: 1.0, comfort: 0.6, warmth: 0,   fresh: 0 },
 };
+
+/**
+ * What one ingredient gives under one preparation, in words rather than numbers.
+ *
+ * The herbier's kitchen half. Deliberately qualitative: dish effects are meant to
+ * stay MILD and cozy, never a min-max obligation, so a page that read
+ * "nourish 2.4, comfort 1.1" would be exactly the wrong thing to put in front of
+ * a player. Unlike the alchemy side there is no authored text to reveal here —
+ * the numbers are a product of the ingredient's stats and the technique's
+ * multipliers — so what is being discovered is the shape of that product.
+ */
+export function describeCooked(ing: FoodIngredient, technique: CookTechnique): string {
+  const t = TECH[technique];
+  const parts = [
+    { label: "filling", v: (ing.nourish ?? 0) * t.nourish },
+    { label: "comforting", v: (ing.comfort ?? 0) * t.comfort },
+    { label: "warming", v: (ing.nourish ?? 0) * t.warmth },
+    { label: "fresh", v: (ing.fresh ?? 0) * t.fresh },
+  ].filter((p) => p.v > 0.2).sort((a, b) => b.v - a.v);
+
+  if (ing.amplify) {
+    // A spice does nothing on its own and lifts what it sits with.
+    const rest = parts.length ? ` (${parts.map((p) => p.label).join(", ")})` : "";
+    return `Lifts whatever it is cooked with${rest}.`;
+  }
+  if (parts.length === 0) return "Little to show for it this way.";
+
+  const word = (p: { label: string; v: number }) => (p.v >= 2 ? p.label : `a little ${p.label}`);
+  const head = word(parts[0]);
+  const tail = parts.slice(1, 3).map(word);
+  const sentence = tail.length === 0 ? head : `${head}, and ${tail.join(" and ")}`;
+  return sentence.charAt(0).toUpperCase() + sentence.slice(1) + ".";
+}
 
 /** Flavour a PREP adds to the dish's taste (on top of the ingredients'). */
 const TECH_FLAVOR: Partial<Record<CookTechnique, FoodFlavor>> = { skewer: "smoky", chop: "fresh" };

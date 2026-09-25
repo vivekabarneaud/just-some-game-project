@@ -1,6 +1,6 @@
 # Foraging Minigame — Design + Plant Register
 
-- **Status (2026-09-08):** WIRED INTO THE GAME on `feat/foraging-wiring`. The trip is a daily mission card on the board (§3d) that routes straight into the wood, and the basket now reaches the larder via `completeForagingTrip` (honest about what did not fit: larder full, or no pantry home yet). `<ForagingScene>` is shared by the real trip and the dev sandbox. **Built:** stocking/decay/seasonal handover/rain flush, ~23 plants with decoys, terrain mask + scene anchors, board entry + routing + distinct card/pin styling, yield->larder, the trip economy (free via the board's 3AM refresh and its existing 10*2^n shard reroll). **NOT built:** the herbier's identification half (the Lord's book itself shipped 2026-09-25 on `feat/herbier`, but it is driven by the 19 ALCHEMY ingredients, which share no ids with the foraged plants -- so picking ramsons still writes nothing down; the remaining work is a sibling book over `FORAGE_PLANTS` showing `mimics` and a how-to-tell-them-apart line, now cheap because `PaintedBook.tsx` exists), multiple regions beyond the near fold, the "next map" push-further step, escort/dog (IDEAS), and most art.
+- **Status (2026-09-08):** WIRED INTO THE GAME on `feat/foraging-wiring`. The trip is a daily mission card on the board (§3d) that routes straight into the wood, and the basket now reaches the larder via `completeForagingTrip` (honest about what did not fit: larder full, or no pantry home yet). `<ForagingScene>` is shared by the real trip and the dev sandbox. **Built:** stocking/decay/seasonal handover/rain flush, ~23 plants with decoys, terrain mask + scene anchors, board entry + routing + distinct card/pin styling, yield->larder, the trip economy (free via the board's 3AM refresh and its existing 10*2^n shard reroll). the herbier, now in BOTH halves (`feat/herbier` 2026-09-25 gave the Lord his book under the alchemy desk; `feat/herbier-chronicle` added the Chronicle tab that covers every wild plant, records what Edda names in the basket -- decoys included -- and puts a decoy beside the plant it apes with both tells). **NOT built:** multiple regions beyond the near fold, the "next map" push-further step, escort/dog (IDEAS), and most art.
 - **Purpose:** the "nothing left to do" valve for idle downtime, and the home for plant *variety* that a passive building can't carry.
 - **Cross-refs:** [[project_foraging_minigame]], `docs/IDEAS.md` (Alchemy), the retired Farming Expansion doc (in git), the retired seasonal-gathers doc (in git), the retired Tavern doc (in git).
 
@@ -379,8 +379,25 @@ Two kinds, at wildly different build costs:
 - Tuning: regrow rates per plant, seasonal caps, basket size (~10?).
 - Does a trip cost anything at all (time? the Lord's presence?), or is walking into the woods free with depletion as the only limit?
 - Should the "go deeper" scenes be richer but further (tying to walking-the-bounds / escort), or just more of the same?
-- ~~Herbier: standalone page, or a Chronicle tab?~~ **Answered 2026-09-25: neither.**
-  It is a painted book under the desk on `/alchemy`, a sibling of the recipe book,
-  because that is where the knowledge is used. A Chronicle "what we know" volume
-  merging plants, dishes, brews and beasts is still an idea, and should probably
-  absorb the planned monster encyclopedia rather than sit beside it.
+- ~~Herbier: standalone page, or a Chronicle tab?~~ **Answered, in two parts, and
+  the first answer was too narrow.**
+  - *2026-09-25, `feat/herbier`:* a painted book under the desk on `/alchemy`, a
+    sibling of the recipe book, because that is where the knowledge is used. That
+    was recorded here as "neither a page nor a tab", which was right about the
+    working reference and **wrong about the collection**.
+  - *2026-09-25, `feat/herbier-chronicle`:* a **Chronicle → Herbier tab** as well.
+    The two are not duplicates and serve different moments: the desk book is the
+    working reference that fills as you brew, over the plants you can brew; the
+    Chronicle tab is the complete record over every WILD plant, and it is the only
+    one that can do the thing this section is about -- putting a decoy next to the
+    plant it apes, with both tells, so the player can actually learn the
+    difference. Identification had nowhere to live until it existed.
+  - The line the book is drawn on is **what you find, not what you sow**: farmed
+    crops and the orchard stay out, because nobody misidentifies a cabbage they
+    planted. Reagents that never grew (bone, tusk shard, serpent fang, snake oil,
+    honey) stay out too; they keep their pages on the desk book.
+  - A wider Chronicle volume merging dishes, brews and beasts is still an idea,
+    and should probably absorb the planned monster encyclopedia rather than sit
+    beside it. Constraint recorded for whoever builds it: an undiscovered card
+    reveals **existence and nothing else** -- no name, no ingredients, no hint --
+    or free-form invention collapses into following a shopping list.
