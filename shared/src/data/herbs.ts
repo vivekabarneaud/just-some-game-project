@@ -10,6 +10,14 @@ export interface HerbDefinition {
 
 export const HERBS: HerbDefinition[] = [
   {
+    id: "hemlock",
+    name: "Hemlock",
+    icon: "☠️",
+    rarity: "uncommon",
+    description: "Smooth stem, purple blotches, and a root that looks like supper. Gathered on purpose, or not at all.",
+    dropRate: 0, // never hut-gathered: you only ever have hemlock because you chose to pick it
+  },
+  {
     id: "fly_agaric",
     name: "Fly Agaric",
     icon: "🍄",

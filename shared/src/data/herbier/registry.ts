@@ -79,7 +79,12 @@ function build(): HerbierPlant[] {
   }
   for (const ing of INGREDIENTS) {
     if (NOT_PLANTS.has(ing.id)) continue;
-    add(ing.id, ing.name, ing.icon, { alchemy: ing, group: groupOf(ing.id) });
+    // Do NOT restate `group` for a plant the woods already placed. groupOf()
+    // without a ForagePlant falls through to "herb", so a second pass would move
+    // hemlock out of the greens and away from the wild carrot it apes, which is
+    // exactly what the adjacency test caught.
+    const known = by.has(ing.id);
+    add(ing.id, ing.name, ing.icon, known ? { alchemy: ing } : { alchemy: ing, group: groupOf(ing.id) });
   }
   for (const h of HERBS) {
     if (by.has(h.id)) continue; // already covered as a forage plant or an ingredient

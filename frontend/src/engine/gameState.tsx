@@ -8315,6 +8315,19 @@ export function GameProvider(props: ParentProps) {
         for (const plantId of basket) {
           const yieldId = getForagePlant(plantId)?.yields;
           if (!yieldId) continue; // a decoy, or a plant that yields nothing
+          // Not everything worth picking is supper. A herb goes to the herb
+          // stock rather than the larder: hemlock is a poison gathered on
+          // purpose, a rosehip is a remedy. Both fell into `noHome` and vanished
+          // before this, which made the one decoy that deliberately YIELDS
+          // pointless. It is also what lets chamomile and yarrow join the wood
+          // later without touching this function again.
+          if (_HERB_IDS.has(yieldId)) {
+            if (!s.herbs) s.herbs = {};
+            s.herbs[yieldId] = (s.herbs[yieldId] ?? 0) + 1;
+            notePlantSeen(s, yieldId);
+            stored[yieldId] = (stored[yieldId] ?? 0) + 1;
+            continue;
+          }
           if (!isFoodItemType(yieldId)) {
             noHome[yieldId] = (noHome[yieldId] ?? 0) + 1;
             continue;

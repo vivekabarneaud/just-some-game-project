@@ -19,6 +19,20 @@ export const INGREDIENTS: Ingredient[] = [
     },
   },
   {
+    // The first plant to sit on BOTH shelves. Its stock is the larder's, so a
+    // dandelion brewed is a dandelion nobody eats, which is a real choice and
+    // costs nothing to stage.
+    // It is also the only source of DEX in the game: int had four sources, wis
+    // and vit two each, dex and str none at all. Lavender is the precedent for a
+    // base carrying one mild stat.
+    id: "dandelion", name: "Dandelion", icon: "🌼", role: "base", rarity: "common", signature: "boil",
+    note: "The bitter base. It braces where chamomile soothes.",
+    techniques: {
+      boil: [{ channel: "dex", amount: 1 }],
+      crush: [{ channel: "general_recovery", amount: 1 }],
+    },
+  },
+  {
     id: "lavender", name: "Lavender", icon: "🪻", role: "base", rarity: "uncommon", signature: "steep",
     note: "A calming base — steadies and clears the mind.",
     techniques: {
@@ -131,6 +145,25 @@ export const INGREDIENTS: Ingredient[] = [
       boil: [{ channel: "vit", amount: 2 }],
       crush: [{ channel: "poison", amount: 2, shape: "sustained", rounds: 3 }],
       distil: [{ channel: "poison", amount: 4, shape: "sustained", rounds: 3 }],
+    },
+  },
+  {
+    // The decoy that yields, and the only poison you gather on purpose. Its
+    // `poison` is ADMINISTERED, not smeared on a blade: coniine has to be
+    // swallowed in quantity, which is why Socrates drank it and why nobody ever
+    // coated a sword with it. Venom (serpent_fang) is the realistic blade
+    // poison. Hemlock belongs to a cup, a meal, or a sabotage mission.
+    // `slow` because it kills by paralysis rather than by rot, and nothing else
+    // in the game produces that channel.
+    // `ease_wound` is the live cell: in small doses hemlock was a genuine
+    // sedative and painkiller in the medieval pharmacopoeia. The dose makes the
+    // poison, which is the most interesting thing about the plant.
+    id: "hemlock", name: "Hemlock", icon: "☠️", role: "toxin", rarity: "uncommon", signature: "crush",
+    note: "A little stills the pain. More stills the breath.",
+    techniques: {
+      crush: [{ channel: "poison", amount: 4, rounds: 3 }],
+      boil: [{ channel: "slow", amount: 20 }],
+      steep: [{ channel: "ease_wound", amount: 3 }],
     },
   },
   {

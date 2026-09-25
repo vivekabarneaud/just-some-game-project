@@ -97,8 +97,8 @@ export const FOOD_INGREDIENTS: FoodIngredient[] = [
   // ── Veg · wild greens + roots (foraged, mostly spring and summer) ──
   { id: "dandelion", name: "Dandelion", icon: "🌼", role: "veg", signature: "chop", nourish: 1, comfort: 1, fresh: 3, flavors: ["fresh"], techniques: LEAF, note: "Bitter leaves from the yard's edge. Better than it sounds, and better than nothing." },
   { id: "sorrel", name: "Sorrel", icon: "🌿", role: "veg", signature: "chop", nourish: 1, comfort: 1, fresh: 3, flavors: ["fresh"], techniques: LEAF, note: "Sharp and lemony. It wakes up a dull pot." },
-  { id: "ramsons", name: "Ramsons", icon: "🧄", role: "veg", signature: "chop", nourish: 1, comfort: 2, fresh: 2, amplify: 0.1, flavors: ["fresh"], techniques: LEAF, note: "Wild garlic from the spring woods. It lifts whatever it touches." },
-  { id: "wild_carrot", name: "Wild Carrot", icon: "🥕", role: "veg", signature: "boil", nourish: 2, comfort: 1, fresh: 1, flavors: ["hearty"], techniques: ["boil", "fry", "roast", "chop", "skewer"], note: "A thin, pale root. Sweeter than it looks." },
+  { id: "ramsons", name: "Ramsons", icon: "🧄", role: "veg", signature: "chop", nourish: 1, comfort: 2, fresh: 2, amplify: 0.1, flavors: ["fresh"], techniques: LEAF, note: "Wild garlic from the spring woods, one broad leaf to each stem. It lifts whatever it touches." },
+  { id: "wild_carrot", name: "Wild Carrot", icon: "🥕", role: "veg", signature: "boil", nourish: 2, comfort: 1, fresh: 1, flavors: ["hearty"], techniques: ["boil", "fry", "roast", "chop", "skewer"], note: "A thin, pale root on a hairy stem. Sweeter than it looks." },
 
   // ── Fruit (sweet) ──
   { id: "apples", name: "Apples", icon: "🍎", role: "fruit", signature: "chop", nourish: 1, comfort: 3, fresh: 3, flavors: ["sweet"], techniques: ["boil", "fry", "roast", "chop", "preserve"], note: "Crisp and cheering." },

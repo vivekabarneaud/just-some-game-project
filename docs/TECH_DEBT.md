@@ -8,7 +8,7 @@
 
 ## Spotted in play — unsorted inbox
 
-- [ ] **Picking a rosehip does not stock a rosehip.** `rosehip` is both a `HERBS`
+- [x] ~~**Picking a rosehip does not stock a rosehip.**~~ **Fixed 2026-09-25.** `completeForagingTrip` only understood food, so any herb yield fell into `noHome` and vanished. It now routes herb ids to `s.herbs`, which fixes rosehip and hemlock, and is what will let chamomile and yarrow be put in the wood later without touching the function again. `parasol`, `judas_ear` and `velvet_shank` were a different cause (no larder entry at all) and got food entries in the same pass. Original note: `rosehip` is both a `HERBS`
   entry and a `FORAGE_PLANT` (`yields: "rosehip"`), but it is not a `FoodItemType`,
   so `completeForagingTrip` drops it into `noHome` and it never reaches `s.herbs`.
   Same shape for `parasol`, `judas_ear`, `velvet_shank` and `hemlock`, which have
