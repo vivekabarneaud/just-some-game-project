@@ -80,8 +80,11 @@ Real precedent, for the shape of it:
 
 This is the character, and it replaces "tyrant" everywhere.
 
-He was a prodigy at a board game as a boy, in poverty, and it was the one thing
-that was his. **He never stopped playing one.** He looks at a continent and sees
+He was a prodigy as a boy at **sadrah**, a board game of conquest, in poverty, and
+it was the one thing that was his. (Sadrah, "a hundred roads": a Khor'vani game
+that travelled the trade roads with them and kept its own name in every language
+it reached, the way chess did. You take pieces, and you win by holding the roads
+the other player needs.) **He never stopped playing it.** He looks at a continent and sees
 positions and supply. He makes the move the position calls for. He does not feel
 the pieces.
 
@@ -122,27 +125,31 @@ context and takes every line as fact. The tree must carry the attribution on the
 face of the node, not in a detail somewhere: what the Dominion says, and then
 what actually happened.
 
-## Kaveh, the brother
+## Kian, the brother
 
 **His older brother.** The one who looked after him before the genius showed, the
 only person alive who knew him as a boy rather than as a mind.
 
-(Name: **Kaveh**, after the blacksmith of Persian myth who raises the banner of
-rebellion against the tyrant king. It carries the whole story for a reader who
-knows it and simply sounds right to one who does not. Alternatives in register:
-Sohrab, Behrouz.)
+(Name: **Kian**, an ordinary Persian given name meaning realm or foundation,
+which is what he was meant to be: the floor under his brother's empire.
+An earlier suggestion of "Kaveh" was DROPPED on the dev's instinct, and rightly.
+Kaveh is the blacksmith of the Shahnameh who loses seventeen sons to a tyrant,
+tears up the tyrant's false petition and raises his apron as the banner of
+rebellion. Our man betrays a brother who is NOT a tyrant and is wrong about him,
+so the name would have inverted a beloved figure rather than echoed him, and
+whether that reads as clever or as cheap is not ours to control.)
 
 **The wound.** Early, before any of the conquest, when Ardavan was still a mind
-for hire. He advised a siege. Kaveh's betrothed was in that city, and she was
-carrying a child. Kaveh begged him. Ardavan ran the numbers, and the numbers were
+for hire. He advised a siege. Kian's betrothed was in that city, and she was
+carrying a child. Kian begged him. Ardavan ran the numbers, and the numbers were
 right: fewer died that way than any other way available. Her city was on the
 wrong side of the arithmetic.
 
-**And he knew.** That is the part Kaveh can never get past and Ardavan can never
+**And he knew.** That is the part Kian can never get past and Ardavan can never
 deny. He expected to be understood, because he would have understood.
 
-**The son.** Kaveh's child was never born. Ardavan's son lived, and was to be
-named heir. So for years Kaveh watched a boy grow up in the exact shape of
+**The son.** Kian's child was never born. Ardavan's son lived, and was to be
+named heir. So for years Kian watched a boy grow up in the exact shape of
 everything he had lost, heir to an empire built on the advice that killed his
 own.
 
@@ -173,13 +180,13 @@ inherit.
 
 **And he had solved that**, in the way a planner would: he named his son heir,
 and his brother as the one he trusted to hold it. The succession was not absent,
-it was in his brother's hands. The floor was Kaveh.
+it was in his brother's hands. The floor was Kian.
 
 So the Ashfords did not have to beat him. They only had to reach the one person
 he never modelled.
 
 If the son died that night, then **the Al-Rashids alive today descend from
-Kaveh** — the surviving line is the traitor's line. And the faithful, the son's
+Kian** — the surviving line is the traitor's line. And the faithful, the son's
 people, are the ones who went nameless, because they had to.
 
 ## The bargain, and how it was hollowed out
@@ -204,7 +211,7 @@ Nobody broke the treaty. Which is worse, and much harder to be angry at.
 
 ## The two branches today
 
-- **Al-Rashid** — Kaveh's line. They kept the name openly because they could
+- **Al-Rashid** — Kian's line. They kept the name openly because they could
   afford to. Carrying it is not pride: kin-killing is shameful everywhere, so
   "the rightly-guided" is a **defence**, not a boast. You only need a name
   insisting you did right when everyone, yourself included, suspects otherwise.
@@ -237,10 +244,10 @@ No change to a word that is written. Only what it means.
 
 ## Still open
 
-1. **His afterlife, and Kaveh's.** He is "the Undying" with a ghost court of four
-   generals. Is Kaveh there? The cruellest version: Ardavan forgave him at once,
+1. **His afterlife, and Kian's.** He is "the Undying" with a ghost court of four
+   generals. Is Kian there? The cruellest version: Ardavan forgave him at once,
    because he does not experience it as a betrayal but as a move, and that
-   forgiveness is a worse punishment than any grudge. Kaveh would have spent five
+   forgiveness is a worse punishment than any grudge. Kian would have spent five
    centuries wanting to be hated and not being.
 2. **Rival Hearthlands houses.** `ARDAVAN.md` deliberately left the other house
    names generic ("Revisit if the houses ever need naming") to avoid canonising
