@@ -107,14 +107,26 @@ its line — the code becomes the documentation.
   **What it turns on:** the Herbier stops being a nice record and becomes the way
   you PREDICT an outcome. That is the whole point of a book of plants, and right
   now the desk answers the question before the book can.
-  **What it makes earnable:** the preview comes back as a REWARD. A higher lab
-  level, a tool, or a specialist at the bench (Elspeth) lets you see before you
-  commit. That is a talent worth having and not just a bigger number, which was
+  **What it makes earnable:** the preview comes back as a REWARD, and it is a good
+  first node for a crafting talent tree. A higher lab level, a tool, or a
+  specialist at the bench (Elspeth) lets you see before you commit. That is a talent worth having and not just a bigger number, which was
   the open question about what crafting talents would even do.
   **Costs and cover:** rough on a new player, and free-form experimenting gets
   expensive. The pre-known named recipes are the floor (they teach the shape of a
   working mixture), and the Herbier fills in as you learn. Worth considering
   whether a first failed brew returns some of its ingredients.
+  **FAILURE MUST NAME ITS KIND** (user, 2026-09-28, and this is the constraint the
+  whole idea lives or dies on). A bare "failed attempt" teaches the wrong lesson:
+  the player writes off a combination that actually works, and never tries it
+  again. This is true even with no roll, because "poor" can mean three different
+  things. So every bad outcome says WHICH, in the Lord's voice:
+    near miss     "Not for want of trying. I had it, near enough, and lost it."
+    no base       "It wants something underneath to carry it."
+    wrong prep    "Feverfew was never meant for charring."
+    wrong pair    "These two want nothing to do with each other."
+  Only the last should make a player give up on a mixture. If a roll is ever
+  added on top of the deterministic engine, the near-miss line is mandatory, not
+  polish: without it a roll actively teaches falsehoods.
   Applies to the kitchen identically, and for the same reason.
   Makes the three sharpening ideas below OPTIONAL rather than necessary: once the
   player cannot see the result, harsh and wasted already sting.
