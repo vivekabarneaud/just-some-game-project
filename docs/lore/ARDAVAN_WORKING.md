@@ -80,11 +80,12 @@ Real precedent, for the shape of it:
 
 This is the character, and it replaces "tyrant" everywhere.
 
-He was a prodigy as a boy at **sadrah**, a board game of conquest, in poverty, and
-it was the one thing that was his. (Sadrah, "a hundred roads": a Khor'vani game
-that travelled the trade roads with them and kept its own name in every language
-it reached, the way chess did. You take pieces, and you win by holding the roads
-the other player needs.) **He never stopped playing it.** He looks at a continent and sees
+He was a prodigy as a boy at **sarhad**, in poverty, and it was the one thing that
+was his. (Sarhad, "the frontier": a Khor'vani board game of conquest that
+travelled the trade roads with the people who invented it and kept its own name
+in every language it reached, the way chess did. You take pieces, and you win by
+pushing the border. He learned it from the brother who would sell him, and he
+spent the rest of his life playing it on a continent.) **He never stopped.** He looks at a continent and sees
 positions and supply. He makes the move the position calls for. He does not feel
 the pieces.
 
