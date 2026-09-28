@@ -42,7 +42,7 @@ const SOFT_FRUIT = ["boil", "chop", "preserve"] as const;
 
 export const FOOD_INGREDIENTS: FoodIngredient[] = [
   // ── Staple (grain — the base) ──
-  { id: "wheat", name: "Wheat", icon: "🌾", role: "staple", signature: "boil", nourish: 4, comfort: 2, flavors: ["hearty"], techniques: GRAIN, note: "The fine grain — bread and refinement." },
+  { id: "wheat", name: "Wheat", icon: "🌾", role: "staple", signature: "boil", nourish: 4, comfort: 2, flavors: ["hearty"], techniques: GRAIN, note: "The fine grain: bread and refinement." },
   { id: "barley", name: "Barley", icon: "🌿", role: "staple", signature: "boil", nourish: 4, comfort: 1, flavors: ["hearty"], techniques: GRAIN, note: "Plain grain, filling and humble." },
 
   // ── Protein · red meat + game (hunt, pens, the boar hunt, the wisent haul) ──
@@ -73,8 +73,8 @@ export const FOOD_INGREDIENTS: FoodIngredient[] = [
   { id: "cabbages", name: "Cabbage", icon: "🥬", role: "veg", signature: "chop", nourish: 2, comfort: 1, fresh: 2, flavors: ["fresh"], techniques: ["boil", "fry", "roast", "chop", "preserve"], note: "Hardy leaf, good raw or cooked." },
   { id: "turnips", name: "Turnips", icon: "🥕", role: "veg", signature: "boil", nourish: 3, comfort: 1, flavors: ["hearty"], techniques: ["boil", "fry", "roast", "chop", "skewer", "preserve"], note: "Earthy root, keeps the pot honest." },
   { id: "squash", name: "Gourd", icon: "🎃", role: "veg", signature: "roast", nourish: 3, comfort: 2, flavors: ["sweet"], techniques: ["boil", "fry", "roast", "chop"], note: "Sweetens as it cooks down." },
-  { id: "peas", name: "Peas", icon: "🫛", role: "veg", signature: "boil", nourish: 3, comfort: 1, flavors: ["fresh"], techniques: ["boil", "fry", "chop"], note: "Legume — pease porridge hot or cold." },
-  { id: "fava", name: "Fava Beans", icon: "🫘", role: "veg", signature: "boil", nourish: 3, comfort: 1, flavors: ["hearty"], techniques: ["boil", "fry"], note: "Broad beans — early protein before the herd." },
+  { id: "peas", name: "Peas", icon: "🫛", role: "veg", signature: "boil", nourish: 3, comfort: 1, flavors: ["fresh"], techniques: ["boil", "fry", "chop"], note: "A legume. Pease porridge, hot or cold." },
+  { id: "fava", name: "Fava Beans", icon: "🫘", role: "veg", signature: "boil", nourish: 3, comfort: 1, flavors: ["hearty"], techniques: ["boil", "fry"], note: "Broad beans, early protein before the herd." },
 
   // ── Veg · mushrooms (the forager's seasonal picks + the rain flush) ──
   { id: "field_mushroom", name: "Field Mushroom", icon: "🍄", role: "veg", signature: "fry", nourish: 2, comfort: 2, flavors: ["hearty"], techniques: FUNGI, note: "Common as grass, and still good in the pan." },
@@ -133,7 +133,12 @@ export const FOOD_INGREDIENTS: FoodIngredient[] = [
 
   // ── Spice (catalyst — honey + the culinary herb + trade spices) ──
   { id: "honey", name: "Honey", icon: "🍯", role: "spice", signature: "boil", amplify: 0.2, comfort: 1, flavors: ["sweet"], techniques: ["boil", "fry", "roast", "chop"], note: "Sweetens and rounds it out." },
-  { id: "lavender", name: "Lavender", icon: "💜", role: "spice", signature: "chop", amplify: 0.15, fresh: 1, flavors: ["fresh"], techniques: ["boil", "roast", "chop"], note: "Fragrant blooms — teas and honey-cakes." },
+  // The cup at the end of the day. No nourish at all and no amplify: honey and
+  // lavender lift what they sit with, chamomile only soothes, so it is the one
+  // ingredient that feeds nobody and comforts everybody.
+  // Boil only, because you infuse chamomile. You do not roast it.
+  { id: "chamomile", name: "Chamomile", icon: "🌼", role: "spice", signature: "boil", comfort: 2, techniques: ["boil"], note: "Steeped soft in hot water. It feeds nobody and settles everybody." },
+  { id: "lavender", name: "Lavender", icon: "💜", role: "spice", signature: "chop", amplify: 0.15, fresh: 1, flavors: ["fresh"], techniques: ["boil", "roast", "chop"], note: "Fragrant blooms for teas and honey-cakes." },
   // Trade spices — arrive via merchants (Zah'kari, Meridian), not grown here.
   { id: "saffron", name: "Saffron", icon: "🧡", role: "spice", signature: "boil", amplify: 0.3, flavors: ["spicy"], techniques: ["boil", "fry", "roast"], note: "Precious threads, a golden luxury (a trade spice)." },
   { id: "cinnamon", name: "Cinnamon", icon: "🟤", role: "spice", signature: "boil", amplify: 0.2, comfort: 1, flavors: ["spicy"], techniques: ["boil", "fry", "roast"], note: "A far-traded bark, sweet and warming (a trade spice)." },

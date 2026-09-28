@@ -42,7 +42,7 @@ export const HERBS: HerbDefinition[] = [
     name: "Rosehip",
     icon: "🌹",
     rarity: "common",
-    description: "The scarlet hip of the wild rose — the \"gratte-cul\". Not for eating raw (mind the seeds), but cooked into jam or a tea it is a sweet, warming remedy against the winter chills.",
+    description: "The scarlet hip of the wild rose, the \"gratte-cul\". Not for eating raw (mind the seeds), but cooked into jam or a tea it is a sweet, warming remedy against the winter chills.",
     dropRate: 0.012, // mostly comes from the wild-tree find, so the loose forage rate is low
   },
   {
@@ -58,7 +58,7 @@ export const HERBS: HerbDefinition[] = [
     name: "Nettle",
     icon: "🍃",
     rarity: "common",
-    description: "A stinging roadside weed that grows anywhere the ground is disturbed — and for all its sting, a powerful medicinal. Common, not precious.",
+    description: "A stinging roadside weed that grows anywhere the ground is disturbed, and for all its sting, a powerful medicinal. Common, not precious.",
     dropRate: 0.045, // ~1 per 22 food foraged — as common as it is underfoot
   },
   {

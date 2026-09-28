@@ -12,7 +12,7 @@ export const INGREDIENTS: Ingredient[] = [
   // ── BASE — gentle carriers; a brew wants one ────────────────────────────────
   {
     id: "chamomile", name: "Chamomile", icon: "🌼", role: "base", rarity: "common", signature: "steep",
-    note: "The gentle rounder — softens harsh combos.",
+    note: "The gentle rounder. It softens a harsh mixture.",
     techniques: {
       crush: [{ channel: "heal_hp", amount: 6, shape: "topical" }],
       steep: [{ channel: "general_recovery", amount: 2 }],
@@ -44,7 +44,7 @@ export const INGREDIENTS: Ingredient[] = [
   },
   {
     id: "lavender", name: "Lavender", icon: "🪻", role: "base", rarity: "uncommon", signature: "steep",
-    note: "A calming base — steadies and clears the mind.",
+    note: "A calming base. It steadies and clears the mind.",
     techniques: {
       steep: [{ channel: "wis", amount: 1 }],
       dry: [{ channel: "wis", amount: 2 }],
@@ -60,7 +60,7 @@ export const INGREDIENTS: Ingredient[] = [
   },
   {
     id: "snake_oil", name: "Snake Oil", icon: "🧪", role: "base", rarity: "uncommon", signature: "boil",
-    note: "The alchemist's universal solvent — a ready liquid to carry a brew.",
+    note: "The alchemist's universal solvent, a ready liquid to carry a brew.",
     techniques: {
       boil: [{ channel: "general_recovery", amount: 1 }],
     },
@@ -69,7 +69,7 @@ export const INGREDIENTS: Ingredient[] = [
   // ── HERO — the star effect you build around ────────────────────────────────
   {
     id: "mugwort", name: "Mugwort", icon: "🌿", role: "hero", rarity: "common", signature: "boil",
-    note: "The witch's herb — mind, magic, and warding smoke.",
+    note: "The witch's herb: mind, magic, and warding smoke.",
     techniques: {
       boil: [{ channel: "int", amount: 2 }],
       steep: [{ channel: "wis", amount: 1 }],
@@ -88,7 +88,7 @@ export const INGREDIENTS: Ingredient[] = [
   },
   {
     id: "yarrow", name: "Yarrow", icon: "🌾", role: "hero", rarity: "common", signature: "crush",
-    note: "Woundwort — mends a cut; steeped, it staunches bleeding.",
+    note: "Woundwort. It mends a cut, and steeped it staunches bleeding.",
     techniques: {
       crush: [{ channel: "ease_wound", amount: 3 }],
       steep: [{ channel: "cure_bleed", amount: 1 }],
@@ -97,7 +97,7 @@ export const INGREDIENTS: Ingredient[] = [
   },
   {
     id: "comfrey", name: "Comfrey", icon: "🌿", role: "hero", rarity: "uncommon", signature: "crush",
-    note: "Knitbone — mends sprains and bones.",
+    note: "Knitbone. It mends sprains and bones.",
     techniques: {
       crush: [{ channel: "ease_wound", amount: 3 }],
       boil: [{ channel: "ease_wound", amount: 2 }],
@@ -113,7 +113,7 @@ export const INGREDIENTS: Ingredient[] = [
   },
   {
     id: "willowbark", name: "Willowbark", icon: "🪵", role: "hero", rarity: "uncommon", signature: "boil",
-    note: "Bitter bark — cools a fever; a poultice dulls an ache.",
+    note: "Bitter bark. It cools a fever, and a poultice dulls an ache.",
     techniques: {
       boil: [{ channel: "ease_fever", amount: 3 }],
       crush: [{ channel: "defense_pct", amount: 8 }],
@@ -122,7 +122,7 @@ export const INGREDIENTS: Ingredient[] = [
   },
   {
     id: "nightbloom", name: "Nightbloom", icon: "🌺", role: "hero", rarity: "rare", signature: "distil",
-    note: "A moonlit flower — potent for the caster.",
+    note: "A moonlit flower, potent for the caster.",
     techniques: {
       steep: [{ channel: "int", amount: 3 }],
       distil: [{ channel: "int", amount: 6, shape: "burst", rounds: 2 }],
@@ -130,7 +130,7 @@ export const INGREDIENTS: Ingredient[] = [
   },
   {
     id: "fenbalm", name: "Fenbalm", icon: "🌾", role: "hero", rarity: "uncommon", signature: "boil",
-    note: "Edda's marsh cure-all — the deep-cough (boiled), the fen's slow venom (a crushed poultice).",
+    note: "Edda's marsh cure-all: the deep-cough boiled, the fen's slow venom in a crushed poultice.",
     techniques: {
       boil: [{ channel: "ease_fever", amount: 5 }],
       crush: [{ channel: "cure_venom", amount: 1 }, { channel: "cure_poison", amount: 1 }],
@@ -178,7 +178,7 @@ export const INGREDIENTS: Ingredient[] = [
   },
   {
     id: "nightshade", name: "Nightshade", icon: "🖤", role: "toxin", rarity: "rare", signature: "crush",
-    note: "Deadly — a potent poison and the assassin's friend.",
+    note: "Deadly. A potent poison, and the assassin's friend.",
     techniques: {
       crush: [{ channel: "poison", amount: 3, shape: "sustained", rounds: 3 }],
       boil: [{ channel: "weaken", amount: 15 }],
@@ -187,7 +187,7 @@ export const INGREDIENTS: Ingredient[] = [
   },
   {
     id: "serpent_fang", name: "Serpent Fang", icon: "🐍", role: "toxin", rarity: "uncommon", signature: "crush",
-    note: "Still glistening with venom — crushed, it makes a wicked coating.",
+    note: "Still glistening with venom. Crushed, it makes a wicked coating.",
     techniques: {
       crush: [{ channel: "poison", amount: 3, shape: "sustained", rounds: 3 }],
       distil: [{ channel: "poison", amount: 5, shape: "sustained", rounds: 4 }],
@@ -205,7 +205,7 @@ export const INGREDIENTS: Ingredient[] = [
   },
   {
     id: "moonpetal", name: "Moonpetal", icon: "🪷", role: "wildcard", rarity: "legendary", signature: "distil",
-    note: "Legendary aether-petal — rare and unpredictably strong.",
+    note: "Legendary aether-petal, rare and unpredictably strong.",
     techniques: {
       steep: [{ channel: "heal_hp", amount: 6 }],
       distil: [{ channel: "int", amount: 6, shape: "burst", rounds: 2 }],
