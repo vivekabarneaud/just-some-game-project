@@ -101,6 +101,27 @@ It explains things already written without anyone meaning it to:
 He is not asking to be forgiven for the arithmetic. He does not understand why
 forgiveness is required. The sums were right and he can show you.
 
+## How to write about him (standing rule)
+
+**"Tyrant" is always the Dominion's word, never the narrator's.** It is the
+official history of the people who killed him and needed the story. Wherever it
+appears it must be attributed, or the reader takes it as the world's verdict and
+the whole character collapses back into the thing we just replaced.
+
+- Good: *"The Dominion's histories name him the Tyrant."* / *"the man the Crown
+  calls a tyrant"* / *"five centuries of Ashford schooling"*
+- Bad: *"the tyrant Ardavan"*, *"his brutal campaigns"*, anything in a narrator
+  voice that agrees with the Crown.
+- The Lord himself would say "tyrant" without thinking, because that is the
+  schoolmaster's education he had (`EIGHTH_GOD.md` lists it among the things he
+  was taught). That is CORRECT in his voice and should stay. It is a character
+  being wrong, not the world being described.
+
+**This matters most in the lore tree**, where a reader arrives cold with no
+context and takes every line as fact. The tree must carry the attribution on the
+face of the node, not in a detail somewhere: what the Dominion says, and then
+what actually happened.
+
 ## Kaveh, the brother
 
 **His older brother.** The one who looked after him before the genius showed, the
