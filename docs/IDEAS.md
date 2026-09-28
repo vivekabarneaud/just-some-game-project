@@ -73,10 +73,16 @@ its line — the code becomes the documentation.
   are gone, which is exactly wrong for a game you leave running. If Edda catches
   a cold while the player is away, that has to be visible when they come back,
   not a toast they missed.
-  Shape: a small always-present log, bottom right, part of the shell like the
-  sidebar and topbar, so it is in the same place on every screen. Unread count,
-  click to expand, grouped by day. The overview should reach it too, since that
-  is where a returning player looks first.
+  Shape (user, 2026-09-28): **a ledger page or an envelope, bottom right, that
+  unrolls UPWARD** on hover, like a dropdown opening the wrong way. Part of the
+  shell like the sidebar and topbar, so it sits in the same place on every
+  screen. Grouped by day.
+  Two things it must not be: hover-only, which does nothing on a touch screen,
+  and hidden at rest, because a player coming back after a night away has to SEE
+  that something happened before they know to go looking. So the closed state is
+  a visible strip carrying the unread count, and it unrolls on hover OR tap.
+  It suits the Lord's journal: the settlement's days, written down, and you pull
+  the page up to read what you missed.
   This is what makes the "folk handle survival" idea legible: they rebuilt the
   hunting camp, and the log is where you find out.
 - **Herb scarcity: the hut leaks** — the forager's hut drips every herb passively,
