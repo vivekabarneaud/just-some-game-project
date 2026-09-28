@@ -12,6 +12,15 @@
 //   steep   an infusion. Gentler and longer than boiling.
 //   distil  an essence. Strong and brief (shape: "burst").
 //
+// SHAPE ONLY MEANS SOMETHING TO AN EFFECT THAT EXISTS DURING A FIGHT. The
+// recovery channels (heal_hp, ease_fever, ease_gut, ease_wound,
+// general_recovery) are summed by apply.ts and spent on an adventurer's
+// recovery time between missions; there is no "during" for them. So a technique
+// varies their AMOUNT, never their shape, and `shape`/`rounds` on one of those
+// cells is noise. Four such cells were carrying it and have been cleaned up.
+// (And it is right that some plants are for BETWEEN fights: that half of the
+// craft is what serves a settlement rather than a war party.)
+//
 // The technique is what you do to the HERB, not what the product is: you crush
 // one thing and boil another into the same vessel, the way a real herbalist
 // would, and what comes out is one draught. (A salve as a separate KIND of
@@ -34,7 +43,7 @@ export const INGREDIENTS: Ingredient[] = [
     id: "chamomile", name: "Chamomile", icon: "🌼", role: "base", rarity: "common", signature: "steep",
     note: "The gentle rounder. It softens a harsh mixture.",
     techniques: {
-      crush: [{ channel: "heal_hp", amount: 6, shape: "topical" }],
+      crush: [{ channel: "heal_hp", amount: 6 }],
       steep: [{ channel: "general_recovery", amount: 2 }],
     },
   },
@@ -103,7 +112,7 @@ export const INGREDIENTS: Ingredient[] = [
     techniques: {
       boil: [{ channel: "ease_fever", amount: 2 }],
       steep: [{ channel: "ease_fever", amount: 3 }],
-      distil: [{ channel: "ease_fever", amount: 6, shape: "burst", rounds: 1 }],
+      distil: [{ channel: "ease_fever", amount: 6 }],
     },
   },
   {
@@ -112,7 +121,7 @@ export const INGREDIENTS: Ingredient[] = [
     techniques: {
       crush: [{ channel: "ease_wound", amount: 3 }],
       steep: [{ channel: "cure_bleed", amount: 1 }],
-      distil: [{ channel: "heal_hp", amount: 20, shape: "burst" }],
+      distil: [{ channel: "heal_hp", amount: 20 }],
     },
   },
   {
@@ -143,7 +152,7 @@ export const INGREDIENTS: Ingredient[] = [
     techniques: {
       boil: [{ channel: "ease_fever", amount: 3 }],
       crush: [{ channel: "defense_pct", amount: 8 }],
-      distil: [{ channel: "ease_fever", amount: 6, shape: "burst", rounds: 2 }],
+      distil: [{ channel: "ease_fever", amount: 6 }],
     },
   },
   {
