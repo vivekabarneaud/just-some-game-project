@@ -50,6 +50,53 @@ its line — the code becomes the documentation.
   the desk, over what you can brew; that one is the complete record over what you
   can find.
 - **Techniques beyond crush + boil** — `steep`, `dry`, `distil`, `char`, `ferment` all exist in ingredient data but the desk only offers two, so five techniques are unreachable in game. The design was "stations unlock by settlement tier"; that gate was never wired.
+- ⭐⭐ **The folk handle survival; the Lord decides ambition** — the fix for idle
+  feeling unfair. Go away for a night with a food surplus, come back to everyone
+  dead because brigands took the hunting camp and nobody rebuilt it. Rebuilding
+  the thing that feeds you is not a decision, it is what competent frontier
+  people do when nobody is watching, and the settlers are written as competent.
+  So while the player is away the settlement may, on its own: rebuild a destroyed
+  FOOD building, re-staff an empty critical job, and eat what is in the larder.
+  It may never: start something new, spend gold, take a mission, or build
+  anything that was not there before. Ambition stays the player's.
+  Not a difficulty change: it removes the losses that come from absence rather
+  than from choices, which is the only kind that feels cheap. Pairs with the
+  event log below, since the player must come home and SEE what the folk did.
+- ⭐ **A Folk tab** — illness has nowhere to live. It is a PEOPLE thing displayed
+  in a BUILDINGS UI, so today you find out Edda is ill by opening a building card
+  and reading a cramped line with the cure button wedged beside it. There is no
+  screen about the people at all.
+  A Folk tab would hold: who is here, who is ill and with what, who is working
+  where, the founders and their state. Illness, cures, ageing and mood belong
+  there. It would also give the cast somewhere to exist outside the Chronicle.
+- ⭐ **A persistent event log in the shell** — events flash past in a banner and
+  are gone, which is exactly wrong for a game you leave running. If Edda catches
+  a cold while the player is away, that has to be visible when they come back,
+  not a toast they missed.
+  Shape: a small always-present log, bottom right, part of the shell like the
+  sidebar and topbar, so it is in the same place on every screen. Unread count,
+  click to expand, grouped by day. The overview should reach it too, since that
+  is where a returning player looks first.
+  This is what makes the "folk handle survival" idea legible: they rebuilt the
+  hunting camp, and the log is where you find out.
+- **Herb scarcity: the hut leaks** — the forager's hut drips every herb passively,
+  scaled by forager level and idle hours, so an alchemist drowns in ingredients
+  and nothing is worth going to get. Proposal: the hut keeps only the dull
+  staples (chamomile, nettle), and everything else moves to the wood, to missions
+  and to trade, where the wood is one trip a day with ten basket slots.
+  That makes herbs a budget instead of a pile, gives foraging a reason to matter
+  to a player who only brews, and gives the good herbs a PLACE: fenbalm from the
+  fen, greymantle from the north, the rest from the near fold.
+  Blocked on art for the wood half, so until the sprites exist the moved herbs
+  would come from missions and trade only, and the shelf gets tighter before it
+  gets richer. Pairs with quality (below): scarcity is only interesting if what
+  you make with it can be better or worse.
+- **Brews and dishes cannot fail** — every output is good, so there is nothing to
+  get better AT, and no reason for a lab or a kitchen to improve. A quality
+  gradient (poor / fine / fine-plus, from the building level, the cook, and how
+  well the mixture fits) is what would give tools and talents something to lift.
+  Noted 2026-09-28 alongside scarcity: they are the same problem seen twice, and
+  neither is worth fixing alone.
 - ⭐ **Salves and draughts (brews have a KIND)** — a brew's *kind* is decided by
   what you did to it, and the kind decides how it is USED, not just what it does.
   **All-crush makes a salve. Anything boiled, steeped or distilled makes a

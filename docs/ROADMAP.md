@@ -25,11 +25,11 @@ scheduled that requires you to grind.
 
 **Milestones, in order**
 1. ~~Land the cleanup — merge the open branches.~~ **Done.** Verified in code 2026-09-25: enemies are at 22, `SAVE_VERSION` is 3, CI runs typecheck + tests. Both chore branches are merged and deleted. Tech-debt **batch D** (merge the two raid resolvers, then the quick dedups) is what is left of that thread.
-2. **Author Chapter 2** — the witchcraft/maddened arc + the Old Watch. Close the Bog Witch back half. Decide what of Stories 2–13 survives.
-3. **Progression & anti-softlock pass** — gates, costs and durations through Act 1. Get fresh-player signal; don't tune off dev self-play.
-4. **Content quality pass** — the systems that are 90% built (see *Nearly done*).
-5. **Alpha packaging** — first-hour polish, onboarding, the loot-chest reveal.
-6. **French i18n** — tutorial slice first. Last thing before the nephew.
+5. **Author Chapter 2** — the witchcraft/maddened arc + the Old Watch. Close the Bog Witch back half. Decide what of Stories 2–13 survives.
+6. **Progression & anti-softlock pass** — gates, costs and durations through Act 1. Get fresh-player signal; don't tune off dev self-play.
+7. **Content quality pass** — the systems that are 90% built (see *Nearly done*).
+8. **Alpha packaging** — first-hour polish, onboarding, the loot-chest reveal.
+9. **French i18n** — tutorial slice first. Last thing before the nephew.
 
 ---
 
@@ -45,12 +45,27 @@ scheduled that requires you to grind.
 
 Short and ordered. Everything else is in `IDEAS.md`.
 
-1. **A winter gather.** Season coverage is spring ×3, autumn ×3, summer ×1, **winter ×0** — the season the whole game is about surviving is the only one where the player has nothing to *choose*. Ice fishing, a cellar dig, snared hares, sloes after frost.
-2. **A new Aldith.** The old `bog_witch` was the placeholder that inspired the marsh chain and it's deleted. Her chain's unbuilt finale needs a purpose-built enemy.
-3. **An eastward exploration mission.** `east_reach` on the map is deliberately fogged behind a sentinel — and Act 1 has *no exploration-type mission at all*, which is a gap for a game about a half-mapped frontier.
-4. **Guild level 2 has no tier.** The apprentice tier is gone. Level-2 players draw the novice and side-chain pool, which works but is thin.
-5. **Decide the three inert combat systems** (see the engine map, below): give the state machine the nerve/leader job, apply damage schools or delete them, build offensive alchemy or drop its channels.
-6. **The Greyfang pack shouldn't rout while he stands** — extend `leader` to the beast rout path. Small, and it makes killing the alpha the felt win condition.
+1. **The folk handle survival while the Lord is away.** Go away for a night with a
+   food surplus, come home to a wipe because brigands took the hunting camp and
+   nobody rebuilt it. Rebuilding the thing that feeds you is not a decision.
+   Let the settlement, unattended, rebuild a destroyed FOOD building, re-staff an
+   empty critical job, and eat the larder; never start anything new, spend gold,
+   or take a mission. Removes the losses that come from ABSENCE rather than from
+   choices, which is the only kind that feels cheap. Details in IDEAS.
+2. **A persistent event log in the shell.** Events flash past in a banner and are
+   gone, which is wrong for a game you leave running: an illness caught while the
+   player is away has to be visible when they come back. Small always-present log,
+   bottom right, part of the shell like the sidebar. It is also what makes the
+   item above legible, since that is where you find out what the folk did.
+3. **A Folk tab.** Illness is a PEOPLE thing living in a BUILDINGS UI, so you
+   learn Edda is ill by opening a building card and reading a cramped line with
+   the cure button wedged in beside it. There is no screen about the people.
+4. **A winter gather.** Season coverage is spring ×3, autumn ×3, summer ×1, **winter ×0** — the season the whole game is about surviving is the only one where the player has nothing to *choose*. Ice fishing, a cellar dig, snared hares, sloes after frost.
+5. **A new Aldith.** The old `bog_witch` was the placeholder that inspired the marsh chain and it's deleted. Her chain's unbuilt finale needs a purpose-built enemy.
+6. **An eastward exploration mission.** `east_reach` on the map is deliberately fogged behind a sentinel — and Act 1 has *no exploration-type mission at all*, which is a gap for a game about a half-mapped frontier.
+7. **Guild level 2 has no tier.** The apprentice tier is gone. Level-2 players draw the novice and side-chain pool, which works but is thin.
+8. **Decide the three inert combat systems** (see the engine map, below): give the state machine the nerve/leader job, apply damage schools or delete them, build offensive alchemy or drop its channels.
+9. **The Greyfang pack shouldn't rout while he stands** — extend `leader` to the beast rout path. Small, and it makes killing the alpha the felt win condition.
 
 ## Nearly done — one wire missing
 
