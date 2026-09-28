@@ -1,9 +1,29 @@
-// ─── Free-form alchemy — ingredient property tables ─────────────────────────
-// ONE effect per (ingredient, technique) — a plant does one clear thing per
-// prep; a dual-nature plant splits its two things across two techniques.
+// ─── Free-form alchemy: ingredient property tables ─────────────────────────
+// A PLANT HAS ONE THEME. THE TECHNIQUE DECIDES HOW THAT THEME ARRIVES.
+// (Rewritten 2026-09-28. The old rule was "one effect per (ingredient,
+// technique); a dual-nature plant splits its two things across two techniques",
+// which had it backwards: it made the technique a MENU of unrelated boons
+// rather than a preparation, and it was false to plants. Willow bark eases a
+// fever and dulls an ache in the same cup; that is one bark doing one thing
+// with two readings.)
+//
+//   crush   bruised to release the sap. Acts at once.
+//   boil    a decoction. Steady, the whole fight.
+//   steep   an infusion. Gentler and longer than boiling.
+//   distil  an essence. Strong and brief (shape: "burst").
+//
+// The technique is what you do to the HERB, not what the product is: you crush
+// one thing and boil another into the same vessel, the way a real herbalist
+// would, and what comes out is one draught. (A salve as a separate KIND of
+// product is a good idea and is written up in docs/IDEAS.md under Alchemy.)
+//
+// A cell may carry a SECOND effect only when the two are the same act seen
+// twice, as fenbalm's poultice draws out venom and poison alike, because
+// drawing out is one act. Never two unrelated boons: that is how a shelf of
+// plants becomes a shelf of everything.
+//
 // Catalysts only MODIFY (amplify/extend), never add their own effect line.
-// So a brew's effect count = its non-catalyst ingredients (2 early, 3-4 late).
-// Rough, tunable magnitudes. ⭐ signature = identity/early, not "biggest number".
+// Rough, tunable magnitudes. Signature = identity/early, not "biggest number".
 // A technique absent for an ingredient yields only a faint generic effect (brew.ts).
 
 import type { Ingredient } from "./types.js";
@@ -106,6 +126,7 @@ export const INGREDIENTS: Ingredient[] = [
     techniques: {
       crush: [{ channel: "str", amount: 2 }],
       boil: [{ channel: "str", amount: 1 }],
+      distil: [{ channel: "str", amount: 4, shape: "burst", rounds: 2 }],
     },
   },
   {

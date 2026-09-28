@@ -50,6 +50,37 @@ its line — the code becomes the documentation.
   the desk, over what you can brew; that one is the complete record over what you
   can find.
 - **Techniques beyond crush + boil** — `steep`, `dry`, `distil`, `char`, `ferment` all exist in ingredient data but the desk only offers two, so five techniques are unreachable in game. The design was "stations unlock by settlement tier"; that gate was never wired.
+- ⭐ **Salves and draughts (brews have a KIND)** — a brew's *kind* is decided by
+  what you did to it, and the kind decides how it is USED, not just what it does.
+  **All-crush makes a salve. Anything boiled, steeped or distilled makes a
+  draught.** A salve is worked into a wound; a draught is drunk.
+  *The slot already exists.* `AdventurerMissionSupplies` is `{ potion?, food?,
+  recovery? }`, and `recovery` is sitting there waiting: a salve is the recovery
+  item, applied to a wounded adventurer, and a draught is the potion drunk in the
+  fight. So the split has a home in the UI before anything is built.
+  *Why it is worth doing.* Today `shape: "topical"` is cosmetic: it changes no
+  behaviour, and a brew that mixes a crushed herb with a boiled one quietly
+  contradicts itself, since you cannot both rub on and swallow the same thing.
+  Making the kind emergent from the mix turns "what did I crush" into a real
+  decision with a different USE rather than a different number, and finally makes
+  `topical` mean something.
+  *Shape of the work:* a `kind` on `BrewResult` derived in `brew.ts` (all
+  placements crush -> salve, else draught); the desk showing which you have made;
+  the supply slots accepting only the right kind. Balance question to settle
+  first: whether a salve applied out of combat should be stronger than a draught
+  drunk in it, since it costs a turn nobody is watching.
+  *Decided alongside it (2026-09-28):* the technique is what you do to the HERB,
+  not what the product is, so crushing one thing and boiling another into the
+  same vessel is fine and yields one draught. The salve kind is what would make
+  all-crush special, rather than the contradiction it is now.
+- **Alchemy for the settlement, not the war party** — every brew today is a
+  mission item, so a player who never sends anyone out has no reason to own a
+  lab. A draught that strengthens the quarry gang for a day, or steadies a sick
+  animal, or keeps a fever out of the houses through winter, would give alchemy a
+  purpose inside the walls. Needs a new application target (a building or a work
+  crew rather than an adventurer) and a duration in game-hours. Pairs with the
+  Herbier, which already tells you what a plant is good for before you have
+  anyone to give it to.
 - **Offensive brews** — poison coatings and throwables. The channels (`poison`, `weaken`, `slow`, `confuse`, `aoe_fire/frost`) are defined and *priced* in the brew engine, and combat ignores them entirely. Either build it or delete the channels; inert-but-priced is the worst state. Pairs with the puffball-as-carrier idea (any brew becomes an area effect).
 - **Deliberate plant gating** — introduce the plant roster gradually via foraging and tier, instead of the whole shelf being available at once.
 - **Shareable recipes** — brews are personal today; trading them between players is a multiplayer-era thought.
