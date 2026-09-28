@@ -36,7 +36,7 @@ export const NAMED_RECIPES: NamedRecipe[] = [
     placements: [P("yarrow", "crush"), P("chamomile", "crush")],
   },
   {
-    name: "Knitbone Poultice", icon: "🌿", note: "Eases a wrenched back.",
+    name: "Knitbone Poultice", icon: "🌿", note: "Rubbed into a wrenched back. It knits the bone and leaves you the stronger for it.",
     placements: [P("comfrey", "crush"), P("chamomile", "crush")],
   },
   {

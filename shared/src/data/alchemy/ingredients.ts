@@ -96,11 +96,16 @@ export const INGREDIENTS: Ingredient[] = [
     },
   },
   {
+    // The bone herb, and the ONLY source of str in the game. It used to be a
+    // strictly worse yarrow: identical crush cell (ease_wound 3), rarer, and
+    // with less besides, so there was never a reason to reach for it. Their own
+    // folk names carry the split that fixes it. Yarrow is Woundwort and keeps
+    // cuts and bleeding entirely; comfrey is Knitbone and takes bone and sinew.
     id: "comfrey", name: "Comfrey", icon: "🌿", role: "hero", rarity: "uncommon", signature: "crush",
-    note: "Knitbone. It mends sprains and bones.",
+    note: "Knitbone. It sets what is broken and hardens what is whole.",
     techniques: {
-      crush: [{ channel: "ease_wound", amount: 3 }],
-      boil: [{ channel: "ease_wound", amount: 2 }],
+      crush: [{ channel: "str", amount: 2 }],
+      boil: [{ channel: "str", amount: 1 }],
     },
   },
   {
