@@ -97,6 +97,27 @@ its line — the code becomes the documentation.
   would come from missions and trade only, and the shelf gets tighter before it
   gets richer. Pairs with quality (below): scarcity is only interesting if what
   you make with it can be better or worse.
+- ⭐⭐ **Hide the result until you commit** (user, 2026-09-28) — the single change
+  that makes alchemy and cooking have stakes, and it needs no new system.
+  Failure has been in the engine all along: a brew with no base comes out harsh,
+  a technique a plant was never made for yields a scrap. The LIVE PREVIEW is what
+  removes the consequence, because you simply nudge the placements until the
+  numbers look good and then press the button. Take the preview away and every
+  brew is a commitment.
+  **What it turns on:** the Herbier stops being a nice record and becomes the way
+  you PREDICT an outcome. That is the whole point of a book of plants, and right
+  now the desk answers the question before the book can.
+  **What it makes earnable:** the preview comes back as a REWARD. A higher lab
+  level, a tool, or a specialist at the bench (Elspeth) lets you see before you
+  commit. That is a talent worth having and not just a bigger number, which was
+  the open question about what crafting talents would even do.
+  **Costs and cover:** rough on a new player, and free-form experimenting gets
+  expensive. The pre-known named recipes are the floor (they teach the shape of a
+  working mixture), and the Herbier fills in as you learn. Worth considering
+  whether a first failed brew returns some of its ingredients.
+  Applies to the kitchen identically, and for the same reason.
+  Makes the three sharpening ideas below OPTIONAL rather than necessary: once the
+  player cannot see the result, harsh and wasted already sting.
 - **Brews and dishes cannot fail** — every output is good, so there is nothing to
   get better AT, and no reason for a lab or a kitchen to improve. A quality
   gradient (poor / fine / fine-plus, from the building level, the cook, and how

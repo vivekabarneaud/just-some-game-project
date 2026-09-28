@@ -60,12 +60,19 @@ Short and ordered. Everything else is in `IDEAS.md`.
 3. **A Folk tab.** Illness is a PEOPLE thing living in a BUILDINGS UI, so you
    learn Edda is ill by opening a building card and reading a cramped line with
    the cure button wedged in beside it. There is no screen about the people.
-4. **A winter gather.** Season coverage is spring ×3, autumn ×3, summer ×1, **winter ×0** — the season the whole game is about surviving is the only one where the player has nothing to *choose*. Ice fishing, a cellar dig, snared hares, sloes after frost.
-5. **A new Aldith.** The old `bog_witch` was the placeholder that inspired the marsh chain and it's deleted. Her chain's unbuilt finale needs a purpose-built enemy.
-6. **An eastward exploration mission.** `east_reach` on the map is deliberately fogged behind a sentinel — and Act 1 has *no exploration-type mission at all*, which is a gap for a game about a half-mapped frontier.
-7. **Guild level 2 has no tier.** The apprentice tier is gone. Level-2 players draw the novice and side-chain pool, which works but is thin.
-8. **Decide the three inert combat systems** (see the engine map, below): give the state machine the nerve/leader job, apply damage schools or delete them, build offensive alchemy or drop its channels.
-9. **The Greyfang pack shouldn't rout while he stands** — extend `leader` to the beast rout path. Small, and it makes killing the alpha the felt win condition.
+4. **Hide the brew and dish result until the player commits.** Failure is already
+   in the engine (a brew with no base comes out harsh; a technique a plant was
+   never made for yields a scrap) and the live preview is what removes the
+   consequence. Hiding it gives crafting stakes with no new system, turns the
+   Herbier into the way you PREDICT an outcome rather than a record of one, and
+   makes the preview itself an earnable reward (a better lab, a tool, Elspeth at
+   the bench), which answers what crafting talents are for. Details in IDEAS.
+5. **A winter gather.** Season coverage is spring ×3, autumn ×3, summer ×1, **winter ×0** — the season the whole game is about surviving is the only one where the player has nothing to *choose*. Ice fishing, a cellar dig, snared hares, sloes after frost.
+6. **A new Aldith.** The old `bog_witch` was the placeholder that inspired the marsh chain and it's deleted. Her chain's unbuilt finale needs a purpose-built enemy.
+7. **An eastward exploration mission.** `east_reach` on the map is deliberately fogged behind a sentinel — and Act 1 has *no exploration-type mission at all*, which is a gap for a game about a half-mapped frontier.
+8. **Guild level 2 has no tier.** The apprentice tier is gone. Level-2 players draw the novice and side-chain pool, which works but is thin.
+9. **Decide the three inert combat systems** (see the engine map, below): give the state machine the nerve/leader job, apply damage schools or delete them, build offensive alchemy or drop its channels.
+10. **The Greyfang pack shouldn't rout while he stands** — extend `leader` to the beast rout path. Small, and it makes killing the alpha the felt win condition.
 
 ## Nearly done — one wire missing
 
