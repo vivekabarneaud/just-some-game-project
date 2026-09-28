@@ -97,6 +97,24 @@ its line — the code becomes the documentation.
   would come from missions and trade only, and the shelf gets tighter before it
   gets richer. Pairs with quality (below): scarcity is only interesting if what
   you make with it can be better or worse.
+- **A kiln, and potions need something to go in** (user, 2026-09-28; parked, not
+  planned) — a ceramics building. The hook is already half-written: the gourd
+  rename in ANACHRONISMS records that the hard shells are "dried for flasks,
+  bowls, dippers", so gourds are the EARLY container and fired clay is the
+  upgrade. A progression nobody has to invent.
+  What it could make:
+    bottles and vials  a real cost on every brew. The strongest one: it makes
+                       brewing deliberate, which is the same problem scarcity and
+                       hiding the preview are solving.
+    storage jars       larder capacity, and it finally gives `preserve` a reason
+                       to exist. It is a cooking technique nothing needs today.
+    roof tiles         a building upgrade material
+    plates and cups    the tavern, tied to service and happiness
+  What it would need: clay as a resource, so a source (a pit, or the riverbank),
+  and fuel for the kiln, which is a wood sink.
+  Open: whether a bottle is consumed or returned, since a returned bottle is a
+  one-off cost and a consumed one is an ongoing tax. The ongoing one has more
+  teeth but risks being a chore.
 - ⭐⭐ **Hide the result until you commit** (user, 2026-09-28) — the single change
   that makes alchemy and cooking have stakes, and it needs no new system.
   Failure has been in the engine all along: a brew with no base comes out harsh,
