@@ -155,7 +155,7 @@ Ardavan's campaigns were not cruel. They were DETACHED, which turned out to be w
 
 A coalition of noble houses and military commanders turned against him. The **Ashford family** led the coup. They assassinated Ardavan in his own throne room and took the crown, promising a gentler unity — the same kingdom, but with the Church of the Radiant One as a moral check on the Crown's power.
 
-The Dominion's official history paints Ardavan as a tyrant and the Ashfords as liberators. The truth is more complicated. Ardavan saw the danger before anyone else. The Ashfords wanted power. Both things are true.
+The Dominion's official history paints Ardavan as a tyrant and the Ashfords as liberators. The truth is more complicated, on both sides. Ardavan was not cruel, he was detached, and what he wanted was his own people out of the middle of everyone else's wars. The Ashfords wanted their world back, and they also sincerely believed the Sundering was divine punishment and that the continent needed saving. All of it is true at once.
 
 ### The Dead King Returns
 
@@ -525,7 +525,7 @@ The world of Valenheart is built on questions that have no easy answers:
 
 **Is the Church right?** Their conclusion is wrong, but their instinct — that magic use is making things worse — has a grain of truth. And their teaching that the Radiant One will return is closer to reality than they know: the Six *are* dormant, not dead. But the Church's refusal to acknowledge Netheron's necessity may doom their own prophecy.
 
-**What does Ardavan deserve?** The Dominion calls him a tyrant, and he gave them the material. But he was not cruel, he was detached, and he was also the only leader who took the threat seriously. His dynasty was stolen by people who did it for power, not principle. Does he deserve his throne? Does he deserve rest? Can a dead man be reasoned with?
+**What does Ardavan deserve?** The Dominion calls him a tyrant, and he gave them the material. But he was not cruel, he was detached. He had no interest in the Sundering or what it left behind; that was the Church's question, and the Ashfords' after them. His was a map. His dynasty was taken by people who wanted their world back, and who also believed they were doing god's work. Does he deserve his throne? Does he deserve rest? Can a dead man be reasoned with?
 
 **What would Netheron want?** If he could be restored — if somehow his consciousness could be resurrected from the raw essence leaking across the world — would he take his role back? Would he forgive mortals for cursing him for millennia? Would he forgive the Six for killing him? Or would he look at the broken world and say: "You did this to yourselves"?
 

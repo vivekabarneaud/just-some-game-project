@@ -126,6 +126,32 @@ context and takes every line as fact. The tree must carry the attribution on the
 face of the node, not in a detail somewhere: what the Dominion says, and then
 what actually happened.
 
+## What he was not: a man who cared about the Sundering
+
+**Decided 2026-09-28.** Earlier drafts, and `FACTIONS.md`, had him seeing the
+cosmic danger before anyone else. That is dropped.
+
+He is **secular and practical**. His people are rich, undefended and sitting
+where three trade empires meet, so every war on the continent crosses their
+ground. His answer is to end the wars by ending the borders. That is the whole
+motive, and it does not need a prophecy.
+
+**The Ashfords are the ones who care about the Sundering**, and they mean it.
+They believe it was divine punishment, they think the world needs saving, and
+they make the Church of the Radiant One the state faith at the founding because
+they are sincere, not only because it is useful cover.
+
+Why this is better: it keeps the cosmic layer and the political layer apart. The
+Sundering, the cycle and the Eighth belong to Halldora, who is the only person
+alive who actually understands them. The politics stay human and mundane. Nobody
+in the throne-room story knows what is really wrong with the world, which is the
+correct shape for a world where one immortal scholar is carrying that alone.
+
+It also gives the two sides a real contrast instead of a shared motive: a
+practical man who wants his people safe, against religious nobles who want their
+world back and believe they are doing god's work. Both true at once, which is
+the register `FACTIONS.md` already set.
+
 ## Kian, the brother
 
 **His older brother.** The one who looked after him before the genius showed, the
