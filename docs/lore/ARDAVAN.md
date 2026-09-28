@@ -1,23 +1,23 @@
-> **Status (2026-08-31): a thread, not canon, and not built.** Varek's ghost court
+> **Status (2026-08-31): a thread, not canon, and not built.** Ardavan's ghost court
 > exists **nowhere in code** — no court figures, no boss ladder, no missions. It
 > also carries canon breaks against `lore/TIMELINE.md` (flagged in the original
 > header, including an age that doesn't fit the timeline). Treat it as a pitch for
 > late-game content: **reconcile against the timeline before building anything
 > from it.** The boss-progression idea lives in `IDEAS.md`.
 
-# Lore Expansion — Politics, Varek's Court & Cultural Depth
+# Lore Expansion — Politics, Ardavan's Court & Cultural Depth
 
-> **⚠️ CANON NOTE (2026-06-11 audit):** this doc predates several canon locks and `lore/TIMELINE.md` wins where they disagree. Known stale points: "Dryven" → **Drayven**; the Khazdurim Deep Seals section (Netheron+Ferros essence) is replaced by the **Eighth God** canon (`lore/EIGHTH_GOD.md`); the five-year Zah'kari ground war contradicts TIMELINE's locked "Varek's conquest does not reach them in force"; **Aelindra "487 years old, remembers Le Déclin" is mathematically impossible** (Le Déclin was ~2000 years ago; elves live ≤500) — her age or memories must change; the pre-Varek Nordveld colony vs TIMELINE's invasion-during-Varek `[PROPOSAL]` is the open Nordveld canon gap, still needs a lock. Full list: the retired Audit 2026-06-11 doc (in git). Still valuable for: Varek's biography/campaigns (Phases 1-3), the ghost court, Hearthlands→Ashenmark history, cultural politics.
+> **⚠️ CANON NOTE (2026-06-11 audit):** this doc predates several canon locks and `lore/TIMELINE.md` wins where they disagree. Known stale points: "Dryven" → **Drayven**; the Khazdurim Deep Seals section (Netheron+Ferros essence) is replaced by the **Eighth God** canon (`lore/EIGHTH_GOD.md`); the five-year Zah'kari ground war contradicts TIMELINE's locked "Ardavan's conquest does not reach them in force"; **Aelindra "487 years old, remembers Le Déclin" is mathematically impossible** (Le Déclin was ~2000 years ago; elves live ≤500) — her age or memories must change; the pre-Ardavan Nordveld colony vs TIMELINE's invasion-during-Ardavan `[PROPOSAL]` is the open Nordveld canon gap, still needs a lock. Full list: the retired Audit 2026-06-11 doc (in git). Still valuable for: Ardavan's biography/campaigns (Phases 1-3), the ghost court, Hearthlands→Ashenmark history, cultural politics.
 
-## 1. Varek the Undying — Khor'vani Origin
+## 1. Ardavan the Undying — Khor'vani Origin
 
-### Who Was Varek?
+### Who Was Ardavan?
 
-Born **Varek al-Rashid**, a Khor'vani general's son raised at the Amber Crossroads where three trade empires met. His father was a caravan guard; his mother taught astronomy at the Crossroads Academy. He was brilliant from childhood — not with a sword, but with systems. He could look at a map and see supply lines. He could meet a king and know which advisor was whispering treason.
+Born **Ardavan al-Rashid**, a Khor'vani general's son raised at the Amber Crossroads where three trade empires met. His father was a caravan guard; his mother taught astronomy at the Crossroads Academy. He was brilliant from childhood — not with a sword, but with systems. He could look at a map and see supply lines. He could meet a king and know which advisor was whispering treason.
 
 He left the Crossroads at 22, not for wealth but because he'd already solved the desert's puzzle. He went north, to the warring successor states that had been fighting since the Sundering, and saw a continent of petty kings too stupid to realize they were all dying slowly.
 
-### The World Before Varek
+### The World Before Ardavan
 
 In the centuries after the Sundering, the continent was a patchwork of warring successor states:
 
@@ -30,41 +30,41 @@ In the centuries after the Sundering, the continent was a patchwork of warring s
 
 **The Corsair League** — pirate ports, getting rich selling weapons to everyone.
 
-**The Amber Crossroads** — neutral trade hub where Varek was born. Khor'vani territory was the only place on the continent where all cultures met without fighting.
+**The Amber Crossroads** — neutral trade hub where Ardavan was born. Khor'vani territory was the only place on the continent where all cultures met without fighting.
 
 ### How He Conquered
 
-Varek didn't raise the largest army. He raised the *smartest* one. His twelve-year campaign reshaped the continent:
+Ardavan didn't raise the largest army. He raised the *smartest* one. His twelve-year campaign reshaped the continent:
 
-**Phase 1 — The Hearthlands (Years 1-2).** The easiest target. A dozen petty kings too busy fighting each other to notice the Khor'vani strategist offering "alliances." Varek played them against each other with surgical precision — he'd offer alliance to a weak kingdom bordering a stronger one, then absorb the winner. He recruited local generals rather than installing outsiders. In two years, the central Hearthlands answered to Varek. He renamed nothing and changed little. The peasants barely noticed — they just had a different lord taking the same taxes.
+**Phase 1 — The Hearthlands (Years 1-2).** The easiest target. A dozen petty kings too busy fighting each other to notice the Khor'vani strategist offering "alliances." Ardavan played them against each other with surgical precision — he'd offer alliance to a weak kingdom bordering a stronger one, then absorb the winner. He recruited local generals rather than installing outsiders. In two years, the central Hearthlands answered to Ardavan. He renamed nothing and changed little. The peasants barely noticed — they just had a different lord taking the same taxes.
 
-**Phase 2 — The Nordveld Repulsion (Years 3-4).** This was Varek's masterstroke. The Nordveld jarls held the northern Hearthlands and considered themselves unbeatable. Varek didn't fight them head-on — he cut their supply lines to the coast, turned the occupied Hearthland peasants against them with promises of liberation (promises he kept, to his credit), and then cornered the Nordveld armies in a series of mountain passes where their berserker charges were useless. He didn't just stop the Nordveld — he **pushed them all the way back to their frozen islands** and burned their southern shipyards so they couldn't return by sea. The Nordveld have never forgotten this humiliation. Their pride that "Even Varek couldn't take our islands" is real — but it covers the wound of losing everything south of the fjords. Ironjaw Grimmson, the war-chief who fought Varek hardest, died in the final battle at Frostvik Pass and was so impressed by Varek's strategy that he pledged loyalty in death.
+**Phase 2 — The Nordveld Repulsion (Years 3-4).** This was Ardavan's masterstroke. The Nordveld jarls held the northern Hearthlands and considered themselves unbeatable. Ardavan didn't fight them head-on — he cut their supply lines to the coast, turned the occupied Hearthland peasants against them with promises of liberation (promises he kept, to his credit), and then cornered the Nordveld armies in a series of mountain passes where their berserker charges were useless. He didn't just stop the Nordveld — he **pushed them all the way back to their frozen islands** and burned their southern shipyards so they couldn't return by sea. The Nordveld have never forgotten this humiliation. Their pride that "Even Ardavan couldn't take our islands" is real — but it covers the wound of losing everything south of the fjords. Ironjaw Grimmson, the war-chief who fought Ardavan hardest, died in the final battle at Frostvik Pass and was so impressed by Ardavan's strategy that he pledged loyalty in death.
 
-**Phase 3 — The Corsair Strangling (Years 5-6).** Varek didn't invade the Corsair ports — impossible from land. Instead he blockaded them, cutting off the trade routes they depended on. The Meridians called this "The Strangling." They smuggled around it, charged triple for everything, and ultimately signed trade agreements on Varek's terms — not conquest, but economic submission. The Meridians don't carry a grudge so much as professional respect: "He was the best customer we ever hated." They sold weapons to his enemies, then sold information about his enemies to him. Business is business.
+**Phase 3 — The Corsair Strangling (Years 5-6).** Ardavan didn't invade the Corsair ports — impossible from land. Instead he blockaded them, cutting off the trade routes they depended on. The Meridians called this "The Strangling." They smuggled around it, charged triple for everything, and ultimately signed trade agreements on Ardavan's terms — not conquest, but economic submission. The Meridians don't carry a grudge so much as professional respect: "He was the best customer we ever hated." They sold weapons to his enemies, then sold information about his enemies to him. Business is business.
 
-**Phase 4 — The Zah'kari Campaign (Years 7-12).** The hardest fight, and the one Varek never truly won. The Zah'kari city-states were too sophisticated to be played against each other — their Council tradition and griot memory made them nearly immune to diplomatic manipulation. They allied against Varek immediately (the only people who did) and fought a coordinated defense. Varek won battles — his tactical genius was overwhelming in the field — but the Zah'kari retreated into guerrilla resistance, using their knowledge of the savanna to make occupation impossible. Every garrison he built was harassed. Every supply line was raided. After five years of grinding attrition, Varek signed a "Treaty of Mutual Respect" — which both sides understood was Varek admitting he couldn't hold their territory. The Zah'kari consider themselves **undefeated**. They're not wrong.
+**Phase 4 — The Zah'kari Campaign (Years 7-12).** The hardest fight, and the one Ardavan never truly won. The Zah'kari city-states were too sophisticated to be played against each other — their Council tradition and griot memory made them nearly immune to diplomatic manipulation. They allied against Ardavan immediately (the only people who did) and fought a coordinated defense. Ardavan won battles — his tactical genius was overwhelming in the field — but the Zah'kari retreated into guerrilla resistance, using their knowledge of the savanna to make occupation impossible. Every garrison he built was harassed. Every supply line was raided. After five years of grinding attrition, Ardavan signed a "Treaty of Mutual Respect" — which both sides understood was Ardavan admitting he couldn't hold their territory. The Zah'kari consider themselves **undefeated**. They're not wrong.
 
-**The peoples he left alone:** Varek was smart enough to know his limits. The Silvaneth forests were impenetrable, the Khazdurim mountain holds were impregnable, and neither had anything he needed. He signed non-aggression pacts and moved on. The Feldgrund hill-dwarves were technically within his borders but he left them alone — they paid taxes in ale and caused no trouble. The Hauts-Cieux were literally above the conflict in their sky-cities.
+**The peoples he left alone:** Ardavan was smart enough to know his limits. The Silvaneth forests were impenetrable, the Khazdurim mountain holds were impregnable, and neither had anything he needed. He signed non-aggression pacts and moved on. The Feldgrund hill-dwarves were technically within his borders but he left them alone — they paid taxes in ale and caused no trouble. The Hauts-Cieux were literally above the conflict in their sky-cities.
 
 ### The Hearthlands Become the Ashenmark
 
-After the Ashford coup, the new dynasty needed to erase Varek's legacy. They renamed the Hearthlands "the Ashenmark" — officially after the ash trees that grow across the central plains, but everyone understood the subtext: the ashes of the tyrant's reign, cleansed by Ashford rule. Common folk, especially old Ashwick families, still say "the Hearthlands" when they're being nostalgic. The Dominion says "the Ashenmark" when it's being official. Which name a person uses tells you how they feel about the Crown.
+After the Ashford coup, the new dynasty needed to erase Ardavan's legacy. They renamed the Hearthlands "the Ashenmark" — officially after the ash trees that grow across the central plains, but everyone understood the subtext: the ashes of the tyrant's reign, cleansed by Ashford rule. Common folk, especially old Ashwick families, still say "the Hearthlands" when they're being nostalgic. The Dominion says "the Ashenmark" when it's being official. Which name a person uses tells you how they feel about the Crown.
 
 ### Why He Was Hated
 
-Varek's efficiency was terrifying. He didn't burn villages *often* — but when he did, it was calculated. One example to cow a hundred. He forced conscription, not because he needed soldiers, but because a village with no young men can't rebel. He was right about everything — the Wastes, the danger, the need for unity — and he was impossible to love.
+Ardavan's efficiency was terrifying. He didn't burn villages *often* — but when he did, it was calculated. One example to cow a hundred. He forced conscription, not because he needed soldiers, but because a village with no young men can't rebel. He was right about everything — the Wastes, the danger, the need for unity — and he was impossible to love.
 
 The Ashfords didn't overthrow him because he was wrong. They overthrew him because he made them feel small. And because they wanted the throne.
 
 ### The Khor'vani Stigma
 
-After Varek's assassination, the Ashford dynasty needed a villain. Varek became the Tyrant — and his people became the Tyrant's People.
+After Ardavan's assassination, the Ashford dynasty needed a villain. Ardavan became the Tyrant — and his people became the Tyrant's People.
 
 The Khor'vani weren't expelled or massacred (the Dominion was too civilized for that). But they were... repositioned. Khor'vani generals were quietly retired. Khor'vani scholars found their academy funding reduced. Khor'vani merchants discovered that Dominion trade licenses were suddenly harder to obtain. Over centuries, the prejudice softened into something ambient — not hatred, just a quiet wariness. An assumption of cunning.
 
 **The continental grudge map:**
 
-| Culture | What Varek did to them | How they remember it | Attitude to Khor'vani today |
+| Culture | What Ardavan did to them | How they remember it | Attitude to Khor'vani today |
 |---------|----------------------|---------------------|---------------------------|
 | **Ashwick** | Conquered and ruled them for a generation | "He took our land and our sons" | Wariest — they were subjects longest |
 | **Nordveld** | Pushed them off their conquered southern territories back to their islands | "He humiliated us" (masked as pride) | Deep resentment, covered by bluster |
@@ -77,63 +77,63 @@ The Khor'vani weren't expelled or massacred (the Dominion was too civilized for 
 | **Khor'vani** | Was born among them | "He was ours. We carry that." | Complex — shame, pride, exhaustion |
 
 **In the present day:**
-- The stigma is continental, not just Dominion. Every culture has a Varek story, and the Khor'vani are the common thread.
-- Most people don't consciously associate Khor'vani with Varek — it's been 500 years. But the cultural residue persists in sayings and attitudes across every kingdom.
+- The stigma is continental, not just Dominion. Every culture has a Ardavan story, and the Khor'vani are the common thread.
+- Most people don't consciously associate Khor'vani with Ardavan — it's been 500 years. But the cultural residue persists in sayings and attitudes across every kingdom.
 - The Church watches Khor'vani more closely than other origins. Not officially, but Inquisitor Maren's maps of "Wastes-proximate settlements" happen to include every Khor'vani trading post.
-- Among the Khor'vani themselves, Varek is a complicated figure. Some consider him a hero corrupted by power. Some consider him a monster who shamed their people. Most just want to be judged on their own merits.
-- An old Khor'vani saying: *"Varek built the road. We chose where it leads."*
+- Among the Khor'vani themselves, Ardavan is a complicated figure. Some consider him a hero who was never understood. Some consider him a man who could not tell the difference between a people and a position, and who shamed them by winning. Most just want to be judged on their own merits.
+- An old Khor'vani saying: *"Ardavan built the road. We chose where it leads."*
 
 ### Adventurer Impact
 
 Khor'vani adventurers in the player's settlement carry this weight lightly — it's been 500 years, after all. But it surfaces:
 - A possible quirk: "Doesn't mention their homeland until they trust you."
-- A possible quirk: "Corrects anyone who calls Varek a 'Khor'vani king.' He was a conqueror, not a king. There's a difference."
+- A possible quirk: "Corrects anyone who calls Ardavan a 'Khor'vani king.' He was a conqueror, not a king. There's a difference."
 - The family bond system creates an interesting dynamic: a Khor'vani family in the player's settlement, building loyalty, becoming Bonded — that's a story about proving yourself beyond your ancestors.
 
 ---
 
-## 2. Varek's Ghost Court — The Dead Generals
+## 2. Ardavan's Ghost Court — The Dead Generals
 
-Varek spent 500 years on the other side of the boundary, organizing the dead. His court is a dark mirror of the Dominion — structured, hierarchical, and terrifyingly efficient. Not all serve willingly.
+Ardavan spent 500 years on the other side of the boundary, organizing the dead. His court is a dark mirror of the Dominion — structured, hierarchical, and terrifyingly efficient. Not all serve willingly.
 
 ### The Inner Circle
 
 **General Theron Ashwick** — *The Betrayer's Son*
 - A living Ashwick man who died 200 years ago in a border skirmish. His family name is Ashwick (formerly Ashford — a branch that dropped the noble name).
-- Varek found him on the other side and offered him a choice: serve, or wander forever. Theron chose service — not out of loyalty, but because Varek's court had *purpose*, and the alternative was oblivion.
-- He leads Varek's vanguard. He's competent, conflicted, and hates that Varek was right about everything.
+- Ardavan found him on the other side and offered him a choice: serve, or wander forever. Theron chose service — not out of loyalty, but because Ardavan's court had *purpose*, and the alternative was oblivion.
+- He leads Ardavan's vanguard. He's competent, conflicted, and hates that Ardavan was right about everything.
 - **Boss encounter:** Tier 4 story mission. Humanoid/Ghost. Abilities: Rally the Dead (buff), Shield Wall (damage reduction), Haunting Strike (debuff + damage).
 
-**The Veiled Queen** — *Varek's Wife*
-- Her name has been forgotten (or Varek forbids it). She was a Meridian noblewoman who married Varek as a political alliance. She grew to love him. She died of grief three years after his assassination.
-- On the other side, she became Varek's spymaster. She controls the whisperers — dead souls who slip through thin spots in the boundary to gather intelligence on the living world.
+**The Veiled Queen** — *Ardavan's Wife*
+- Her name has been forgotten (or Ardavan forbids it). She was a Meridian noblewoman who married Ardavan as a political alliance. She grew to love him. She died of grief three years after his assassination.
+- On the other side, she became Ardavan's spymaster. She controls the whisperers — dead souls who slip through thin spots in the boundary to gather intelligence on the living world.
 - She is the most dangerous member of the court because she *chooses* to be there. No coercion, no rage — just cold, calculating devotion.
 - **Boss encounter:** Tier 4 story mission. Ghost/Magical. Abilities: Veil of Shadows (invisibility 2 rounds), Whisper of Doubt (AoE debuff INT -30%), Soul Sight (reveals and targets lowest-HP adventurer).
 
 **Ironjaw Grimmson** — *The Nordveld Warlord*
-- The war-chief who held the northern Hearthlands as a Nordveld colony — until Varek pushed him all the way back to the frozen islands. He died at the Battle of Frostvik Pass, the final engagement where Varek broke the Nordveld southern army.
-- He was so impressed by Varek's strategy that he pledged loyalty in death. "You beat me fair. I'll serve until someone beats you." The ultimate warrior's respect — he couldn't beat Varek in life, so he serves him in death.
-- He leads the shock troops — the mindless dead, the skeletal hordes, the ones who simply charge. Varek handles strategy; Ironjaw handles violence.
+- The war-chief who held the northern Hearthlands as a Nordveld colony — until Ardavan pushed him all the way back to the frozen islands. He died at the Battle of Frostvik Pass, the final engagement where Ardavan broke the Nordveld southern army.
+- He was so impressed by Ardavan's strategy that he pledged loyalty in death. "You beat me fair. I'll serve until someone beats you." The ultimate warrior's respect — he couldn't beat Ardavan in life, so he serves him in death.
+- He leads the shock troops — the mindless dead, the skeletal hordes, the ones who simply charge. Ardavan handles strategy; Ironjaw handles violence.
 - Jovial, loud, and genuinely enjoys being dead. "No hangovers! No frostbite! And the fighting never stops!"
 - **Boss encounter:** Tier 3 story mission. Undead/Humanoid. Abilities: Berserker Rage (damage + speed buff), Ground Slam (AoE), Undying Fury (revive once at 30% HP).
 
 **The Silent Scholar** — *The Unwilling*
-- A Hauts-Cieux elf who died 80 years ago studying the boundary. She got too close, and Varek claimed her.
-- She is Varek's chief strategist — not because she's loyal, but because he literally controls her. She serves under magical compulsion, and her brilliance is used against everything she believed in.
-- She leaves clues for the living. Hidden messages in the pattern of attacks. Deliberate weaknesses in Varek's defenses. She is a prisoner screaming for rescue through the bars of her cage.
+- A Hauts-Cieux elf who died 80 years ago studying the boundary. She got too close, and Ardavan claimed her.
+- She is Ardavan's chief strategist — not because she's loyal, but because he literally controls her. She serves under magical compulsion, and her brilliance is used against everything she believed in.
+- She leaves clues for the living. Hidden messages in the pattern of attacks. Deliberate weaknesses in Ardavan's defenses. She is a prisoner screaming for rescue through the bars of her cage.
 - **Boss encounter:** Tier 4 story mission. Ghost/Magical/Elf. Abilities: Arcane Barrage (AoE), Temporal Slow (debuff DEX all), but occasionally "glitches" — one round where she doesn't attack and instead heals an adventurer (her resistance breaking through).
 
 **Dryven the Twice-Turned** — *The Defector's Defector*
-- Wait — Dryven is already established in the lore as the Cult of the Hollow's military commander (former Radiant Knight who defected to the Cult). What if, in a future story arc, Dryven dies and Varek claims him? A triple-defector: Dominion → Cult → Varek's Court.
+- Wait — Dryven is already established in the lore as the Cult of the Hollow's military commander (former Radiant Knight who defected to the Cult). What if, in a future story arc, Dryven dies and Ardavan claims him? A triple-defector: Dominion → Cult → Ardavan's Court.
 - Not a current general, but a future one. A story beat where the player watches an ally become an enemy become something worse.
 
 ### The Rank and File
 
-Varek's army isn't just generals. It's layered:
-- **The Willing** — dead who chose Varek over oblivion. Soldiers, kings, ambitious nobles. They serve for purpose.
-- **The Bound** — dead who were claimed by force. Good people, priests, scholars, children. Varek's greatest crime. They march, they fight, and some of them whisper "help me" when the living get close enough to hear.
-- **The Hollow** — dead who have been on the other side too long and lost all sense of self. Empty husks that Varek uses as cannon fodder. They feel nothing. They are nothing.
-- **The Echoes** — not true dead, but impressions. Copies of people who died violently near the Wastes. They look like the person, sound like the person, but have no memory. Varek uses them as spies and infiltrators — an Echo of a dead soldier walking into a settlement, looking confused, and reporting back everything it sees.
+Ardavan's army isn't just generals. It's layered:
+- **The Willing** — dead who chose Ardavan over oblivion. Soldiers, kings, ambitious nobles. They serve for purpose.
+- **The Bound** — dead who were claimed by force. Good people, priests, scholars, children. Ardavan's greatest crime. They march, they fight, and some of them whisper "help me" when the living get close enough to hear.
+- **The Hollow** — dead who have been on the other side too long and lost all sense of self. Empty husks that Ardavan uses as cannon fodder. They feel nothing. They are nothing.
+- **The Echoes** — not true dead, but impressions. Copies of people who died violently near the Wastes. They look like the person, sound like the person, but have no memory. Ardavan uses them as spies and infiltrators — an Echo of a dead soldier walking into a settlement, looking confused, and reporting back everything it sees.
 
 ---
 
@@ -153,14 +153,14 @@ Varek's army isn't just generals. It's layered:
 - **Moot Speaker:** **Amara Diallo**, a 60-year-old griot who memorized every treaty, law, and precedent of the last three centuries. She doesn't rule — she *remembers*, and memory is power when your laws are sung, not written.
 - **Military:** Each city-state maintains its own champions and militia. The **Zah'kari War Games** are annual tournaments that double as military readiness exercises. Champions who win become legends; their songs are sung for generations.
 - **Relationship to Dominion:** Wary respect. The Zah'kari predate the Dominion by centuries and resent being treated as a junior civilization. They trade with the Dominion but refuse to join it. The Dominion's attempts to "incorporate" the Sunward Kingdoms have been politely and firmly rebuffed for 500 years.
-- **Relationship to Varek's legacy:** The Zah'kari are the people Varek **couldn't hold**. He won battles, occupied territory, but five years of guerrilla resistance made him sign a treaty admitting defeat. The Zah'kari consider themselves undefeated — and they're right. Their attitude toward Khor'vani is the least hostile of any culture: "Your greatest son tried. He failed. We're still here." They studied his tactics not out of grudge but out of professional respect for a worthy opponent.
+- **Relationship to Ardavan's legacy:** The Zah'kari are the people Ardavan **couldn't hold**. He won battles, occupied territory, but five years of guerrilla resistance made him sign a treaty admitting defeat. The Zah'kari consider themselves undefeated — and they're right. Their attitude toward Khor'vani is the least hostile of any culture: "Your greatest son tried. He failed. We're still here." They studied his tactics not out of grudge but out of professional respect for a worthy opponent.
 
 ### Khor'vani Amber Crossroads — Trade Confederation
 - **Structure:** A loose confederation of merchant houses, scholarly institutions, and caravan guilds, governed by the **Council of Roads** — one representative per major trade house, plus one each from the Astronomers' Guild and the Alchemists' Collegium.
 - **Head of Council:** **Ravi Sharma**, a 55-year-old merchant-diplomat who has brokered peace between three kingdoms without anyone realizing he was doing it. He speaks seven languages and trusts none of them.
 - **No standing army:** The Khor'vani maintain caravan guards and city watches, but no military. Their defense is economic — attack a Khor'vani city and every trade route on the continent redirects around you. Embargo is their weapon of choice.
-- **The Varek question:** The Council of Roads maintains a strict official position: Varek was a Khor'vani citizen who acted alone. His conquests do not represent Khor'vani values. This is true, and also a carefully maintained PR position that took centuries to establish.
-- **Privately:** Many Khor'vani scholars study Varek's campaigns — not to repeat them, but to understand how one person reshaped a continent. His strategic writings (preserved in fragments) are taught at the Crossroads Academy under the course title "Failure Analysis."
+- **The Ardavan question:** The Council of Roads maintains a strict official position: Ardavan was a Khor'vani citizen who acted alone. His conquests do not represent Khor'vani values. This is true, and also a carefully maintained PR position that took centuries to establish.
+- **Privately:** Many Khor'vani scholars study Ardavan's campaigns — not to repeat them, but to understand how one person reshaped a continent. His strategic writings (preserved in fragments) are taught at the Crossroads Academy under the course title "Failure Analysis."
 - **The Astronomers' Guild:** Not just stargazers — they track Aether flow, predict Wastes surges, and map the boundary's movement. Their data is the best in the world, better than the Church's, and they share it with no one for free.
 
 ### Jade Empire (Tianzhou) — Imperial Bureaucracy
@@ -215,14 +215,14 @@ These political structures should flavor adventurer backstories. Some suggestion
 
 ---
 
-## 5. Story Mission Boss Progression (Varek's Court)
+## 5. Story Mission Boss Progression (Ardavan's Court)
 
-The ghost generals should appear as bosses in later story missions, building toward an eventual confrontation with Varek himself:
+The ghost generals should appear as bosses in later story missions, building toward an eventual confrontation with Ardavan himself:
 
 | Chapter | Boss | Tier | Context |
 |---------|------|------|---------|
-| Ch. 3: Shadows Gather | Ironjaw Grimmson | 3 | First encounter with Varek's organized dead. A jovial Nordveld ghost leading skeleton raiders. |
+| Ch. 3: Shadows Gather | Ironjaw Grimmson | 3 | First encounter with Ardavan's organized dead. A jovial Nordveld ghost leading skeleton raiders. |
 | Ch. 4: The Veil Thins | The Veiled Queen | 4 | The player discovers they're being watched by whisperers. Tracking the spymaster to a thin-spot in the boundary. |
 | Ch. 5: The Unwilling | The Silent Scholar | 4 | A Hauts-Cieux ghost who leaves clues to help the player while fighting them under compulsion. Moral complexity. |
-| Ch. 6: Blood of Conquerors | General Theron Ashwick | 4 | An Ashwick man serving Varek. The player's own origin-kin turned enemy. |
-| Ch. 7+ (endgame) | Varek the Undying | 5 | The Dead King himself. Not a boss to defeat — a boss to *survive*. The first encounter is a retreat. |
+| Ch. 6: Blood of Conquerors | General Theron Ashwick | 4 | An Ashwick man serving Ardavan. The player's own origin-kin turned enemy. |
+| Ch. 7+ (endgame) | Ardavan the Undying | 5 | The Dead King himself. Not a boss to defeat — a boss to *survive*. The first encounter is a retreat. |

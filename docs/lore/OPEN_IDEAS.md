@@ -8,7 +8,7 @@ When an item is locked, move it into `lore/TIMELINE.md` (or the relevant standal
 
 ## Khor'vani Alchemy
 
-**Proposal (parked April 2026):** A pre-Aether magical tradition of physical-process alchemy. Predates the Academy of the Aether. Does not channel Aether — works on chemical and material principles. Therefore outside the Church's Doctrine of Silence, which is why Khor'vani alchemists are proposed to move freely in the Dominion despite the cultural Khor'vani stigma after Varek.
+**Proposal (parked April 2026):** A pre-Aether magical tradition of physical-process alchemy. Predates the Academy of the Aether. Does not channel Aether — works on chemical and material principles. Therefore outside the Church's Doctrine of Silence, which is why Khor'vani alchemists are proposed to move freely in the Dominion despite the cultural Khor'vani stigma after Ardavan.
 
 **Why parked:** User does not remember this being established and wants to discuss before committing.
 

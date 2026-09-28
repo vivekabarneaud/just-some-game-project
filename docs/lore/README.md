@@ -9,7 +9,7 @@ the timeline disagree, the timeline wins and the thread is wrong.
 | **lore/TIMELINE.md** | **The spine, and the authority.** Working canon: the Eternal Court, the Sundering, the two-zone Wastes, the ages down to now. |
 | lore/EIGHTH_GOD.md | The forgotten god of Malice — the reframe that made the Sundering deliberate rather than accidental. Late-reveal material. |
 | lore/FACTIONS.md | Factions, races, and the standing NPC cast. **Scoped to that** — its old cosmology sections are superseded by TIMELINE; read them as history, not canon. |
-| lore/VAREK.md | Varek and his ghost court. **Nothing of it exists in code**, and it carries known canon breaks — see its header before building from it. |
+| lore/ARDAVAN.md | Ardavan and his ghost court. **Nothing of it exists in code**, and it carries known canon breaks — see its header before building from it. |
 | lore/FOUNDERS.md | The six who came with the Lord. Parallel authority for them specifically. |
 | lore/OPEN_IDEAS.md | The holding pen. Nothing here is canon until it's in the timeline. |
 

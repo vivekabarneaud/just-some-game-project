@@ -143,47 +143,47 @@ And some are **powerful.**
 
 ---
 
-## Part IV: Varek the Undying
+## Part IV: Ardavan the Undying
 
 ### The Conqueror Who Would Not Rest
 
-Five hundred years ago — long after the Sundering but before the Wastes began to spread — a warlord named **Varek** united the warring successor states through conquest. He was brilliant, ruthless, and driven by an obsession: total unification. He believed that only a united continent could survive whatever darkness the Sundering had left behind.
+Five hundred years ago — long after the Sundering but before the Wastes began to spread — a warlord named **Ardavan** united the warring successor states through conquest. He was brilliant, ruthless, and driven by an obsession: total unification. He believed that only a united continent could survive whatever darkness the Sundering had left behind.
 
 He was right about the threat. He was catastrophically wrong about the methods.
 
-Varek's campaigns were brutal. Forced conscription, crushed rebellions, burned villages that resisted. He forged a vast kingdom — the foundation of what would become the Ashenmark Dominion — but he ruled through fear. His own generals whispered of madness. His people endured rather than thrived.
+Ardavan's campaigns were not cruel. They were DETACHED, which turned out to be worse. He had been a prodigy at a board game as a boy, and he never stopped playing one: he saw the continent as positions and supply, made the move the position called for, and felt nothing about the pieces. Conscription, sieges, a village emptied because it sat on a road he needed. Every one of those was the correct move, and he could show you why. People he knew were people. People on the board were not. His own generals loved him, because they were never pieces. His own people thrived, because they were never pieces. Everyone else paid for that arithmetic.
 
-A coalition of noble houses and military commanders turned against him. The **Ashford family** led the coup. They assassinated Varek in his own throne room and took the crown, promising a gentler unity — the same kingdom, but with the Church of the Radiant One as a moral check on the Crown's power.
+A coalition of noble houses and military commanders turned against him. The **Ashford family** led the coup. They assassinated Ardavan in his own throne room and took the crown, promising a gentler unity — the same kingdom, but with the Church of the Radiant One as a moral check on the Crown's power.
 
-The Dominion's official history paints Varek as a tyrant and the Ashfords as liberators. The truth is more complicated. Varek saw the danger before anyone else. The Ashfords wanted power. Both things are true.
+The Dominion's official history paints Ardavan as a tyrant and the Ashfords as liberators. The truth is more complicated. Ardavan saw the danger before anyone else. The Ashfords wanted power. Both things are true.
 
 ### The Dead King Returns
 
-Varek died furious. He died with his great work unfinished. And because the boundary between worlds was already silently weakening, he did not fully cross over.
+Ardavan died furious. He died with his great work unfinished. And because the boundary between worlds was already silently weakening, he did not fully cross over.
 
 For centuries he was just a restless presence — a cold spot in the old throne room, a shadow that servants glimpsed in mirrors. But as the boundary continued to fail, he grew stronger. More coherent. He began to remember who he was.
 
-By the time the Wastes started expanding, Varek was fully conscious on the other side. And he was not alone. Centuries of the dead — soldiers, kings, commoners, anyone with enough willpower or enough rage to resist the pull of oblivion — had accumulated in the space beyond the boundary. Varek, being Varek, organized them.
+By the time the Wastes started expanding, Ardavan was fully conscious on the other side. And he was not alone. Centuries of the dead — soldiers, kings, commoners, anyone with enough willpower or enough rage to resist the pull of oblivion — had accumulated in the space beyond the boundary. Ardavan, being Ardavan, organized them.
 
-He built an army. Not all of his soldiers serve willingly. Many are enslaved — good people, priests, scholars, trapped by Varek's iron will and forced to march in his legions. Some of them beg the living to end them properly, to find a way to release them. The tragedy of Varek's army is that it's full of victims.
+He built an army. Not all of his soldiers serve willingly. Many are enslaved — good people, priests, scholars, trapped by Ardavan's iron will and forced to march in his legions. Some of them beg the living to end them properly, to find a way to release them. The tragedy of Ardavan's army is that it's full of victims.
 
-### What Varek Wants
+### What Ardavan Wants
 
-- **His throne.** He looks at the Dominion — HIS kingdom, built on HIS conquests — and sees the descendants of traitors sitting on a seat they stole from him. High King Aldren Ashford represents everything Varek despises: an heir to stolen power.
+- **His throne.** He looks at the Dominion — HIS kingdom, built on HIS conquests — and sees the descendants of traitors sitting on a seat they stole from him. High King Aldren Ashford represents everything Ardavan despises: an heir to stolen power.
 
 - **To finish what he started.** Total unification. He warned about the Wastes before anyone listened. He tried to prepare the continent. They killed him for it. Now the danger he predicted is here, and the Dominion is too fractured to respond. He believes — with some justification — that he is the only leader strong enough to face it.
 
-- **And maybe, deep down, to rest.** He will never admit this. But Varek has been dead for five hundred years, held together by rage and will alone. If someone offered him genuine peace — a properly functioning death, a chance to finally let go — something in him might listen. Might.
+- **And maybe, deep down, to rest.** He will never admit this. But Ardavan has been dead for five hundred years, held together by rage and will alone. If someone offered him genuine peace — a properly functioning death, a chance to finally let go — something in him might listen. Might.
 
-### Varek and the Factions
+### Ardavan and the Factions
 
-Varek is **everyone's enemy:**
+Ardavan is **everyone's enemy:**
 
 - **The Dominion** — he wants their throne and holds a personal grudge against the Ashford dynasty.
-- **The Cult** — they want to reassemble Netheron, which would fix the boundary and send Varek back to the other side permanently. He cannot allow this.
-- **The Thornveil** — they maintain the boundary. Every ward-stone they strengthen makes Varek weaker.
-- **The Church** — they want to destroy all undead. Varek is the ultimate undead.
-- **The player** — Varek sees every Free Settlement as either a potential subject or a potential obstacle.
+- **The Cult** — they want to reassemble Netheron, which would fix the boundary and send Ardavan back to the other side permanently. He cannot allow this.
+- **The Thornveil** — they maintain the boundary. Every ward-stone they strengthen makes Ardavan weaker.
+- **The Church** — they want to destroy all undead. Ardavan is the ultimate undead.
+- **The player** — Ardavan sees every Free Settlement as either a potential subject or a potential obstacle.
 
 He is a wild card that no faction controls — a mid-game threat that complicates everything.
 
@@ -249,7 +249,7 @@ The factions see them very differently:
 - **The Thornveil** senses the Aether within them and believes they could strengthen the Primal ward network.
 - **The Cult** sees them as evidence that Netheron's essence is trying to reconstitute itself — to them, the dragons are sacred.
 - **The Church** considers them abominations — concentrations of the very energy that's killing the world. They want them destroyed.
-- **Varek** fears them. If dragons can process dead Aether — if they can restore even a fragment of the boundary — his power weakens.
+- **Ardavan** fears them. If dragons can process dead Aether — if they can restore even a fragment of the boundary — his power weakens.
 - **The Hauts-Cieux elves** wonder: if the death-cycle is restored, would elven immortality return? Some hope. Some fear the answer.
 
 The truth is unknown. The dragon's nature will emerge through how it is raised.
@@ -339,7 +339,7 @@ Bringing them together — overcoming millennia of mutual resentment so that Hal
 
 **"Order through strength. Unity through faith."**
 
-The largest and oldest surviving kingdom, founded over five centuries ago when the Ashford dynasty overthrew Varek and united his conquered territories under gentler — but still authoritarian — rule. The Dominion has had centuries to build deep traditions, a complex bureaucracy, established nobility, and the weight of genuine history.
+The largest and oldest surviving kingdom, founded over five centuries ago when the Ashford dynasty overthrew Ardavan and united his conquered territories under gentler — but still authoritarian — rule. The Dominion has had centuries to build deep traditions, a complex bureaucracy, established nobility, and the weight of genuine history.
 
 The **Church of the Radiant One** grew alongside the Dominion as a shared cultural evolution. It teaches that the six benevolent deities were aspects of a single supreme god — the Radiant One — and that the Sundering was divine punishment. The Church teaches that the Radiant One will return when mortals prove worthy — and they are half right. The Six *are* dormant, not dead, and could theoretically be awakened. But the Church refuses to acknowledge that Netheron is needed too. The Church funds hospitals and schools, but enforces the Doctrine of Silence through the Inquisition.
 
@@ -348,7 +348,7 @@ The Church has a deeper problem it cannot face: accepting that Netheron — the 
 The **Radiant Order** is the Dominion's elite military-religious force: Radiant Knights (heavy cavalry), Paladins (warrior-priests), and Inquisitors (enforcers of the Doctrine of Silence).
 
 **Key figures:**
-- **High King Aldren Ashford** — 28, the latest in a dynasty stretching back five centuries to the coup against Varek. Ambitious, a genuine believer in unity and faith. Doesn't know the full truth of how his ancestors took the throne. When he learns, it will shake him.
+- **High King Aldren Ashford** — 28, the latest in a dynasty stretching back five centuries to the coup against Ardavan. Ambitious, a genuine believer in unity and faith. Doesn't know the full truth of how his ancestors took the throne. When he learns, it will shake him.
 - **Grand Marshal Elara Voss** — commander of the Dominion armies. Pragmatic, ruthless. Cares about borders, not theology. Would work with a demon if it secured the frontier.
 - **Archpriest Caelen** — head of the Church. Elderly, wise, sincerely devout. A small, lifelong part of him *doubts* the Doctrine of Silence, but the doubt is unformed: he has never understood *what* is wrong with it and has no evidence to feed the unease, so the larger part of him stays convinced he is doing good, and he continues in faith. Not a cynic hiding a truth — a faithful man whose intuition is ahead of his evidence.
 - **Inquisitor Selwyn Crane** — former field medic. Calm, methodical. Her maps of the Wastes' expansion are real data, and her conclusion — that magic is making things worse — is wrong but reasonable. She doesn't burn people. She shows them evidence and asks them to choose.
@@ -525,7 +525,7 @@ The world of Valenheart is built on questions that have no easy answers:
 
 **Is the Church right?** Their conclusion is wrong, but their instinct — that magic use is making things worse — has a grain of truth. And their teaching that the Radiant One will return is closer to reality than they know: the Six *are* dormant, not dead. But the Church's refusal to acknowledge Netheron's necessity may doom their own prophecy.
 
-**What does Varek deserve?** He was a tyrant. He was also the only leader who took the threat seriously. His dynasty was stolen by people who did it for power, not principle. Does he deserve his throne? Does he deserve rest? Can a dead man be reasoned with?
+**What does Ardavan deserve?** The Dominion calls him a tyrant, and he gave them the material. But he was not cruel, he was detached, and he was also the only leader who took the threat seriously. His dynasty was stolen by people who did it for power, not principle. Does he deserve his throne? Does he deserve rest? Can a dead man be reasoned with?
 
 **What would Netheron want?** If he could be restored — if somehow his consciousness could be resurrected from the raw essence leaking across the world — would he take his role back? Would he forgive mortals for cursing him for millennia? Would he forgive the Six for killing him? Or would he look at the broken world and say: "You did this to yourselves"?
 

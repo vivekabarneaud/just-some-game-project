@@ -128,7 +128,7 @@ A team that finally reaches close enough to see the shape of Netheron's body wou
 - **A living person who dies in the thinning** has a very low chance of crossing properly. Local Aether reserves are nearly gone, and the broken cycle's weakened pull cannot reach them. Most who die in the thinning become part of its voice-population almost immediately.
 - **Combat dispels a ghost's manifestation, but does not free the soul.** The soul reforms, hours to weeks later, depending on the binding's strength.
 - **Only Thornveil ritual work (or equivalent) can permanently free a stuck soul.** Hours for a faint case, years for a stubborn one.
-- Late-game, ritual magic can be learned by adventurers and brought into combat. This is the only path to permanently defeating major ghost bosses (Varek, his court).
+- Late-game, ritual magic can be learned by adventurers and brought into combat. This is the only path to permanently defeating major ghost bosses (Ardavan, his court).
 
 ### Wards
 
@@ -262,17 +262,17 @@ The middle period. Cultures settle. Trade networks form between distant peoples.
 - **Halldora** keeps researching. Centuries pass. She moves between hidden sanctuaries, sends letters that do not change anyone's mind.
 - **The Wastes remain static.** Folk legend reduces them to a curse on a distant land, like a volcanic crater someone once said was bad.
 
-### Era 5: Varek's Conquest (~500 years ago, spans decades)
+### Era 5: Ardavan's Conquest (~500 years ago, spans decades)
 
 `[LOCKED]`
 
-- **Varek al-Rashid** rises in the Khor'vani lands. Brilliant strategist, ruthless commander, obsessed with continental unification. He believes only a unified continent can survive whatever the Sundering left behind. He is right about the threat. He is wrong about the methods.
-- **Conquest** sweeps west and north. Varek conquers through strategy and overwhelming force, not brute slaughter. Cities surrender to him because he reaches them faster than reinforcements.
-- **The Nordveld invasion of the Hearthlands** `[PROPOSAL]` happens during Varek's reign. A coordinated push from the northern island, attempting to take the Hearthlands while the central continent is consolidating under one warlord. Varek breaks them. The defeat is generational — Nordveld loses most of its warrior class. They retreat home. The cultural shift this triggers is deep (more on this in the Nordveld section).
-- **Varek's kingdom** spans most of the central continent. Zah'kari resist absorption (eastward, their war-games and oral law make them ungovernable). Tianzhou is across an ocean and unreachable. The Hauts-Cieux are above the clouds. The Silvaneth are too deep in the forest. The Khazdurim are inside mountains. So Varek rules the Hearthlands, the Khor'vani trade routes, parts of Meridian, parts of Nordveld coast, and the southern frontier lands.
-- **Varek's rule** is tyrannical. Forced conscription, crushed rebellions, burned villages that resist. His own generals whisper of madness.
-- **The Ashford Coup** — a coalition of noble houses and military commanders, led by the Ashford family, assassinates Varek in his own throne room. They take the crown.
-- **Varek dies furious, with his work unfinished.** The boundary is already silently weakening at this point. He does not fully cross over. For centuries he is just a presence, a cold spot, a shadow in mirrors. As the boundary continues to fail, he grows stronger. Eventually he remembers who he was and starts organizing the dead on the other side.
+- **Ardavan al-Rashid** rises in the Khor'vani lands. Brilliant strategist, ruthless commander, obsessed with continental unification. He believes only a unified continent can survive whatever the Sundering left behind. He is right about the threat. He is wrong about the methods.
+- **Conquest** sweeps west and north. Ardavan conquers through strategy and overwhelming force, not brute slaughter. Cities surrender to him because he reaches them faster than reinforcements.
+- **The Nordveld invasion of the Hearthlands** `[PROPOSAL]` happens during Ardavan's reign. A coordinated push from the northern island, attempting to take the Hearthlands while the central continent is consolidating under one warlord. Ardavan breaks them. The defeat is generational — Nordveld loses most of its warrior class. They retreat home. The cultural shift this triggers is deep (more on this in the Nordveld section).
+- **Ardavan's kingdom** spans most of the central continent. Zah'kari resist absorption (eastward, their war-games and oral law make them ungovernable). Tianzhou is across an ocean and unreachable. The Hauts-Cieux are above the clouds. The Silvaneth are too deep in the forest. The Khazdurim are inside mountains. So Ardavan rules the Hearthlands, the Khor'vani trade routes, parts of Meridian, parts of Nordveld coast, and the southern frontier lands.
+- **Ardavan's rule** is tyrannical. Forced conscription, crushed rebellions, burned villages that resist. His own generals whisper of madness.
+- **The Ashford Coup** — a coalition of noble houses and military commanders, led by the Ashford family, assassinates Ardavan in his own throne room. They take the crown.
+- **Ardavan dies furious, with his work unfinished.** The boundary is already silently weakening at this point. He does not fully cross over. For centuries he is just a presence, a cold spot, a shadow in mirrors. As the boundary continues to fail, he grows stronger. Eventually he remembers who he was and starts organizing the dead on the other side.
 - **The Ashenmark Dominion** is born from the coup. The Ashford dynasty, the Church of the Radiant One (which becomes *institutional* in this era; the doctrine itself is much older, with roots in the pre-Sundering monotheist heterodoxy and centuries of post-Sundering consolidation), and the Radiant Order together.
 
 ### Era 6: The Dominion Era (~500 to ~150 years ago)
@@ -316,7 +316,7 @@ The middle period. Cultures settle. Trade networks form between distant peoples.
 - **Halldora is watching.** A robin will arrive eventually.
 - **Niamh is watching.** Wards along the line south and west are failing, and her order has fewer hands than stones. She has been waiting for someone capable enough to talk to.
 - **The Cult is moving.** Unseen, but moving.
-- **Varek is awake on the other side of the boundary.** He sees every Free Settlement as a future subject or obstacle.
+- **Ardavan is awake on the other side of the boundary.** He sees every Free Settlement as a future subject or obstacle.
 - **The Eighth whispers, faintly, to the right kind of ears.** Nobody at the settlement has those ears yet.
 
 ---
@@ -330,7 +330,7 @@ The middle period. Cultures settle. Trade networks form between distant peoples.
 - **Pre-Sundering.** Part of the unified civilization. No distinct identity yet.
 - **Sundering era.** Hearthlands proper take shape from surviving farming communities. Practical, churchgoing, conservative. The "Ashford" name comes much later.
 - **Long Stability.** Patchwork of small holdings. Frequently raided by Nordveld.
-- **Varek's conquest.** Absorbed into Varek's kingdom.
+- **Ardavan's conquest.** Absorbed into Ardavan's kingdom.
 - **Ashford coup.** A Hearthlands noble house leads the assassination. The dynasty rules from this point. Hearthlands becomes the Dominion's heartland.
 - **Dominion era.** Centralized, taxed, churched. Ashwick is a midsize parish town within this.
 - **Today.** Ashwick is just one of many Hearthlands towns, but it is the player's origin. Tenant farmers, parish priests, schoolmasters, masons, midwives. Most of the founding cast comes from here.
@@ -343,14 +343,14 @@ The middle period. Cultures settle. Trade networks form between distant peoples.
 - **Netheron has a positive reputation among them.** `[LOCKED]` Death is sacred. The cycle is balance. The Shepherd is owed reverence, not blame. They pray to Netheron for *good death* (peaceful, complete, in proper time), the same way other cultures pray to Solara for warmth. This is precisely what the Hearthlands Church reframes as devil-worship; the Inquisition flags Nordveld practices as heresy because of it.
 - **Sundering era.** The Sundering hits the north differently. The boundary at this latitude is even thinner in places. Nordveld develops its *völva* tradition — women who specialize in soul-shepherding rituals, doing locally and reverently what Netheron used to do automatically. They never call it Thornveil-style boundary work. They call it tending the dead properly. The *völva* lineages see themselves as Netheron's stewards, not his replacements.
 - **Long Stability.** Repeated raids and small invasions of the Hearthlands. None of them stick. Mutual cultural friction with proto-Ashwick.
-- **The Great Invasion (~500 years ago, during Varek's reign).** Nordveld attempts a coordinated conquest of the Hearthlands. They time it for Varek's southern campaigns, hoping to take the north while he is busy. Varek breaks their main force. The defeat is generational; most of the warrior elite die.
-- **After Varek.** This is where the user's question lands: *why didn't they try again once Varek was defeated?*
+- **The Great Invasion (~500 years ago, during Ardavan's reign).** Nordveld attempts a coordinated conquest of the Hearthlands. They time it for Ardavan's southern campaigns, hoping to take the north while he is busy. Ardavan breaks their main force. The defeat is generational; most of the warrior elite die.
+- **After Ardavan.** This is where the user's question lands: *why didn't they try again once Ardavan was defeated?*
 
 > **Answer (proposed):** Three reasons compounded.
 > 1. **The defeat was demographic.** They lost a generation. The next generation grew up in households where the warrior tradition had been gutted. Cultural shift toward survival, faith, and the *völva* line, away from raiding.
-> 2. **The Wastes problem reaches them too.** Within a century or two of Varek's defeat, the Nordveld north begins to feel its own thinning. They are not yet at the leading edge, but they sense the cycle slipping. Their *völvas* are now too busy tending boundaries at home to support outward war.
-> 3. **The Ashford Dominion absorbs the political vacuum.** Post-Varek, the Hearthlands consolidate under a single dynasty. A unified Dominion is harder to pick at than a patchwork of small holdings. Nordveld would need a generational invasion force again, and they no longer have one.
-> 4. **Cultural pride pivots.** They reframe themselves as the people who survived Varek. They tell stories of their defeat as a hard lesson. They turn inward. The *völva* lineages strengthen.
+> 2. **The Wastes problem reaches them too.** Within a century or two of Ardavan's defeat, the Nordveld north begins to feel its own thinning. They are not yet at the leading edge, but they sense the cycle slipping. Their *völvas* are now too busy tending boundaries at home to support outward war.
+> 3. **The Ashford Dominion absorbs the political vacuum.** Post-Ardavan, the Hearthlands consolidate under a single dynasty. A unified Dominion is harder to pick at than a patchwork of small holdings. Nordveld would need a generational invasion force again, and they no longer have one.
+> 4. **Cultural pride pivots.** They reframe themselves as the people who survived Ardavan. They tell stories of their defeat as a hard lesson. They turn inward. The *völva* lineages strengthen.
 
 - **Today.** Nordveld is a significant source of frontier adventurers (~15-20% of human recruits). They come south for trade, for the chance to fight Wastes-creatures (a respected calling in their tradition), or because their home villages are losing ground to the thinning. They quietly distrust the Church but tolerate it. They keep their old gods. The Inquisition flags their healers when it can.
 - **Nordveld and Edda's lineage.** Edda's grandmother Helga came south from Nordveld for love and assimilated. Edda has thinned-folk-level Nordveld practice — names of plants in the old tongue, small offerings, quiet rituals. Not theology; folk crumbs. She is the canon's hidden bridge between Hearthlands and Nordveld.
@@ -400,7 +400,7 @@ The middle period. Cultures settle. Trade networks form between distant peoples.
 - **Pre-Sundering.** Established the Amber Crossroads, the desert trade hub. Their alchemy school predates the Academy of the Aether.
 - **Sundering.** Trade routes break. Many die. The alchemy tradition survives because it does not depend on the Aether cycle.
 - **Long Stability.** The Crossroads recovers. Khor'vani trade dominates the central continent for centuries.
-- **Era 5 (Varek).** Varek al-Rashid is Khor'vani. His conquest brings the world to the doorstep of his people, then leaves them with a stigma after his fall. Modern Khor'vani are quietly known as "the Tyrant's People." Old saying: *"Varek built the road. We chose where it leads."*
+- **Era 5 (Ardavan).** Ardavan al-Rashid is Khor'vani. His conquest brings the world to the doorstep of his people, then leaves them with a stigma after his fall. Modern Khor'vani are quietly known as "the Tyrant's People." Old saying: *"Ardavan built the road. We chose where it leads."*
 - **Today.** Mystics, alchemists, merchants. Their alchemy is outside the Doctrine of Silence (it does not channel Aether). They move freely in the Dominion. They carry the awkward inheritance of having produced the worst tyrant in continental memory.
 
 ### Zah'kari
@@ -410,7 +410,7 @@ The middle period. Cultures settle. Trade networks form between distant peoples.
 - **Pre-Sundering.** Sunward Kingdoms east of the Hearthlands. Council government, oral law, war-games.
 - **Sundering.** Distant from the epicenter. Less devastated than the heartland. Survive better than most cultures.
 - **Long Stability.** Thrive while the Dominion consolidates through force. Produce some of the finest fighters on the continent. Their griots carry histories that predate the Dominion.
-- **Era 5 (Varek).** Varek's conquest does not reach them in force. Their war-games and oral law make them ungovernable. They watch the Hearthlands burn from a distance.
+- **Era 5 (Ardavan).** Ardavan's conquest does not reach them in force. Their war-games and oral law make them ungovernable. They watch the Hearthlands burn from a distance.
 - **Today.** Independent confederation. They come north along trade routes and following stories.
 
 ### Tianzhou
@@ -420,7 +420,7 @@ The middle period. Cultures settle. Trade networks form between distant peoples.
 - **Pre-Sundering.** Jade Empire across the eastern sea. Vast, ancient, bureaucratic.
 - **Sundering.** Far enough from the epicenter to suffer less than the central continent. Their records of the era are detailed where the western world's are gaps.
 - **Long Reorganization.** Continue developing administration, medicine, military strategy. Centuries ahead of the western kingdoms in every measurable way.
-- **Era 5 (Varek).** Tianzhou cartographers are noting Varek's rise. They do not intervene. They observe.
+- **Era 5 (Ardavan).** Tianzhou cartographers are noting Ardavan's rise. They do not intervene. They observe.
 - **Today.** Tianzhou citizens on the frontier are explorers, exiles, or merchants. Their motives are rarely simple. Their bureaucracy has files on more western persons than those persons have on themselves.
 
 ### Meridian
@@ -439,10 +439,10 @@ The middle period. Cultures settle. Trade networks form between distant peoples.
 
 `[LOCKED]`
 
-- **Founded.** ~500 years ago by the Ashford coup against Varek.
+- **Founded.** ~500 years ago by the Ashford coup against Ardavan.
 - **Center.** The Hearthlands. Capital is Tessoria.
 - **Government.** Hereditary monarchy (the Ashford dynasty), allied with the Church of the Radiant One.
-- **Today.** High King Aldren Ashford, 28. `[Aldren framing LOCKED 2026-06-28]` His father died in the northern war against Nordveld when Aldren was a child; a **Church-aligned regency** raised and educated him, and he is a **sincere, devout believer** in the Radiant One and the Doctrine. He empowers the Inquisition not from cruelty but because he trusts the Church is right. He *knows* his dynasty's history — the overthrow of the tyrant Varek is no secret. What he was raised never to question is its *righteousness*: that the founding was clean principle rather than ambition, and that the Doctrine is true. So the "full truth" that will shake him is **theological before it is political** — that the Doctrine of Silence is wrong and the Church has burned innocents on a false premise, and that Church-and-Crown were fused as a *political* bargain at the founding, not a holy one (the throne and the faith are one root). He does **not** know Varek survives as the Undying, or that the dead are returning — *nobody does yet*. That is a far-later, cosmic-scale reveal, not part of his early reckoning.
+- **Today.** High King Aldren Ashford, 28. `[Aldren framing LOCKED 2026-06-28]` His father died in the northern war against Nordveld when Aldren was a child; a **Church-aligned regency** raised and educated him, and he is a **sincere, devout believer** in the Radiant One and the Doctrine. He empowers the Inquisition not from cruelty but because he trusts the Church is right. He *knows* his dynasty's history — the overthrow of the tyrant Ardavan is no secret. What he was raised never to question is its *righteousness*: that the founding was clean principle rather than ambition, and that the Doctrine is true. So the "full truth" that will shake him is **theological before it is political** — that the Doctrine of Silence is wrong and the Church has burned innocents on a false premise, and that Church-and-Crown were fused as a *political* bargain at the founding, not a holy one (the throne and the faith are one root). He does **not** know Ardavan survives as the Undying, or that the dead are returning — *nobody does yet*. That is a far-later, cosmic-scale reveal, not part of his early reckoning.
 - **The Crown's frontier policy.** Switched from garrisons to land grants ~150 years ago after several disasters (Hale's among them) made garrisons too expensive. The land office no longer updates frontier maps with any care.
 
 ### The Church of the Radiant One
@@ -573,7 +573,7 @@ To the Dominion she is **the Queen of Heretics.** Standing capital warrant, two 
 
 - **Educated Hearthlanders** (priests, schoolmasters, scribes, lesser nobility): real historical figure. Crown documents name her. Inquisition pamphlets describe her. The Lord, as a former schoolmaster, knows she is real.
 - **Common Ashwick farmers**: half-real folk witch. *"Halldora the Witch lives forever. Be good or she will hear you."* Belief varies family to family.
-- **Nordveld**: complicated. `[PROPOSAL — needs deepening]` Halldora is the Nordveld's shame daughter, parallel to Varek for the Khor'vani. She defied the cycle by extending her own life — the deepest possible offense to a faith that holds death sacred. The Nordveld did not know her *reasons* (the world's slow death, the broken cycle, the search for a fix); they knew only the act. By their lights she kept her own death and gave away her people's place in the song. The doubled isolation: Hearthlands wants her dead, Nordveld wants her unsung. Some *völvas* hold a more sympathetic private view (she did something for the world that her people would not have accepted), but the public Nordveld register on her name is shame, not pride. Possible saying to develop later: *"There is no song for Halldora. We left her where she chose to stand."*
+- **Nordveld**: complicated. `[PROPOSAL — needs deepening]` Halldora is the Nordveld's shame daughter, parallel to Ardavan for the Khor'vani. She defied the cycle by extending her own life — the deepest possible offense to a faith that holds death sacred. The Nordveld did not know her *reasons* (the world's slow death, the broken cycle, the search for a fix); they knew only the act. By their lights she kept her own death and gave away her people's place in the song. The doubled isolation: Hearthlands wants her dead, Nordveld wants her unsung. Some *völvas* hold a more sympathetic private view (she did something for the world that her people would not have accepted), but the public Nordveld register on her name is shame, not pride. Possible saying to develop later: *"There is no song for Halldora. We left her where she chose to stand."*
 
 ### The robin protocol
 
@@ -588,7 +588,7 @@ The reveal of her identity is its own story beat: the moment the children's-stor
 ### Timeline summary
 
 - **Long Reorganization through Long Stability.** Tries to warn the rebuilding world. Mostly ignored. Moves between sanctuaries. Keeps researching. Watches the Wastes for any sign of expansion.
-- **Era 5.** Sees Varek rise. Tries to warn him about the Wastes; he is busy conquering. Sees the Ashford coup. Notes that the new dynasty is no more interested in her than the warlords were.
+- **Era 5.** Sees Ardavan rise. Tries to warn him about the Wastes; he is busy conquering. Sees the Ashford coup. Notes that the new dynasty is no more interested in her than the warlords were.
 - **Era 6.** Becomes wanted by the Inquisition. Switches to robins. Hides in increasingly obscure sanctuaries.
 - **Era 7 (today).** Senses the moment the Wastes begin to expand. Says it feels like *"the world exhaling and not breathing back in."* Body fails further. Begins reaching out to specific Free Settlements through robins.
 - **What she knows.** Mechanics of the Aether cycle. Why Netheron's death broke it. Why the Six being dormant is not enough. That the cycle must be restored for the world to heal. That dragons might be a path. That Netheron's body lies at the heart of the Wastes.
@@ -621,7 +621,7 @@ These are gaps the user and I have not locked yet. Listed by priority.
 7. **`[LOW]` Hauts-Cieux specific city names** and how many remain aloft today.
 8. **`[LOW]` Where Hale's body is.** Probably decomposed naturally somewhere in the trees south of his garrison; possibly buried by a Thornveil ranger over the intervening century. Not load-bearing.
 9. **`[LOW]` Ennara's mother.** Was she alive when Hale was posted? If not, she may also be a stuck soul somewhere — and may have crossed alongside Ennara when the ranger freed her.
-10. **`[LOW]` Halldora as Nordveld's shame daughter** (parallel to Varek for the Khor'vani). Kernel idea added to Halldora's reputation section. Needs deepening: specific Nordveld traditions, sayings, how she is referenced in *völva* practice, what reaction Nordveld adventurers have to her name. Not load-bearing yet.
+10. **`[LOW]` Halldora as Nordveld's shame daughter** (parallel to Ardavan for the Khor'vani). Kernel idea added to Halldora's reputation section. Needs deepening: specific Nordveld traditions, sayings, how she is referenced in *völva* practice, what reaction Nordveld adventurers have to her name. Not load-bearing yet.
 
 **Locked this session (April–May 2026):**
 

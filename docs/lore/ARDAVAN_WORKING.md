@@ -2,7 +2,7 @@
 
 > **Status: WORKING DRAFT, 2026-09-28. Not canon yet.** A conversation between the
 > dev and Claude, written down before it evaporates. Supersedes parts of
-> `VAREK.md` (itself flagged "a thread, not canon") where they disagree. Nothing
+> `ARDAVAN.md` (itself flagged "a thread, not canon") where they disagree. Nothing
 > here is in code. The lore tree gets updated once this settles.
 >
 > **What this is for:** the world's cosmology is deep (the gods, the Sundering,
@@ -10,18 +10,23 @@
 
 ## The name
 
-**"Varek" was chosen before the character was made Khor'vani**, and it sits badly
+**Done 2026-09-28: renamed throughout the docs.** `VAREK.md` is now `ARDAVAN.md`;
+all 162 mentions across 13 files were docs-only (no game data, no code), so this
+cost nothing.
+
+
+**"Ardavan" was chosen before the character was made Khor'vani**, and it sits badly
 beside Al-Rashid, Bakhtiar, Mirza, Desai and Khan. Proposed: **Ardavan**.
 
 - All 162 existing mentions are in **docs only** — no game data, no code — so a
   rename is a find-and-replace and a few re-read passages, not a refactor.
 - A conqueror carries epithets rather than a house name in the histories. He
   should have two: what the Dominion writes, and what the Khor'vani say.
-- OPEN: whether "Varek" survives as the Dominion's corruption of Ardavan (keeps
+- OPEN: whether "Ardavan" survives as the Dominion's corruption of Ardavan (keeps
   the existing mentions meaningful and says something true about who writes
   history), or is simply dropped.
 - **Correction on the record:** the idea that the Ashfords *gave* the family the
-  name Al-Rashid is wrong. `VAREK.md` has him born **Varek al-Rashid**, so it is
+  name Al-Rashid is wrong. `ARDAVAN.md` has him born **Ardavan al-Rashid**, so it is
   his birth family's name. What survives is the irony: a family already called
   "the rightly-guided" produced a conqueror, and the name was an argument long
   before there was anything to argue about.
@@ -49,7 +54,7 @@ Three things that buys, and they matter later:
 - **It explains the two faces.** Beloved by his own, terrifying to everyone else,
   because there was never a system in between to soften him.
 
-Kept from `VAREK.md` because it is good and it complicates him: he turned
+Kept from `ARDAVAN.md` because it is good and it complicates him: he turned
 occupied Hearthland peasants against the Nordveld *"with promises of liberation
 (promises he kept, to his credit)"*. He became the thing he freed people from.
 
@@ -71,49 +76,102 @@ Real precedent, for the shape of it:
 - **Genghis** (d. 1227) — the exception that proves it: he actually planned the
   succession and it still fragmented into four khanates that fought each other.
 
-## Why the coup, and who made it
+## What is wrong with him: he is not cruel, he is DETACHED
 
-The Ashfords were **one Hearthlands house among many, not particularly powerful**
-(`VAREK.md`). They wanted power. That part is already canon, and so is the line
-worth keeping: *"Varek saw the danger before anyone else. The Ashfords wanted
-power. Both things are true."*
+This is the character, and it replaces "tyrant" everywhere.
 
-**The new piece: his own family opened the door.** It is the only thing that
-explains why any of his blood survived a coup at all. You do not spare a
-conqueror's kin unless some of them are yours.
+He was a prodigy at a board game as a boy, in poverty, and it was the one thing
+that was his. **He never stopped playing one.** He looks at a continent and sees
+positions and supply. He makes the move the position calls for. He does not feel
+the pieces.
 
-Which splits the Khor'vani permanently into two peoples sharing one name: **the
-ones who sold him, and the ones who died for him.** Five hundred years on, nobody
-outside can tell which is which. They can.
+People he knows are people. People on the board are not. That is the whole man.
 
-**Their motive is not greed, and this is the load-bearing part.** He was good to
-the Khor'vani and cruel to everyone he conquered. So the argument inside the
-family was never "is he treating us well" — it was **"is it right to be the
-favoured people of a man doing that to everyone else,"** and underneath it the
-colder question: *he has built nothing that outlasts him, and when he goes we are
-the ones standing in everybody else's country with his name on us.*
+It explains things already written without anyone meaning it to:
+- **His generals adore him past death.** They were never pieces.
+- **His own people thrived.** They were never pieces either. He loved them, and
+  wanted a continent where a rich undefended trade people could never be squeezed
+  again.
+- **The Zah'kari beat him.** `ARDAVAN.md`: *"too sophisticated to be played
+  against each other."* They were the one board that refused to behave like a
+  board, and he had no answer for that.
+- **He missed the betrayal.** He had modelled everything except a man who was not
+  playing.
 
-They were right. And they caused it anyway: **the branch that killed him to save
-their people is the reason their people spent five centuries being watched.**
-That is the tragedy, and it is why "the rightly-guided" is unbearable to carry.
-It is not a lie. It is just not an answer.
+He is not asking to be forgiven for the arithmetic. He does not understand why
+forgiveness is required. The sums were right and he can show you.
 
-## The bargain
+## Kaveh, the brother
 
-**"You help us, and you keep your own country."** (Dev's, and better than the
-earlier "keep your gods" proposal, because it is concrete and self-interested.)
+**His older brother.** The one who looked after him before the genius showed, the
+only person alive who knew him as a boy rather than as a mind.
 
-The Khor'vani were never conquered — they were his own people. So after the coup
+(Name: **Kaveh**, after the blacksmith of Persian myth who raises the banner of
+rebellion against the tyrant king. It carries the whole story for a reader who
+knows it and simply sounds right to one who does not. Alternatives in register:
+Sohrab, Behrouz.)
+
+**The wound.** Early, before any of the conquest, when Ardavan was still a mind
+for hire. He advised a siege. Kaveh's betrothed was in that city, and she was
+carrying a child. Kaveh begged him. Ardavan ran the numbers, and the numbers were
+right: fewer died that way than any other way available. Her city was on the
+wrong side of the arithmetic.
+
+**And he knew.** That is the part Kaveh can never get past and Ardavan can never
+deny. He expected to be understood, because he would have understood.
+
+**The son.** Kaveh's child was never born. Ardavan's son lived, and was to be
+named heir. So for years Kaveh watched a boy grow up in the exact shape of
+everything he had lost, heir to an empire built on the advice that killed his
+own.
+
+**How the Ashfords reached him: they never lied.** They sent someone patient. A
+merchant, a chaplain, someone who listened for years and agreed with him. They
+did not invent a grievance, they watered a real one. By the time a bargain was
+mentioned he had arrived there himself and thought it was his own idea.
+
+Nobody was deceived. Everyone knew exactly what they were doing, which is darker
+than a forged letter. (The earlier "the Al-Rashids were lied to" thread is
+therefore DROPPED.)
+
+**What he asked for: not power. That the Khor'vani keep their country.** He sold
+his brother and saved his people in the same act. That makes him the author of
+the bargain and the reason any of them survived at all.
+
+**What became of him:** he got exactly what he asked for. Governor of the
+Khor'vani lands under the new Crown, for the rest of his life. Which is a
+punishment, if you know what he did.
+
+## Why there was no floor under the empire
+
+Two reasons, and they are the same reason.
+
+**Ardavan built no institutions**, only a network of personal loyalty, because
+that is how a man with no birth and no backing rises. Loyalty to a man does not
+inherit.
+
+**And he had solved that**, in the way a planner would: he named his son heir,
+and his brother as the one he trusted to hold it. The succession was not absent,
+it was in his brother's hands. The floor was Kaveh.
+
+So the Ashfords did not have to beat him. They only had to reach the one person
+he never modelled.
+
+If the son died that night, then **the Al-Rashids alive today descend from
+Kaveh** — the surviving line is the traitor's line. And the faithful, the son's
+people, are the ones who went nameless, because they had to.
+
+## The bargain, and how it was hollowed out
+
+**"You help us, and you keep your own country."**
+
+The Khor'vani were never conquered, they were his own people, so after the coup
 they would expect to lose everything as the tyrant's kin. The Ashford offer:
-**the empire is ours; your homeland stays yours, self-ruled, as it was before he
-started.** You do not lose your land. You only lose the world.
+the empire is ours, your homeland stays yours, self-ruled, as it was before he
+started. You do not lose your land. You only lose the world.
 
-Probably with the lordship of the Khor'vani lands going to the branch that
-helped, which is the payment that makes them collaborators rather than merely
-frightened.
-
-**And the promise was kept, and then hollowed out.** `VAREK.md` already writes
-the mechanism, five centuries of it, without ever calling it a betrayal:
+And the promise was kept, then taken apart a licence at a time.
+`ARDAVAN.md` already writes the mechanism without ever calling it a betrayal:
 
 > *"The Khor'vani weren't expelled or massacred (the Dominion was too civilized
 > for that). But they were... repositioned. Khor'vani generals were quietly
@@ -121,26 +179,25 @@ the mechanism, five centuries of it, without ever calling it a betrayal:
 > merchants discovered that Dominion trade licenses were suddenly harder to
 > obtain. Over centuries, the prejudice softened into something ambient."*
 
-Nobody broke the treaty. It was taken apart a licence at a time. Which is worse,
-and much harder to be angry at.
+Nobody broke the treaty. Which is worse, and much harder to be angry at.
 
 ## The two branches today
 
-- **Al-Rashid** — the branch that helped. They kept the name openly because they
-  could afford to. Carrying it is not pride: kin-killing is shameful everywhere,
-  tyrant or not, so "the rightly-guided" is a **defence**, not a boast. You only
-  need a name insisting you did right when everyone, yourself included, suspects
-  otherwise.
-- **The faithful** — they have **no name, and that is the point.** A family openly
-  called "of Ardavan" after the coup would have been hunted out within a
-  generation, so they went under and scattered into ordinary surnames. The
-  collaborators could afford a grand claim; the loyal could only afford to
-  disappear. That is why the split is invisible from outside today.
-  - Consequence: half the existing Khor'vani roster may be loyalist blood without
-    knowing it. The Khans, the Desais, the Sharmas.
-  - If one openly-named loyalist line is ever wanted: **Al-Sadiq** ("the
-    faithful") or **Al-Wafi** ("the one who kept their word"). Both are arguments,
-    the same as Al-Rashid is, and they would have paid for making them.
+- **Al-Rashid** — Kaveh's line. They kept the name openly because they could
+  afford to. Carrying it is not pride: kin-killing is shameful everywhere, so
+  "the rightly-guided" is a **defence**, not a boast. You only need a name
+  insisting you did right when everyone, yourself included, suspects otherwise.
+  The name predates all of it, which is the irony: a family already called "the
+  rightly-guided" produced first a conqueror and then the man who sold him.
+- **The faithful** — the son's people. They have **no name, and that is the
+  point.** A family openly called "of Ardavan" after the coup would have been
+  hunted out in a generation, so they went under and scattered into ordinary
+  surnames. The collaborators could afford a grand claim; the loyal could only
+  afford to disappear. That is why the split is invisible from outside today.
+  - Half the existing Khor'vani roster may be loyalist blood without knowing:
+    the Khans, the Desais, the Sharmas.
+  - If an openly-named loyalist line is ever wanted: **Al-Sadiq** ("the
+    faithful"), **Al-Wafi** ("the one who kept their word").
 
 ## What this does to the three living Al-Rashids
 
@@ -159,19 +216,27 @@ No change to a word that is written. Only what it means.
 
 ## Still open
 
-1. **Did Ardavan have a direct heir?** Draft assumes no. A pregnancy timed
-   against the coup was floated and is still available.
-2. **Does "Varek" survive** as the Dominion's name for him, or vanish?
-3. **What the Khor'vani call him**, as against what the Dominion writes.
-4. **Rival Hearthlands houses.** `VAREK.md` deliberately left the other house
+1. **His afterlife, and Kaveh's.** He is "the Undying" with a ghost court of four
+   generals. Is Kaveh there? The cruellest version: Ardavan forgave him at once,
+   because he does not experience it as a betrayal but as a move, and that
+   forgiveness is a worse punishment than any grudge. Kaveh would have spent five
+   centuries wanting to be hated and not being.
+2. **Rival Hearthlands houses.** `ARDAVAN.md` deliberately left the other house
    names generic ("Revisit if the houses ever need naming") to avoid canonising
-   the common-folk surname pool as noble bloodlines. Still the biggest hole in
-   the politics: the Ashfords were one house among a dozen feuding ones, and
-   those eleven others have no names, claims or grudges.
-5. **The Desais.** Four siblings from a merchant house destroyed by "forged
-   ledgers and borrowed gold". Never says who forged them, where the parents
-   went, or which allied families fell with it. That last one is the rival-houses
-   thread again. The phrase *"turned out to be"* leaves it open whether they did
-   it or were framed, and the two make different stories.
-6. Backstories in `premade-characters.ts` are acknowledged placeholder and will
-   want a pass once this settles.
+   the common-folk surname pool as noble bloodlines. Still the biggest hole in the
+   politics: the Ashfords were one house among a dozen feuding ones, and the other
+   eleven have no names, claims or grudges.
+3. **The son's name**, and whether he died that night.
+4. **Does "Varek" survive** as the Dominion's corruption of Ardavan, or vanish
+   entirely? Currently vanished.
+5. **The board game.** It wants a name and a shape. It is his defining object: a
+   boy's escape in poverty that became the way he sees the world, and he would
+   still play it as emperor against generals who always lose.
+6. **The Desais.** Four siblings from a merchant house destroyed by "forged
+   ledgers and borrowed gold". Never says who forged them, where the parents went,
+   or which allied families fell with it. That last is the rival-houses thread
+   again.
+7. Backstories in `premade-characters.ts` are acknowledged placeholder and want a
+   pass once this settles. Particularly Layla Bakhtiar, whose ley-line research on
+   the old roads is the thread that says he was building something and the
+   Dominion still suppresses it.

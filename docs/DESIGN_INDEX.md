@@ -81,7 +81,7 @@ every other file a *thread* subordinate to it. See `docs/lore/README.md`.
 
 lore/TIMELINE.md (the spine) · lore/EIGHTH_GOD.md (the Malice-god reframe, late reveal) ·
 lore/FACTIONS.md (factions/races/NPCs — its old cosmology is superseded by TIMELINE) ·
-lore/FOUNDERS.md (the six) · lore/VAREK.md (the ghost court — **not built, carries canon
+lore/FOUNDERS.md (the six) · lore/ARDAVAN.md (the ghost court — **not built, carries canon
 breaks**, header says so) · lore/OPEN_IDEAS.md (holding pen)
 
 `docs/cast/` is the sibling: per-character canon for the recruitable cast and NPCs.

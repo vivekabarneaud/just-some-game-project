@@ -79,7 +79,7 @@ The most powerful demon to breach the outer seals in recorded Khazdurim memory i
 - **Halldora Frostvik** — her centuries of research are real and important, but oriented around the wrong culprit. She is studying Netheron's broken infrastructure; she has missed the sabotage layer and the Eighth. When she eventually learns about the Eighth, her whole life's frame reorganizes. This is her late-act character arc.
 - **The Thornveil Pact** — their Primal magic sharpens in meaning. They are manually performing fragments of Netheron's full-cycle function, locally. Their wards work in small regions because they are literally doing what Netheron did, by hand, at a crude scale. It is exhausting, it is losing ground, and they know it.
 - **Dragons** — reframed as **nascent cycle engines**. Born from raw Aether in the Wastes, they may be potential replacements for Netheron's full function — Shepherd and Recycler both. Halldora's interest in the egg has a clear endgame purpose: if a dragon can take over the role, that is the world-saving answer. The dragon arc is no longer "interesting but unclear"; it is the core of the mystery's solution.
-- **Varek** — **independent of the Eighth**. Varek is his own man, his own threat, his own arc. The world has two concurrent existential problems and they do not have to be related. This is deliberate — the story's complexity is richer for having two unrelated-but-simultaneous threats.
+- **Ardavan** — **independent of the Eighth**. Ardavan is his own man, his own threat, his own arc. The world has two concurrent existential problems and they do not have to be related. This is deliberate — the story's complexity is richer for having two unrelated-but-simultaneous threats.
 
 ## 8. What the Lord Knows vs. Doesn't
 
@@ -87,7 +87,7 @@ The most powerful demon to breach the outer seals in recorded Khazdurim memory i
 - The Seven gods (folk-level — songs reference "seven crowns"; the Church collapses them into the Radiant One)
 - Netheron's bad reputation as "the dark god," "the Shepherd who fell" (inherited blame)
 - That the Wastes exist and are cursed land south
-- Varek as historical tyrant-conqueror whom the Dominion defeated (schoolmaster's education)
+- Ardavan as historical tyrant-conqueror whom the Dominion defeated (schoolmaster's education)
 - Khazdurim exist, are miners and smiths, guard *something* old
 
 **The Lord does NOT know:**

@@ -23,7 +23,7 @@ She is recruited as plain **Morgause Dunwall** — the title was *taken* from he
 - **She has lost herself, not just her use.** Deeper than worthlessness: she no longer knows *who she is* outside of command. She was the commander so long she forgot to be anything else, and the woman left when the uniform comes off is a stranger she doesn't know how to be. Under the iron she is genuinely **confused and a little afraid of her own retirement** — and part of her arc on the frontier is, slowly and unwillingly, *finding out who that person is* (mentor, neighbour, almost-family) when she is more than the rank.
 
 ## Heritage (light touch — texture, not plot)
-- Of **Zah'kari descent** (the Sunward Kingdoms — the savanna people whose war-craft even Varek never conquered), Dominion-born generations down, which is why she carries an Anglo name and a Hearthlands career. This **explains her appearance and even feeds her martial gift**, but it is deliberately *not* her defining story — one quiet fact of who she is, no arc hung on it. (Per the user: acknowledge it, don't let it define her.)
+- Of **Zah'kari descent** (the Sunward Kingdoms — the savanna people whose war-craft even Ardavan never conquered), Dominion-born generations down, which is why she carries an Anglo name and a Hearthlands career. This **explains her appearance and even feeds her martial gift**, but it is deliberately *not* her defining story — one quiet fact of who she is, no arc hung on it. (Per the user: acknowledge it, don't let it define her.)
 
 ## Personality & tells
 - **Can't stop being an officer.** Reads terrain, organizes everyone, has opinions about the walls. Drills the young ones mercilessly.
@@ -68,4 +68,4 @@ Her *signature* mechanic in the Model-C flee/rescue system (what's left of it: `
 - Whether her Zah'kari heritage ever surfaces in-fiction beyond the one line (default: it stays light).
 
 ## Cross-refs
-- `premade-characters.ts` char_020; `lore/TIMELINE.md` (Zah'kari / the Sunward Kingdoms, Varek); the militia / defense system; [[project_chapter_3_defense_quest]] ("Watch the Walls").
+- `premade-characters.ts` char_020; `lore/TIMELINE.md` (Zah'kari / the Sunward Kingdoms, Ardavan); the militia / defense system; [[project_chapter_3_defense_quest]] ("Watch the Walls").
