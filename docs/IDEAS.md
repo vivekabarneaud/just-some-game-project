@@ -112,9 +112,15 @@ its line — the code becomes the documentation.
     plates and cups    the tavern, tied to service and happiness
   What it would need: clay as a resource, so a source (a pit, or the riverbank),
   and fuel for the kiln, which is a wood sink.
-  Open: whether a bottle is consumed or returned, since a returned bottle is a
-  one-off cost and a consumed one is an ongoing tax. The ongoing one has more
-  teeth but risks being a chore.
+  **Bottles are reusable, except throwables** (user). Drink a potion and the
+  bottle comes back; a thrown one shatters. That turns bottles into a CAPACITY
+  rather than a tax: your bottle count caps how many potions can stand ready at
+  once, which is a constraint that makes you choose what to keep brewed without
+  charging you rent.
+  It also prices offensive brews honestly with no tuning: a throwable costs a
+  bottle outright, so the aggressive half of alchemy is the expensive half
+  because of what it does, not because a number says so. Pairs with the
+  offensive-brews entry and with the puffball-as-carrier idea.
 - ⭐⭐ **Hide the result until you commit** (user, 2026-09-28) — the single change
   that makes alchemy and cooking have stakes, and it needs no new system.
   Failure has been in the engine all along: a brew with no base comes out harsh,
