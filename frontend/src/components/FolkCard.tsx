@@ -1,19 +1,15 @@
-import { For, Show } from "solid-js";
-import {
-  getClassMeta, getOrigin, RACE_NAMES, getXpForLevel, getCharacterSummary,
-} from "@medieval-realm/shared/data/adventurers";
-import { getItem } from "@medieval-realm/shared/data/items";
-import { getUnspentTalentPoints } from "~/data/talents";
+import { Show } from "solid-js";
+import { getClassMeta, getOrigin, RACE_NAMES } from "@medieval-realm/shared/data/adventurers";
 import { CardFrame } from "~/components/CardFrame";
 import Portrait from "~/components/Portrait";
-import Tooltip from "~/components/Tooltip";
-import TraitBadge from "~/components/TraitBadge";
-import AdventurerVitals from "~/components/AdventurerVitals";
-import RecoveryActions from "~/components/RecoveryActions";
 import { DOT_COLOR, type FolkPerson, type FolkStatus } from "~/data/folk";
 
 /**
  * One card for one person, whoever they are.
+ *
+ * The card answers two questions and no more: who is this, and what about them
+ * today. Everything else — the bars, the story, the gear, the talents — waits
+ * in the popin. A grid of twenty people is for scanning, not for reading.
  *
  * The guild roster and the Chronicle cast drew the same card twice, with the
  * same classes (`building-card adv-card` inside `.recruit-grid`) and different
@@ -23,22 +19,6 @@ import { DOT_COLOR, type FolkPerson, type FolkStatus } from "~/data/folk";
  * the card shows that a person EXISTS and nothing more. No name, no story, no
  * class. A census must not spoil the people you have not met yet.
  */
-
-function XpBar(props: { xp: number; level: number }) {
-  const needed = () => getXpForLevel(props.level);
-  const pct = () => Math.min(100, (props.xp / needed()) * 100);
-  return (
-    <div style={{ "margin-top": "6px" }}>
-      <div style={{ display: "flex", "justify-content": "space-between", "font-size": "0.7rem", color: "var(--text-muted)" }}>
-        <span>Lv.{props.level}</span>
-        <span>{props.xp}/{needed()} XP</span>
-      </div>
-      <div style={{ height: "4px", background: "var(--bg-primary)", "border-radius": "2px", "margin-top": "2px" }}>
-        <div style={{ height: "100%", width: `${pct()}%`, background: "var(--accent-blue)", "border-radius": "2px", transition: "width 0.3s" }} />
-      </div>
-    </div>
-  );
-}
 
 /** A dot and a line. Two of these replace the role line, because "Midwife ·
  *  cellarer · keeper of the hearth" never changes and so says nothing about
@@ -68,24 +48,6 @@ export default function FolkCard(props: {
   const known = () => p().known !== false;
   const adv = () => p().adventurer;
   const away = () => (known() ? p().away : undefined);
-
-  const equipped = () => {
-    const a = adv();
-    if (!a) return [];
-    const eq = a.equipment;
-    return [eq.mainHand, eq.offHand, eq.head, eq.chest, eq.legs, eq.boots, eq.cloak, eq.trinket]
-      .filter(Boolean).map((id) => getItem(id!)).filter(Boolean);
-  };
-  const emptySlots = () => {
-    const a = adv();
-    // Eleven slots in total. The paper-doll in the popin is the one that counts
-    // them properly; this is only the "you forgot to equip them" nudge.
-    return a ? 11 - Object.values(a.equipment).filter(Boolean).length : 0;
-  };
-  const unspent = () => {
-    const a = adv();
-    return a ? getUnspentTalentPoints(a) : 0;
-  };
 
   return (
     <div
@@ -164,54 +126,8 @@ export default function FolkCard(props: {
           <Status status={p().health} />
           <Status status={p().work} />
 
-          <Show when={adv()}>
-            {(a) => (
-              <>
-                <XpBar xp={a().xp} level={a().level} />
-                <div style={{ "margin-top": "4px" }}>
-                  <AdventurerVitals adventurer={a()} width="100%" showText showRegen />
-                </div>
-                <RecoveryActions adventurer={a()} />
-                <Show when={a().backstory}>
-                  <div class="roster-card-backstory" style={{
-                    "font-size": "0.78rem", color: "var(--text-secondary)",
-                    "font-style": "italic", "line-height": "1.4",
-                    "padding-left": "8px", "border-left": "2px solid var(--border-color)",
-                  }}>
-                    "{getCharacterSummary(a().premadeId) ?? a().backstory}"
-                  </div>
-                </Show>
-                <TraitBadge traitId={a().trait} />
-              </>
-            )}
-          </Show>
-
-          <Show when={adv()}>
-            <div style={{
-              "margin-top": "auto", "padding-top": "8px", "font-size": "0.75rem",
-              display: "flex", gap: "6px", "flex-wrap": "wrap", "align-items": "center",
-            }}>
-              <For each={equipped()}>
-                {(item) => <Tooltip text={item!.name}><span>{item!.icon}</span></Tooltip>}
-              </For>
-              <Show when={emptySlots() > 0}>
-                <span style={{ color: "var(--accent-gold)", "font-size": "0.7rem" }}>
-                  {emptySlots()} empty gear slot{emptySlots() > 1 ? "s" : ""}
-                </span>
-              </Show>
-              <Show when={unspent() > 0}>
-                <Tooltip text="This adventurer has unspent talent points">
-                  <span style={{
-                    padding: "2px 8px", "border-radius": "4px",
-                    background: "rgba(52, 152, 219, 0.18)", border: "1px solid var(--accent-blue)",
-                    color: "var(--accent-blue)", "font-size": "0.7rem", "font-weight": "bold",
-                    animation: "pulse 2s infinite",
-                  }}>
-                    ⭐ {unspent()} talent point{unspent() > 1 ? "s" : ""}
-                  </span>
-                </Tooltip>
-              </Show>
-            </div>
+          <Show when={p().nudge}>
+            {(n) => <Status status={n()} />}
           </Show>
         </Show>
       </div>

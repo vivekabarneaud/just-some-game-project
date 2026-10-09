@@ -133,7 +133,7 @@ describe("adventurers — the roster, the living only", () => {
     a.currentHp = Math.floor(calcAdventurerMaxHp(a) / 2);
     const hurt = adventurers(stateWith({ adventurers: [a] }))[0].health;
     expect(hurt.dot).toBe("fair");
-    expect(hurt.text).toMatch(/^Hurt \(\d+% health\)$/);
+    expect(hurt.text).toMatch(/^Wounded \(\d+% health\)$/);
   });
 
   it("a hero on a mission says so instead of naming a post", () => {

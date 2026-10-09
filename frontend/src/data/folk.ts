@@ -19,6 +19,7 @@ import {
 } from "@medieval-realm/shared/data/adventurers";
 import { calcAdventurerMaxHp } from "@medieval-realm/shared/data/expeditionEngine";
 import { getAilment } from "@medieval-realm/shared/data/ailments";
+import { getUnspentTalentPoints } from "./talents";
 
 /** Rank 1..5 to a CardFrame rarity name. This used to live on the guild's
  *  roster tab, which the Folk page replaces. */
@@ -59,6 +60,9 @@ export interface FolkPerson {
   health: FolkStatus;
   /** What the person does. */
   work: FolkStatus;
+  /** Something the player could do about this person, when there is one.
+   *  Unspent talent points, empty gear slots. Absent when there is nothing. */
+  nudge?: FolkStatus;
   /** Set when the person cannot work right now. The card greys on this. */
   away?: string;
   /** The live record, for an adventurer. The card draws its bars from this. */
@@ -171,7 +175,7 @@ export function adventurers(s: GameState): FolkPerson[] {
       const health: FolkStatus = grave
         ? { dot: "bad", text: "Too ill to work. Only a cure clears it" }
         : hpPct < 100
-          ? { dot: "fair", text: `Hurt (${hpPct}% health)` }
+          ? { dot: "fair", text: `Wounded (${hpPct}% health)` }
           : { dot: "good", text: "Healthy" };
 
       const bid = buildingOfAdventurer(a.premadeId);
@@ -179,6 +183,18 @@ export function adventurers(s: GameState): FolkPerson[] {
         ? { dot: "fair", text: "Away on a mission" }
         : (bid ? postedTo(s, bid, a.premadeId!) : undefined) ??
           { dot: "idle", text: "In the settlement, with no post" };
+
+      // One line for "there is something for you to do here". It replaces the
+      // XP bar, the HP bar, the trait badge and the gear icons that used to
+      // crowd the bottom of the card: all of those are in the popin, and only
+      // this one asked the player for anything.
+      const points = getUnspentTalentPoints(a);
+      const emptyGear = 11 - Object.values(a.equipment).filter(Boolean).length;
+      const nudge: FolkStatus | undefined = points > 0
+        ? { dot: "fair", text: `${points} talent point${points > 1 ? "s" : ""} to spend` }
+        : emptyGear > 0
+          ? { dot: "idle", text: `${emptyGear} empty gear slot${emptyGear > 1 ? "s" : ""}` }
+          : undefined;
 
       return {
         key: `adventurer:${a.id}`,
@@ -192,6 +208,7 @@ export function adventurers(s: GameState): FolkPerson[] {
         adventurer: a,
         health,
         work,
+        ...(nudge ? { nudge } : {}),
         ...(awayReason(a) ? { away: awayReason(a) } : {}),
       };
     });
