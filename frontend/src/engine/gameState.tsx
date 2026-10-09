@@ -1225,6 +1225,9 @@ interface GameActions {
   // Dev-only test snapshot: stash the current save and roll back to it.
   saveDevSnapshot: () => void;
   restoreDevSnapshot: () => void;
+  /** Replace the save outright and reload. The scenario generator uses it to
+   *  drop the player at a chosen point of the game. */
+  devApplyState: (next: GameState) => void;
   hasDevSnapshot: () => boolean;
   devSnapshotTime: () => number | null;
   // Ale & Happiness
@@ -1649,6 +1652,58 @@ function saveGameLocal(state: GameState) {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   } catch { /* ignore */ }
+}
+
+// ─── Dev save slots ─────────────────────────────────────────────
+// These are module functions, not store actions, because the dev pages live
+// OUTSIDE the GameProvider: a standalone page cannot call `useGame()`, and
+// keeping it outside is deliberate — with no live store running, nothing
+// re-saves over the slot between the write and the reload. The store actions
+// delegate here.
+
+/** Copy the SAVED game into the snapshot slot. Returns false if there is
+ *  nothing saved to copy. */
+export function snapshotSavedGame(): boolean {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return false;
+    localStorage.setItem(SNAPSHOT_KEY, raw);
+    localStorage.setItem(SNAPSHOT_META_KEY, String(Date.now()));
+    return true;
+  } catch { return false; }
+}
+
+/** Put the snapshot back in the save slot and reload, so the normal load and
+ *  migration pipeline runs against it. No state surgery on a live store. */
+export function restoreSavedSnapshot(): boolean {
+  try {
+    const snap = localStorage.getItem(SNAPSHOT_KEY);
+    if (!snap) return false;
+    localStorage.setItem(STORAGE_KEY, snap);
+    location.reload();
+    return true;
+  } catch { return false; }
+}
+
+export function hasSavedSnapshot(): boolean {
+  try { return localStorage.getItem(SNAPSHOT_KEY) != null; } catch { return false; }
+}
+
+export function savedSnapshotTime(): number | null {
+  try {
+    const t = localStorage.getItem(SNAPSHOT_META_KEY);
+    return t ? Number(t) : null;
+  } catch { return null; }
+}
+
+/** Replace the save outright and reload. THIS THROWS THE SAVE AWAY. */
+export function writeSaveAndReload(next: GameState): void {
+  try {
+    saveGameLocal(next);
+    location.reload();
+  } catch (e) {
+    console.error("Dev state apply failed:", e);
+  }
 }
 
 let _settlementId: string | null = null;
@@ -8428,40 +8483,15 @@ export function GameProvider(props: ParentProps) {
       }));
     },
     saveDevSnapshot() {
-      try {
-        // Persist the live state to the save slot, then copy it into the
-        // snapshot slot so the blob goes through the same shape as a real save.
-        saveGameLocal(JSON.parse(JSON.stringify(state)));
-        const raw = localStorage.getItem(STORAGE_KEY);
-        if (raw) {
-          localStorage.setItem(SNAPSHOT_KEY, raw);
-          localStorage.setItem(SNAPSHOT_META_KEY, String(Date.now()));
-        }
-      } catch (e) {
-        console.error("Dev snapshot save failed:", e);
-      }
+      // Persist the LIVE state first: the snapshot helpers only ever copy the
+      // save slot, and the live store is usually ahead of it.
+      saveGameLocal(JSON.parse(JSON.stringify(state)));
+      snapshotSavedGame();
     },
-    restoreDevSnapshot() {
-      try {
-        const snap = localStorage.getItem(SNAPSHOT_KEY);
-        if (!snap) return;
-        // Drop the snapshot into the live save slot and reload, so the whole
-        // normal load + migration pipeline runs against it — no state surgery.
-        localStorage.setItem(STORAGE_KEY, snap);
-        location.reload();
-      } catch (e) {
-        console.error("Dev snapshot restore failed:", e);
-      }
-    },
-    hasDevSnapshot() {
-      try { return localStorage.getItem(SNAPSHOT_KEY) != null; } catch { return false; }
-    },
-    devSnapshotTime() {
-      try {
-        const t = localStorage.getItem(SNAPSHOT_META_KEY);
-        return t ? Number(t) : null;
-      } catch { return null; }
-    },
+    devApplyState(next) { writeSaveAndReload(next); },
+    restoreDevSnapshot() { restoreSavedSnapshot(); },
+    hasDevSnapshot() { return hasSavedSnapshot(); },
+    devSnapshotTime() { return savedSnapshotTime(); },
     cancelBuild(buildingId) {
       const pb = state.buildings.find((b) => b.buildingId === buildingId);
       if (!pb || !pb.upgrading) return false;

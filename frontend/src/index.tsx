@@ -159,6 +159,7 @@ const BattlePreview = lazy(() => import("./pages/BattlePreview")); // TEMP dev-o
 const AlchemyLabDev = lazy(() => import("./pages/AlchemyLabDev")); // TEMP dev-only — free-form alchemy sandbox
 const KitchenDev = lazy(() => import("./pages/KitchenDev")); // TEMP dev-only — free-form cooking sandbox
 const ForagingDev = lazy(() => import("./pages/ForagingDev")); // TEMP dev-only — foraging minigame sandbox
+const ScenariosDev = lazy(() => import("./pages/ScenariosDev")); // TEMP dev-only — start the game at a chosen point
 const Foraging = lazy(() => import("./pages/Foraging")); // a real foraging trip, entered from a board card
 const Login = lazy(() => import("./pages/Login"));
 
@@ -180,6 +181,7 @@ render(
       {import.meta.env.DEV && <Route path="/dev-alchemy" component={AlchemyLabDev} />}
       {import.meta.env.DEV && <Route path="/dev-kitchen" component={KitchenDev} />}
       {import.meta.env.DEV && <Route path="/dev-foraging" component={ForagingDev} />}
+      {import.meta.env.DEV && <Route path="/dev-scenarios" component={ScenariosDev} />}
       <Route path="/" component={(p) => <AuthGuard><App {...p} /></AuthGuard>}>
         <Route path="/" component={Overview} />
         <Route path="/buildings" component={Buildings} />
