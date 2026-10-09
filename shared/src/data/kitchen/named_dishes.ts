@@ -38,7 +38,17 @@ export const FOOD_GROUPS = {
 /** A slot the pot must fill: one ingredient from `anyOf`, prepared `technique`. */
 export interface DishSlot {
   anyOf: readonly string[];
+  /** The canonical prep. The cookbook card loads THIS one into the stations. */
   technique: CookTechnique;
+  /** Other preps that fill the slot just as well.
+   *
+   *  The prep is half a dish's identity, but only for the ingredient the dish
+   *  is ABOUT. Berries simmered into a porridge versus stirred in raw are two
+   *  different foods and get two names. The nuts alongside them are nuts either
+   *  way, so their slot forgives. Without this a dish about two companions
+   *  needs four entries for one idea, and three of them read as near-duplicates
+   *  of the fourth. */
+  orPrepped?: readonly CookTechnique[];
 }
 
 export interface NamedDish {
@@ -54,6 +64,9 @@ export interface NamedDish {
 
 const one = (ingredientId: string, technique: CookTechnique): DishSlot => ({ anyOf: [ingredientId], technique });
 const any = (anyOf: readonly string[], technique: CookTechnique): DishSlot => ({ anyOf, technique });
+/** A slot that does not care how you prepared it. */
+const either = (ingredientId: string, technique: CookTechnique, ...orPrepped: CookTechnique[]): DishSlot =>
+  ({ anyOf: [ingredientId], technique, orPrepped });
 
 export const NAMED_DISHES: NamedDish[] = [
   // ── Tier-1 staples (forgiving where it makes sense) ──
@@ -129,9 +142,12 @@ export const NAMED_DISHES: NamedDish[] = [
   { id: "dish_fresh_berry_porridge", name: "Fresh Berry Porridge", icon: "🥣",
     slots: [any(FOOD_GROUPS.grain, "boil"), any(FOOD_GROUPS.berry, "chop")],
     note: "The berries go in last, off the fire, and keep their edge." },
+  { id: "dish_berry_nut_porridge", name: "Berry and Nut Porridge", icon: "🥣",
+    slots: [any(FOOD_GROUPS.grain, "boil"), any(FOOD_GROUPS.berry, "boil"), either("nuts", "boil", "chop")],
+    note: "Berries cooked down through the grain, with nuts for the teeth to find. Chop them or boil them, a nut is a nut." },
   { id: "dish_fresh_berry_nut_porridge", name: "Fresh Berry and Nut Porridge", icon: "🥣",
-    slots: [any(FOOD_GROUPS.grain, "boil"), any(FOOD_GROUPS.berry, "chop"), one("nuts", "chop")],
-    note: "Berries and nuts both scattered on at the end. The best bowl in the camp, and it takes no more fire." },
+    slots: [any(FOOD_GROUPS.grain, "boil"), any(FOOD_GROUPS.berry, "chop"), either("nuts", "chop", "boil")],
+    note: "The berries go on at the end and keep their edge. The best bowl in the camp, and it takes no more fire." },
 
   // The same four again with milk for the water. Frumenty IS the old word for
   // grain simmered in milk, so the liquid changes the NOUN and the adjectives
@@ -146,8 +162,11 @@ export const NAMED_DISHES: NamedDish[] = [
   { id: "dish_fresh_berry_frumenty", name: "Fresh Berry Frumenty", icon: "🥣",
     slots: [any(FOOD_GROUPS.grain, "boil"), one("milk", "boil"), any(FOOD_GROUPS.berry, "chop")],
     note: "Berries in last, on white milk, still whole. The prettiest bowl the kitchen makes." },
+  { id: "dish_berry_nut_frumenty", name: "Berry and Nut Frumenty", icon: "🥣",
+    slots: [any(FOOD_GROUPS.grain, "boil"), one("milk", "boil"), any(FOOD_GROUPS.berry, "boil"), either("nuts", "boil", "chop")],
+    note: "Berries cooked away into the milk, and nuts gone soft in it. Rich, and it sits heavy in a good way." },
   { id: "dish_fresh_berry_nut_frumenty", name: "Fresh Berry and Nut Frumenty", icon: "🥣",
-    slots: [any(FOOD_GROUPS.grain, "boil"), one("milk", "boil"), any(FOOD_GROUPS.berry, "chop"), one("nuts", "chop")],
+    slots: [any(FOOD_GROUPS.grain, "boil"), one("milk", "boil"), any(FOOD_GROUPS.berry, "chop"), either("nuts", "chop", "boil")],
     note: "Everything the wood gave, on milk. There is no better breakfast in the settlement." },
 
   // ── Sweet things ──
@@ -403,7 +422,9 @@ function matchSlots(pairs: CookPlacement[], slots: DishSlot[], exact: boolean): 
     if (s === slots.length) return true;
     for (let i = 0; i < pairs.length; i++) {
       if (used[i]) continue;
-      if (slots[s].technique === pairs[i].technique && slots[s].anyOf.includes(pairs[i].ingredientId)) {
+      const prepFits = slots[s].technique === pairs[i].technique
+        || !!slots[s].orPrepped?.includes(pairs[i].technique);
+      if (prepFits && slots[s].anyOf.includes(pairs[i].ingredientId)) {
         used[i] = true;
         if (assign(s + 1)) return true;
         used[i] = false;

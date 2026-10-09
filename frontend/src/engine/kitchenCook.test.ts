@@ -334,3 +334,57 @@ describe("the boiled-grain family — the noun says which bowl you made", () => 
       .toBe("Honeyed Frumenty");
   });
 });
+
+describe("every corner of the berry-and-nut square names something", () => {
+  // The bug this guards: the prep is half a dish's identity, so two companions
+  // make FOUR combinations, and only one of them had been written. A player who
+  // boiled the berries and chopped the nuts fell through to "Hearty Pot".
+  //
+  // The fix is not four names for one idea. The berries carry the identity
+  // (simmered versus stirred in raw is a real difference); the nuts forgive.
+  const named = (ps: ReturnType<typeof p>[]) => matchNamedDish(ps)?.name;
+  const preps = ["boil", "chop"] as const;
+
+  it("names all four, whichever way the nuts went in", () => {
+    for (const nut of preps) {
+      expect(named([p("wheat", "boil"), p("blueberry", "boil"), p("nuts", nut)]))
+        .toBe("Berry and Nut Porridge");
+      expect(named([p("wheat", "boil"), p("blueberry", "chop"), p("nuts", nut)]))
+        .toBe("Fresh Berry and Nut Porridge");
+    }
+  });
+
+  it("does the same on milk", () => {
+    for (const nut of preps) {
+      expect(named([p("wheat", "boil"), p("milk", "boil"), p("blueberry", "boil"), p("nuts", nut)]))
+        .toBe("Berry and Nut Frumenty");
+      expect(named([p("wheat", "boil"), p("milk", "boil"), p("blueberry", "chop"), p("nuts", nut)]))
+        .toBe("Fresh Berry and Nut Frumenty");
+    }
+  });
+
+  it("still keeps the prep as identity where the ingredient IS the dish", () => {
+    // Nuts alone are the companion, so here the prep is the whole distinction
+    // and must NOT forgive.
+    expect(named([p("wheat", "boil"), p("nuts", "boil")])).toBe("Nut Porridge");
+    expect(named([p("wheat", "boil"), p("nuts", "chop")])).toBe("Nut-Topped Porridge");
+  });
+
+  it("every first-week combination of the camp pantry names something", () => {
+    // The real guard. Everything a player can hold in week one, at the three
+    // preps a camp kitchen has, must land on a name and never on "Hearty Pot".
+    const pantry = ["wheat", "nuts", "nettle", "wild_carrot", "blueberry", "raspberry"];
+    const allowed: Record<string, readonly CookTechnique[]> = {
+      wheat: ["boil"], nuts: ["boil", "chop"], nettle: ["boil"],
+      wild_carrot: ["boil"], blueberry: ["boil", "chop"], raspberry: ["boil", "chop"],
+    };
+    const unnamed: string[] = [];
+    for (const companion of pantry.filter((x) => x !== "wheat")) {
+      for (const t of allowed[companion]) {
+        const ps = [p("wheat", "boil"), p(companion, t)];
+        if (!matchNamedDish(ps)) unnamed.push(`wheat+${companion}:${t}`);
+      }
+    }
+    expect(unnamed).toEqual([]);
+  });
+});
