@@ -81,9 +81,33 @@ describe("cook — the free-form cooking engine", () => {
     expect(amt(seasoned, "nourishment")).toBeGreaterThan(amt(plain, "nourishment"));
   });
 
-  it("a required seasoning slot must be present: grain+berries only becomes Berry Pottage with honey", () => {
-    expect(matchNamedDish([p("barley", "boil"), p("blueberry", "boil")])).toBeUndefined();
+  it("a required seasoning slot must be present: honey promotes a porridge into a pottage", () => {
+    // Grain + berries used to name NOTHING without honey, which is what sent a
+    // first-week player to "Hearty Pot" over and over. It is Berry Porridge now.
+    // The invariant this guards is unchanged: Berry Pottage REQUIRES the honey,
+    // and the dish claiming more of the pot wins the tie.
+    expect(matchNamedDish([p("barley", "boil"), p("blueberry", "boil")])?.name).toBe("Berry Porridge");
     expect(matchNamedDish([p("barley", "boil"), p("blueberry", "boil"), p("honey", "boil")])?.name).toBe("Berry Pottage");
+  });
+
+  it("the PREP is half a dish's identity: the same two things, two foods", () => {
+    // Berries simmered with the grain go soft and sweet; berries stirred in raw
+    // off the fire keep their edge. The player finds the difference by trying it.
+    expect(matchNamedDish([p("wheat", "boil"), p("blueberry", "boil")])?.name).toBe("Berry Porridge");
+    expect(matchNamedDish([p("wheat", "boil"), p("blueberry", "chop")])?.name).toBe("Fresh Berry Porridge");
+    expect(matchNamedDish([p("wheat", "boil"), p("nuts", "boil")])?.name).toBe("Nut Porridge");
+    expect(matchNamedDish([p("wheat", "boil"), p("nuts", "chop")])?.name).toBe("Nut-Topped Porridge");
+  });
+
+  it("the first-week pantry always names something", () => {
+    // Everything a player can hold in week one: the travel rations plus one
+    // foraging run, at the three preps a camp kitchen has. No combination here
+    // should fall through to a generic "Hearty Pot".
+    const named = (ps: ReturnType<typeof p>[]) => matchNamedDish(ps)?.name;
+    expect(named([p("wheat", "boil"), p("nuts", "chop"), p("blueberry", "chop")]))
+      .toBe("Fresh Berry and Nut Porridge");
+    expect(named([p("wheat", "boil"), p("nettle", "boil")])).toBe("Nettle Porridge");
+    expect(named([p("wheat", "boil"), p("wild_carrot", "boil")])).toBe("Wild Carrot Porridge");
   });
 
   it("an extra BODY ingredient breaks identity (that's a different dish)", () => {

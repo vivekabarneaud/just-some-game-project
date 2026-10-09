@@ -98,6 +98,35 @@ export const NAMED_DISHES: NamedDish[] = [
     slots: [one("fava", "boil")],
     note: "Broad beans mashed soft. Peasant fare, before the herd." },
 
+  // ── The porridge family ──
+  // One base (boiled grain) and one companion, and the whole family turns on
+  // WHEN the companion goes in. Boiled with the grain it goes soft, sweet and
+  // warm. Stirred in raw off the fire it stays sharp and cold. The names carry
+  // that and nothing else: the plain word is the simmered one, "fresh" or
+  // "topped" is the one added at the end. Two foods, same two ingredients, and
+  // the player finds the difference by trying it.
+  { id: "dish_nut_porridge", name: "Nut Porridge", icon: "🥣",
+    slots: [any(FOOD_GROUPS.grain, "boil"), one("nuts", "boil")],
+    note: "Nuts simmered soft into the grain. The most filling bowl a poor kitchen makes." },
+  { id: "dish_nut_topped_porridge", name: "Nut-Topped Porridge", icon: "🥣",
+    slots: [any(FOOD_GROUPS.grain, "boil"), one("nuts", "chop")],
+    note: "The nuts go on at the table, so they still crack between the teeth." },
+  { id: "dish_nettle_porridge", name: "Nettle Porridge", icon: "🥣",
+    slots: [any(FOOD_GROUPS.grain, "boil"), one("nettle", "boil")],
+    note: "Grain and nettle tops boiled together. It stings in the hand and feeds you in the bowl." },
+  { id: "dish_wild_carrot_porridge", name: "Wild Carrot Porridge", icon: "🥣",
+    slots: [any(FOOD_GROUPS.grain, "boil"), one("wild_carrot", "boil")],
+    note: "The root goes sweet when it is boiled long enough." },
+  { id: "dish_berry_porridge", name: "Berry Porridge", icon: "🥣",
+    slots: [any(FOOD_GROUPS.grain, "boil"), any(FOOD_GROUPS.berry, "boil")],
+    note: "The berries cook down and colour the whole pot. Warm, and sweet all the way through." },
+  { id: "dish_fresh_berry_porridge", name: "Fresh Berry Porridge", icon: "🥣",
+    slots: [any(FOOD_GROUPS.grain, "boil"), any(FOOD_GROUPS.berry, "chop")],
+    note: "The berries go in last, off the fire, and keep their edge." },
+  { id: "dish_fresh_berry_nut_porridge", name: "Fresh Berry and Nut Porridge", icon: "🥣",
+    slots: [any(FOOD_GROUPS.grain, "boil"), any(FOOD_GROUPS.berry, "chop"), one("nuts", "chop")],
+    note: "Berries and nuts both scattered on at the end. The best bowl in the camp, and it takes no more fire." },
+
   // ── Sweet things ──
   { id: "dish_berry_pottage", name: "Berry Pottage", icon: "🥣",
     slots: [any(FOOD_GROUPS.grain, "boil"), any(FOOD_GROUPS.berry, "boil"), one("honey", "boil")],
