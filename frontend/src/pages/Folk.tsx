@@ -1,7 +1,6 @@
 import { For, Show, createMemo, createSignal, onMount } from "solid-js";
 import { A } from "@solidjs/router";
-import { useGame, buildingOfFounder } from "~/engine/gameState";
-import { BUILDINGS } from "~/data/buildings";
+import { useGame } from "~/engine/gameState";
 import { settlers, adventurers, visitors, type FolkPerson } from "~/data/folk";
 import FolkCard from "~/components/FolkCard";
 import FolkModal from "~/components/FolkModal";
@@ -31,18 +30,7 @@ export default function Folk() {
   // so this page carries that job. Without it the "new!" dot never clears.
   onMount(() => { actions.markAdventurersSeen(); });
 
-  /** A founder's workplace, as a name a player reads, not a building id. */
-  const workplaceOf = (founderId: string) => {
-    const bid = buildingOfFounder(founderId);
-    if (!bid) return undefined;
-    // A founder is assigned to a building that may not stand yet. Say nothing
-    // rather than promise a job at a building the player has not built.
-    const built = state.buildings.find((b) => b.buildingId === bid);
-    if (!built || built.level <= 0) return undefined;
-    return BUILDINGS.find((b) => b.id === bid)?.name ?? bid;
-  };
-
-  const theSettlers = createMemo(() => settlers(state, workplaceOf));
+  const theSettlers = createMemo(() => settlers(state));
   const theAdventurers = createMemo(() => adventurers(state));
   const theVisitors = createMemo(() => visitors(state));
 

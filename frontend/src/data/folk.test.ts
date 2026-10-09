@@ -1,7 +1,9 @@
 // @vitest-environment happy-dom
 // (gameState.tsx carries the Solid GameProvider template, which needs a DOM)
 import { describe, it, expect } from "vitest";
-import { settlers, adventurers, visitors, awayReason, type FolkPerson } from "~/data/folk";
+import {
+  settlers, adventurers, visitors, awayReason, buildingOfAdventurer, type FolkPerson,
+} from "~/data/folk";
 import { buildingOfFounder, founderOfBuilding, catchablePoolFor, type GameState } from "~/engine/gameState";
 import { FOUNDING_CHARACTERS } from "~/data/founding_characters";
 import { buildRecruitFromPremadeId } from "@medieval-realm/shared/data/adventurers";
@@ -14,29 +16,51 @@ import { calcAdventurerMaxHp } from "@medieval-realm/shared/data/expeditionEngin
 const nessa = () => buildRecruitFromPremadeId("a1", "char_000", 3)!;
 const stateWith = (patch: Partial<GameState> = {}): GameState =>
   ({ adventurers: [], buildings: [], folkAilments: {}, ...patch } as unknown as GameState);
-const noWork = () => undefined;
 
 describe("settlers — the six are always here", () => {
   it("lists every founder, in the order the cast file gives", () => {
-    const list = settlers(stateWith(), noWork);
+    const list = settlers(stateWith());
     expect(list.map((p) => p.id)).toEqual(FOUNDING_CHARACTERS.map((f) => f.id));
   });
 
   it("never marks a settler away: a founder does not leave", () => {
-    for (const p of settlers(stateWith(), noWork)) expect(p.away).toBeUndefined();
+    for (const p of settlers(stateWith())) expect(p.away).toBeUndefined();
   });
 
   it("an illness shows on the card but does not send them away", () => {
     const s = stateWith({ folkAilments: { edda: { ailmentId: "bad_cut", hoursRemaining: 6 } } });
-    const edda = settlers(s, noWork).find((p) => p.id === "edda")!;
+    const edda = settlers(s).find((p) => p.id === "edda")!;
     expect(edda.ailment?.id).toBe("bad_cut");
     expect(edda.away).toBeUndefined();
   });
 
-  it("carries the workplace the caller resolves, and nothing when there is none", () => {
-    const list = settlers(stateWith(), (id) => (id === "jory" ? "Carpenter" : undefined));
-    expect(list.find((p) => p.id === "jory")!.worksAt).toBe("Carpenter");
-    expect(list.find((p) => p.id === "nell")!.worksAt).toBeUndefined();
+  it("names the workplace with the share of a day's pace they pull", () => {
+    const bid = buildingOfFounder("jory")!;
+    const s = stateWith({ buildings: [{ buildingId: bid, level: 1 }] as never });
+    const jory = settlers(s).find((p) => p.id === "jory")!;
+    expect(jory.work.text).toMatch(/\(\d+%\)$/);
+    expect(jory.work.dot).toBe("good");
+  });
+
+  it("says a founder has no trade rather than inventing one", () => {
+    const nell = settlers(stateWith()).find((p) => p.id === "nell")!;
+    expect(nell.work.dot).toBe("idle");
+    expect(nell.work.text).toMatch(/no set trade/i);
+  });
+
+  it("does not promise a job at a building that is not raised yet", () => {
+    const jory = settlers(stateWith()).find((p) => p.id === "jory")!;
+    expect(jory.work.dot).toBe("idle");
+    expect(jory.work.text).toMatch(/not built yet/);
+  });
+
+  it("reads healthy by default, and names the ailment with its hours left", () => {
+    expect(settlers(stateWith()).find((p) => p.id === "edda")!.health)
+      .toEqual({ dot: "good", text: "Healthy" });
+    const s = stateWith({ folkAilments: { edda: { ailmentId: "bad_cut", hoursRemaining: 6 } } });
+    const edda = settlers(s).find((p) => p.id === "edda")!;
+    expect(edda.health.dot).not.toBe("good");
+    expect(edda.health.text).toBe("Has a bad cut, 6h left");
   });
 });
 
@@ -99,6 +123,45 @@ describe("adventurers — the roster, the living only", () => {
     const a = nessa();
     expect(adventurers(stateWith({ adventurers: [a] }))[0].adventurer).toBe(a);
   });
+
+  it("reads healthy at full HP, and gives the percentage once hurt", () => {
+    const a = nessa();
+    a.currentHp = calcAdventurerMaxHp(a);
+    expect(adventurers(stateWith({ adventurers: [a] }))[0].health)
+      .toEqual({ dot: "good", text: "Healthy" });
+
+    a.currentHp = Math.floor(calcAdventurerMaxHp(a) / 2);
+    const hurt = adventurers(stateWith({ adventurers: [a] }))[0].health;
+    expect(hurt.dot).toBe("fair");
+    expect(hurt.text).toMatch(/^Hurt \(\d+% health\)$/);
+  });
+
+  it("a hero on a mission says so instead of naming a post", () => {
+    const a = nessa();
+    a.onMission = true;
+    const s = stateWith({
+      adventurers: [a],
+      buildings: [{ buildingId: buildingOfAdventurer(a.premadeId)!, level: 1 }] as never,
+    });
+    expect(adventurers(s)[0].work.text).toBe("Away on a mission");
+  });
+
+  it("names the post and the pace for a hero standing at their building", () => {
+    const a = nessa();
+    a.currentHp = calcAdventurerMaxHp(a);
+    const bid = buildingOfAdventurer(a.premadeId);
+    expect(bid).toBeDefined();
+    const s = stateWith({ adventurers: [a], buildings: [{ buildingId: bid!, level: 1 }] as never });
+    expect(adventurers(s)[0].work).toEqual({ dot: "good", text: expect.stringMatching(/\(100%\)$/) });
+  });
+
+  it("a hurt hero at their post shows the pace drop before the yield falls", () => {
+    const a = nessa();
+    a.currentHp = Math.max(1, Math.floor(calcAdventurerMaxHp(a) * 0.3));
+    const bid = buildingOfAdventurer(a.premadeId)!;
+    const s = stateWith({ adventurers: [a], buildings: [{ buildingId: bid, level: 1 }] as never });
+    expect(adventurers(s)[0].work.dot).not.toBe("good");
+  });
 });
 
 describe("visitors — only whoever stands at the stall", () => {
@@ -126,14 +189,14 @@ describe("the whole page — one person, one card", () => {
       adventurers: [a],
       merchantStall: { merchantId: "lammast_wagon" } as never,
     });
-    const all: FolkPerson[] = [...settlers(s, noWork), ...adventurers(s), ...visitors(s)];
+    const all: FolkPerson[] = [...settlers(s), ...adventurers(s), ...visitors(s)];
     const keys = all.map((p) => p.key);
     expect(new Set(keys).size).toBe(keys.length);
   });
 
   it("every person carries a name to draw", () => {
     const s = stateWith({ adventurers: [nessa()] });
-    for (const p of [...settlers(s, noWork), ...adventurers(s)]) {
+    for (const p of [...settlers(s), ...adventurers(s)]) {
       expect(p.name.length).toBeGreaterThan(0);
     }
   });

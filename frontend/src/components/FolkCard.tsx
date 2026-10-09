@@ -10,7 +10,7 @@ import Tooltip from "~/components/Tooltip";
 import TraitBadge from "~/components/TraitBadge";
 import AdventurerVitals from "~/components/AdventurerVitals";
 import RecoveryActions from "~/components/RecoveryActions";
-import type { FolkPerson } from "~/data/folk";
+import { DOT_COLOR, type FolkPerson, type FolkStatus } from "~/data/folk";
 
 /**
  * One card for one person, whoever they are.
@@ -36,6 +36,25 @@ function XpBar(props: { xp: number; level: number }) {
       <div style={{ height: "4px", background: "var(--bg-primary)", "border-radius": "2px", "margin-top": "2px" }}>
         <div style={{ height: "100%", width: `${pct()}%`, background: "var(--accent-blue)", "border-radius": "2px", transition: "width 0.3s" }} />
       </div>
+    </div>
+  );
+}
+
+/** A dot and a line. Two of these replace the role line, because "Midwife ·
+ *  cellarer · keeper of the hearth" never changes and so says nothing about
+ *  today. "Has a bad cut, 6h left" does. */
+function Status(props: { status: FolkStatus }) {
+  return (
+    <div style={{
+      display: "flex", "align-items": "center", gap: "6px",
+      "font-size": "0.78rem", color: "var(--text-secondary)", "margin-top": "3px",
+    }}>
+      <span style={{
+        flex: "0 0 auto", width: "8px", height: "8px", "border-radius": "50%",
+        background: DOT_COLOR[props.status.dot],
+        "box-shadow": props.status.dot === "idle" ? "none" : `0 0 5px ${DOT_COLOR[props.status.dot]}`,
+      }} />
+      <span>{props.status.text}</span>
     </div>
   );
 }
@@ -118,10 +137,11 @@ export default function FolkCard(props: {
         >
           <div class="building-card-title">{p().name}</div>
 
-          {/* The second line. An adventurer gets race, class and level; everyone
-              else gets the one line their registry carries. */}
+          {/* Who they are: a class for a hero, a homeland for a visitor. A
+              settler's role never changes, so it moved to the popin and the
+              card gives the space to the two lines that DO change. */}
           <Show when={adv()} fallback={
-            <Show when={p().line}>
+            <Show when={p().kind === "visitor" && p().line}>
               <div style={{ "font-size": "0.85rem", color: "var(--text-muted)" }}>{p().line}</div>
             </Show>
           }>
@@ -135,6 +155,18 @@ export default function FolkCard(props: {
                     {getOrigin(a().origin)?.name} — {getOrigin(a().origin)?.region}
                   </div>
                 </Show>
+              </>
+            )}
+          </Show>
+
+          {/* How they are, and what they do. Every card carries both, whoever
+              the person is. */}
+          <Status status={p().health} />
+          <Status status={p().work} />
+
+          <Show when={adv()}>
+            {(a) => (
+              <>
                 <XpBar xp={a().xp} level={a().level} />
                 <div style={{ "margin-top": "4px" }}>
                   <AdventurerVitals adventurer={a()} width="100%" showText showRegen />
@@ -151,29 +183,6 @@ export default function FolkCard(props: {
                 </Show>
                 <TraitBadge traitId={a().trait} />
               </>
-            )}
-          </Show>
-
-          {/* Where a settler works. An adventurer takes a job through the
-              building screen, so the card does not claim one for them. */}
-          <Show when={p().worksAt}>
-            {(w) => (
-              <div style={{ "font-size": "0.75rem", color: "var(--text-muted)", "margin-top": "4px" }}>
-                Works at the {w()}
-              </div>
-            )}
-          </Show>
-
-          {/* An illness does not grey the card. The person is still here. */}
-          <Show when={p().ailment}>
-            {(ail) => (
-              <div style={{
-                "margin-top": "6px", padding: "3px 8px", "border-radius": "4px",
-                background: "rgba(192, 57, 43, 0.15)", border: "1px solid var(--accent-red)",
-                color: "var(--accent-red)", "font-size": "0.75rem", "text-align": "center",
-              }}>
-                {ail().icon} {ail().name}
-              </div>
             )}
           </Show>
 
@@ -203,19 +212,6 @@ export default function FolkCard(props: {
                 </Tooltip>
               </Show>
             </div>
-          </Show>
-
-          <Show when={away()}>
-            {(reason) => (
-              <div style={{
-                "margin-top": "6px", padding: "3px 8px", "border-radius": "4px",
-                background: "rgba(52, 152, 219, 0.15)", border: "1px solid var(--accent-blue)",
-                color: "var(--accent-blue)", "font-size": "0.75rem", "text-align": "center",
-                "text-transform": "capitalize",
-              }}>
-                {reason()}
-              </div>
-            )}
           </Show>
         </Show>
       </div>

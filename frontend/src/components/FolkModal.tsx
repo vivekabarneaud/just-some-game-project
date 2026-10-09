@@ -7,7 +7,7 @@ import FramedModal from "~/components/FramedModal";
 import Portrait from "~/components/Portrait";
 import TraitBadge from "~/components/TraitBadge";
 import AdventurerSheet from "~/components/AdventurerSheet";
-import type { FolkPerson } from "~/data/folk";
+import { DOT_COLOR, type FolkPerson } from "~/data/folk";
 
 /**
  * One person, opened from the Folk page.
@@ -92,15 +92,22 @@ export default function FolkModal(props: { person: FolkPerson; onClose: () => vo
         </div>
 
         {/* ── Where they stand today ── */}
-        <Show when={p().worksAt || p().away || ailment()}>
-          <div style={{ display: "flex", "flex-direction": "column", gap: "8px" }}>
-            <div style={LABEL}>Today</div>
-            <Show when={p().worksAt}>
-              {(w) => <div style={{ "font-size": "0.85rem", color: "var(--text-secondary)" }}>Works at the {w()}</div>}
-            </Show>
-            <Show when={p().away}>
-              {(a) => <div style={{ "font-size": "0.85rem", color: "var(--accent-blue)", "text-transform": "capitalize" }}>{a()}</div>}
-            </Show>
+        <div style={{ display: "flex", "flex-direction": "column", gap: "8px" }}>
+          <div style={LABEL}>Today</div>
+          {/* The same two lines the card carries, so the popin never contradicts
+              the grid the player opened it from. */}
+          <For each={[p().health, p().work]}>
+            {(st) => (
+              <div style={{ display: "flex", "align-items": "center", gap: "8px", "font-size": "0.85rem", color: "var(--text-secondary)" }}>
+                <span style={{
+                  flex: "0 0 auto", width: "9px", height: "9px", "border-radius": "50%",
+                  background: DOT_COLOR[st.dot],
+                  "box-shadow": st.dot === "idle" ? "none" : `0 0 6px ${DOT_COLOR[st.dot]}`,
+                }} />
+                <span>{st.text}</span>
+              </div>
+            )}
+          </For>
 
             {/* The cure buttons, the same pair the building card offers. A
                 person with no workplace could never be treated before, because
@@ -140,8 +147,7 @@ export default function FolkModal(props: { person: FolkPerson; onClose: () => vo
                 </div>
               )}
             </Show>
-          </div>
-        </Show>
+        </div>
 
         {/* ── Memories, for a founder ── */}
         <Show when={founder() && founder()!.fragments.length > 0}>
