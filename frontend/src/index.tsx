@@ -136,7 +136,7 @@ const Buildings = lazy(() => import("./pages/Buildings"));
 const Farming = lazy(() => import("./pages/Farming"));
 const AdventurersGuild = lazy(() => import("./pages/AdventurersGuild"));
 const Inventory = lazy(() => import("./pages/Inventory"));
-const AdventurerDetail = lazy(() => import("./pages/AdventurerDetail"));
+const Folk = lazy(() => import("./pages/Folk"));
 const Tailoring = lazy(() => import("./pages/Tailoring"));
 const Blacksmith = lazy(() => import("./pages/Blacksmith"));
 const Woodworker = lazy(() => import("./pages/Woodworker"));
@@ -187,7 +187,7 @@ render(
         <Route path="/guild" component={AdventurersGuild} />
         {/* A foraging trip. Inside the guard: it stores the basket. */}
         <Route path="/forage/:missionId" component={Foraging} />
-        <Route path="/guild/:id" component={AdventurerDetail} />
+        <Route path="/folk" component={Folk} />
         <Route path="/inventory" component={Inventory} />
         <Route path="/tailoring" component={Tailoring} />
         <Route path="/blacksmith" component={Blacksmith} />

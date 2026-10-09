@@ -373,7 +373,9 @@ export interface GameState {
   buildingWorkers?: Record<string, number>;
   /** Live founder ailments (injury/illness) keyed by building id. See
    *  shared/data/ailments + docs/IDEAS.md (Plague events). */
-  buildingAilments?: Record<string, { ailmentId: string; founderId: string; hoursRemaining: number }>;
+  /** Ailments keyed by the PERSON who has it. Was keyed by building until
+   *  2026-10-09, which left the Lord, Nell and Father Corin unable to fall ill. */
+  folkAilments?: Record<string, { ailmentId: string; hoursRemaining: number }>;
   citizens: {
     toddlers: number;
     children: number;

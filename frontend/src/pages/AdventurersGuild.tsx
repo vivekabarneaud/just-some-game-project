@@ -1,21 +1,10 @@
 import { createSignal, createMemo, createResource, createEffect, For, Show, onCleanup, onMount } from "solid-js";
-import { A, useSearchParams } from "@solidjs/router";
+import { A } from "@solidjs/router";
 import { Portal } from "solid-js/web";
 import { useNavigate } from "@solidjs/router";
 import { useGame } from "~/engine/gameState";
 import { IS_DEV } from "~/data/seasons";
-import { ADVENTURER_CLASSES,
-  getClassMeta,
-  RANK_NAMES,
-  RANK_COLORS,
-  getXpForLevel,
-  getPortraitUrl,
-  getOrigin,
-  RACE_NAMES,
-  getCharacterSummary,
-} from "@medieval-realm/shared/data/adventurers";
-import { getUnspentTalentPoints } from "~/data/talents";
-import { getItem } from "@medieval-realm/shared/data/items";
+import { getClassMeta } from "@medieval-realm/shared/data/adventurers";
 import { type MissionTemplate,
   type ActiveMission,
   getMission,
@@ -28,9 +17,6 @@ import CinematicOverlay from "~/components/CinematicOverlay";
 import { STORY_CINEMATICS } from "~/data/cinematics";
 import Countdown from "~/components/Countdown";
 import Tooltip from "~/components/Tooltip";
-import TraitBadge from "~/components/TraitBadge";
-import AdventurerVitals from "~/components/AdventurerVitals";
-import RecoveryActions from "~/components/RecoveryActions";
 import MissionAssemblyPanel from "~/components/MissionAssemblyPanel";
 import MissionMap from "~/components/MissionMap";
 import LootModal from "~/components/LootModal";
@@ -41,51 +27,17 @@ import { playSound, playPageMountSound } from "~/engine/sounds";
 import CombatPlayback from "~/components/CombatPlayback";
 import { fetchCoops, respondCoop, cancelCoop, fetchCoopDetail, claimCoop } from "~/api/coop";
 import { wsClient } from "~/api/ws";
-import { CardFrame } from "~/components/CardFrame";
 import type { CompletedMission } from "@medieval-realm/shared/data/missions";
 
-type Tab = "missions" | "roster";
-
-// Rank (1..5) → rarity name for the roster card frame; CardFrame does the rest.
-const RANK_FRAME = ["", "common", "uncommon", "rare", "epic", "legendary"];
 
 
 
-function XpBar(props: { xp: number; level: number }) {
-  const needed = () => getXpForLevel(props.level);
-  const pct = () => Math.min(100, (props.xp / needed()) * 100);
-  return (
-    <div style={{ "margin-top": "6px" }}>
-      <div style={{ display: "flex", "justify-content": "space-between", "font-size": "0.7rem", color: "var(--text-muted)" }}>
-        <span>Lv.{props.level}</span>
-        <span>{props.xp}/{needed()} XP</span>
-      </div>
-      <div style={{ height: "4px", background: "var(--bg-primary)", "border-radius": "2px", "margin-top": "2px" }}>
-        <div style={{ height: "100%", width: `${pct()}%`, background: "var(--accent-blue)", "border-radius": "2px", transition: "width 0.3s" }} />
-      </div>
-    </div>
-  );
-}
 
 
 export default function AdventurersGuild() {
   const { state, actions } = useGame();
   actions.visitGuild();
-  onMount(() => {
-    playPageMountSound("metal");
-    // Deep-linked straight to the Roster: snapshot new arrivals, then mark seen.
-    if (tab() === "roster") {
-      const seen = new Set(state.adventurersSeen ?? []);
-      setNewlyArrivedIds(state.adventurers.filter((a) => a.alive && !seen.has(a.id)).map((a) => a.id));
-      actions.markAdventurersSeen();
-    }
-  });
-  const [searchParams] = useSearchParams();
-  const initialTab = searchParams.tab === "roster" ? "roster" : "missions";
-  const [tab, setTab] = createSignal<Tab>(initialTab);
-  // Adventurers that were "new" when the Roster was opened — drives the blue
-  // outline this visit (captured before they're marked seen, or it'd vanish instantly).
-  const [newlyArrivedIds, setNewlyArrivedIds] = createSignal<string[]>([]);
+  onMount(() => { playPageMountSound("metal"); });
   const navigate = useNavigate();
   const [selectedMission, setSelectedMission] = createSignal<MissionTemplate | null>(null);
   const [selectedTeam, setSelectedTeam] = createSignal<string[]>([]);
@@ -288,23 +240,6 @@ export default function AdventurersGuild() {
     }
     return list;
   });
-  // Roster tab shows only living adventurers; the fallen live on the
-  // Pantheon memorial inside the Shrine (frontend/src/components/Pantheon.tsx).
-  const roster = () => state.adventurers.filter((a) => a.alive);
-
-  const switchTab = (t: Tab) => {
-    setTab(t);
-    setSelectedMission(null);
-    setSelectedTeam([]);
-    // Viewing the roster clears the "new arrival" markers, but snapshot who was
-    // new first so this visit can still show their blue outline.
-    if (t === "roster") {
-      const seen = new Set(state.adventurersSeen ?? []);
-      setNewlyArrivedIds(state.adventurers.filter((a) => a.alive && !seen.has(a.id)).map((a) => a.id));
-      actions.markAdventurersSeen();
-    }
-  };
-
 
   return (
     <>
@@ -387,7 +322,7 @@ export default function AdventurersGuild() {
                   setSelectedMission(null);
                   setSelectedTeam([]);
                   setSelectedSupplies([]);
-                  setTab("roster");
+                  navigate("/folk");
                 }}
                 onDeploy={(missionId, teamIds, adventurerSupplies, successPct, quarter) => {
                   if (actions.deployMission(missionId, teamIds, adventurerSupplies, successPct, quarter)) {
@@ -453,26 +388,6 @@ export default function AdventurersGuild() {
       </Show>
 
       <Show when={guildLevel() > 0}>
-        <div style={{ display: "flex", gap: "4px", "margin-bottom": "8px" }}>
-          {(["missions", "roster"] as Tab[]).map((t) => (
-            <button
-              class="speed-btn"
-              classList={{ active: tab() === t }}
-              onClick={() => switchTab(t)}
-              style={{ padding: "8px 16px", "font-size": "0.9rem" }}
-            >
-              {t === "missions" ? "Missions" : "Roster"}
-              <Show when={t === "roster" && actions.hasNewAdventurers()}>
-                <Tooltip text="New arrival" style={{ "margin-left": "6px", "vertical-align": "middle" }}>
-                  <span style={{ display: "inline-block", width: "8px", height: "8px", "border-radius": "50%", background: "var(--accent-blue)" }} />
-                </Tooltip>
-              </Show>
-            </button>
-          ))}
-        </div>
-
-        {/* ── Missions tab ── */}
-        <Show when={tab() === "missions"}>
           {/* The map IS the board. Mission statuses (ongoing + resolved) float on
               top of it as one overlay column; the assembly panel is a modal. */}
           <div style={{ position: "relative", "margin-bottom": "12px" }}>
@@ -786,149 +701,6 @@ export default function AdventurersGuild() {
               </For>
             </div>
           </Show>
-        </Show>
-
-        {/* ── Roster tab ── */}
-        <Show when={tab() === "roster"}>
-          <Show when={roster().length === 0}>
-            <p style={{ color: "var(--text-muted)", "font-size": "0.85rem" }}>
-              No adventurers yet. Newcomers arrive as your settlement grows.
-            </p>
-          </Show>
-          <For each={ADVENTURER_CLASSES.filter((cls) => roster().some((a) => a.class === cls.id))}>
-            {(cls) => {
-              const classAdvs = () => roster()
-                .filter((a) => a.class === cls.id)
-                .sort((a, b) => b.level - a.level);
-              return (
-                <>
-                  <h3 style={{
-                    "font-family": "var(--font-heading)",
-                    "margin-top": "16px",
-                    "margin-bottom": "8px",
-                    color: "var(--text-secondary)",
-                    "font-size": "0.9rem",
-                  }}>
-                    {cls.icon} {cls.name}s ({classAdvs().length})
-                  </h3>
-                  <div class="recruit-grid">
-                    <For each={classAdvs()}>
-              {(adv) => {
-                const cls = getClassMeta(adv.class);
-
-                const equippedItems = () => {
-                  const eq = adv.equipment;
-                  return [eq.mainHand, eq.offHand, eq.head, eq.chest, eq.legs, eq.boots, eq.cloak, eq.trinket]
-                    .filter(Boolean)
-                    .map((id) => getItem(id!))
-                    .filter(Boolean);
-                };
-                const totalSlots = 11;
-                const emptySlotCount = () => totalSlots - Object.values(adv.equipment).filter(Boolean).length;
-                const unspentTalents = () => getUnspentTalentPoints(adv);
-                return (
-                  <A href={`/guild/${adv.id}`} style={{ "text-decoration": "none", display: "flex" }}>
-                    <div class="building-card adv-card"
-                      onMouseEnter={() => setNewlyArrivedIds((prev) => prev.filter((id) => id !== adv.id))}
-                      style={{
-                      cursor: "pointer",
-                      position: "relative",
-                      width: "100%",
-                      opacity: adv.onMission ? 0.7 : 1,
-                      background: adv.onMission ? "var(--bg-secondary)" : "var(--bg-card)",
-                      "box-shadow": newlyArrivedIds().includes(adv.id) ? "0 0 0 1px var(--accent-blue), 0 0 12px rgba(96, 165, 250, 0.25)" : undefined,
-                    }}>
-                      {/* Rarity frame + flourishes, drawn OVER the card so the
-                          portrait stays flush to the edge. */}
-                      <CardFrame rarity={RANK_FRAME[adv.rank] ?? "common"} border={24} ornamentSize={28} ornamentInset={8} z={3} />
-                      <span class="building-card-category" style={{ color: RANK_COLORS[adv.rank] }}>
-                        {RANK_NAMES[adv.rank]}
-                      </span>
-                      <div class="adv-card-portrait">
-                        <img src={getPortraitUrl(adv)} alt={adv.name} loading="lazy" />
-                      </div>
-                      <div class="adv-card-content">
-                        <div class="building-card-title">{adv.name}</div>
-                        <div style={{ "font-size": "0.85rem", color: "var(--text-muted)" }}>
-                          {adv.race ? `${RACE_NAMES[adv.race]} ` : ""}{cls.name} · Lv.{adv.level}
-                        </div>
-                        <Show when={adv.origin}>
-                          <div style={{ "font-size": "0.75rem", color: "var(--text-muted)" }}>
-                            {getOrigin(adv.origin)?.name} — {getOrigin(adv.origin)?.region}
-                          </div>
-                        </Show>
-                        <XpBar xp={adv.xp} level={adv.level} />
-                        <div style={{ "margin-top": "4px" }}>
-                          <AdventurerVitals adventurer={adv} width="100%" showText showRegen />
-                        </div>
-                        {/* Patch up a resting hero with any owned recovery item
-                            (bandage, healing salve, antidote…). */}
-                        <RecoveryActions adventurer={adv} />
-                        <Show when={adv.backstory}>
-                          <div class="roster-card-backstory" style={{
-                            "font-size": "0.78rem",
-                            color: "var(--text-secondary)",
-                            "font-style": "italic",
-                            "line-height": "1.4",
-                            "padding-left": "8px",
-                            "border-left": "2px solid var(--border-color)",
-                          }}>
-                            "{getCharacterSummary(adv.premadeId) ?? adv.backstory}"
-                          </div>
-                        </Show>
-                        <TraitBadge traitId={adv.trait} />
-                        <div style={{ "margin-top": "auto", "padding-top": "8px", "font-size": "0.75rem", display: "flex", gap: "6px", "flex-wrap": "wrap", "align-items": "center" }}>
-                          {equippedItems().map((item) => <Tooltip text={item!.name}><span>{item!.icon}</span></Tooltip>)}
-                          {emptySlotCount() > 0 && (
-                            <span style={{ color: "var(--accent-gold)", "font-size": "0.7rem" }}>
-                              {emptySlotCount()} empty gear slot{emptySlotCount() > 1 ? "s" : ""}
-                            </span>
-                          )}
-                          <Show when={unspentTalents() > 0}>
-                            <Tooltip text="This adventurer has unspent talent points">
-                            <span
-                              style={{
-                                padding: "2px 8px",
-                                "border-radius": "4px",
-                                background: "rgba(52, 152, 219, 0.18)",
-                                border: "1px solid var(--accent-blue)",
-                                color: "var(--accent-blue)",
-                                "font-size": "0.7rem",
-                                "font-weight": "bold",
-                                animation: "pulse 2s infinite",
-                              }}
-                            >
-                              ⭐ {unspentTalents()} talent point{unspentTalents() > 1 ? "s" : ""}
-                            </span>
-                            </Tooltip>
-                          </Show>
-                        </div>
-                        {adv.onMission && (
-                          <div style={{
-                            "margin-top": "6px",
-                            padding: "3px 8px",
-                            "border-radius": "4px",
-                            background: "rgba(52, 152, 219, 0.15)",
-                            border: "1px solid var(--accent-blue)",
-                            color: "var(--accent-blue)",
-                            "font-size": "0.75rem",
-                            "text-align": "center",
-                          }}>
-                            On mission
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </A>
-                );
-              }}
-            </For>
-                  </div>
-                </>
-              );
-            }}
-          </For>
-        </Show>
 
       </Show>
     </div>

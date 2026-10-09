@@ -38,6 +38,7 @@ const navSections: { title: string; items: NavItem[] }[] = [
       { path: "/buildings", icon: "🏗️", label: "Buildings" },
       { path: "/farming", icon: "🌾", label: "Farming" },
       { path: "/guild", icon: "🏰", label: "Adventurers" },
+      { path: "/folk", icon: "👥", label: "The Folk" },
     ],
   },
   {
@@ -103,7 +104,7 @@ const LINK_REQUIRED_BUILDING: Record<string, string> = {
  *  bell). Suppress the generic nav click on these links so navigating to them
  *  doesn't fire two sounds at once — the themed page sound wins. */
 const PATHS_WITH_MOUNT_SOUND = new Set([
-  "/quests", "/chronicle", "/map", "/guild", "/defenses", "/shrine",
+  "/quests", "/chronicle", "/map", "/guild", "/folk", "/defenses", "/shrine",
 ]);
 
 /** Sidebar nav path → buildingId for crafting buildings.
@@ -252,13 +253,18 @@ export default function Sidebar(props: SidebarProps) {
       return null;
     }
     if (path === "/guild") {
-      // No guild nudges before the hall is raised — the roster page only shows
-      // "build the guild" until then, so any "new!"/"coop!" ping dead-ends there
-      // (the Thornwoods can arrive and staff their camps pre-guild).
+      // No guild nudges before the hall is raised — the page only shows
+      // "build the guild" until then, so any "coop!"/"new!" ping dead-ends there.
       if ((state.buildings.find((b) => b.buildingId === "adventurers_guild")?.level ?? 0) < 1) return null;
       if (incomingCoopInvites() > 0) return { color: "var(--accent-blue)", text: "coop!" };
-      if (actions.hasNewAdventurers()) return { color: "var(--accent-blue)", text: "new!" };
       if (actions.hasNewGuildContent()) return { color: "var(--accent-blue)", text: "new!" };
+      return null;
+    }
+    if (path === "/folk") {
+      // A new arrival is a PERSON, so the spark belongs on the Folk page now.
+      // It is ungated on purpose: the Thornwoods can arrive and staff their
+      // camps before the guild hall stands, and the Folk page shows them.
+      if (actions.hasNewAdventurers()) return { color: "var(--accent-blue)", text: "new!" };
       return null;
     }
     if (path === "/friends" && incomingFriendRequests() > 0) {

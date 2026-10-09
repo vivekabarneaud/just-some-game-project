@@ -64,16 +64,17 @@ describe("getBuildingStaffing — a hurt worker produces less", () => {
 describe("getBuildingStaffing — a founder ailment dips the building", () => {
   // The quarry is staffed by the founder Tomas; an ailment on it reduces his
   // share (the same lever a wounded adventurer pulls).
-  const quarry = (ailments?: GameState["buildingAilments"]): GameState =>
-    ({ adventurers: [], buildingWorkers: {}, buildingAilments: ailments } as unknown as GameState);
-  const qmult = (a?: GameState["buildingAilments"]) => getBuildingStaffing(quarry(a), "quarry", 1).multiplier;
+  // Ailments are keyed by the PERSON now, not the building (2026-10-09).
+  const quarry = (ailments?: GameState["folkAilments"]): GameState =>
+    ({ adventurers: [], buildingWorkers: {}, folkAilments: ailments } as unknown as GameState);
+  const qmult = (a?: GameState["folkAilments"]) => getBuildingStaffing(quarry(a), "quarry", 1).multiplier;
 
   it("a well founder staffs at full", () => {
     expect(qmult()).toBe(1);
   });
 
   it("an injured founder drags the quarry below full", () => {
-    const m = qmult({ quarry: { ailmentId: "bad_cut", founderId: "tomas", hoursRemaining: 12 } });
+    const m = qmult({ tomas: { ailmentId: "bad_cut", hoursRemaining: 12 } });
     expect(m).toBeLessThan(1);
     expect(m).toBeCloseTo(0.65); // 1 − bad_cut workPenalty (0.35)
   });
@@ -81,7 +82,7 @@ describe("getBuildingStaffing — a founder ailment dips the building", () => {
   it("the serious deep-cough drops the quarry to the understaffed floor", () => {
     // pneumonia's heavy penalty (0.65 → share 0.35) falls below the floor, so
     // the building sits at the floor — bad, but never zero (the folk pitch in).
-    const m = qmult({ quarry: { ailmentId: "pneumonia", founderId: "tomas", hoursRemaining: 36 } });
+    const m = qmult({ tomas: { ailmentId: "pneumonia", hoursRemaining: 36 } });
     expect(m).toBe(0.5);
   });
 });

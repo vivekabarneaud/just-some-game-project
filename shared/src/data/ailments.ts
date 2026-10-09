@@ -45,6 +45,18 @@ export interface AilmentDef {
 }
 
 /** A live ailment sitting on a founder-staffed building. */
+/** An ailment, keyed by the PERSON who has it (state.folkAilments).
+ *  It used to be keyed by building, which meant only a founder with a building
+ *  could ever fall ill: Jory, Tomas and Edda. The Lord, Nell and Father Corin
+ *  were immune because they have no workplace. Now anybody can catch something.
+ *  A person with no job takes no work penalty, but stays contagious and the
+ *  illness still escalates. (2026-10-09, with the Folk page.) */
+export interface FolkAilment {
+  ailmentId: string;
+  hoursRemaining: number;
+}
+
+/** @deprecated The building-keyed shape. Kept only so an old save parses. */
 export interface BuildingAilment {
   ailmentId: string;
   founderId: string;

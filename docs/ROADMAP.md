@@ -25,11 +25,11 @@ scheduled that requires you to grind.
 
 **Milestones, in order**
 1. ~~Land the cleanup — merge the open branches.~~ **Done.** Verified in code 2026-09-25: enemies are at 22, `SAVE_VERSION` is 3, CI runs typecheck + tests. Both chore branches are merged and deleted. Tech-debt **batch D** (merge the two raid resolvers, then the quick dedups) is what is left of that thread.
-5. **Author Chapter 2** — the witchcraft/maddened arc + the Old Watch. Close the Bog Witch back half. Decide what of Stories 2–13 survives.
-6. **Progression & anti-softlock pass** — gates, costs and durations through Act 1. Get fresh-player signal; don't tune off dev self-play.
-7. **Content quality pass** — the systems that are 90% built (see *Nearly done*).
-8. **Alpha packaging** — first-hour polish, onboarding, the loot-chest reveal.
-9. **French i18n** — tutorial slice first. Last thing before the nephew.
+1. **Author Chapter 2** — the witchcraft/maddened arc + the Old Watch. Close the Bog Witch back half. Decide what of Stories 2–13 survives.
+2. **Progression & anti-softlock pass** — gates, costs and durations through Act 1. Get fresh-player signal; don't tune off dev self-play.
+3. **Content quality pass** — the systems that are 90% built (see *Nearly done*).
+4. **Alpha packaging** — first-hour polish, onboarding, the loot-chest reveal.
+5. **French i18n** — tutorial slice first. Last thing before the nephew.
 
 ---
 
@@ -37,6 +37,7 @@ scheduled that requires you to grind.
 
 | Thread | Branch | Next concrete action |
 |---|---|---|
+| **The Folk page** | `feat/folk-page` | Built 2026-10-09. `/folk` shows every named person in three groups (settlers, adventurers, visitors), and a popin carries the whole old `/guild/:id` sheet. Illness moved off the building key onto the person (`state.folkAilments`), so the Lord, Nell and Father Corin can fall ill for the first time. The guild is the mission map alone; the Chronicle cast list became a `???` census. **Remaining: the errand slot in the popin is empty** — `quests.ts` already holds three under a THE FOLK banner, and a later pass points them at it. |
 | **Foraging minigame** | merged to preprod | Data + sandbox built. **Remaining: home-page placement only** (no way into the wood from `Overview.tsx`). Everything else shipped: the trip economy (a daily mission card, free via the board's 3AM refresh + the 10x2^n shard reroll) and yield→larder both landed 2026-09-08; the herbier landed 2026-09-25 in both halves (the Lord's book under the alchemy desk, and the Chronicle → Herbier tab with the decoy comparisons). Verified against the code 2026-09-25, because this row had been stale on the first two since the wiring branch merged. Art in ``FORAGING_PROMPTS.md` (on the foraging branch)`. |
 
 ---
@@ -57,22 +58,19 @@ Short and ordered. Everything else is in `IDEAS.md`.
    player is away has to be visible when they come back. Small always-present log,
    bottom right, part of the shell like the sidebar. It is also what makes the
    item above legible, since that is where you find out what the folk did.
-3. **A Folk tab.** Illness is a PEOPLE thing living in a BUILDINGS UI, so you
-   learn Edda is ill by opening a building card and reading a cramped line with
-   the cure button wedged in beside it. There is no screen about the people.
-4. **Hide the brew and dish result until the player commits.** Failure is already
+3. **Hide the brew and dish result until the player commits.** Failure is already
    in the engine (a brew with no base comes out harsh; a technique a plant was
    never made for yields a scrap) and the live preview is what removes the
    consequence. Hiding it gives crafting stakes with no new system, turns the
    Herbier into the way you PREDICT an outcome rather than a record of one, and
    makes the preview itself an earnable reward (a better lab, a tool, Elspeth at
    the bench), which answers what crafting talents are for. Details in IDEAS.
-5. **A winter gather.** Season coverage is spring ×3, autumn ×3, summer ×1, **winter ×0** — the season the whole game is about surviving is the only one where the player has nothing to *choose*. Ice fishing, a cellar dig, snared hares, sloes after frost.
-6. **A new Aldith.** The old `bog_witch` was the placeholder that inspired the marsh chain and it's deleted. Her chain's unbuilt finale needs a purpose-built enemy.
-7. **An eastward exploration mission.** `east_reach` on the map is deliberately fogged behind a sentinel — and Act 1 has *no exploration-type mission at all*, which is a gap for a game about a half-mapped frontier.
-8. **Guild level 2 has no tier.** The apprentice tier is gone. Level-2 players draw the novice and side-chain pool, which works but is thin.
-9. **Decide the three inert combat systems** (see the engine map, below): give the state machine the nerve/leader job, apply damage schools or delete them, build offensive alchemy or drop its channels.
-10. **The Greyfang pack shouldn't rout while he stands** — extend `leader` to the beast rout path. Small, and it makes killing the alpha the felt win condition.
+4. **A winter gather.** Season coverage is spring ×3, autumn ×3, summer ×1, **winter ×0** — the season the whole game is about surviving is the only one where the player has nothing to *choose*. Ice fishing, a cellar dig, snared hares, sloes after frost.
+5. **A new Aldith.** The old `bog_witch` was the placeholder that inspired the marsh chain and it's deleted. Her chain's unbuilt finale needs a purpose-built enemy.
+6. **An eastward exploration mission.** `east_reach` on the map is deliberately fogged behind a sentinel — and Act 1 has *no exploration-type mission at all*, which is a gap for a game about a half-mapped frontier.
+7. **Guild level 2 has no tier.** The apprentice tier is gone. Level-2 players draw the novice and side-chain pool, which works but is thin.
+8. **Decide the three inert combat systems** (see the engine map, below): give the state machine the nerve/leader job, apply damage schools or delete them, build offensive alchemy or drop its channels.
+9. **The Greyfang pack shouldn't rout while he stands** — extend `leader` to the beast rout path. Small, and it makes killing the alpha the felt win condition.
 
 ## Nearly done — one wire missing
 

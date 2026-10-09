@@ -1,6 +1,6 @@
-import { A, useParams, useNavigate } from "@solidjs/router";
 import { For, Show } from "solid-js";
 import { useGame } from "~/engine/gameState";
+import type { Adventurer } from "@medieval-realm/shared/data/adventurers";
 import { getClassMeta,
   RANK_NAMES,
   RANK_COLORS,
@@ -66,19 +66,23 @@ const SLOT_NAMES: Record<string, string> = {
   amulet: "Amulet", trinket: "Trinket",
 };
 
-export default function AdventurerDetail() {
-  const params = useParams<{ id: string }>();
+/**
+ * The whole sheet for one adventurer: stats, gear and talents.
+ *
+ * This was the page at `/guild/:id`. The Folk page shows it in a popin instead,
+ * so it takes the person as a prop rather than from the route. Nothing else
+ * changed: every control the page had, the sheet still has.
+ */
+export default function AdventurerSheet(props: { adventurer: Adventurer }) {
   const { state, actions } = useGame();
-  const navigate = useNavigate();
 
-  const adventurer = () => state.adventurers.find((a) => a.id === params.id);
+  const id = () => props.adventurer.id;
+  // Read the hero back out of the store, so an equip or a talent unlock redraws
+  // the sheet. The prop only says WHICH person this is.
+  const adventurer = () => state.adventurers.find((a) => a.id === id());
 
   return (
     <div>
-      <A href="/guild?tab=roster" class="back-link" onClick={() => actions.visitGuild()}>
-        ← Back to Roster
-      </A>
-
       <Show when={adventurer()} fallback={<p>Adventurer not found.</p>}>
         {(adv) => {
           const cls = () => getClassMeta(adv().class);
@@ -353,7 +357,7 @@ export default function AdventurerDetail() {
                             {bonus() > 0 && <span style={{ "font-size": "0.7rem", color: "var(--accent-green)" }}>(+{bonus()})</span>}
                             <Show when={unspentPoints() > 0 && !adv().onMission}>
                               <button
-                                onClick={() => actions.allocateStat(params.id, stat.key)}
+                                onClick={() => actions.allocateStat(id(), stat.key)}
                                 style={{
                                   width: "18px", height: "18px", padding: 0,
                                   background: "rgba(46, 204, 113, 0.2)",
@@ -430,7 +434,7 @@ export default function AdventurerDetail() {
                             <Show when={equippedItem()}>
                               <button
                                 class="gear-slot-action unequip"
-                                onClick={() => actions.unequipItem(params.id, slotId as ItemSlot)}
+                                onClick={() => actions.unequipItem(id(), slotId as ItemSlot)}
                               >×</button>
                             </Show>
                             <Show when={!equippedItem() && availableItems().length > 0}>
@@ -440,7 +444,7 @@ export default function AdventurerDetail() {
                                     <Tooltip text={`${item.name}: ${item.description}`}>
                                     <button
                                       class="gear-slot-option"
-                                      onClick={() => actions.equipItem(params.id, item.id, slotId as ItemSlot)}
+                                      onClick={() => actions.equipItem(id(), item.id, slotId as ItemSlot)}
                                     >
                                       {item.icon}
                                     </button>
@@ -524,7 +528,7 @@ export default function AdventurerDetail() {
                                       </div>
                                     )} position="bottom">
                                       <div
-                                        onClick={() => { if (canEquip()) actions.equipItem(params.id, item.id); }}
+                                        onClick={() => { if (canEquip()) actions.equipItem(id(), item.id); }}
                                         style={{
                                           width: "48px", height: "48px",
                                           display: "flex", "flex-direction": "column",
@@ -777,7 +781,7 @@ export default function AdventurerDetail() {
                                   }}
                                   onClick={() => {
                                     if (st() === "available") {
-                                      actions.unlockTalent(params.id, talent.id);
+                                      actions.unlockTalent(id(), talent.id);
                                     }
                                   }}
                                 >
@@ -811,7 +815,7 @@ export default function AdventurerDetail() {
                       class="btn-tertiary"
                       onClick={() => {
                         if (confirm("Reset all talents? Points will be refunded.")) {
-                          actions.resetTalents(params.id);
+                          actions.resetTalents(id());
                         }
                       }}
                       style={{

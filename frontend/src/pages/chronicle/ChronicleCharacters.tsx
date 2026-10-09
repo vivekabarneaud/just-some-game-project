@@ -1,4 +1,5 @@
-import { createSignal, For, Show } from "solid-js";
+import { createMemo, createSignal, For, Show } from "solid-js";
+import { useGame } from "~/engine/gameState";
 import { PREMADE_CHARACTERS, CHAR_RELATIONSHIPS, type PremadeCharacter } from "@medieval-realm/shared/data/premade-characters";
 import { RACE_NAMES, getClassMeta, getFoodPref, CLASS_COLORS, type AdventurerClass, BACKSTORY_TRAITS, CDN_CHARS } from "@medieval-realm/shared/data/adventurers";
 import { ORIGINS } from "@medieval-realm/shared/data/adventurers";
@@ -6,7 +7,20 @@ import TraitBadge from "~/components/TraitBadge";
 
 const CLASS_ORDER: AdventurerClass[] = ["warrior", "wizard", "priest", "archer", "assassin"];
 
+/**
+ * Chronicle → Adventurers. A census of everyone who could come, not a catalogue
+ * of everyone who has.
+ *
+ * THE ??? RULE, the same one the recipe census holds: a person you have not met
+ * shows that they EXIST and nothing more. No name, no class, no backstory. This
+ * page used to print all of it, which spoiled every arrival before it happened.
+ */
 export default function ChronicleCharacters() {
+  const { state } = useGame();
+  // A premade is MET once a live adventurer carries their id. The fallen count:
+  // you met them, and the Chronicle does not unlearn a person.
+  const met = createMemo(() => new Set(state.adventurers.map((a) => a.premadeId).filter(Boolean)));
+  const metCount = () => PREMADE_CHARACTERS.filter((c) => met().has(c.id)).length;
   const [filterOrigin, setFilterOrigin] = createSignal<string>("all");
   const [filterClass, setFilterClass] = createSignal<string>("all");
 
@@ -30,7 +44,7 @@ export default function ChronicleCharacters() {
   return (
     <div>
       <p style={{ color: "var(--text-muted)", "margin-bottom": "16px", "font-size": "0.85rem" }}>
-        All {PREMADE_CHARACTERS.length} known adventurers across the realm.
+        {metCount()} of {PREMADE_CHARACTERS.length} adventurers across the realm have crossed your path.
       </p>
 
       {/* Filters */}
@@ -67,7 +81,7 @@ export default function ChronicleCharacters() {
           </select>
         </div>
         <span style={{ "font-size": "0.8rem", color: "var(--text-muted)", "margin-left": "auto" }}>
-          {filtered().length} / {PREMADE_CHARACTERS.length}
+          {filtered().filter((c) => met().has(c.id)).length} / {filtered().length} met
         </span>
       </div>
 
@@ -104,15 +118,39 @@ export default function ChronicleCharacters() {
                     const cls = () => getClassMeta(char.class);
                     const portraitUrl = `${CDN_CHARS}/${char.origin}/${char.portrait}.png`;
                     const traitDef = () => char.trait ? BACKSTORY_TRAITS.find((t) => t.id === char.trait) : null;
+                    const known = () => met().has(char.id);
                     return (
-                      <div class="building-card adv-card">
-                        <span class="building-card-category" style={{ color: CLASS_COLORS[char.class] }}>
-                          {cls().icon} {cls().name}
-                        </span>
+                      <div class="building-card adv-card" classList={{ dimmed: !known() }}>
+                        <Show when={known()}>
+                          <span class="building-card-category" style={{ color: CLASS_COLORS[char.class] }}>
+                            {cls().icon} {cls().name}
+                          </span>
+                        </Show>
                         <div class="adv-card-portrait">
-                          <img src={portraitUrl} alt={char.name} loading="lazy" />
+                          <Show
+                            when={known()}
+                            fallback={
+                              <span style={{
+                                display: "flex", width: "100%", height: "100%",
+                                "align-items": "center", "justify-content": "center",
+                                "font-size": "2.5rem", color: "rgba(200,200,210,0.35)",
+                                background: "rgba(0,0,0,0.3)",
+                              }}>?</span>
+                            }
+                          >
+                            <img src={portraitUrl} alt={char.name} loading="lazy" />
+                          </Show>
                         </div>
                         <div class="adv-card-content">
+                          <Show
+                            when={known()}
+                            fallback={
+                              <div class="building-card-title" style={{
+                                "font-style": "italic", color: "var(--text-muted)",
+                                "letter-spacing": "0.15em",
+                              }}>???</div>
+                            }
+                          >
                           <div class="building-card-title">{char.name}</div>
                           <div style={{ "font-size": "0.85rem", color: "var(--text-muted)" }}>
                             {RACE_NAMES[char.race]} · {originDef()?.name}
@@ -153,6 +191,7 @@ export default function ChronicleCharacters() {
                             }}>
                               {char.backstory}
                             </div>
+                          </Show>
                           </Show>
                         </div>
                       </div>

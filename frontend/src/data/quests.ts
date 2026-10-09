@@ -763,7 +763,7 @@ export const QUEST_DEFINITIONS: QuestDefinition[] = [
           a.equipment && Object.values(a.equipment).some((slot) => slot !== null),
       ),
     rewards: [{ resource: "gold", amount: 20, label: "Gold" }],
-    targetPage: "/guild?tab=roster",
+    targetPage: "/folk",
   },
 
   // ╔══════════════════════════════════════════════════════════════╗
