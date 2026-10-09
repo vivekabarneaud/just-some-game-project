@@ -186,15 +186,16 @@ export function adventurers(s: GameState): FolkPerson[] {
 
       // One line for "there is something for you to do here". It replaces the
       // XP bar, the HP bar, the trait badge and the gear icons that used to
-      // crowd the bottom of the card: all of those are in the popin, and only
-      // this one asked the player for anything.
+      // crowd the bottom of the card.
+      //
+      // Empty gear slots are NOT one of these. Early on a hero has eleven of
+      // them and no gear to put in any, so the line sat on every card saying
+      // nothing the player could act on. A talent point is the opposite: rare,
+      // earned, and spendable the moment it appears.
       const points = getUnspentTalentPoints(a);
-      const emptyGear = 11 - Object.values(a.equipment).filter(Boolean).length;
       const nudge: FolkStatus | undefined = points > 0
         ? { dot: "fair", text: `${points} talent point${points > 1 ? "s" : ""} to spend` }
-        : emptyGear > 0
-          ? { dot: "idle", text: `${emptyGear} empty gear slot${emptyGear > 1 ? "s" : ""}` }
-          : undefined;
+        : undefined;
 
       return {
         key: `adventurer:${a.id}`,
