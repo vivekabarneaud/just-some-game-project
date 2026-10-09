@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { cook, clampPlacements, MAX_PER_INGREDIENT, dishFlavors } from "@medieval-realm/shared/data/kitchen/cook";
+import { cook, clampPlacements, MAX_PER_INGREDIENT, dishFlavors, describeDish } from "@medieval-realm/shared/data/kitchen/cook";
 import { NAMED_DISHES, matchNamedDish, resolveDish } from "@medieval-realm/shared/data/kitchen/named_dishes";
 import { FOOD_INGREDIENTS, allowsTechnique, getFoodIngredient } from "@medieval-realm/shared/data/kitchen/ingredients";
 import { dishMissionBoons } from "@medieval-realm/shared/data/kitchen/mission";
@@ -244,6 +244,47 @@ describe("prep restrictions — the pantry can't produce nonsense", () => {
   it("every ingredient allows at least one prep", () => {
     for (const ing of FOOD_INGREDIENTS) {
       expect(ing.techniques?.length ?? 1, `${ing.name} has no usable prep`).toBeGreaterThan(0);
+    }
+  });
+});
+
+describe("describeDish — the kitchen shows words, never digits", () => {
+  // The cook sees this and nothing else, so it has to carry the reading on its
+  // own: a player should be able to tell a winter bowl from a summer board.
+  const words = (ps: ReturnType<typeof p>[]) => describeDish(cook(ps).effects);
+
+  it("never prints a number", () => {
+    for (const dish of [
+      [p("wheat", "boil")],
+      [p("wheat", "boil"), p("blueberry", "chop"), p("nuts", "chop")],
+      [p("venison", "skewer"), p("wild_carrot", "skewer")],
+      [p("sorrel", "chop"), p("raspberry", "chop")],
+    ]) {
+      for (const line of words(dish)) expect(line).not.toMatch(/\d/);
+    }
+  });
+
+  it("says nothing at all about an empty pot", () => {
+    expect(words([])).toEqual([]);
+  });
+
+  it("tells a hot bowl from a cold board", () => {
+    const stew = words([p("venison", "boil"), p("wheat", "boil"), p("wild_carrot", "boil")]);
+    const board = words([p("sorrel", "chop"), p("raspberry", "chop"), p("blueberry", "chop")]);
+    expect(stew.join(" ")).toMatch(/warm|hot/i);
+    expect(board.join(" ")).toMatch(/fresh|cold/i);
+    expect(stew).not.toEqual(board);
+  });
+
+  it("leads with what the dish gives most of", () => {
+    // Wheat is the most filling thing a camp kitchen has, so a plain porridge
+    // must lead on "filling" and not on an afterthought.
+    expect(words([p("wheat", "boil")])[0]).toMatch(/^Filling/);
+  });
+
+  it("opens every line as a sentence", () => {
+    for (const line of words([p("wheat", "boil"), p("blueberry", "chop")])) {
+      expect(line).toMatch(/^[A-Z].*\.$/);
     }
   });
 });

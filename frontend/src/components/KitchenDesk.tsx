@@ -1,6 +1,7 @@
 import { createSignal, createMemo, For, Show } from "solid-js";
 import { useGame } from "~/engine/gameState";
 import { resolveDish, NAMED_DISHES } from "@medieval-realm/shared/data/kitchen/named_dishes";
+import { describeDish } from "@medieval-realm/shared/data/kitchen/cook";
 import { dishFlavors } from "@medieval-realm/shared/data/kitchen/cook";
 import { allowsTechnique, getFoodIngredient, foodByRole } from "@medieval-realm/shared/data/kitchen/ingredients";
 import type { CookTechnique, FoodRole, CookPlacement, DishChannel } from "@medieval-realm/shared/data/kitchen/types";
@@ -52,7 +53,6 @@ const ROLE_SHELVES: { role: FoodRole; label: string; icon: string }[] = [
   { role: "veg", label: "Veg", icon: "🥬" }, { role: "fruit", label: "Fruit", icon: "🍎" },
   { role: "dairy", label: "Dairy", icon: "🧀" }, { role: "spice", label: "Spice", icon: "🌶️" },
 ];
-const CH_SHORT: Record<DishChannel, string> = { nourishment: "Nourishment", comfort: "Comfort", warmth: "Warmth", freshness: "Freshness" };
 const QUALITY_COLOR: Record<string, string> = { seasoned: "var(--accent-green)", fine: "var(--accent-green)", rough: "var(--accent-gold)", plain: "var(--text-muted)" };
 const QUALITY_LABEL: Record<string, string> = { seasoned: "well-seasoned", fine: "fine", rough: "thin", plain: "plain" };
 const MAX_PER_INGREDIENT = 5;
@@ -204,9 +204,9 @@ export default function KitchenDesk() {
                   title={r.name}
                   tooltip={r.missing.length > 0 ? `Missing: ${r.missing.join(", ")}` : "Load into the stations"}
                   onClick={() => loadDish(r.placements)} minHeight="74px"
-                  body={<For each={r.effects}>
-                    {(e) => <div style={{ "font-size": "0.62rem", color: EFFECT_COLOR, "line-height": 1.2 }}>{e.amount} {CH_SHORT[e.channel]}</div>}
-                  </For>}>
+                  body={<div style={{ "font-size": "0.62rem", color: EFFECT_COLOR, "line-height": 1.2 }}>
+                    {describeDish(r.effects)[0] ?? ""}
+                  </div>}>
                   <Show when={STAPLE_RECIPE[r.id]}>
                     {(rid) => (
                       <span onClick={(e) => { e.stopPropagation(); toggleKeepCooking(rid()); }}
@@ -395,8 +395,13 @@ export default function KitchenDesk() {
               "border-image": `url(${frameUrl("common")}) 34 stretch`, filter: gradeFilter(dish().quality === "seasoned" ? "fine" : dish().quality) }}>
               <div style={{ "font-size": "1.1rem", "font-weight": 600, color: dish().named ? "var(--accent-green)" : QUALITY_COLOR[dish().quality] }}>{dish().name}</div>
               <div style={{ "font-size": "0.66rem", color: "var(--text-muted)", "text-transform": "uppercase", "letter-spacing": "1px", "margin-bottom": "6px" }}>{dish().named ? "known dish · " : ""}{QUALITY_LABEL[dish().quality]}</div>
+              {/* Words, not numbers. The kitchen is a place to imagine a meal,
+                  and a column of "+3 Nourishment" turns it into a spreadsheet.
+                  The effects still apply; they are just not what a cook sees. */}
               <Show when={dish().effects.length > 0} fallback={<div style={{ color: "var(--text-muted)", "font-style": "italic", "font-size": "0.82rem" }}>Nothing worth serving yet.</div>}>
-                <For each={dish().effects}>{(e) => <div style={{ "font-size": "0.82rem", color: EFFECT_COLOR, padding: "1px 0" }}><b>{e.amount}</b> {CH_SHORT[e.channel]}</div>}</For>
+                <For each={describeDish(dish().effects)}>
+                  {(line) => <div style={{ "font-size": "0.82rem", color: EFFECT_COLOR, padding: "1px 0" }}>{line}</div>}
+                </For>
               </Show>
               <Show when={taste().length > 0}>
                 <div style={{ "font-size": "0.72rem", color: "var(--accent-gold)", "margin-top": "4px", "text-transform": "capitalize" }}>👅 Taste: {taste().join(", ")}</div>

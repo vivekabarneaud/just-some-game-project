@@ -66,6 +66,48 @@ export function describeCooked(ing: FoodIngredient, technique: CookTechnique): s
   return sentence.charAt(0).toUpperCase() + sentence.slice(1) + ".";
 }
 
+/**
+ * What a finished dish gives, in words rather than numbers.
+ *
+ * `describeCooked` does this for ONE ingredient under one prep; this does it
+ * for the pot. The kitchen shows this instead of the digits, on purpose: dish
+ * effects are MILD by design and a column of "+3 Nourishment" turns a place
+ * meant for imagining into a place for optimising. The numbers still drive the
+ * game, they are simply not what the cook is shown.
+ *
+ * The bands are deliberately coarse. A player should be able to tell a winter
+ * stew from a summer board and no more than that.
+ */
+const CHANNEL_WORD: Record<DishChannel, [strong: string, mild: string]> = {
+  nourishment: ["filling", "a little filling"],
+  comfort:     ["comforting", "a little comforting"],
+  warmth:      ["warming", "a little warming"],
+  freshness:   ["fresh", "a little fresh"],
+};
+
+export function describeDish(effects: DishEffect[]): string[] {
+  const parts = effects
+    .filter((e) => e.amount > 0)
+    .sort((a, b) => b.amount - a.amount)
+    .map((e) => CHANNEL_WORD[e.channel][e.amount >= 3 ? 0 : 1]);
+  if (parts.length === 0) return [];
+
+  // One sentence for what it gives, and a second only when the pot is cold or
+  // hot enough to be worth saying. Warmth and freshness are the two a cook
+  // actually plans around (a bowl for a blizzard, a board for a hot afternoon).
+  const top = parts.slice(0, 3);
+  const lead = top.length === 1
+    ? top[0]
+    : `${top.slice(0, -1).join(", ")} and ${top[top.length - 1]}`;
+  const out = [lead.charAt(0).toUpperCase() + lead.slice(1) + "."];
+
+  const warmth = effects.find((e) => e.channel === "warmth")?.amount ?? 0;
+  const fresh = effects.find((e) => e.channel === "freshness")?.amount ?? 0;
+  if (warmth >= 4) out.push("Hot enough to sit with on a cold night.");
+  else if (fresh >= 4) out.push("Cold in the bowl, and good on a hot day.");
+  return out;
+}
+
 /** Flavour a PREP adds to the dish's taste (on top of the ingredients'). */
 const TECH_FLAVOR: Partial<Record<CookTechnique, FoodFlavor>> = { skewer: "smoky", chop: "fresh" };
 
