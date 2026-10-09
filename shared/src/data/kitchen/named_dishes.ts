@@ -98,25 +98,31 @@ export const NAMED_DISHES: NamedDish[] = [
     slots: [one("fava", "boil")],
     note: "Broad beans mashed soft. Peasant fare, before the herd." },
 
-  // ── The porridge family ──
-  // One base (boiled grain) and one companion, and the whole family turns on
-  // WHEN the companion goes in. Boiled with the grain it goes soft, sweet and
-  // warm. Stirred in raw off the fire it stays sharp and cold. The names carry
-  // that and nothing else: the plain word is the simmered one, "fresh" or
-  // "topped" is the one added at the end. Two foods, same two ingredients, and
-  // the player finds the difference by trying it.
+  // ── The boiled-grain family ──
+  // One base (boiled grain) and one companion. TWO words, and the difference is
+  // real and old: a PORRIDGE is thick and the grain IS the dish, sweet or
+  // plain; a POTTAGE (Old French potage, "what goes in the pot") is grain and
+  // vegetables boiled thick together, savoury, the everyday peasant pot. Wheat
+  // and berries is a porridge. Wheat and nettle is a pottage. "Broth" is kept
+  // for the thinner, meat-led ones (Ploughman's Broth).
+  //
+  // Within either word the family turns on WHEN the companion goes in. Boiled
+  // with the grain it goes soft and warm; stirred in raw off the fire it stays
+  // sharp and cold. The names carry that and nothing else: the plain word is
+  // the simmered one, "fresh" or "topped" is the one added at the end. Two
+  // foods out of the same two ingredients, found by trying it.
   { id: "dish_nut_porridge", name: "Nut Porridge", icon: "🥣",
     slots: [any(FOOD_GROUPS.grain, "boil"), one("nuts", "boil")],
-    note: "Nuts simmered soft into the grain. The most filling bowl a poor kitchen makes." },
+    note: "Nuts simmered soft into the grain until it is thick. The most filling bowl a poor kitchen makes." },
   { id: "dish_nut_topped_porridge", name: "Nut-Topped Porridge", icon: "🥣",
     slots: [any(FOOD_GROUPS.grain, "boil"), one("nuts", "chop")],
     note: "The nuts go on at the table, so they still crack between the teeth." },
-  { id: "dish_nettle_porridge", name: "Nettle Porridge", icon: "🥣",
+  { id: "dish_nettle_pottage", name: "Nettle Pottage", icon: "🍲",
     slots: [any(FOOD_GROUPS.grain, "boil"), one("nettle", "boil")],
-    note: "Grain and nettle tops boiled together. It stings in the hand and feeds you in the bowl." },
-  { id: "dish_wild_carrot_porridge", name: "Wild Carrot Porridge", icon: "🥣",
+    note: "Grain and nettle tops boiled down thick. It stings in the hand and feeds you in the bowl." },
+  { id: "dish_wild_carrot_pottage", name: "Wild Carrot Pottage", icon: "🍲",
     slots: [any(FOOD_GROUPS.grain, "boil"), one("wild_carrot", "boil")],
-    note: "The root goes sweet when it is boiled long enough." },
+    note: "Grain and root boiled until the spoon stands up. The root goes sweet if you give it long enough." },
   { id: "dish_berry_porridge", name: "Berry Porridge", icon: "🥣",
     slots: [any(FOOD_GROUPS.grain, "boil"), any(FOOD_GROUPS.berry, "boil")],
     note: "The berries cook down and colour the whole pot. Warm, and sweet all the way through." },
@@ -127,8 +133,25 @@ export const NAMED_DISHES: NamedDish[] = [
     slots: [any(FOOD_GROUPS.grain, "boil"), any(FOOD_GROUPS.berry, "chop"), one("nuts", "chop")],
     note: "Berries and nuts both scattered on at the end. The best bowl in the camp, and it takes no more fire." },
 
+  // The same four again with milk for the water. Frumenty IS the old word for
+  // grain simmered in milk, so the liquid changes the NOUN and the adjectives
+  // carry over untouched: a player who knows Fresh Berry Porridge can guess
+  // Fresh Berry Frumenty exists before they ever own a goat.
+  { id: "dish_nut_frumenty", name: "Nut Frumenty", icon: "🥣",
+    slots: [any(FOOD_GROUPS.grain, "boil"), one("milk", "boil"), one("nuts", "boil")],
+    note: "Nuts gone soft in milk and grain. Rich enough that nobody asks what else there is." },
+  { id: "dish_berry_frumenty", name: "Berry Frumenty", icon: "🥣",
+    slots: [any(FOOD_GROUPS.grain, "boil"), one("milk", "boil"), any(FOOD_GROUPS.berry, "boil")],
+    note: "The berries bleed into the milk and turn the whole pot a colour you would not expect." },
+  { id: "dish_fresh_berry_frumenty", name: "Fresh Berry Frumenty", icon: "🥣",
+    slots: [any(FOOD_GROUPS.grain, "boil"), one("milk", "boil"), any(FOOD_GROUPS.berry, "chop")],
+    note: "Berries in last, on white milk, still whole. The prettiest bowl the kitchen makes." },
+  { id: "dish_fresh_berry_nut_frumenty", name: "Fresh Berry and Nut Frumenty", icon: "🥣",
+    slots: [any(FOOD_GROUPS.grain, "boil"), one("milk", "boil"), any(FOOD_GROUPS.berry, "chop"), one("nuts", "chop")],
+    note: "Everything the wood gave, on milk. There is no better breakfast in the settlement." },
+
   // ── Sweet things ──
-  { id: "dish_berry_pottage", name: "Berry Pottage", icon: "🥣",
+  { id: "dish_berry_pottage", name: "Honeyed Berry Porridge", icon: "🥣",
     slots: [any(FOOD_GROUPS.grain, "boil"), any(FOOD_GROUPS.berry, "boil"), one("honey", "boil")],
     note: "Grain and foraged berries simmered sweet. A warming breakfast." },
   { id: "dish_wildberry_porridge", name: "Wildberry Porridge", icon: "🥣",
@@ -165,9 +188,9 @@ export const NAMED_DISHES: NamedDish[] = [
     note: "Grilled meat brushed with warm honey. Sweet, smoky, a little indulgent." },
 
   // ── More boils ──
-  { id: "dish_frumenty", name: "Frumenty", icon: "🥣",
-    slots: [one("wheat", "boil"), one("milk", "boil"), one("honey", "boil")],
-    note: "Wheat simmered soft in sweet milk. A creamy, comforting old dish." },
+  { id: "dish_frumenty", name: "Honeyed Frumenty", icon: "🥣",
+    slots: [any(FOOD_GROUPS.grain, "boil"), one("milk", "boil"), one("honey", "boil")],
+    note: "Grain simmered soft in sweet milk. The feast-day bowl, and worth the honey." },
   { id: "dish_root_barley_pottage", name: "Root & Barley Pottage", icon: "🍲",
     slots: [one("turnips", "boil"), one("barley", "boil")],
     note: "Root and grain in an honest pot. Humble and warming." },
@@ -319,9 +342,9 @@ export const NAMED_DISHES: NamedDish[] = [
   { id: "dish_gourd_soup", name: "Gourd Soup", icon: "🎃",
     slots: [one("squash", "boil"), one("milk", "boil")],
     note: "Gourd simmered in milk until it gives up and turns sweet." },
-  { id: "dish_milk_pottage", name: "Milk Pottage", icon: "🥛",
+  { id: "dish_milk_pottage", name: "Frumenty", icon: "🥛",
     slots: [any(FOOD_GROUPS.grain, "boil"), one("milk", "boil")],
-    note: "Grain simmered in milk, plain and kind. Food for the very young and the very old." },
+    note: "Grain simmered in milk instead of water, plain and kind. Food for the very young and the very old." },
 
   // ── Sweet things ──
   { id: "dish_pear_pie", name: "Pear Pie", icon: "🥧",

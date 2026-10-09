@@ -81,13 +81,13 @@ describe("cook — the free-form cooking engine", () => {
     expect(amt(seasoned, "nourishment")).toBeGreaterThan(amt(plain, "nourishment"));
   });
 
-  it("a required seasoning slot must be present: honey promotes a porridge into a pottage", () => {
+  it("a required seasoning slot must be present: the honey is in the name", () => {
     // Grain + berries used to name NOTHING without honey, which is what sent a
     // first-week player to "Hearty Pot" over and over. It is Berry Porridge now.
     // The invariant this guards is unchanged: Berry Pottage REQUIRES the honey,
     // and the dish claiming more of the pot wins the tie.
     expect(matchNamedDish([p("barley", "boil"), p("blueberry", "boil")])?.name).toBe("Berry Porridge");
-    expect(matchNamedDish([p("barley", "boil"), p("blueberry", "boil"), p("honey", "boil")])?.name).toBe("Berry Pottage");
+    expect(matchNamedDish([p("barley", "boil"), p("blueberry", "boil"), p("honey", "boil")])?.name).toBe("Honeyed Berry Porridge");
   });
 
   it("the PREP is half a dish's identity: the same two things, two foods", () => {
@@ -106,8 +106,10 @@ describe("cook — the free-form cooking engine", () => {
     const named = (ps: ReturnType<typeof p>[]) => matchNamedDish(ps)?.name;
     expect(named([p("wheat", "boil"), p("nuts", "chop"), p("blueberry", "chop")]))
       .toBe("Fresh Berry and Nut Porridge");
-    expect(named([p("wheat", "boil"), p("nettle", "boil")])).toBe("Nettle Porridge");
-    expect(named([p("wheat", "boil"), p("wild_carrot", "boil")])).toBe("Wild Carrot Porridge");
+    // Grain + a vegetable is a POTTAGE, grain + fruit or nuts is a PORRIDGE.
+    // The word itself tells the player which kind of bowl they just made.
+    expect(named([p("wheat", "boil"), p("nettle", "boil")])).toBe("Nettle Pottage");
+    expect(named([p("wheat", "boil"), p("wild_carrot", "boil")])).toBe("Wild Carrot Pottage");
   });
 
   it("an extra BODY ingredient breaks identity (that's a different dish)", () => {
@@ -286,5 +288,49 @@ describe("describeDish — the kitchen shows words, never digits", () => {
     for (const line of words([p("wheat", "boil"), p("blueberry", "chop")])) {
       expect(line).toMatch(/^[A-Z].*\.$/);
     }
+  });
+});
+
+describe("the boiled-grain family — the noun says which bowl you made", () => {
+  // Three nouns, one rule: PORRIDGE is grain in water, POTTAGE is grain and a
+  // vegetable in water, FRUMENTY is grain in milk. The adjectives ("fresh",
+  // "honeyed") stack the same on all three, so a player who learns one shelf
+  // can guess the next before they can cook it.
+  const named = (ps: ReturnType<typeof p>[]) => matchNamedDish(ps)?.name;
+
+  it("grain and fruit or nuts in water is a porridge", () => {
+    for (const ps of [
+      [p("wheat", "boil"), p("nuts", "boil")],
+      [p("wheat", "boil"), p("blueberry", "chop")],
+    ]) expect(named(ps)).toMatch(/Porridge$/);
+  });
+
+  it("grain and a vegetable in water is a pottage", () => {
+    for (const ps of [
+      [p("wheat", "boil"), p("nettle", "boil")],
+      [p("wheat", "boil"), p("wild_carrot", "boil")],
+    ]) expect(named(ps)).toMatch(/Pottage$/);
+  });
+
+  it("the same bowl with milk for the water is a frumenty", () => {
+    expect(named([p("wheat", "boil"), p("milk", "boil")])).toBe("Frumenty");
+    expect(named([p("wheat", "boil"), p("milk", "boil"), p("nuts", "boil")])).toBe("Nut Frumenty");
+    expect(named([p("wheat", "boil"), p("milk", "boil"), p("blueberry", "chop")]))
+      .toBe("Fresh Berry Frumenty");
+  });
+
+  it("the adjective carries across the nouns unchanged", () => {
+    // Berries simmered in versus stirred in raw reads the same either side.
+    expect(named([p("wheat", "boil"), p("blueberry", "boil")])).toBe("Berry Porridge");
+    expect(named([p("wheat", "boil"), p("blueberry", "chop")])).toBe("Fresh Berry Porridge");
+    expect(named([p("wheat", "boil"), p("milk", "boil"), p("blueberry", "boil")])).toBe("Berry Frumenty");
+    expect(named([p("wheat", "boil"), p("milk", "boil"), p("blueberry", "chop")])).toBe("Fresh Berry Frumenty");
+  });
+
+  it("honey names itself wherever it lands", () => {
+    expect(named([p("wheat", "boil"), p("blueberry", "boil"), p("honey", "boil")]))
+      .toBe("Honeyed Berry Porridge");
+    expect(named([p("wheat", "boil"), p("milk", "boil"), p("honey", "boil")]))
+      .toBe("Honeyed Frumenty");
   });
 });
