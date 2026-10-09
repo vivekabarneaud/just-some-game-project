@@ -950,7 +950,9 @@ input, textarea, select {
   flex-direction: row !important;
   padding: 0 !important;
   overflow: hidden;
-  min-height: 180px;
+  /* Room for a name, two lines of who they are, and up to three status lines
+     without the text touching the ornament frame. */
+  min-height: 215px;
 }
 
 .adv-card-portrait {

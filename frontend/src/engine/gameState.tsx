@@ -3128,7 +3128,11 @@ function calcFoodBreakdown(state: GameState): FoodSource[] {
 // Population per housing level — escalates with tier progression
 const HOUSING_POP: number[] = [
   0,    // lvl 0: no houses
-  5,    // lvl 1: camp — small shelters
+  // Exactly the people you already have, and no more: 6 founders + the three
+  // Thornwood siblings + their adopted boy = 10. A spare bed at level 1 let a
+  // family arrive while food and water were still scarce, which is a loss the
+  // player did not choose. Wanting newcomers now means raising the Houses.
+  4,    // lvl 1: camp — small shelters
   10,   // lvl 2: camp
   18,   // lvl 3: village — proper cottages
   28,   // lvl 4: village
@@ -3150,7 +3154,7 @@ const HOUSING_POP: number[] = [
   1800, // lvl 20: city — metropolis
 ];
 
-function calcMaxPopulation(buildings: PlayerBuilding[]): number {
+export function calcMaxPopulation(buildings: PlayerBuilding[]): number {
   const houses = buildings.find((b) => b.buildingId === "houses");
   const level = houses?.level ?? 0;
   // Damaged houses shelter as if a level lower — a raid puts some folk in the

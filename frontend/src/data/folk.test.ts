@@ -2,7 +2,8 @@
 // (gameState.tsx carries the Solid GameProvider template, which needs a DOM)
 import { describe, it, expect } from "vitest";
 import {
-  settlers, adventurers, visitors, awayReason, buildingOfAdventurer, type FolkPerson,
+  settlers, adventurers, visitors, awayReason, buildingOfAdventurer, woundStatus,
+  type FolkPerson,
 } from "~/data/folk";
 import { buildingOfFounder, founderOfBuilding, catchablePoolFor, type GameState } from "~/engine/gameState";
 import { FOUNDING_CHARACTERS } from "~/data/founding_characters";
@@ -130,10 +131,10 @@ describe("adventurers — the roster, the living only", () => {
     expect(adventurers(stateWith({ adventurers: [a] }))[0].health)
       .toEqual({ dot: "good", text: "Healthy" });
 
-    a.currentHp = Math.floor(calcAdventurerMaxHp(a) / 2);
+    a.currentHp = Math.floor(calcAdventurerMaxHp(a) * 0.3);
     const hurt = adventurers(stateWith({ adventurers: [a] }))[0].health;
     expect(hurt.dot).toBe("fair");
-    expect(hurt.text).toMatch(/^Wounded \(\d+% health\)$/);
+    expect(hurt.text).toMatch(/^Wounded \(\d+%\)$/);
   });
 
   it("a hero on a mission says so instead of naming a post", () => {
@@ -223,5 +224,29 @@ describe("catchablePoolFor — illness reaches a person, not a building", () => 
     for (const bid of [undefined, buildingOfFounder("jory"), buildingOfFounder("tomas")]) {
       for (const a of catchablePoolFor(bid)) expect(a.catchable).not.toBe(false);
     }
+  });
+});
+
+describe("woundStatus — the colour must not lie about the pace", () => {
+  // workEffectiveness pays a FULL share down to half health, so anything above
+  // that is green. Below it the pace falls, and only then does the dot warn.
+  it("is green while the hero still pulls a full share", () => {
+    for (const pct of [100, 97, 90, 75, 50]) expect(woundStatus(pct).dot).toBe("good");
+  });
+
+  it("warns once the pace starts to fall, and reddens near the end", () => {
+    expect(woundStatus(49).dot).toBe("fair");
+    expect(woundStatus(25).dot).toBe("fair");
+    expect(woundStatus(24).dot).toBe("bad");
+    expect(woundStatus(1).dot).toBe("bad");
+  });
+
+  it("calls 97% scratches and not a wound", () => {
+    expect(woundStatus(97).text).toMatch(/scratches/i);
+    expect(woundStatus(100).text).toBe("Healthy");
+  });
+
+  it("carries the percentage on every band but full health", () => {
+    for (const pct of [97, 60, 30, 15, 2]) expect(woundStatus(pct).text).toContain(`${pct}%`);
   });
 });

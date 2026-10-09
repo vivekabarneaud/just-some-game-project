@@ -80,6 +80,23 @@ export interface FolkPerson {
   frame?: string;
 }
 
+/** How a wound reads, by the HP left.
+ *
+ *  The bands follow `workEffectiveness`, so the colour is never a lie: above
+ *  half health a hero pulls a FULL share, which is why 97% is green and says
+ *  "a few scratches" rather than "wounded". Below half the pace starts falling,
+ *  and that is where amber begins. */
+export function woundStatus(hpPct: number): FolkStatus {
+  if (hpPct >= 100) return { dot: "good", text: "Healthy" };
+  // Still at full pace. Worth seeing, not worth worrying about.
+  if (hpPct >= 90) return { dot: "good", text: `A few scratches (${hpPct}%)` };
+  if (hpPct >= 50) return { dot: "good", text: `Bruised and sore (${hpPct}%)` };
+  // The pace falls from here, so the card starts asking for attention.
+  if (hpPct >= 25) return { dot: "fair", text: `Wounded (${hpPct}%)` };
+  if (hpPct >= 10) return { dot: "bad", text: `Badly hurt (${hpPct}%)` };
+  return { dot: "bad", text: `At death's door (${hpPct}%)` };
+}
+
 /** Why an adventurer cannot work. The same reasons the building staffing gives,
  *  so a person reads the same on both screens. */
 export function awayReason(a: Adventurer): string | undefined {
@@ -174,9 +191,7 @@ export function adventurers(s: GameState): FolkPerson[] {
 
       const health: FolkStatus = grave
         ? { dot: "bad", text: "Too ill to work. Only a cure clears it" }
-        : hpPct < 100
-          ? { dot: "fair", text: `Wounded (${hpPct}% health)` }
-          : { dot: "good", text: "Healthy" };
+        : woundStatus(hpPct);
 
       const bid = buildingOfAdventurer(a.premadeId);
       const work: FolkStatus = a.onMission

@@ -3,7 +3,7 @@
 import { describe, it, expect } from "vitest";
 import { SCENARIOS, buildScenario, getScenario } from "~/data/scenarios";
 import { BUILDINGS } from "~/data/buildings";
-import { createInitialState, SAVE_VERSION } from "~/engine/gameState";
+import { createInitialState, SAVE_VERSION, calcMaxPopulation } from "~/engine/gameState";
 import { PREMADE_CHARACTERS } from "@medieval-realm/shared/data/premade-characters";
 import { STORY_MISSIONS, getCurrentStoryMission } from "@medieval-realm/shared/data/missions";
 import { getAilment } from "@medieval-realm/shared/data/ailments";
@@ -97,5 +97,15 @@ describe("a built scenario is a save the game can load", () => {
     const sick = buildScenario(getScenario("the_sick_house")!);
     expect(Object.keys(sick.folkAilments ?? {}).sort())
       .toEqual(["jory", "nell", "the_lord", "tomas"]);
+  });
+});
+
+describe("housing at level 1 holds the people you already have", () => {
+  it("fits the six founders, the three Thornwoods and their boy, with no spare bed", () => {
+    // A spare bed let a family arrive while food and water were still scarce,
+    // which is a loss the player did not choose. Wanting newcomers means
+    // raising the Houses.
+    const s = buildScenario({ id: "t", name: "t", blurb: "t", buildings: { houses: 1 } });
+    expect(calcMaxPopulation(s.buildings)).toBe(10);
   });
 });

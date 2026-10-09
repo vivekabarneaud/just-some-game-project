@@ -15,6 +15,30 @@ its line — the code becomes the documentation.
 
 ---
 
+## UI reworks wanted (noted 2026-10-09)
+
+Three the dev asked for while playing the Folk page. All big, none urgent.
+
+- **The Chronicle as a real book.** Today it is tabs. It wants to BE the Lord's
+  chronicle: a handwritten book with entries on the page, and a *sommaire*
+  (contents) first, with page numbers, so the player can jump straight to a
+  story they remember. An Outer Wilds style tree was the other candidate and the
+  dev prefers the book. `PaintedBook.tsx` (the Herbier shell) already does the
+  open-book frame, so the shape exists.
+- **Drag and drop for the kitchen and the lab.** Two ways into the same pot,
+  both wanted: (1) open a drawer, pick an ingredient, DRAG it; the pot lights up
+  under the cursor; drop it in. (2) click the pot and get a popin of what is in
+  it now, plus an "add something else" button listing everything that can go in.
+  Needs transparent sprites per station so a hover can highlight one element of
+  the picture. This is also where the free-form engines stop reading as forms.
+- **The person popin says everything twice.** `FolkModal` draws the story, the
+  portrait and the name, and then `AdventurerSheet` draws all three again right
+  under it. The sheet was a whole page and still thinks it is one. Worse, the
+  popin prints a hero's WHOLE backstory on sight: that is a thing to discover,
+  and it belongs in the Chronicle census, not on the card you click on day one.
+  Fix the duplication and the spoiler together, after the Chronicle rework
+  decides where a person's story lives.
+
 ## Alchemy
 
 - ✅ **Recipe census — BUILT 2026-09-25.** Chronicle →
@@ -196,6 +220,11 @@ its line — the code becomes the documentation.
 - **Shareable recipes** — brews are personal today; trading them between players is a multiplayer-era thought.
 
 ## Kitchen
+
+- **Chestnuts, so something can go in the fire.** `nuts` is boil/fry/roast/chop
+  and deliberately not skewerable, which is right: a hazelnut on a stick is
+  nothing. A chestnut IS a fire food, and it is not really a nut, so it wants to
+  be its own ingredient rather than a technique added to `nuts`. Wanted 2026-10-09.
 
 - **Mission climate** — cold north / hot south missions with a seasonal debuff that warm, fresh food mitigates. This is *the* payoff that makes the kitchen's warmth and freshness channels matter. The `climate` field exists on missions; no mission sets it and no debuff is wired.
 - **Cultural ingredient imports** — Nordveld / Tianzhou / Meridian / Zah'kari / Khor'vani ingredient waves arriving by trade. Blocked on merchant rapport existing.
